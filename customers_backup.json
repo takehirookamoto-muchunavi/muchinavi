@@ -1,0 +1,2198 @@
+{
+  "20ceb4033ec224a64a67e66fbddd6442": {
+    "name": "NOAN",
+    "family": "家族（子ども1人）",
+    "area": "西成区",
+    "budget": "5,000万円",
+    "email": "noan20022002@yahoo.co.jp",
+    "phone": "未入力",
+    "contact": "contact-done",
+    "token": "20ceb4033ec224a64a67e66fbddd6442",
+    "chatHistory": [
+      {
+        "role": "user",
+        "content": "住宅ローンって何から始めればいいですか？"
+      },
+      {
+        "role": "assistant",
+        "content": "住宅ローンについてのご質問ですね。何から始めれば良いか、とのことですが、まずは以下の3つのステップで進めていくのがおすすめです。\n\n1. **自己資金の確認**: 住宅購入に使える自己資金（頭金、諸費用など）を把握しましょう。\n2. **借入可能額の把握**: 金融機関の住宅ローンシミュレーターなどで、おおよその借入可能額を把握しましょう。\n3. **返済計画の検討**: 月々の返済額や返済期間など、無理のない返済計画を立てましょう。\n\n{{CHOICES|住宅ローンの種類について知りたい|金利について詳しく知りたい|住宅ローン控除について知りたい|審査について知りたい}}"
+      },
+      {
+        "role": "user",
+        "content": "審査について知りたい"
+      },
+      {
+        "role": "assistant",
+        "content": "住宅ローンの審査についてですね。\n審査では、主に以下の点がチェックされます。\n\n*   **年収**: 安定した収入があるか\n*   **勤務先**: 勤務先の規模や安定性\n*   **雇用形態**: 正社員か、契約社員かなど\n*   **年齢**: 完済時の年齢が重要\n*   **借入状況**: 他のローンや借金の有無\n*   **信用情報**: クレジットカードの利用状況など\n\nこれらの情報を総合的に判断して、返済能力があるかどうかを判断します。\n\n{{ARTICLE|住宅ローン審査に通りやすくなるコツ5選|https://muchinochi55.com/住宅ローン審査に通りやすくなるコツ5選｜30代フ/}}\n\n購入希望時期についてお伺いしてもよろしいでしょうか？"
+      }
+    ],
+    "createdAt": "2026-02-15T11:18:52.613Z",
+    "checklist": [
+      {
+        "name": "反響対応（初回問い合わせ）",
+        "items": [
+          {
+            "title": "問い合わせ内容を正確に記録",
+            "detail": "氏名・連絡先・希望条件・問い合わせ経路を記録",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "初回返信（5分以内目標）",
+            "detail": "迅速かつ丁寧な返信。自己紹介と次のステップを提案",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の温度感を把握",
+            "detail": "購入時期・緊急度・他社検討状況をヒアリング",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望条件の概要把握",
+            "detail": "エリア・価格帯・間取り・こだわりポイントを確認",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "CRM/顧客管理への登録",
+            "detail": "お客様情報をシステムに登録し管理開始",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "次回アクションの設定",
+            "detail": "面談日程の提案または次回連絡日を約束",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お礼メール送信",
+            "detail": "問い合わせへのお礼と有益な情報を添えたメール",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "面談・案内準備",
+        "items": [
+          {
+            "title": "お客様情報の事前リサーチ",
+            "detail": "勤務先・年収推定・家族構成から最適提案を準備",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望エリアの相場調査",
+            "detail": "直近の成約事例・相場推移・将来性を調査",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "提案物件の事前選定（3〜5件）",
+            "detail": "お客様の条件に合う物件を複数ピックアップ",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件資料の準備",
+            "detail": "図面・写真・周辺情報をまとめた資料を作成",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローンの事前シミュレーション",
+            "detail": "想定借入額・月々返済額・金利タイプ別の比較",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "面談場所・オンライン環境の確認",
+            "detail": "対面の場合は場所予約、オンラインはURL送付",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "アジェンダの作成",
+            "detail": "面談の流れ・確認事項・提案内容をリスト化",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "リマインド連絡",
+            "detail": "面談前日にリマインドメール or メッセージ",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "競合物件・他社情報の把握",
+            "detail": "同エリアの競合物件や他社の動向を確認",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "質問リストの準備",
+            "detail": "お客様に確認すべき深掘り質問を準備",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "初回商談",
+        "items": [
+          {
+            "title": "自己紹介とサービス説明",
+            "detail": "TERASSの強み・自分の実績・サポート体制を説明",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の購入動機の深掘り",
+            "detail": "なぜ今購入を考えているか、背景を丁寧にヒアリング",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "資金計画の概要説明",
+            "detail": "購入に必要な費用の全体像を説明",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ライフプランのヒアリング",
+            "detail": "将来の家族計画・転職予定・教育方針を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "購入の流れ説明",
+            "detail": "物件探し→内見→申込→契約→決済の流れを図解",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望条件の優先順位付け",
+            "detail": "MUST条件とWANT条件を分けて整理",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "次回のアクションプラン提示",
+            "detail": "物件見学の日程・準備事項を具体的に提案",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "面談議事録の作成・共有",
+            "detail": "話した内容をまとめてお客様に共有",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お礼・フォローメール",
+            "detail": "面談のお礼と次のステップを記載したメール送付",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "ヒアリング（ニーズ把握）",
+        "items": [
+          {
+            "title": "現在の住まいの不満点",
+            "detail": "今の住まいで困っていること・改善したい点",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "理想の暮らしイメージ",
+            "detail": "休日の過ごし方・通勤時間・子育て環境など",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "絶対に譲れない条件",
+            "detail": "立地・間取り・設備のマスト条件を明確化",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "妥協できるポイント",
+            "detail": "優先度が低い条件を把握して選択肢を広げる",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "世帯年収・貯蓄の確認",
+            "detail": "無理のない予算設定のために正確に把握",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローンの事前審査状況",
+            "detail": "審査済み/未着手/不安要素を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "購入希望時期の確認",
+            "detail": "引越し希望日から逆算してスケジュール作成",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "配偶者・家族の意向確認",
+            "detail": "決定権者は誰か、家族の意見を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ヒアリングシートの完成",
+            "detail": "全情報を体系的に整理して社内共有",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "物件案内",
+        "items": [
+          {
+            "title": "内見スケジュール調整",
+            "detail": "候補物件3〜5件の効率的な内見ルート作成",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "各物件のメリット・デメリット整理",
+            "detail": "お客様の条件に照らした客観的な比較表",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "周辺環境の下見",
+            "detail": "スーパー・学校・病院・駅までの実際の動線確認",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "内見時のチェックポイント説明",
+            "detail": "確認すべき構造・設備・日当たりなどをガイド",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "内見後の感想ヒアリング",
+            "detail": "各物件の印象・気になった点を詳しく確認",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "比較検討資料の作成",
+            "detail": "内見物件の比較表を作成しお客様に送付",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "追加物件の提案",
+            "detail": "フィードバックを踏まえた新たな候補物件の提案",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "プレゼン・提案",
+        "items": [
+          {
+            "title": "最終候補物件の絞り込み",
+            "detail": "お客様と一緒に2〜3件に絞り込む",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "詳細な資金計画書の作成",
+            "detail": "物件価格・諸費用・ローンシミュレーション",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン比較表",
+            "detail": "金融機関別の金利・条件・審査基準の比較",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ライフプランシミュレーション",
+            "detail": "将来の収支を含めた長期的な資金計画",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件の将来価値分析",
+            "detail": "エリアの発展性・資産価値の見通し",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "リスク説明",
+            "detail": "購入に伴うリスクと対策を正直に説明",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "決断サポート",
+            "detail": "迷っているポイントを整理し判断材料を提供",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "購入手順説明",
+        "items": [
+          {
+            "title": "購入申込書の説明",
+            "detail": "申込の意味・拘束力・キャンセルの可否",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "手付金の説明",
+            "detail": "金額の目安・支払いタイミング・返還条件",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン本審査の手続き",
+            "detail": "必要書類・審査期間・注意点を説明",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "重要事項説明の予告",
+            "detail": "重説の内容・確認ポイントを事前に説明",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約日程の調整",
+            "detail": "売主・買主・司法書士のスケジュール調整",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "必要書類リストの送付",
+            "detail": "契約に必要な書類一覧をお客様に送付",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "重説・契約",
+        "items": [
+          {
+            "title": "重要事項説明書の事前チェック",
+            "detail": "記載内容の確認・お客様への説明準備",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約書の事前チェック",
+            "detail": "特約条項・引渡し条件・瑕疵担保の確認",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "重要事項説明の実施",
+            "detail": "法定の重要事項をわかりやすく説明",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "売買契約の締結",
+            "detail": "契約書への署名捺印・手付金の授受",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン正式申込",
+            "detail": "金融機関への正式な融資申込手続き",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約後のスケジュール共有",
+            "detail": "決済日までの流れとタスクを共有",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "決済・引渡し",
+        "items": [
+          {
+            "title": "融資実行の確認",
+            "detail": "金融機関からの融資実行日・金額の最終確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "残金決済の準備",
+            "detail": "必要書類・振込先・金額の最終確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件の最終確認（引渡し前内覧）",
+            "detail": "契約時と相違ないか現地確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "鍵の引渡し",
+            "detail": "鍵の受領・本数確認・管理説明",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "引越し後の届出サポート",
+            "detail": "住所変更・転居届など必要手続きの案内",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "アフターフォロー",
+        "items": [
+          {
+            "title": "引渡し後1週間フォロー",
+            "detail": "不具合や困りごとがないか確認の連絡",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "引渡し後1ヶ月フォロー",
+            "detail": "生活の中での気づき・相談に対応",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "確定申告のリマインド",
+            "detail": "住宅ローン控除の申請方法と時期を案内",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "定期的な状況確認",
+            "detail": "半年〜1年ごとに近況確認の連絡",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "紹介依頼",
+            "detail": "満足いただけたら周りの方のご紹介をお願い",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の声の収集",
+            "detail": "レビューやアンケートのお願い",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "追客（検討中顧客対応）",
+        "items": [
+          {
+            "title": "定期的な情報提供",
+            "detail": "新着物件・相場情報・お役立ち記事を送付",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ステータスの定期確認",
+            "detail": "購入意欲の変化・状況の変化をヒアリング",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "イベント・セミナー案内",
+            "detail": "住宅購入セミナーや内見会の案内",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "条件変更のヒアリング",
+            "detail": "時間経過による希望条件の変化を確認",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "再アプローチのタイミング判断",
+            "detail": "引越し時期・ライフイベントからベストタイミングを判断",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      }
+    ],
+    "tags": [],
+    "directChatHistory": []
+  },
+  "80ee7460dcc6602e507ede180cb0439b": {
+    "name": "ゆきち",
+    "area": "中央区",
+    "email": "yuudesu.1216@gmail.com",
+    "phone": "未入力",
+    "contact": "contact-done",
+    "token": "80ee7460dcc6602e507ede180cb0439b",
+    "chatHistory": [
+      {
+        "role": "user",
+        "content": "中央区に空き物件ある？"
+      },
+      {
+        "role": "assistant",
+        "content": "ゆきち様、中央区での物件探しについてご興味をお持ちなのですね。ただ、私は直接的な物件情報をお伝えすることができません。申し訳ございません。\n\n中央区でどのような物件をお探しですか？ 具体的な条件（間取り、広さ、駅からの距離など）を教えていただけると、一般的なアドバイスや情報提供ができます。\n\nちなみに、物件を探す際には、SUUMO、at home、レインズの情報を自動でまとめてお届けするツール{{TERASS_PICKS|SUUMO、at home、レインズの情報を自動でまとめてお届けするツール|ご興味があれば岡本がお手伝いします}}もございます。\n\n他にも気になることはありますか？"
+      },
+      {
+        "role": "user",
+        "content": "糖尿病ですが、ローン組めますか？"
+      },
+      {
+        "role": "assistant",
+        "content": "ゆきち様、糖尿病をお持ちとのこと、住宅ローンのご心配をされているのですね。\n\n一般的に、住宅ローンの審査では、健康状態も考慮されます。しかし、糖尿病であることだけで一概にローンが組めないと判断されるわけではありません。\n\n審査では、以下の点が考慮されることが多いです。\n\n*   **現在の健康状態:** 血糖コントロールが安定しているか、合併症の有無などが重要です。\n*   **加入できる団体信用生命保険（団信）の種類:** 団信は、住宅ローン契約者が死亡または高度障害状態になった場合に、ローンの残債が弁済される保険です。金融機関によっては、糖尿病の方でも加入できる団信を用意している場合があります。\n*   **金融機関の審査基準:** 各金融機関によって審査基準が異なります。\n\n糖尿病をお持ちの場合、以下の点に注意して住宅ローンを検討すると良いでしょう。\n\n*   **かかりつけの医師に相談:** 健康状態について、住宅ローン審査に影響がないか確認しましょう。診断書が必要になる場合もあります。\n*   **複数の金融機関に相談:** 糖尿病でも加入できる団信や、審査に通りやすい金融機関を探しましょう。\n*   **告知義務を遵守:** 健康状態について、正確に告知しましょう。虚偽の告知は、契約解除の原因となります。\n\n{{ARTICLE|団信とは？住宅ローンの生命保険|https://muchinochi55.com/団信とは？住宅ローンの生命保険のメリット・注/}}\n\n他にも気になることはありますか？"
+      },
+      {
+        "role": "user",
+        "content": "30歳ですが、ローン何年組めますか？"
+      },
+      {
+        "role": "assistant",
+        "content": "ゆきち様、30歳で住宅ローンを検討されているのですね。ローンの借入期間についてですね。\n\n一般的に、住宅ローンの借入期間は最長で35年と設定している金融機関が多いです。ただし、借入期間は年齢や年収、物件の担保評価などによって変わる可能性があります。\n\n30歳であれば、最長の35年で借りることも可能ですが、完済時の年齢が65歳になるため、定年後の返済計画も考慮する必要があります。\n\n借入期間を長くするメリット・デメリットは以下の通りです。\n\n**メリット:**\n\n*   毎月の返済額を抑えることができる\n*   住宅購入のハードルが下がる\n\n**デメリット:**\n\n*   総返済額が増える\n*   金利上昇のリスクが高まる\n\nゆきち様の場合、35年で借りることも可能ですが、ライフプランに合わせて無理のない返済計画を立てることが大切です。\n\nちなみに、ゆきち様は住宅ローンの予算はどのくらいでお考えですか？\n他にも気になることはありますか？"
+      },
+      {
+        "role": "user",
+        "content": "5000万くらい？逆にとれくらい借りれるの？"
+      },
+      {
+        "role": "assistant",
+        "content": "ゆきち様、5000万円くらいの住宅ローンをお考えなのですね。\n\n一般的に、住宅ローンの借入可能額は、年収や勤務先、勤続年数、他の借り入れ状況などによって決まります。年収の5倍〜7倍程度が目安と言われていますが、あくまで目安としてお考えください。\n\nゆきち様の場合、具体的な年収や他の借り入れ状況がわからないため、正確な借入可能額を算出することはできません。\n\nただし、ご自身で借入可能額をシミュレーションできるツールもあります。各金融機関のホームページや、住宅情報サイトなどで提供されているので、試してみるのも良いでしょう。\n\n{{ARTICLE|月々の返済額はいくらが理想？無理のない住宅ローン|https://muchinochi55.com/【完全解説】月々の返済額はいくらが理想？無理/}}\n\n他にも気になることはありますか？"
+      }
+    ],
+    "createdAt": "2026-02-15T11:20:56.165Z",
+    "checklist": [
+      {
+        "name": "反響対応（初回問い合わせ）",
+        "items": [
+          {
+            "title": "問い合わせ内容を正確に記録",
+            "detail": "氏名・連絡先・希望条件・問い合わせ経路を記録",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "初回返信（5分以内目標）",
+            "detail": "迅速かつ丁寧な返信。自己紹介と次のステップを提案",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の温度感を把握",
+            "detail": "購入時期・緊急度・他社検討状況をヒアリング",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望条件の概要把握",
+            "detail": "エリア・価格帯・間取り・こだわりポイントを確認",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "CRM/顧客管理への登録",
+            "detail": "お客様情報をシステムに登録し管理開始",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "次回アクションの設定",
+            "detail": "面談日程の提案または次回連絡日を約束",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お礼メール送信",
+            "detail": "問い合わせへのお礼と有益な情報を添えたメール",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "面談・案内準備",
+        "items": [
+          {
+            "title": "お客様情報の事前リサーチ",
+            "detail": "勤務先・年収推定・家族構成から最適提案を準備",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望エリアの相場調査",
+            "detail": "直近の成約事例・相場推移・将来性を調査",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "提案物件の事前選定（3〜5件）",
+            "detail": "お客様の条件に合う物件を複数ピックアップ",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件資料の準備",
+            "detail": "図面・写真・周辺情報をまとめた資料を作成",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローンの事前シミュレーション",
+            "detail": "想定借入額・月々返済額・金利タイプ別の比較",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "面談場所・オンライン環境の確認",
+            "detail": "対面の場合は場所予約、オンラインはURL送付",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "アジェンダの作成",
+            "detail": "面談の流れ・確認事項・提案内容をリスト化",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "リマインド連絡",
+            "detail": "面談前日にリマインドメール or メッセージ",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "競合物件・他社情報の把握",
+            "detail": "同エリアの競合物件や他社の動向を確認",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "質問リストの準備",
+            "detail": "お客様に確認すべき深掘り質問を準備",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "初回商談",
+        "items": [
+          {
+            "title": "自己紹介とサービス説明",
+            "detail": "TERASSの強み・自分の実績・サポート体制を説明",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の購入動機の深掘り",
+            "detail": "なぜ今購入を考えているか、背景を丁寧にヒアリング",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "資金計画の概要説明",
+            "detail": "購入に必要な費用の全体像を説明",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ライフプランのヒアリング",
+            "detail": "将来の家族計画・転職予定・教育方針を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "購入の流れ説明",
+            "detail": "物件探し→内見→申込→契約→決済の流れを図解",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望条件の優先順位付け",
+            "detail": "MUST条件とWANT条件を分けて整理",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "次回のアクションプラン提示",
+            "detail": "物件見学の日程・準備事項を具体的に提案",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "面談議事録の作成・共有",
+            "detail": "話した内容をまとめてお客様に共有",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お礼・フォローメール",
+            "detail": "面談のお礼と次のステップを記載したメール送付",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "ヒアリング（ニーズ把握）",
+        "items": [
+          {
+            "title": "現在の住まいの不満点",
+            "detail": "今の住まいで困っていること・改善したい点",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "理想の暮らしイメージ",
+            "detail": "休日の過ごし方・通勤時間・子育て環境など",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "絶対に譲れない条件",
+            "detail": "立地・間取り・設備のマスト条件を明確化",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "妥協できるポイント",
+            "detail": "優先度が低い条件を把握して選択肢を広げる",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "世帯年収・貯蓄の確認",
+            "detail": "無理のない予算設定のために正確に把握",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローンの事前審査状況",
+            "detail": "審査済み/未着手/不安要素を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "購入希望時期の確認",
+            "detail": "引越し希望日から逆算してスケジュール作成",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "配偶者・家族の意向確認",
+            "detail": "決定権者は誰か、家族の意見を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ヒアリングシートの完成",
+            "detail": "全情報を体系的に整理して社内共有",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "物件案内",
+        "items": [
+          {
+            "title": "内見スケジュール調整",
+            "detail": "候補物件3〜5件の効率的な内見ルート作成",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "各物件のメリット・デメリット整理",
+            "detail": "お客様の条件に照らした客観的な比較表",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "周辺環境の下見",
+            "detail": "スーパー・学校・病院・駅までの実際の動線確認",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "内見時のチェックポイント説明",
+            "detail": "確認すべき構造・設備・日当たりなどをガイド",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "内見後の感想ヒアリング",
+            "detail": "各物件の印象・気になった点を詳しく確認",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "比較検討資料の作成",
+            "detail": "内見物件の比較表を作成しお客様に送付",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "追加物件の提案",
+            "detail": "フィードバックを踏まえた新たな候補物件の提案",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "プレゼン・提案",
+        "items": [
+          {
+            "title": "最終候補物件の絞り込み",
+            "detail": "お客様と一緒に2〜3件に絞り込む",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "詳細な資金計画書の作成",
+            "detail": "物件価格・諸費用・ローンシミュレーション",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン比較表",
+            "detail": "金融機関別の金利・条件・審査基準の比較",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ライフプランシミュレーション",
+            "detail": "将来の収支を含めた長期的な資金計画",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件の将来価値分析",
+            "detail": "エリアの発展性・資産価値の見通し",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "リスク説明",
+            "detail": "購入に伴うリスクと対策を正直に説明",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "決断サポート",
+            "detail": "迷っているポイントを整理し判断材料を提供",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "購入手順説明",
+        "items": [
+          {
+            "title": "購入申込書の説明",
+            "detail": "申込の意味・拘束力・キャンセルの可否",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "手付金の説明",
+            "detail": "金額の目安・支払いタイミング・返還条件",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン本審査の手続き",
+            "detail": "必要書類・審査期間・注意点を説明",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "重要事項説明の予告",
+            "detail": "重説の内容・確認ポイントを事前に説明",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約日程の調整",
+            "detail": "売主・買主・司法書士のスケジュール調整",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "必要書類リストの送付",
+            "detail": "契約に必要な書類一覧をお客様に送付",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "重説・契約",
+        "items": [
+          {
+            "title": "重要事項説明書の事前チェック",
+            "detail": "記載内容の確認・お客様への説明準備",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約書の事前チェック",
+            "detail": "特約条項・引渡し条件・瑕疵担保の確認",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "重要事項説明の実施",
+            "detail": "法定の重要事項をわかりやすく説明",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "売買契約の締結",
+            "detail": "契約書への署名捺印・手付金の授受",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン正式申込",
+            "detail": "金融機関への正式な融資申込手続き",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約後のスケジュール共有",
+            "detail": "決済日までの流れとタスクを共有",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "決済・引渡し",
+        "items": [
+          {
+            "title": "融資実行の確認",
+            "detail": "金融機関からの融資実行日・金額の最終確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "残金決済の準備",
+            "detail": "必要書類・振込先・金額の最終確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件の最終確認（引渡し前内覧）",
+            "detail": "契約時と相違ないか現地確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "鍵の引渡し",
+            "detail": "鍵の受領・本数確認・管理説明",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "引越し後の届出サポート",
+            "detail": "住所変更・転居届など必要手続きの案内",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "アフターフォロー",
+        "items": [
+          {
+            "title": "引渡し後1週間フォロー",
+            "detail": "不具合や困りごとがないか確認の連絡",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "引渡し後1ヶ月フォロー",
+            "detail": "生活の中での気づき・相談に対応",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "確定申告のリマインド",
+            "detail": "住宅ローン控除の申請方法と時期を案内",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "定期的な状況確認",
+            "detail": "半年〜1年ごとに近況確認の連絡",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "紹介依頼",
+            "detail": "満足いただけたら周りの方のご紹介をお願い",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の声の収集",
+            "detail": "レビューやアンケートのお願い",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "追客（検討中顧客対応）",
+        "items": [
+          {
+            "title": "定期的な情報提供",
+            "detail": "新着物件・相場情報・お役立ち記事を送付",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ステータスの定期確認",
+            "detail": "購入意欲の変化・状況の変化をヒアリング",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "イベント・セミナー案内",
+            "detail": "住宅購入セミナーや内見会の案内",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "条件変更のヒアリング",
+            "detail": "時間経過による希望条件の変化を確認",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "再アプローチのタイミング判断",
+            "detail": "引越し時期・ライフイベントからベストタイミングを判断",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      }
+    ],
+    "agentChatHistory": [
+      {
+        "role": "user",
+        "content": "次のアプローチは？"
+      },
+      {
+        "role": "assistant",
+        "content": "ゆきち様への次なるアプローチについて、以下に提案します。\n\n**現状分析**\n\n*   ゆきち様は中央区での物件探しに関心があり、住宅ローンについても具体的な質問をされています。\n*   糖尿病であること、30歳であること、5000万円程度のローンを検討していることがわかっています。\n*   しかし、年収、自己資金、購入希望時期など、重要な情報が不足しています。\n\n**提案:**\n\n1.  **お客様との関係構築:**\n    *   まずは、MuchiNaviのAIチャットの続きから会話を始め、「いくつかご質問させてください」と切り出す。\n    *   AIチャットの内容を踏まえ、ご質問に丁寧にお答えすること、そしてご希望に沿った物件を見つけるために、より詳細な情報が必要であることを伝える。\n    *   例：「糖尿病をお持ちとのこと、住宅ローンのご心配があるかと思います。いくつか確認させていただければ、より具体的なアドバイスが可能です。」\n\n2.  **ヒアリング項目の優先順位:**\n    *   まずは年収、自己資金、購入希望時期など、住宅ローン審査に直結する情報を優先的にヒアリングする。\n    *   次に、物件の希望条件（間取り、広さ、駅からの距離など）を詳しく聞く。\n    *   これらの情報をもとに、具体的な物件提案や資金計画の立案が可能になる。\n\n3.  **具体的な質問例:**\n    *   「差し支えなければ、年収をお伺いしてもよろしいでしょうか？」\n    *   「自己資金はどのくらいご用意されていますか？」\n    *   「いつ頃までに購入を希望されていますか？」\n    *   「希望の間取りや広さはありますか？」\n    *   「駅からの距離など、何か希望する条件はありますか？」\n\n4.  **情報提供と提案:**\n    *   ヒアリングした情報に基づき、利用可能な住宅ローン商品や、購入可能な物件の目安を伝える。\n    *   糖尿病の方でも利用しやすい住宅ローンや、団体信用生命保険の情報を提供する。\n    *   中央区の物件情報だけでなく、周辺エリアの情報も視野に入れることを提案する。\n\n5.  **初回面談の提案:**\n    *   電話やオンラインでの面談を提案し、より詳細なヒアリングと具体的な提案を行う機会を設ける。\n    *   面談では、お客様のライフプランや将来設計についても詳しく聞き、最適な住宅購入プランを一緒に考える。\n\n**注意点:**\n\n*   お客様のプライバシーに配慮し、デリケートな質問は慎重に行う。\n*   住宅ローンの審査は金融機関によって異なるため、複数の金融機関の情報を比較検討することを勧める。\n*   お客様の希望条件だけでなく、潜在的なニーズを把握し、最適な物件提案を行う。\n\n**リスク:**\n\n*   お客様が個人情報の提供に抵抗を感じる可能性がある。\n*   住宅ローンの審査が難航する可能性がある。\n\n**潜在的なニーズの仮説:**\n\n*   ゆきち様は、将来への不安（糖尿病、年齢）から、早めに住宅を購入したいと考えている可能性がある。\n*   中央区に住むことに強いこだわりがあるのか、それとも他のエリアも検討可能か不明。\n\n**物件提案のアイデア:**\n\n*   バリアフリー設計の物件や、健康に配慮した設備が整った物件を提案する。\n*   中央区だけでなく、交通アクセスが良く、生活利便性の高い周辺エリアの物件も提案する。\n\n**Next Action:**\n\n*   MuchiNaviのAIチャットから、上記提案に基づいたメッセージを送信する。\n*   お客様からの返信内容に応じて、柔軟に対応する。\n\n**【ToDo候補】**\n\n*   糖尿病でも加入しやすい団体信用生命保険の情報収集\n*   中央区および周辺エリアの物件情報収集\n*   お客様との初回面談準備（ヒアリングシート、物件資料など）\n"
+      }
+    ],
+    "todos": [],
+    "tags": [],
+    "directChatHistory": []
+  },
+  "fc134820c3b7262abdf5270fd53ca413": {
+    "name": "岡本 岳大",
+    "birthYear": "1995",
+    "birthMonth": "1",
+    "age": 31,
+    "birthInfo": "1995年1月生まれ",
+    "prefecture": "大阪府",
+    "family": "家族（子ども2人）",
+    "householdIncome": "2,000〜2,499万円",
+    "propertyType": "注文住宅",
+    "purpose": "ハウスメーカー紹介・割引を受けたい",
+    "searchReason": "子供が小さいので、広い家を建てたい。\nまだハウスメーカーも決めていないので、アドバイスが欲しい。",
+    "area": "大阪市内、北摂",
+    "budget": "1.2億円",
+    "freeComment": "いろいろとアドバイスが欲しい。\n優秀なハウスメーカー担当の紹介と、土地情報を入手したい。",
+    "email": "takehiro.okamoto@terass.com",
+    "phone": "08019987646",
+    "contact": "contact-done",
+    "passwordHash": "e06e2200054441c7a7fb39031eb9daed778997d075649a50097b85ca377017b5",
+    "token": "fc134820c3b7262abdf5270fd53ca413",
+    "chatHistory": [
+      {
+        "role": "user",
+        "content": "まずは何から始めればいいか教えてください"
+      },
+      {
+        "role": "assistant",
+        "content": "家づくりは、考えることがたくさんあって、どこから手を付ければいいか迷いますよね。\n\nまずは、以下の3つのステップで進めていくのがおすすめです。\n\n1.  **理想の家のイメージを具体的にする**: どんな家に住みたいか、広さ、間取り、デザインなどを考えます。雑誌やインターネットで写真を集めたり、住宅展示場を見学したりするのも良いでしょう。\n2.  **資金計画を立てる**: 住宅ローンを利用する場合、借入可能額や返済額を把握します。自己資金や親からの援助なども考慮に入れ、無理のない返済計画を立てることが大切です。\n3.  **情報収集をする**: ハウスメーカーや工務店の情報を集め、資料請求や見学会に参加してみましょう。複数の会社を比較検討することで、自分に合った会社を見つけることができます。\n\nどのステップから始めたいですか？\n\n{{CHOICES|理想の家のイメージを具体的にする|資金計画を立てる|ハウスメーカー/工務店の情報収集}}"
+      },
+      {
+        "role": "user",
+        "content": "ハウスメーカー/工務店の情報収集"
+      },
+      {
+        "role": "assistant",
+        "content": "情報収集ですね。ハウスメーカーや工務店の情報収集は、家づくりにおいて非常に重要なステップです。\n\n情報収集の方法としては、以下のものがあります。\n\n*   **インターネットで検索する**: 各社のホームページや口コミサイトなどを参考に、特徴や評判を調べます。\n*   **住宅展示場や見学会に参加する**: 実際に建物を見て、担当者の話を聞くことで、会社の雰囲気や技術力を知ることができます。\n*   **資料請求をする**: 各社のカタログやパンフレットを取り寄せ、比較検討します。\n*   **紹介サイトを利用する**: 複数のハウスメーカーや工務店の情報をまとめて比較検討できるサイトもあります。\n\n情報収集する上で、何か特に気になる点や重視したい点はありますか？\n{{CHOICES|デザイン|耐震性や断熱性などの性能|価格|アフターサービス}}"
+      },
+      {
+        "role": "user",
+        "content": "デザイン"
+      },
+      {
+        "role": "assistant",
+        "content": "デザインを重視されるのですね。デザイン性の高い家を建てるには、ハウスメーカーや工務店の選択が重要になります。\n\nデザインに強みを持つハウスメーカーや工務店を探す際には、以下の点に注目してみると良いでしょう。\n\n*   **施工事例**: 過去の施工事例を参考に、自分の好みに合ったデザインを手がけているかを確認します。\n*   **設計士**: どのような設計士が在籍しているか、経歴や得意なデザインなどを確認します。\n*   **デザインに関する賞**: デザインに関する賞を受賞しているかどうかを確認します。\n*   **モデルハウスや展示場**: 実際にモデルハウスや展示場を見学し、デザインのクオリティや雰囲気を体感します。\n\nちなみに、デザイン以外で重視する点はありますか？例えば、性能面（耐震性、断熱性など）や、価格、アフターサービスなども考慮すると、より満足度の高い家づくりができるかと思います。\n\nまだ情報収集段階とのことですので、もしよろしければ、私がお客様に合ったハウスメーカーをご紹介することも可能です。岡本 岳大のご状況を少しだけお伺いできると、より合ったメーカーをご案内できます。15分ほどのオンラインで、気軽にお話しする感じで大丈夫ですよ。\n{{BOOKING|https://timerex.net/s/takehiro.okamoto_294e/32359692}}"
+      },
+      {
+        "role": "user",
+        "content": "私に会うハウスメーカーはどこですか？？"
+      },
+      {
+        "role": "assistant",
+        "content": "ハウスメーカー選びは本当に迷いますよね。\n岡本さんのご希望や条件に合うハウスメーカーを見つけるために、いくつか質問させてください。\n\n*   **現在、特に気になっているハウスメーカーはありますか？**\n*   **デザイン以外で、家づくりにおいて重視する点はありますか？**（例えば、性能、価格、アフターサービスなど）\n*   **土地は既にお持ちですか？**\n\nこれらの情報があると、より具体的なアドバイスができます。\n\nまた、紹介を通すことで担当者の質が変わったり、割引が適用される場合もあります。岡本 岳大のご状況を少しだけお伺いできると、より合ったメーカーをご案内できます。15分ほどのオンラインで、気軽にお話しする感じで大丈夫ですよ。\n{{BOOKING|https://timerex.net/s/takehiro.okamoto_294e/32359692}}"
+      },
+      {
+        "role": "user",
+        "content": "まだオンライン面談はしたくないです"
+      },
+      {
+        "role": "assistant",
+        "content": "承知いたしました。まだオンライン面談はご希望でないのですね。\n\nかしこまりました。でしたら、まずはご自身で情報収集を進めてみてはいかがでしょうか。\n\n何かお手伝いできることがあれば、お気軽にお声かけください。"
+      },
+      {
+        "role": "user",
+        "content": "何をすればいいですか？"
+      },
+      {
+        "role": "assistant",
+        "content": "もちろんです！岡本 岳大さんのペースで大丈夫ですよ。\n\nオンライン面談以外で、ハウスメーカー選びを進めるためにできることはたくさんあります。例えば、以下の3つはいかがでしょうか？\n\n1.  **ハウスメーカーのカタログやパンフレットを取り寄せて、比較検討する**\n2.  **住宅展示場やモデルハウスを見学して、実際の建物を体験する**\n3.  **インターネットや書籍で、ハウスメーカーの評判や情報を集める**\n\nこれらの情報収集を通じて、ご自身の理想の家づくりに合うハウスメーカーを見つけていくことができます。\n\nちなみに岡本 岳大さんは、どの方法に興味がありますか？\n{{CHOICES|カタログ/パンフレットの取り寄せ|住宅展示場/モデルハウスの見学|インターネット/書籍での情報収集}}"
+      },
+      {
+        "role": "user",
+        "content": "カタログ/パンフレットの取り寄せ"
+      },
+      {
+        "role": "assistant",
+        "content": "カタログやパンフレットの取り寄せですね。\n\n各社のカタログやパンフレットを取り寄せることで、デザイン、性能、価格などを比較検討することができます。\n\nカタログやパンフレットを取り寄せる際には、以下の点に注目してみると良いでしょう。\n\n*   **デザイン**: 外観や内観のデザインが自分の好みに合っているか。\n*   **性能**: 断熱性や耐震性などの性能がどの程度か。\n*   **価格**: 坪単価や総額がどの程度か。\n*   **保証**: 保証期間や内容がどのようになっているか。\n\nまた、カタログやパンフレットだけでなく、施工事例集なども取り寄せると、より具体的なイメージをつかむことができます。\n\nカタログ請求をするメーカーはもうお決まりですか？もし迷われているようでしたら、いくつかおすすめのメーカーをご紹介することもできますよ。\n{{CHOICES|おすすめのメーカーを紹介してほしい|自分で探してみる}}"
+      },
+      {
+        "role": "user",
+        "content": "おすすめのメーカーを紹介してほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "おすすめのメーカーについてですね。\n\nいくつかご紹介させていただきたいのですが、その前に、岡本 岳大さんが重視するポイントをもう少し詳しく教えていただけますでしょうか？\n\n例えば、\n* デザインはどのようなテイストがお好みですか？（和風、洋風、モダンなど）\n* 性能面で特に重視する点はありますか？（断熱性、耐震性、省エネ性など）\n* ご予算はどの程度でお考えですか？\n\nこれらの情報があると、より岡本 岳大さんに合ったメーカーをご紹介できます。\n{{CHOICES|和風|洋風|モダン}}"
+      },
+      {
+        "role": "user",
+        "content": "和風"
+      },
+      {
+        "role": "assistant",
+        "content": "和風がお好みとのことですね。和風住宅を得意とするハウスメーカーはいくつかありますが、中でもおすすめなのは、以下の3社です。\n\n1.  **住友林業**: 木の特性を活かした、伝統的な和風住宅を得意としています。美しい木目や香り、温もりを感じられる家づくりが可能です。\n{{ARTICLE|住友林業vs積水ハウス比較|https://muchinochi55.com/sumitomoringyou-sekisuihouse-comparison/}}\n2.  **一条工務店**: 高性能な断熱材や木製サッシを使用し、快適な住環境を実現しています。和風デザインにも力を入れており、落ち着いた雰囲気の家づくりが可能です。\n3.  **パナソニックホームズ**: 耐震性、耐久性に優れた住宅を提供しています。和のテイストを取り入れたデザインも得意としており、スタイリッシュな和風住宅を建てたい方におすすめです。\n\nこれらのメーカーのカタログを取り寄せてみて、比較検討してみてはいかがでしょうか。\n\nまた、各社の住宅展示場やモデルハウスを見学することもおすすめです。実際に建物を見て、担当者の話を聞くことで、より具体的なイメージをつかむことができます。\n\nちなみに、住宅展示場の活用方法についてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|住宅展示場の賢い使い方|https://muchinochi55.com/住宅展示場って行く意味ある？後悔しないための5/}}\n\nカタログ請求や住宅展示場の見学について、何かお手伝いできることはありますか？\n{{CHOICES|カタログ請求の方法について教えてほしい|住宅展示場について教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "土地情報も欲しい"
+      },
+      {
+        "role": "assistant",
+        "content": "土地情報についてですね。土地探しは家づくりにおいて非常に重要なステップです。\n\n土地情報を入手する方法としては、以下のものがあります。\n\n*   **不動産情報サイトを利用する**: SUUMOやat homeなどの不動産情報サイトで、希望エリアの土地情報を検索します。\n*   **不動産会社に問い合わせる**: 地元の不動産会社に問い合わせて、未公開の土地情報を紹介してもらいます。\n*   **ハウスメーカーや工務店に相談する**: ハウスメーカーや工務店は、土地探しから家づくりまでトータルでサポートしてくれる場合があります。\n*   **TERASS Picksを利用する**: SUUMO、at home、レインズの物件情報をまとめて自動でお届けできるツールです。\n\n岡本 岳大さんは、これらの方法の中で、どれに興味がありますか？\n{{CHOICES|不動産情報サイトを利用する|不動産会社に問い合わせる|ハウスメーカー/工務店に相談する|TERASS Picksを利用する}}"
+      },
+      {
+        "role": "user",
+        "content": "TERASS Picksを利用する"
+      },
+      {
+        "role": "assistant",
+        "content": "TERASS Picksにご興味をお持ちいただきありがとうございます！\n\nTERASS Picksは、SUUMO・at home・レインズの物件情報をまとめて自動でお届けできる便利なツールです。\n{{TERASS_PICKS|SUUMO、at home、レインズの情報をまとめて自動でお届け。お客様の条件に合わせて設定します|15分のオンライン面談で設定できます}}\n\nTERASS Picksは、お客様一人ひとりの条件に合わせて設定するツールなんです。\n「エリア・間取り・予算・築年数・駅距離」など、細かい条件を一緒に整理しながら設定する必要があるため、15分ほどのオンライン面談で「どんな条件で届けてほしいか」をお伺いしています。\n\n設定が完了すれば、あとは自動で新着物件が届くようになります。15分ほどの短いお時間で設定できますし、画面をお見せしながら一緒に条件を決められるので、難しいことはありません。もちろん、まだ条件がはっきりしていなくても大丈夫です。整理するところからお手伝いできます。\n\nご興味があれば、ぜひ一度お試しください。\n{{BOOKING|https://timerex.net/s/takehiro.okamoto_294e/32359692}}"
+      },
+      {
+        "role": "user",
+        "content": "どのようにハウスメーカーを選べばいいですか？"
+      },
+      {
+        "role": "assistant",
+        "content": "ハウスメーカー選びは、家づくりにおいて最も重要なステップの一つです。\n後悔しないために、以下のポイントを参考にしながら、慎重に選んでいきましょう。\n\n1.  **会社の規模や実績**: 大手ハウスメーカーは、技術力や信頼性が高いですが、価格も高めです。中小ハウスメーカーや工務店は、価格が比較的安く、自由な設計が可能な場合があります。\n2.  **デザインや設計**: 自分の好みに合ったデザインを手がけているか、設計の自由度が高いかなどを確認しましょう。\n3.  **性能**: 断熱性や耐震性などの性能がどの程度かを確認しましょう。長期優良住宅やZEH住宅などの基準を満たしているかどうかも参考にすると良いでしょう。\n4.  **価格**: 坪単価や総額がどの程度かを確認しましょう。見積もりを依頼する際には、詳細な内訳を出してもらうようにしましょう。\n5.  **保証やアフターサービス**: 保証期間や内容、アフターサービスの体制などを確認しましょう。定期的な点検やメンテナンスを行ってくれるかどうかも重要です。\n6.  **担当者の相性**: 担当者との相性は、家づくりをスムーズに進める上で非常に重要です。話しやすく、信頼できる担当者を選びましょう。\n\nこれらのポイントを総合的に考慮して、自分に合ったハウスメーカーを選びましょう。\n\nハウスメーカー選びで迷ったら、ぜひ岡本 岳大にご相談ください。お客様の希望や条件に合わせて、最適なハウスメーカーをご紹介いたします。15分程度のオンライン相談も可能です。\n{{BOOKING|https://timerex.net/s/takehiro.okamoto_294e/32359692}}"
+      },
+      {
+        "role": "user",
+        "content": "オンライン面談はまだいいです"
+      },
+      {
+        "role": "assistant",
+        "content": "承知いたしました。オンライン面談はまだご希望ではないのですね。\n\nかしこまりました。ハウスメーカー選びについて、何か他に気になる点はありますか？\n{{CHOICES|ハウスメーカーの担当者の選び方について教えてほしい|ハウスメーカーとの打ち合わせで気をつけることはありますか？|ハウスメーカーの見積もりについて教えてほしい}}"
+      },
+      {
+        "role": "user",
+        "content": "ハウスメーカーの担当者の選び方について教えてほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "ハウスメーカーの担当者の選び方ですね。担当者選びは、家づくりを成功させるための重要なポイントの一つです。\n\n良い担当者を選ぶために、以下の点に注目してみましょう。\n\n1.  **知識と経験**: 住宅に関する知識や経験が豊富かどうかを確認しましょう。質問に対して的確に答えられるか、過去の事例などを具体的に説明できるかなどが判断基準となります。\n2.  **コミュニケーション能力**: こちらの要望や疑問をしっかりと聞き取り、分かりやすく説明してくれるかどうかを確認しましょう。\n3.  **提案力**: 自分の希望やライフスタイルに合わせた提案をしてくれるかどうかを確認しましょう。\n4.  **誠実さ**: 嘘をついたり、ごまかしたりしない、誠実な対応をしてくれるかどうかを確認しましょう。\n5.  **相性**: 担当者との相性は、家づくりをスムーズに進める上で非常に重要です。話しやすく、信頼できる担当者を選びましょう。\n\n担当者選びで失敗しないためには、複数のハウスメーカーの担当者と話してみて、比較検討することが大切です。\n\nハウスメーカーによっては、紹介ルートで担当者の質が変わることもあります。もしご希望でしたら、岡本 岳大さんのご希望に合った優秀な担当者をご紹介することも可能です。\n{{CHOICES|紹介について詳しく教えてほしい|自分で探してみる}}"
+      },
+      {
+        "role": "user",
+        "content": "自分で探してみる"
+      },
+      {
+        "role": "assistant",
+        "content": "承知いたしました。ご自身で探されるのですね。\n\n担当者の方と実際に会って話をする際に、ぜひ意識していただきたいポイントがあります。\n\nそれは、\n*   **こちらの要望や疑問をしっかりと伝える**\n*   **担当者の説明をよく聞き、納得できるまで質問する**\n*   **複数の担当者と話してみて、比較検討する**\n\nこれらのことを心がけて、相性の良い担当者を見つけてくださいね。\n\nちなみに、家を買う前に絶対にやるべき準備についてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|家を買う前に絶対やるべき準備|https://muchinochi55.com/【知らないと大損も？】家を買う前に絶対やるべ/}}\n\n何かお手伝いできることがあれば、お気軽にお声かけください。"
+      },
+      {
+        "role": "user",
+        "content": "でも自分だといい担当と会えるか心配です"
+      },
+      {
+        "role": "assistant",
+        "content": "そうですよね、ご自身で良い担当者と出会えるかご心配なのですね。\n\n確かに、数多くの担当者の中から、相性の良い、信頼できる担当者を見つけるのは簡単ではありません。\nそこで、もしよろしければ、私が岡本 岳大さんのご希望に合った優秀な担当者をご紹介することも可能です。\n\nTERASSの岡本 岳大経由でハウスメーカーをご紹介すると、以下のようなメリットがあります。\n\n*   **お客様に最適な担当者をご紹介**: 岡本 岳大は、各ハウスメーカーの担当者の特徴や強みを把握しています。お客様の希望や条件に合わせて、最適な担当者をご紹介することができます。\n*   **スムーズなコミュニケーション**: 担当者との間に立って、お客様の要望や疑問を的確に伝え、スムーズなコミュニケーションをサポートします。\n*   **有利な条件で契約**: 岡本 岳大の紹介という事で、有利な条件で契約できる場合があります。\n\nもちろん、ご紹介するかどうかは、岡本 岳大さんがご自身で判断していただいて構いません。\n少しでもご興味がありましたら、お気軽にご相談ください。\n{{CHOICES|紹介について詳しく教えてほしい|今回は見送る}}"
+      },
+      {
+        "role": "user",
+        "content": "紹介について詳しく教えてほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "ご紹介についてご興味をお持ちいただきありがとうございます。\n\nTERASSの岡本 岳大からのご紹介は、お客様にとって様々なメリットがあります。\n\nまず、岡本 岳大は複数のハウスメーカーと提携しており、それぞれのハウスメーカーの特徴や強みを把握しています。そのため、お客様のご希望や条件に合わせて、最適なハウスメーカーをご紹介することができます。\n\nまた、ご紹介する担当者は、岡本 岳大がこれまでの経験で信頼できると判断した、優秀な担当者です。お客様の要望をしっかりと聞き取り、親身になって相談に乗ってくれるはずです。\n\nさらに、TERASSからのご紹介という事で、通常よりも有利な条件で契約できる場合があります。\n\nご紹介の流れとしては、まず岡本 岳大さんのご希望や条件を詳しくお伺いし、最適なハウスメーカーをいくつかピックアップします。その後、各社の担当者をご紹介し、実際に話を聞いていただきます。その上で、どのハウスメーカーと契約するかをご判断いただきます。\n\nもちろん、ご紹介したからといって、必ず契約しなければならないということはありません。じっくりと検討して、納得のいく家づくりを進めてください。\n\nご紹介について、何かご不明な点はありますか？\n{{CHOICES|紹介の条件について教えてほしい|紹介の費用について教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "特になし"
+      },
+      {
+        "role": "assistant",
+        "content": "ご紹介について、特にご不明な点はないとのことですね。\n\nそれでは、ご紹介に向けて、もう少し詳しくお話をお伺いしてもよろしいでしょうか？\n\n具体的には、\n* どのようなデザインがお好みですか？（和風、洋風、モダンなど）\n* 性能面で特に重視する点はありますか？（断熱性、耐震性、省エネ性など）\n* ご予算はどの程度でお考えですか？\n* 土地は既にお持ちですか？\n\nこれらの情報があると、より岡本 岳大さんに合ったハウスメーカーをご紹介できます。\n\nもしよろしければ、15分程度のオンライン面談でお話をお聞かせいただけますでしょうか？\n{{BOOKING|https://timerex.net/s/takehiro.okamoto_294e/32359692}}"
+      },
+      {
+        "role": "user",
+        "content": "ありがとうございます。"
+      },
+      {
+        "role": "assistant",
+        "content": "いえいえ、どういたしまして。\n\n家づくりは、人生の中でも大きなイベントの一つですので、慎重に進めていきたいですよね。\n岡本 岳大さんの家づくりが成功することを心から願っています。\n\n何かお手伝いできることがあれば、いつでもお気軽にお声かけください。\nちなみに、住宅ローンの選び方についてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|住宅ローンの基本と選び方完全ガイド|https://muchinochi55.com/【2025年版】住宅ローンの基本と選び方完全ガイド/}}"
+      },
+      {
+        "role": "user",
+        "content": "注文住宅について、いい情報はありますか？"
+      },
+      {
+        "role": "assistant",
+        "content": "注文住宅に関する情報をお探しなのですね。\n\n注文住宅は、間取りやデザイン、設備などを自由に選べるのが魅力ですが、その分、情報収集や検討が大変ですよね。\n\n注文住宅に関する良い情報として、以下のものがあります。\n\n*   **注文住宅のメリット・デメリット**: 注文住宅のメリットとデメリットを比較検討することで、自分に合った選択肢を見つけることができます。\n*   **ハウスメーカー・工務店の選び方**: 注文住宅を建てる上で、ハウスメーカーや工務店の選び方は非常に重要です。各社の特徴や強みを比較検討し、自分に合った会社を選びましょう。\n*   **間取り・デザインのアイデア**: 注文住宅ならではの間取りやデザインのアイデアを知ることで、理想の住まいを実現することができます。\n*   **資金計画・住宅ローン**: 注文住宅の資金計画や住宅ローンについて学ぶことで、無理のない返済計画を立てることができます。\n*   **契約・工事**: 注文住宅の契約や工事に関する注意点を知ることで、トラブルを未然に防ぐことができます。\n\nこれらの情報を参考に、理想の注文住宅を実現してください。\n\nちなみに岡本 岳大さんは、どの情報に特に興味がありますか？\n{{CHOICES|注文住宅のメリット・デメリット|ハウスメーカー・工務店の選び方|間取り・デザインのアイデア|資金計画・住宅ローン}}"
+      },
+      {
+        "role": "user",
+        "content": "ハウスメーカー・工務店の選び方"
+      },
+      {
+        "role": "assistant",
+        "content": "ハウスメーカー・工務店の選び方についてですね。\n\n注文住宅を建てる上で、ハウスメーカーや工務店の選び方は非常に重要です。各社の特徴や強みを比較検討し、自分に合った会社を選びましょう。\n\nハウスメーカーと工務店、それぞれにメリット・デメリットがあります。\n\n**ハウスメーカーのメリット**\n\n*   **品質の安定性**: 工法や建材が標準化されており、品質が安定しています。\n*   **保証制度**: 長期保証やアフターサービスが充実しています。\n*   **ブランド力**: 知名度が高く、安心感があります。\n\n**ハウスメーカーのデメリット**\n\n*   **価格**: 比較的高い傾向にあります。\n*   **設計の自由度**: 標準化されたプランが多く、自由な設計が難しい場合があります。\n\n**工務店のメリット**\n\n*   **価格**: 比較的安い傾向にあります。\n*   **設計の自由度**: 自由な設計が可能で、個性的な家づくりができます。\n*   **地域密着**: 地域に根ざした会社が多く、きめ細やかな対応が期待できます。\n\n**工務店のデメリット**\n\n*   **品質のばらつき**: 会社によって技術力やデザイン力に差があります。\n*   **保証制度**: ハウスメーカーに比べて、保証期間が短い場合があります。\n*   **ブランド力**: 知名度が低い場合があります。\n\nどちらを選ぶかは、何を重視するかによって異なります。\n品質や保証を重視するならハウスメーカー、価格や自由な設計を重視するなら工務店を選ぶと良いでしょう。\n\nちなみに、岡本 岳大さんは、どちらに興味がありますか？\n{{CHOICES|ハウスメーカー|工務店|どちらとも言えない}}"
+      },
+      {
+        "role": "user",
+        "content": "ハウスメーカー"
+      },
+      {
+        "role": "assistant",
+        "content": "ハウスメーカーにご興味があるのですね。\n\nハウスメーカーを選ぶ際に重要なポイントはいくつかありますが、特に以下の3つが重要です。\n\n1.  **デザイン**: 自分の好みに合ったデザインを手がけているかどうかを確認しましょう。カタログやホームページ、モデルハウスなどを参考に、どのようなデザインが得意なのかを調べてみましょう。\n2.  **性能**: 断熱性や耐震性などの性能がどの程度かを確認しましょう。長期優良住宅やZEH住宅などの基準を満たしているかどうかも参考にすると良いでしょう。\n3.  **価格**: 坪単価や総額がどの程度かを確認しましょう。見積もりを依頼する際には、詳細な内訳を出してもらうようにしましょう。\n\nこれらのポイントを総合的に考慮して、自分に合ったハウスメーカーを選びましょう。\n\nまた、ハウスメーカー選びで迷ったら、ぜひ岡本 岳大にご相談ください。お客様の希望や条件に合わせて、最適なハウスメーカーをご紹介いたします。\n\nハウスメーカー選びは、家づくりの成功を左右する重要な要素です。\n焦らずじっくりと検討し、納得のいくハウスメーカーを選んでくださいね。\n\n注文住宅の予算オーバーを防ぐ方法についてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|注文住宅の予算オーバーを防ぐ方法|https://muchinochi55.com/chumon-jutaku-yosan-over/}}"
+      },
+      {
+        "role": "user",
+        "content": "そもそも注文住宅でいいのか心配です。"
+      },
+      {
+        "role": "assistant",
+        "content": "注文住宅にするかどうか悩ましいですよね。\n家づくりは大きな決断ですから、色々と不安になるお気持ち、とてもよく分かります。\n\n注文住宅にするかどうか迷われている場合、以下の選択肢を検討してみるのも良いかもしれません。\n\n1.  **建売住宅**: すでに完成している住宅を購入する方法です。\n2.  **中古住宅**: 中古住宅を購入して、リフォームやリノベーションをする方法です。\n3.  **マンション**: 新築または中古マンションを購入する方法です。\n\nこれらの選択肢と比較検討することで、注文住宅が本当に自分に合っているかどうかを判断することができます。\n\nそれぞれの選択肢には、メリット・デメリットがあります。\n\n*   **建売住宅**: 価格が比較的安く、すぐに住めるというメリットがありますが、間取りやデザインの自由度が低いというデメリットがあります。\n*   **中古住宅**: 価格が安く、リフォームやリノベーションで自分好みにできるというメリットがありますが、物件探しやリフォームの手間がかかるというデメリットがあります。\n*   **マンション**: 防犯性や利便性が高いというメリットがありますが、管理費や修繕積立金がかかるというデメリットがあります。\n\nこれらの選択肢を比較検討し、ご自身のライフスタイルや価値観に合った選択をすることが大切です。\n\n岡本 岳大さんの場合、注文住宅以外に気になる選択肢はありますか？\n{{CHOICES|建売住宅|中古住宅|マンション|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "中古住宅"
+      },
+      {
+        "role": "assistant",
+        "content": "中古住宅にご興味があるのですね。\n\n中古住宅は、価格が比較的安く、リフォームやリノベーションで自分好みにできるというメリットがあります。\n\n中古住宅を選ぶ際には、以下の点に注意しましょう。\n\n1.  **築年数**: 築年数が古い物件は、耐震性や断熱性が低い場合があります。\n2.  **状態**: 雨漏りやシロアリ被害がないか、建物の状態をよく確認しましょう。\n3.  **周辺環境**: 周辺の騒音や治安などを確認しましょう。\n4.  **リフォーム費用**: リフォームやリノベーションをする場合、どの程度の費用がかかるかを確認しましょう。\n\nこれらの点に注意して、慎重に物件を選びましょう。\n\nまた、中古住宅を購入する際には、住宅ローンを利用することができます。住宅ローンの種類や金利などを比較検討し、自分に合った住宅ローンを選びましょう。\n\nちなみに、中古物件の購入前に知るべきことについてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|中古物件の購入前に知るべきこと|https://muchinochi55.com/【超・重要】中古物件って実際どう？購入前に知/}}\n\n中古住宅について、何か気になることはありますか？\n{{CHOICES|中古住宅のリフォーム費用について教えてほしい|中古住宅の住宅ローンについて教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "中古マンションが気になります"
+      },
+      {
+        "role": "assistant",
+        "content": "中古マンションが気になっているのですね。\n\n中古マンションは、一般的に新築マンションに比べて価格が安く、立地条件の良い物件が多いというメリットがあります。\nまた、リフォームやリノベーションをすることで、自分好みの空間にすることも可能です。\n\n中古マンションを選ぶ際に注意すべき点はいくつかあります。\n\n*   **管理状況**: 管理体制がしっかりしているか、修繕計画がきちんと立てられているかなどを確認しましょう。\n*   **修繕履歴**: 過去にどのような修繕が行われてきたかを確認しましょう。\n*   **共用部分**: エントランスや廊下、エレベーターなどの共用部分の状態を確認しましょう。\n*   **専有部分**: 室内の状態を確認し、リフォームが必要な箇所がないか確認しましょう。\n*   **周辺環境**: 周辺の生活環境や交通アクセスなどを確認しましょう。\n\nこれらの点に注意して、慎重に物件を選びましょう。\n\nまた、中古マンションを購入する際には、住宅ローンを利用することができます。住宅ローンの種類や金利などを比較検討し、自分に合った住宅ローンを選びましょう。\n\nマンション購入時の管理費チェックについてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|マンション購入時の管理費チェック|https://muchinochi55.com/【買う前に確認して！】マンション購入時の管理/}}\n\n中古マンションについて、何か気になることはありますか？\n{{CHOICES|管理費について詳しく教えてほしい|修繕積立金について教えてほしい|住宅ローンについて教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "修繕積立金について教えてほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "修繕積立金についてですね。\n\n修繕積立金は、マンションの維持・管理に必要な費用を、区分所有者（マンションの各部屋の所有者）が毎月積み立てるお金のことです。\n\nマンションは、年月が経つにつれて、どうしても劣化が進んでいきます。\nそのため、定期的に大規模な修繕工事を行う必要があります。\n修繕積立金は、この大規模修繕工事の費用に充てられることが主な目的です。\n\n修繕積立金の金額は、マンションの規模や築年数、修繕計画などによって異なります。\n一般的には、築年数が古いマンションほど、修繕積立金が高くなる傾向があります。\n\n修繕積立金が不足していると、必要な修繕工事を行うことができず、マンションの価値が下がってしまう可能性があります。\nそのため、中古マンションを購入する際には、修繕積立金の残高や、今後の修繕計画などをしっかりと確認することが重要です。\n\n修繕積立金について、何か気になることはありますか？\n{{CHOICES|修繕積立金の相場について教えてほしい|修繕積立金が不足している場合どうなるか教えてほしい|修繕計画について教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "修繕積立金が不足している場合どうなるか教えてほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "修繕積立金が不足している場合、マンションの維持・管理に様々な問題が生じる可能性があります。\n\n具体的には、以下のようなことが考えられます。\n\n1.  **大規模修繕工事の延期・中止**: 修繕積立金が不足していると、予定されていた大規模修繕工事を延期したり、中止したりせざるを得なくなる場合があります。\n2.  **特別な一時金の徴収**: 大規模修繕工事を行うために、区分所有者から一時金を徴収する場合があります。\n3.  **マンションの価値の低下**: 修繕積立金が不足していると、マンションの維持・管理が行き届かなくなり、マンションの価値が低下する可能性があります。\n4.  **住宅ローンの審査に影響**: 修繕積立金が不足しているマンションは、住宅ローンの審査に通りにくくなる場合があります。\n\nこのように、修繕積立金が不足していると、マンションに住む人にとって様々なデメリットがあります。\n\n中古マンションを購入する際には、修繕積立金の状況をしっかりと確認し、将来的なリスクを考慮することが重要です。\n\nマンション大規模修繕の注意点についてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|マンション大規模修繕の注意点|https://muchinochi55.com/【どれくらい知っていますか？】マンション大規/}}\n\n修繕積立金について、何か他に気になることはありますか？\n{{CHOICES|修繕積立金の相場について教えてほしい|修繕計画について詳しく教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "土地情報はすでにたくさん見ましたが、決め手にかけます"
+      },
+      {
+        "role": "assistant",
+        "content": "土地情報をたくさん見られたのですね。\nなかなか決め手となる土地が見つからないとのこと、本当にお気持ちお察しします。\n\n土地選びは、家づくりにおいて非常に重要な要素の一つです。\n後悔しないために、以下の点を考慮しながら、慎重に選んでいきましょう。\n\n1.  **立地**: 通勤や通学の利便性、周辺環境などを考慮しましょう。\n2.  **広さ**: 家族構成やライフスタイルに合った広さを選びましょう。\n3.  **形状**: 正方形や長方形など、整形地の方が建物を建てやすいです。\n4.  **地盤**: 地盤が弱い土地は、地盤改良工事が必要になる場合があります。\n5.  **価格**: 予算に合った価格の土地を選びましょう。\n\nこれらの点を考慮しながら、実際に土地を見て、周辺環境を歩いてみることをおすすめします。\n\nまた、土地選びで迷ったら、ぜひ岡本 岳大にご相談ください。\nお客様の希望や条件に合わせて、最適な土地をご紹介いたします。\n{{CHOICES|土地探しのコツについて教えてほしい|土地選びの注意点について教えてほしい|土地の相場について教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "土地探しのコツについて教えてほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "土地探しのコツについてですね。\n土地探しは、家づくりを成功させるための重要な第一歩です。\n\nよりスムーズに、そして後悔のない土地探しをするために、ぜひ以下のポイントを参考にしてみてください。\n\n1.  **希望条件を明確にする**:\n    *   エリア、広さ、予算など、土地に求める条件を具体的にリストアップしましょう。\n    *   絶対に譲れない条件と、妥協できる条件を分けて考えると、土地を選びやすくなります。\n2.  **情報収集を徹底する**:\n    *   不動産情報サイトだけでなく、地元の不動産会社やハウスメーカーにも相談してみましょう。\n    *   インターネットには掲載されていない、未公開の土地情報を持っている場合があります。\n3.  **現地を必ず確認する**:\n    *   昼と夜、平日と休日など、時間帯や曜日を変えて、土地の周辺環境をチェックしましょう。\n    *   騒音、日当たり、風通し、治安などを確認することが大切です。\n4.  **専門家のアドバイスを受ける**:\n    *   建築士や不動産鑑定士など、専門家のアドバイスを受けることで、土地のpros/consを客観的に判断できます。\n    *   地盤調査や測量など、専門的な知識が必要な場合もあります。\n5.  **焦らずじっくりと探す**:\n    *   土地は、家づくりの土台となるものです。焦って決めてしまうと、後悔する可能性があります。\n    *   納得できる土地が見つかるまで、じっくりと探しましょう。\n\n土地と建築会社どちらを先に決めるべきかについてまとめた記事がありますので、ご紹介しますね。\n{{ARTICLE|土地と建築会社どちらを先に決める？|https://muchinochi55.com/custom-home-land-or-builder-first/}}\n\n土地探しは、根気が必要な作業ですが、理想の家を建てるためには欠かせません。\nこれらのコツを参考に、理想の土地を見つけてくださいね。\n\n土地探しについて、何か気になることはありますか？\n{{CHOICES|土地の価格交渉について教えてほしい|土地の契約について教えてほしい|地盤調査について教えてほしい|特になし}}"
+      },
+      {
+        "role": "user",
+        "content": "土地の条件見直しについて相談したい"
+      },
+      {
+        "role": "assistant",
+        "content": "土地の条件見直しについてご相談ですね。\n\n土地探しは、理想の家を建てるための第一歩ですが、なかなか希望通りの土地が見つからないこともありますよね。\nそんな時は、土地の条件を見直すことで、新たな可能性が見えてくるかもしれません。\n\n条件見直しで検討すべき点としては、主に以下の3つがあります。\n\n1.  **エリア**:\n    *   希望エリアを広げてみる\n    *   隣接するエリアも検討してみる\n    *   駅から少し離れた場所も視野に入れる\n2.  **広さ**:\n    *   希望する広さを少し狭めてみる\n    *   間取りを工夫することで、狭い土地でも快適な家づくりは可能です\n3.  **予算**:\n    *   住宅ローンの借入額を増やす\n    *   自己資金を増やす\n    *   土地の価格交渉をする\n\nこれらの条件を見直すことで、今まで見えてこなかった土地が見つかる可能性があります。\n\nまた、これらの条件以外にも、\n*   土地の形状\n*   日当たり\n*   周辺環境\n\nなども、土地選びの重要な要素となります。\n\n土地勘があまりないエリアでの土地探しは、不安なことも多いかと思います。\nもしよろしければ、私が岡本 岳大さんのご希望や条件をお伺いし、最適な土地探しをお手伝いすることも可能です。\n{{CHOICES|土地探しのコツについて教えてほしい|エリアの選び方について教えてほしい|岡本さんに土地探しを手伝ってほしい}}"
+      },
+      {
+        "role": "user",
+        "content": "岡本さんに土地探しを手伝ってほしい"
+      },
+      {
+        "role": "assistant",
+        "content": "ありがとうございます！岡本 岳大さんの土地探し、ぜひお手伝いさせてください。\n\n理想の土地を見つけるために、まず、岡本 岳大さんのご希望条件を詳しくお伺いしたいのですが、よろしいでしょうか？\n\n具体的には、\n*   希望エリア\n*   広さ\n*   予算\n*   その他、土地に求める条件（日当たり、周辺環境など）\n\nこれらの条件を詳しくお伺いすることで、より的確な土地探しが可能になります。\n\nまた、条件以外にも、\n*   家族構成\n*   ライフスタイル\n*   将来設計\n\nなども、土地選びの重要な要素となります。\n\nこれらの情報を総合的に考慮して、最適な土地をご提案させていただきます。\n\n可能でしたら、15分程度のオンライン面談でお話をお聞かせいただけますでしょうか？\n{{BOOKING|https://timerex.net/s/takehiro.okamoto_294e/32359692}}"
+      }
+    ],
+    "directChatHistory": [
+      {
+        "role": "user",
+        "content": "こんにちは",
+        "timestamp": "2026-02-17T01:08:16.593Z"
+      },
+      {
+        "role": "agent",
+        "content": "こんにちは！！",
+        "timestamp": "2026-02-17T01:08:43.317Z"
+      },
+      {
+        "role": "agent",
+        "content": "あああ",
+        "timestamp": "2026-02-17T02:16:26.514Z",
+        "broadcastId": "bcast_1771294586514"
+      }
+    ],
+    "createdAt": "2026-02-17T00:50:52.362Z",
+    "checklist": [
+      {
+        "name": "反響対応（初回問い合わせ）",
+        "items": [
+          {
+            "title": "問い合わせ内容を正確に記録",
+            "detail": "氏名・連絡先・希望条件・問い合わせ経路を記録",
+            "ref": "DAY3",
+            "checked": true,
+            "customized": ""
+          },
+          {
+            "title": "初回返信（5分以内目標）",
+            "detail": "迅速かつ丁寧な返信。自己紹介と次のステップを提案",
+            "ref": "DAY3",
+            "checked": true,
+            "customized": ""
+          },
+          {
+            "title": "お客様の温度感を把握",
+            "detail": "購入時期・緊急度・他社検討状況をヒアリング",
+            "ref": "DAY3",
+            "checked": true,
+            "customized": ""
+          },
+          {
+            "title": "希望条件の概要把握",
+            "detail": "エリア・価格帯・間取り・こだわりポイントを確認",
+            "ref": "DAY3",
+            "checked": true,
+            "customized": ""
+          },
+          {
+            "title": "CRM/顧客管理への登録",
+            "detail": "お客様情報をシステムに登録し管理開始",
+            "ref": "DAY3",
+            "checked": true,
+            "customized": ""
+          },
+          {
+            "title": "次回アクションの設定",
+            "detail": "面談日程の提案または次回連絡日を約束",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お礼メール送信",
+            "detail": "問い合わせへのお礼と有益な情報を添えたメール",
+            "ref": "DAY3",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "面談・案内準備",
+        "items": [
+          {
+            "title": "お客様情報の事前リサーチ",
+            "detail": "勤務先・年収推定・家族構成から最適提案を準備",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望エリアの相場調査",
+            "detail": "直近の成約事例・相場推移・将来性を調査",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "提案物件の事前選定（3〜5件）",
+            "detail": "お客様の条件に合う物件を複数ピックアップ",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件資料の準備",
+            "detail": "図面・写真・周辺情報をまとめた資料を作成",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローンの事前シミュレーション",
+            "detail": "想定借入額・月々返済額・金利タイプ別の比較",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "面談場所・オンライン環境の確認",
+            "detail": "対面の場合は場所予約、オンラインはURL送付",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "アジェンダの作成",
+            "detail": "面談の流れ・確認事項・提案内容をリスト化",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "リマインド連絡",
+            "detail": "面談前日にリマインドメール or メッセージ",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "競合物件・他社情報の把握",
+            "detail": "同エリアの競合物件や他社の動向を確認",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "質問リストの準備",
+            "detail": "お客様に確認すべき深掘り質問を準備",
+            "ref": "DAY4",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "初回商談",
+        "items": [
+          {
+            "title": "自己紹介とサービス説明",
+            "detail": "TERASSの強み・自分の実績・サポート体制を説明",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の購入動機の深掘り",
+            "detail": "なぜ今購入を考えているか、背景を丁寧にヒアリング",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "資金計画の概要説明",
+            "detail": "購入に必要な費用の全体像を説明",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ライフプランのヒアリング",
+            "detail": "将来の家族計画・転職予定・教育方針を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "購入の流れ説明",
+            "detail": "物件探し→内見→申込→契約→決済の流れを図解",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "希望条件の優先順位付け",
+            "detail": "MUST条件とWANT条件を分けて整理",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "次回のアクションプラン提示",
+            "detail": "物件見学の日程・準備事項を具体的に提案",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "面談議事録の作成・共有",
+            "detail": "話した内容をまとめてお客様に共有",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お礼・フォローメール",
+            "detail": "面談のお礼と次のステップを記載したメール送付",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "ヒアリング（ニーズ把握）",
+        "items": [
+          {
+            "title": "現在の住まいの不満点",
+            "detail": "今の住まいで困っていること・改善したい点",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "理想の暮らしイメージ",
+            "detail": "休日の過ごし方・通勤時間・子育て環境など",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "絶対に譲れない条件",
+            "detail": "立地・間取り・設備のマスト条件を明確化",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "妥協できるポイント",
+            "detail": "優先度が低い条件を把握して選択肢を広げる",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "世帯年収・貯蓄の確認",
+            "detail": "無理のない予算設定のために正確に把握",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローンの事前審査状況",
+            "detail": "審査済み/未着手/不安要素を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "購入希望時期の確認",
+            "detail": "引越し希望日から逆算してスケジュール作成",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "配偶者・家族の意向確認",
+            "detail": "決定権者は誰か、家族の意見を確認",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ヒアリングシートの完成",
+            "detail": "全情報を体系的に整理して社内共有",
+            "ref": "DAY5",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "物件案内",
+        "items": [
+          {
+            "title": "内見スケジュール調整",
+            "detail": "候補物件3〜5件の効率的な内見ルート作成",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "各物件のメリット・デメリット整理",
+            "detail": "お客様の条件に照らした客観的な比較表",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "周辺環境の下見",
+            "detail": "スーパー・学校・病院・駅までの実際の動線確認",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "内見時のチェックポイント説明",
+            "detail": "確認すべき構造・設備・日当たりなどをガイド",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "内見後の感想ヒアリング",
+            "detail": "各物件の印象・気になった点を詳しく確認",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "比較検討資料の作成",
+            "detail": "内見物件の比較表を作成しお客様に送付",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "追加物件の提案",
+            "detail": "フィードバックを踏まえた新たな候補物件の提案",
+            "ref": "DAY6",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "プレゼン・提案",
+        "items": [
+          {
+            "title": "最終候補物件の絞り込み",
+            "detail": "お客様と一緒に2〜3件に絞り込む",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "詳細な資金計画書の作成",
+            "detail": "物件価格・諸費用・ローンシミュレーション",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン比較表",
+            "detail": "金融機関別の金利・条件・審査基準の比較",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ライフプランシミュレーション",
+            "detail": "将来の収支を含めた長期的な資金計画",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件の将来価値分析",
+            "detail": "エリアの発展性・資産価値の見通し",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "リスク説明",
+            "detail": "購入に伴うリスクと対策を正直に説明",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "決断サポート",
+            "detail": "迷っているポイントを整理し判断材料を提供",
+            "ref": "DAY7",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "購入手順説明",
+        "items": [
+          {
+            "title": "購入申込書の説明",
+            "detail": "申込の意味・拘束力・キャンセルの可否",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "手付金の説明",
+            "detail": "金額の目安・支払いタイミング・返還条件",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン本審査の手続き",
+            "detail": "必要書類・審査期間・注意点を説明",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "重要事項説明の予告",
+            "detail": "重説の内容・確認ポイントを事前に説明",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約日程の調整",
+            "detail": "売主・買主・司法書士のスケジュール調整",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "必要書類リストの送付",
+            "detail": "契約に必要な書類一覧をお客様に送付",
+            "ref": "DAY8",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "重説・契約",
+        "items": [
+          {
+            "title": "重要事項説明書の事前チェック",
+            "detail": "記載内容の確認・お客様への説明準備",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約書の事前チェック",
+            "detail": "特約条項・引渡し条件・瑕疵担保の確認",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "重要事項説明の実施",
+            "detail": "法定の重要事項をわかりやすく説明",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "売買契約の締結",
+            "detail": "契約書への署名捺印・手付金の授受",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "住宅ローン正式申込",
+            "detail": "金融機関への正式な融資申込手続き",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "契約後のスケジュール共有",
+            "detail": "決済日までの流れとタスクを共有",
+            "ref": "DAY9",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "決済・引渡し",
+        "items": [
+          {
+            "title": "融資実行の確認",
+            "detail": "金融機関からの融資実行日・金額の最終確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "残金決済の準備",
+            "detail": "必要書類・振込先・金額の最終確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "物件の最終確認（引渡し前内覧）",
+            "detail": "契約時と相違ないか現地確認",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "鍵の引渡し",
+            "detail": "鍵の受領・本数確認・管理説明",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "引越し後の届出サポート",
+            "detail": "住所変更・転居届など必要手続きの案内",
+            "ref": "DAY10",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "アフターフォロー",
+        "items": [
+          {
+            "title": "引渡し後1週間フォロー",
+            "detail": "不具合や困りごとがないか確認の連絡",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "引渡し後1ヶ月フォロー",
+            "detail": "生活の中での気づき・相談に対応",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "確定申告のリマインド",
+            "detail": "住宅ローン控除の申請方法と時期を案内",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "定期的な状況確認",
+            "detail": "半年〜1年ごとに近況確認の連絡",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "紹介依頼",
+            "detail": "満足いただけたら周りの方のご紹介をお願い",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "お客様の声の収集",
+            "detail": "レビューやアンケートのお願い",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      },
+      {
+        "name": "追客（検討中顧客対応）",
+        "items": [
+          {
+            "title": "定期的な情報提供",
+            "detail": "新着物件・相場情報・お役立ち記事を送付",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "ステータスの定期確認",
+            "detail": "購入意欲の変化・状況の変化をヒアリング",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "イベント・セミナー案内",
+            "detail": "住宅購入セミナーや内見会の案内",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "条件変更のヒアリング",
+            "detail": "時間経過による希望条件の変化を確認",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          },
+          {
+            "title": "再アプローチのタイミング判断",
+            "detail": "引越し時期・ライフイベントからベストタイミングを判断",
+            "ref": "DAY11",
+            "checked": false,
+            "customized": ""
+          }
+        ]
+      }
+    ],
+    "agentChatHistory": [
+      {
+        "role": "user",
+        "content": "潜在ニーズ分析"
+      },
+      {
+        "role": "assistant",
+        "content": "岡本さん、こんにちは！岡本さんの潜在ニーズを分析し、より良い提案に繋げるための情報を整理しましょう。\n\n**1. 現在の情報整理:**\n\n*   **顕在ニーズ:**\n    *   広い注文住宅（お子様のため）\n    *   大阪市内・北摂エリア\n    *   予算1.2億円\n    *   優秀なハウスメーカー担当者の紹介\n    *   土地情報\n    *   ハウスメーカー紹介・割引\n*   **AIチャット履歴からの推測:**\n    *   デザインを重視する可能性\n    *   情報収集を積極的に行いたい\n    *   オンライン面談はまだ希望しない\n\n**2. 潜在ニーズの仮説:**\n\n*   **子育て環境:** 単に広い家だけでなく、周辺の公園、学校、病院など、子育てに適した環境を求めている可能性。\n*   **住宅性能:** 長く住む家なので、耐震性、断熱性、省エネ性能といった住宅性能への関心が高い可能性。\n*   **デザインと機能性の両立:** デザインだけでなく、家事動線や収納など、暮らしやすさを重視している可能性。\n*   **将来のライフプラン:** 子供の成長や独立など、将来的なライフプランを見据えた家づくりを考えている可能性。\n*   **資産価値:** 将来的な売却や賃貸も視野に入れ、資産価値の高い家を求めている可能性。\n*   **住宅ローンへの不安:** 2人のお子様がいらっしゃるので住宅ローンや今後の教育費について不安に思っている可能性。\n\n**3. 次にやるべきこと（Next Action）:**\n\n1.  **ヒアリングの準備:**\n    *   潜在ニーズを探るための質問リストを作成（例：現在の住まいの不満点、理想の暮らし方、家族構成の変化など）\n    *   ハウスメーカーの選定基準（デザイン、性能、価格など）を明確にするための質問を準備。\n    *   「まだオンライン面談はしたくない」とのことなので、電話でヒアリングを行うか、対面での初回面談を提案。\n2.  **土地情報の収集:**\n    *   大阪市内・北摂エリアで、子育て環境が良く、予算内で購入可能な土地情報を収集。\n    *   ハザードマップや周辺環境などの情報も合わせて収集。\n3.  **ハウスメーカーの選定:**\n    *   デザイン性、住宅性能、価格帯など、岡本さんのニーズに合うハウスメーカーを3〜5社程度ピックアップ。\n    *   各社の特徴や強みをまとめた資料を作成。\n4. **住宅ローンの情報提供:**\n    * 2人のお子様がいる家庭向けの住宅ローンプランをいくつかピックアップ\n\n**4. 注意すべきポイント/リスク:**\n\n*   **情報過多:** 岡本さんは情報収集を積極的に行いたい意向なので、情報提供の量やタイミングに注意。\n*   **押し付け:** オンライン面談を希望しないなど、岡本さんのペースを尊重し、強引な提案は避ける。\n*   **予算オーバー:** 希望エリアや条件によっては、予算1.2億円を超える可能性があるため、早めに相談する。\n\n**5. 物件提案のアイデア:**\n\n*   **モデルハウス見学:** 岡本さんが興味を持ちそうなデザインのモデルハウスを選び、見学を提案。（VR見学も検討）\n*   **土地＋建物プランの提案:** 土地情報と合わせて、ハウスメーカーによる参考プランを提示。\n*   **事例紹介:** 岡本さんの家族構成やライフスタイルに近い事例を紹介。\n\n【ToDo候補】\n\n*   ヒアリング準備（質問リスト作成）\n*   土地情報収集（大阪市内・北摂エリア）\n*   ハウスメーカー選定（3〜5社）\n*   岡本さんに合わせた住宅ローンプランのピックアップ\n*   モデルハウス見学候補選定\n"
+      },
+      {
+        "role": "user",
+        "content": "潜在ニーズ"
+      },
+      {
+        "role": "assistant",
+        "content": "岡本さん、潜在ニーズをより深く掘り下げるために、もう少し具体的に考えてみましょう。\n\n**1. 現在地に関する質問:**\n\n*   現在の住まいの種類（賃貸マンション、戸建てなど）\n*   現在の住まいの広さ、間取り、築年数\n*   現在の住まいの気に入っている点、不満な点\n*   現在の住まいを選んだ理由\n*   引越しの経験（過去の住まい、引越し理由）\n\n**2. 家族構成に関する質問:**\n\n*   お子様の年齢、性別\n*   お子様の性格、興味\n*   ご夫婦の趣味、ライフスタイル\n*   将来的な家族構成の変化（親との同居など）\n\n**3. ライフスタイルに関する質問:**\n\n*   休日の過ごし方\n*   在宅勤務の頻度\n*   家事の分担\n*   収納の悩み\n*   ペットの有無\n*   車、バイクの台数\n\n**4. 将来設計に関する質問:**\n\n*   住宅ローンの返済計画\n*   老後の生活設計\n*   資産運用\n\n**5. その他質問:**\n\n*   家づくりで一番重要視する点は？\n*   参考にしている情報源（雑誌、Webサイト、SNSなど）\n*   他に相談している専門家（FPなど）\n\nこれらの質問を通して、岡本さんの価値観、ライフスタイル、将来設計などを理解することで、より的確な提案ができるようになります。\n\n**【潜在ニーズの深掘り例】**\n\n*   **「現在の住まいの不満点」** → 収納スペースの不足 → 収納アイデア、収納率の高いハウスメーカーの提案\n*   **「休日の過ごし方」** → BBQ好き → 広々とした庭、ウッドデッキのあるプランの提案\n*   **「在宅勤務の頻度」** → 仕事に集中できる書斎、防音性の高いハウスメーカーの提案\n*   **「家事の分担」** → 家事動線を考慮した間取り、最新設備の導入\n\nこれらの情報を基に、以下のような提案が考えられます。\n\n*   **子育てに特化したハウスメーカーの紹介:** 子供の成長に合わせて間取りを変えられる家、自然素材を使った家など。\n*   **住宅性能に特化したハウスメーカーの紹介:** 断熱性、耐震性に優れた家、ZEH住宅など。\n*   **デザイン性の高いハウスメーカーの紹介:** 岡本さんの好みに合ったデザインを手がけるハウスメーカー。\n*   **土地探しからサポート:** 岡本さんの希望に合った土地情報を収集し、現地見学をアレンジ。\n*   **資金計画のサポート:** 住宅ローン、税金、諸費用など、資金計画に関するアドバイス。\n\n【ToDo候補】\n\n*   ヒアリング質問リストの見直し\n*   岡本さんの潜在ニーズに合ったハウスメーカーのリストアップ\n*   資金計画に関する情報収集\n"
+      },
+      {
+        "role": "user",
+        "content": "次のアプローチは？"
+      },
+      {
+        "role": "assistant",
+        "content": "岡本さん、次のアプローチとして、これまでの分析と準備を踏まえて、いよいよお客様への具体的なアクションを起こしましょう。\n\n**1. 優先順位:**\n\nまずは、岡本さんが最も関心を持っている可能性が高いニーズからアプローチします。現時点では、下記を優先的に進めましょう。\n\n*   **優秀なハウスメーカー担当者の紹介**\n*   **土地情報**\n\n**2. 具体的なアプローチ方法:**\n\n*   **電話でのヒアリング:**\n    *   事前に準備した質問リストを参考に、岡本さんの潜在ニーズを丁寧にヒアリング。\n    *   ハウスメーカーの選定基準、土地の希望条件などを詳しく聞く。\n    *   ヒアリング時間は15分程度に抑え、簡潔にまとめる。\n    *   必ず岡本さんの都合の良い時間帯に電話する。\n    *   **会話例:**\n        *   「岡本さん、こんにちは。先日のお問い合わせありがとうございます。少しお時間よろしいでしょうか？ 理想の家づくりに向けて、いくつかお伺いしたいことがございます。」\n        *   「お子様のために広い家を建てたいとのことですが、具体的にどのような広さや間取りをご希望でしょうか？」\n        *   「ハウスメーカーについては、何か気になる点や重視する点はございますか？ デザイン、性能、価格など、どのようなことを重視されますか？」\n        *   「土地についてですが、大阪市内・北摂エリアで、何か具体的なご希望はございますか？ 例えば、駅からの距離、周辺環境、広さなど。」\n*   **ヒアリング後のアクション:**\n    *   ヒアリング内容を整理し、岡本さんのニーズを明確にする。\n    *   ニーズに合ったハウスメーカーと土地情報をピックアップ。\n    *   ハウスメーカーと土地情報の詳細な資料を作成。\n\n**3. 提案資料の作成:**\n\n*   **ハウスメーカー紹介資料:**\n    *   各社の特徴、強み、デザイン事例、価格帯などをまとめた資料。\n    *   岡本さんのニーズに合ったハウスメーカーを3〜5社程度ピックアップ。\n    *   担当者のプロフィール、得意分野などを紹介。\n*   **土地情報資料:**\n    *   所在地、面積、価格、周辺環境、ハザードマップなどの情報。\n    *   現地の写真や動画を添付。\n    *   土地のメリット・デメリットを明確に記載。\n    *   参考プランを提示（ハウスメーカーに依頼）。\n\n**4. 提案方法:**\n\n*   **資料送付:**\n    *   ハウスメーカーと土地情報の資料をメールで送付。\n    *   資料の見方やポイントを簡単に説明。\n    *   電話での質問や相談を受け付ける旨を伝える。\n*   **対面での初回面談:**\n    *   資料の内容について、対面で詳しく説明。\n    *   岡本さんの質問や疑問に答える。\n    *   モデルハウス見学や土地見学を提案。\n\n**5. 注意点:**\n\n*   **情報の正確性:** ハウスメーカーや土地情報の最新情報を確認し、正確な情報を提供する。\n*   **客観性:** ハウスメーカーや土地の良い点だけでなく、注意点も伝える。\n*   **押し付け:** 岡本さんのペースを尊重し、強引な提案は避ける。\n*   **迅速な対応:** 岡本さんの質問や相談には、迅速かつ丁寧に対応する。\n\n**6. ToDoリスト:**\n\n*   電話でのヒアリング実施\n*   ハウスメーカーと土地情報のピックアップ\n*   ハウスメーカー紹介資料の作成\n*   土地情報資料の作成\n*   資料送付または対面での初回面談\n\n**7. その他の考慮事項:**\n\n*   **競合:** 他の不動産会社やハウスメーカーとの競合を意識する。\n*   **差別化:** 岡本さんにとって、岡本さんから購入するメリットを明確にする。\n*   **長期的な関係構築:** 短期的な売上だけでなく、長期的な信頼関係を築くことを目指す。\n\nこのステップを着実に実行することで、岡本さんの理想の家づくりをサポートし、信頼関係を築き、成約に繋げることができるでしょう。頑張ってください！\n"
+      }
+    ],
+    "line": "",
+    "interactions": [],
+    "tags": [
+      "注文住宅"
+    ]
+  }
+}
