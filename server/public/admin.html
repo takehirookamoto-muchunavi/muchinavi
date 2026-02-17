@@ -1,0 +1,3565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuchiNavi 管理画面</title>
+    <style>
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1d1d1f;
+            --accent: #0071e3;
+            --bg: #f5f5f7;
+            --success: #34c759;
+            --danger: #ff3b30;
+            --warning: #ff9500;
+            --text: #1d1d1f;
+            --text-secondary: #666;
+            --border: #e5e5e7;
+            --glass-light: rgba(255, 255, 255, 0.96);
+            --glass-blur: 0px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ======================== LOGIN SCREEN ======================== */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f5f7 0%, #e8e8eb 100%);
+        }
+
+        .login-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .login-form input {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .login-form button {
+            padding: 12px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-form button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 113, 227, 0.3);
+        }
+
+        .login-form button:active {
+            transform: translateY(0);
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        /* ======================== MAIN DASHBOARD ======================== */
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1d1d1f 0%, #2c2c2e 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header-title {
+            flex: 1;
+        }
+
+        .last-updated-time {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            display: block;
+            margin-top: 4px;
+        }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            min-height: 36px;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-search {
+            padding: 12px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .sidebar-search input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sidebar-search input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent);
+        }
+
+        .sidebar-customers {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .customer-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .customer-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .customer-item.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .customer-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .customer-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(52, 199, 89, 0.2);
+            color: var(--success);
+        }
+
+        .status-blocked {
+            background: rgba(255, 59, 48, 0.2);
+            color: var(--danger);
+        }
+
+        .status-withdrawn {
+            background: rgba(102, 102, 102, 0.2);
+            color: #999;
+        }
+
+        .customer-tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 4px;
+        }
+
+        .customer-tag-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            background: rgba(88, 86, 214, 0.25);
+            color: rgba(255, 255, 255, 0.85);
+            white-space: nowrap;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .customer-tag-badge.tag-more {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Main Content Area */
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 24px;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .stat-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Action Bar */
+        .action-bar {
+            padding: 16px 24px;
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .action-bar-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .action-bar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: var(--bg);
+            border-color: #ccc;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #ff1744;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #30b050;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            padding: 16px 24px;
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg);
+            border-color: #ccc;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .chat-sub-tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .chat-sub-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .chat-sub-tab:hover {
+            color: var(--text);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* ======================== DASHBOARD TAB ======================== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        /* ======================== CUSTOMER INFO TAB ======================== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            grid-column: 1 / -1;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            grid-column: 1 / -1;
+        }
+
+        .form-full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ======================== CHECKLIST TAB ======================== */
+        .checklist-phase {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .phase-header {
+            padding: 16px;
+            background: linear-gradient(135deg, #f5f5f7 0%, #e8e8eb 100%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .phase-header:hover {
+            background: linear-gradient(135deg, #efefef 0%, #dcdcde 100%);
+        }
+
+        .phase-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phase-progress {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .phase-toggle {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .phase-toggle.open {
+            transform: rotate(90deg);
+        }
+
+        .phase-items {
+            display: none;
+            padding: 0;
+        }
+
+        .phase-items.open {
+            display: block;
+        }
+
+        .checklist-item {
+            padding: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .checklist-item-content {
+            flex: 1;
+        }
+
+        .checklist-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .checklist-item-detail {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .ref-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(0, 113, 227, 0.1);
+            color: var(--accent);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ======================== INTERACTIONS TAB ======================== */
+        .interaction-form {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .interaction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .interaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .interaction-item {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .interaction-content {
+            flex: 1;
+        }
+
+        .interaction-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .interaction-method {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(0, 113, 227, 0.1);
+            color: var(--accent);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            margin-right: 8px;
+        }
+
+        .interaction-text {
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .interaction-delete {
+            padding: 6px 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .interaction-delete:hover {
+            background: #ff1744;
+        }
+
+        /* ======================== TODO TAB ======================== */
+        .todo-form {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .todo-grid {
+            display: grid;
+            grid-template-columns: 1fr 120px 140px auto;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .todo-item {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .todo-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-text {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .todo-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .todo-priority {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .priority-high {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(255, 149, 0, 0.15);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: rgba(52, 199, 89, 0.15);
+            color: var(--success);
+        }
+
+        .todo-deadline {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .todo-delete {
+            padding: 6px 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .todo-delete:hover {
+            background: #ff1744;
+        }
+
+        .ai-suggest-btn {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .ai-suggest-btn:hover {
+            background: #0056b3;
+        }
+
+        .ai-suggest-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .suggestions-list {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .suggestion-item {
+            padding: 12px;
+            background: rgba(0, 113, 227, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .suggestion-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .suggestion-add {
+            padding: 4px 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-add:hover {
+            background: #0056b3;
+        }
+
+        /* ======================== CHAT TABS ======================== */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 20px;
+        }
+
+        .chat-welcome-icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+
+        .chat-welcome-title {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        .chat-hints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .chat-hint {
+            padding: 12px;
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-hint:hover {
+            background: rgba(0, 113, 227, 0.1);
+            border-color: var(--accent);
+        }
+
+        .agent-quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            border-top: 1px solid var(--border);
+            background: #f9f9fb;
+            flex-wrap: wrap;
+        }
+        .agent-quick-btn {
+            padding: 6px 14px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 980px;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: inherit;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .agent-quick-btn:hover {
+            background: rgba(0, 113, 227, 0.08);
+            border-color: var(--accent);
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        .message-bubble.assistant {
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: var(--text);
+        }
+
+        .message-bubble.user {
+            background: var(--accent);
+            color: white;
+        }
+
+        .message-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .message-content strong {
+            font-weight: 600;
+        }
+
+        .message-content h3 {
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            margin-left: 20px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .message-content li {
+            margin-bottom: 4px;
+        }
+
+        .chat-input-container {
+            padding: 16px;
+            background: var(--glass-light);
+            backdrop-filter: blur(var(--glass-blur));
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .chat-send {
+            padding: 10px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            background: #0056b3;
+        }
+
+        .chat-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ======================== MODAL ======================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .password-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .password-form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .password-form-group input {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .password-form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        /* ======================== TOAST ======================== */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            animation: toastSlide 0.3s ease;
+            max-width: 300px;
+        }
+
+        @keyframes toastSlide {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.info {
+            background: var(--accent);
+        }
+
+        /* ======================== SCROLLBAR ======================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* ======================== RESPONSIVE ======================== */
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+
+            .sidebar-customers {
+                max-height: 100px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .todo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
+
+            .chat-hints {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tab-nav {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-btn {
+                flex-shrink: 0;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .interaction-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-bar-actions {
+                width: 100%;
+            }
+
+            .action-bar-actions .btn {
+                flex: 1;
+            }
+
+            .tab-btn {
+                font-size: 12px;
+                padding: 8px 14px;
+                white-space: nowrap;
+            }
+
+            .info-card {
+                padding: 12px;
+            }
+
+            .info-label { font-size: 11px; }
+            .info-value { font-size: 14px; }
+
+            .checklist-phase-title { font-size: 14px; }
+
+            .chat-container {
+                height: calc(100vh - 380px);
+                min-height: 300px;
+            }
+
+            .chat-input-container { padding: 8px; }
+            .chat-input { font-size: 14px; }
+            .chat-send { padding: 8px 14px; font-size: 13px; }
+        }
+
+        @media (max-width: 480px) {
+            .admin-sidebar {
+                max-height: 160px;
+            }
+
+            .sidebar-header { padding: 12px; font-size: 16px; }
+            .sidebar-search { padding: 8px; }
+            .customer-item { padding: 8px; font-size: 13px; }
+
+            .login-card { padding: 32px 20px; }
+            .login-title { font-size: 22px; }
+            .login-form input { font-size: 16px; }
+
+            .tab-nav { padding: 0 8px; gap: 4px; }
+            .tab-btn { font-size: 11px; padding: 6px 10px; }
+
+            .message-bubble { max-width: 92%; font-size: 13px; }
+
+            .btn { font-size: 13px; padding: 8px 14px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">🔐</div>
+                <h1 class="login-title">MuchiNavi 管理</h1>
+                <p class="login-subtitle">管理者用パスワード</p>
+            </div>
+            <form class="login-form" id="loginForm">
+                <input
+                    type="password"
+                    id="passwordInput"
+                    placeholder="パスワードを入力"
+                    autocomplete="current-password"
+                >
+                <button type="submit">ログイン</button>
+                <div class="login-error" id="loginError"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="adminContainer" class="admin-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-header-title">
+                    <div>🏠 MuchiNavi 管理</div>
+                    <div class="last-updated-time" id="lastUpdatedIndicator">最終更新: --:--:--</div>
+                </div>
+                <button class="settings-btn" id="settingsBtn" title="設定">⚙️</button>
+            </div>
+            <div class="sidebar-search">
+                <input
+                    type="text"
+                    id="customerSearch"
+                    placeholder="検索..."
+                >
+            </div>
+            <div class="sidebar-customers" id="customerList"></div>
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" onclick="openBroadcastView()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px;">📢 一斉配信</button>
+                <button class="logout-btn" id="logoutBtn">ログアウト</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Empty State or Action Bar + Tabs -->
+            <div id="emptyState" class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <div class="empty-state-title">お客様を選択</div>
+                <div class="empty-state-text">左のリストからお客様を選択して管理を開始してください</div>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+
+            <!-- Broadcast View (独立・顧客選択不要) -->
+            <div id="broadcastView" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+                <div class="action-bar">
+                    <div class="action-bar-left">
+                        <div class="action-bar-title">📢 一斉配信</div>
+                    </div>
+                    <div class="action-bar-actions">
+                        <button class="btn" onclick="closeBroadcastView()">← 戻る</button>
+                    </div>
+                </div>
+                <div style="flex: 1; overflow-y: auto; padding: 24px;">
+                    <!-- Sub-tabs -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                        <button class="chat-sub-tab active" id="bcastSubCompose" onclick="switchBroadcastSub('compose')">✏️ メッセージ作成</button>
+                        <button class="chat-sub-tab" id="bcastSubHistory" onclick="switchBroadcastSub('history')">📋 配信履歴</button>
+                        <button class="chat-sub-tab" id="bcastSubTags" onclick="switchBroadcastSub('tags')">🏷️ タグ管理</button>
+                    </div>
+
+                    <!-- COMPOSE -->
+                    <div id="bcastComposePane">
+                        <div style="background: var(--glass-light); backdrop-filter: blur(var(--glass-blur)); border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                            <h3 style="margin-bottom: 16px; font-size: 16px;">📝 メッセージ内容</h3>
+                            <textarea id="broadcastMessage" placeholder="配信するメッセージを入力してください…" rows="6" style="width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 120px; line-height: 1.6; box-sizing: border-box;"></textarea>
+                        </div>
+
+                        <div style="background: var(--glass-light); backdrop-filter: blur(var(--glass-blur)); border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                            <h3 style="margin-bottom: 16px; font-size: 16px;">🎯 配信対象</h3>
+                            <div style="margin-bottom: 16px;">
+                                <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 8px; color: var(--text-secondary);">フィルタータイプ</label>
+                                <select id="bcastFilterType" onchange="onFilterTypeChange()" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; background: white;">
+                                    <option value="all">全てのお客様</option>
+                                    <option value="include-all">選択タグを全て含む (AND)</option>
+                                    <option value="include-any">選択タグを一部含む (OR)</option>
+                                    <option value="exclude-all">選択タグを全て含む人を除外</option>
+                                    <option value="exclude-any">選択タグを一部含む人を除外</option>
+                                </select>
+                            </div>
+                            <div id="bcastTagSection" style="display: none;">
+                                <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 8px; color: var(--text-secondary);">タグを選択</label>
+                                <div id="bcastTagCheckboxes" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+                                </div>
+                            </div>
+                            <div style="background: #f0f7ff; border-radius: 10px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <p style="font-size: 12px; color: #86868b; margin: 0 0 4px;">配信対象</p>
+                                    <p style="font-size: 28px; font-weight: 700; color: #0071e3; margin: 0;" id="bcastPreviewCount">—</p>
+                                    <p style="font-size: 12px; color: #86868b; margin: 4px 0 0;">人のお客様</p>
+                                </div>
+                                <button class="btn" onclick="previewBroadcast()" style="font-size: 13px;">🔍 プレビュー</button>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" id="sendBroadcastBtn" onclick="sendBroadcast()" style="width: 100%; padding: 16px; font-size: 15px; border-radius: 12px;">
+                            🚀 メッセージを配信する
+                        </button>
+                    </div>
+
+                    <!-- HISTORY -->
+                    <div id="bcastHistoryPane" style="display: none;">
+                        <div id="bcastHistoryList">
+                            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">読み込み中...</p>
+                        </div>
+                    </div>
+
+                    <!-- TAG MANAGEMENT -->
+                    <div id="bcastTagsPane" style="display: none;">
+                        <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: flex-end;">
+                            <div style="flex: 1;">
+                                <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: var(--text-secondary);">タグ名</label>
+                                <input type="text" id="newTagName" placeholder="例: 新築検討" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: var(--text-secondary);">色</label>
+                                <input type="color" id="newTagColor" value="#0071e3" style="width: 50px; height: 38px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;">
+                            </div>
+                            <button class="btn btn-primary" onclick="createTag()" style="height: 38px; white-space: nowrap;">+ 作成</button>
+                        </div>
+                        <div id="tagMasterList" style="display: flex; flex-direction: column; gap: 8px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Selected View -->
+            <div id="customerView" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+                <!-- Action Bar -->
+                <div class="action-bar">
+                    <div class="action-bar-left">
+                        <div class="action-bar-title" id="actionBarTitle"></div>
+                        <span class="customer-status" id="actionBarStatus"></span>
+                    </div>
+                    <div class="action-bar-actions">
+                        <button class="btn" id="blockUnblockBtn"></button>
+                        <button class="btn btn-danger" id="deleteBtn">削除</button>
+                    </div>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="tab-nav" id="tabNav">
+                    <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+                    <button class="tab-btn" data-tab="info">お客様情報</button>
+                    <button class="tab-btn" data-tab="checklist">チェックリスト</button>
+                    <button class="tab-btn" data-tab="interactions">やり取り履歴</button>
+                    <button class="tab-btn" data-tab="todo">ToDo</button>
+                    <button class="tab-btn" data-tab="chatHistory">チャット履歴</button>
+                    <button class="tab-btn" data-tab="agentChat">エージェント相談室</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Dashboard Tab -->
+                    <div id="dashboardTab" class="tab-pane active">
+                        <div class="dashboard-grid" id="dashboardGrid"></div>
+                        <h3 style="margin-bottom: 16px;">最近のやり取り</h3>
+                        <div id="recentInteractions"></div>
+                        <h3 style="margin-top: 32px; margin-bottom: 16px;">直近のToDo</h3>
+                        <div id="recentTodos"></div>
+                    </div>
+
+                    <!-- Customer Info Tab -->
+                    <div id="infoTab" class="tab-pane">
+                        <form id="customerInfoForm" class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">氏名 *</label>
+                                <input type="text" class="form-input" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">年齢</label>
+                                <input type="number" class="form-input" name="age">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">家族構成</label>
+                                <input type="text" class="form-input" name="family" placeholder="例: 夫婦、家族4人">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">現住所</label>
+                                <input type="text" class="form-input" name="currentHome">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">世帯年収</label>
+                                <select class="form-select" name="householdIncome">
+                                    <option value="">選択</option>
+                                    <option value="〜499万円">〜499万円</option>
+                                    <option value="500〜999万円">500〜999万円</option>
+                                    <option value="1,000〜1,499万円">1,000〜1,499万円</option>
+                                    <option value="1,500〜1,999万円">1,500〜1,999万円</option>
+                                    <option value="2,000〜2,499万円">2,000〜2,499万円</option>
+                                    <option value="2,500〜2,999万円">2,500〜2,999万円</option>
+                                    <option value="3,000万円〜">3,000万円〜</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">探索理由(管理用)</label>
+                                <input type="text" class="form-input" name="reason" placeholder="例: 子どもの進学">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label class="form-label">探索理由(登録時記入)</label>
+                                <textarea class="form-textarea" name="searchReason" placeholder="お客様が登録時に記入した探索理由"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">対象エリア</label>
+                                <input type="text" class="form-input" name="area">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">予算 (万円)</label>
+                                <input type="number" class="form-input" name="budget">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">物件種別</label>
+                                <select class="form-select" name="propertyType">
+                                    <option value="">選択</option>
+                                    <option value="中古戸建て">中古戸建て</option>
+                                    <option value="中古マンション">中古マンション</option>
+                                    <option value="新築戸建て">新築戸建て</option>
+                                    <option value="注文住宅">注文住宅</option>
+                                    <option value="新築マンション">新築マンション</option>
+                                    <option value="賃貸">賃貸</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">登録目的</label>
+                                <select class="form-select" name="purpose">
+                                    <option value="">選択</option>
+                                    <option value="住まい探し全般">住まい探し全般</option>
+                                    <option value="記事が参考になった">記事が参考になった</option>
+                                    <option value="ハウスメーカー紹介・割引を受けたい">ハウスメーカー紹介・割引</option>
+                                    <option value="とりあえず相談したい">とりあえず相談したい</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">希望面積 (㎡)</label>
+                                <input type="number" class="form-input" name="size">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">間取り</label>
+                                <input type="text" class="form-input" name="layout" placeholder="例: 3LDK">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">駅距離 (分)</label>
+                                <input type="number" class="form-input" name="stationDistance">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">職業</label>
+                                <input type="text" class="form-input" name="occupation">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">年収 (万円)</label>
+                                <input type="number" class="form-input" name="income">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">貯蓄 (万円)</label>
+                                <input type="number" class="form-input" name="savings">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ローン状況</label>
+                                <input type="text" class="form-input" name="loanStatus" placeholder="例: 住宅ローン事前審査済み">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">購入動機</label>
+                                <input type="text" class="form-input" name="motivation">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">購入時期</label>
+                                <input type="text" class="form-input" name="timeline" placeholder="例: 3ヶ月以内">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">メールアドレス</label>
+                                <input type="email" class="form-input" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">電話番号</label>
+                                <input type="tel" class="form-input" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">LINE ID</label>
+                                <input type="text" class="form-input" name="line">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">紹介元</label>
+                                <input type="text" class="form-input" name="referral">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">配偶者職業</label>
+                                <input type="text" class="form-input" name="spouseOccupation">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">配偶者年収 (万円)</label>
+                                <input type="number" class="form-input" name="spouseIncome">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">現在の家賃 (万円)</label>
+                                <input type="number" class="form-input" name="currentRent">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ペット</label>
+                                <input type="text" class="form-input" name="pet" placeholder="例: 犬1匹">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">駐車場</label>
+                                <input type="text" class="form-input" name="parking" placeholder="例: 必須">
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label class="form-label">フリーコメント(登録時記入)</label>
+                                <textarea class="form-textarea" name="freeComment" placeholder="お客様が登録時に記入したフリーコメント"></textarea>
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label class="form-label">特別な要望</label>
+                                <textarea class="form-textarea" name="specialRequirements" placeholder="その他の要望があれば入力してください"></textarea>
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label class="form-label">メモ</label>
+                                <textarea class="form-textarea" name="memo" placeholder="内部用メモ"></textarea>
+                            </div>
+                            <div class="form-group form-full-width">
+                                <label class="form-label">🏷️ タグ</label>
+                                <div id="customerTagSelect" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px;">
+                                    <!-- JS生成 -->
+                                </div>
+                                <button type="button" class="btn" onclick="saveCustomerTags()" style="margin-top: 8px; font-size: 12px; padding: 6px 14px;">タグを保存</button>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" id="cancelInfoBtn">キャンセル</button>
+                                <button type="submit" class="btn btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Checklist Tab -->
+                    <div id="checklistTab" class="tab-pane">
+                        <div id="checklistContainer"></div>
+                    </div>
+
+                    <!-- Interactions Tab -->
+                    <div id="interactionsTab" class="tab-pane">
+                        <div class="interaction-form">
+                            <form id="interactionForm" class="interaction-grid">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <select class="form-select" id="interactionMethod" required>
+                                        <option value="">連絡方法を選択</option>
+                                        <option value="電話">電話</option>
+                                        <option value="メール">メール</option>
+                                        <option value="LINE">LINE</option>
+                                        <option value="来店">来店</option>
+                                        <option value="内見">内見</option>
+                                        <option value="その他">その他</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input type="datetime-local" class="form-input" id="interactionDate" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                                </div>
+                                <button type="submit" class="btn btn-primary">追加</button>
+                            </form>
+                            <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                <textarea class="form-textarea" id="interactionContent" placeholder="やり取りの内容..." style="margin-bottom: 0;"></textarea>
+                            </div>
+                        </div>
+                        <div class="interaction-list" id="interactionsList"></div>
+                    </div>
+
+                    <!-- Todo Tab -->
+                    <div id="todoTab" class="tab-pane">
+                        <div class="todo-form">
+                            <form id="todoForm" class="todo-grid">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input type="text" class="form-input" id="todoText" placeholder="ToDoを入力..." required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <select class="form-select" id="todoPriority">
+                                        <option value="medium">中</option>
+                                        <option value="high">高</option>
+                                        <option value="low">低</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input type="date" class="form-input" id="todoDeadline">
+                                </div>
+                                <button type="submit" class="btn btn-primary">追加</button>
+                            </form>
+                            <button class="ai-suggest-btn" id="aiSuggestBtn" style="margin-top: 12px;">💡 AI提案</button>
+                            <div id="suggestionsContainer"></div>
+                        </div>
+                        <div class="todo-list" id="todosList"></div>
+                    </div>
+
+                    <!-- Chat History Tab -->
+                    <div id="chatHistoryTab" class="tab-pane">
+                        <!-- Sub-tab navigation -->
+                        <div style="display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border);">
+                            <button class="chat-sub-tab active" id="subTabAI" onclick="switchAdminChatSub('ai')">🤖 MuchiNavi</button>
+                            <button class="chat-sub-tab" id="subTabDirect" onclick="switchAdminChatSub('direct')">💬 個人チャット</button>
+                        </div>
+
+                        <!-- AI Chat sub-pane (existing content) -->
+                        <div id="aiChatSubPane">
+                            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" id="refreshChatHistoryBtn" style="flex: 0 0 auto;">🔄 再読み込み</button>
+                                <button class="btn btn-primary" id="extractInfoBtn" style="flex: 0 0 auto;">🔍 チャットから情報を自動抽出</button>
+                            </div>
+                            <div id="chatHistoryStats" style="margin-bottom: 20px; padding: 16px; background: var(--glass-light); border-radius: 8px; display: none;">
+                                <div style="font-size: 14px; color: var(--text-secondary);">
+                                    <span id="messageCountInfo"></span>
+                                    <span id="dateRangeInfo" style="margin-left: 16px;"></span>
+                                </div>
+                            </div>
+                            <div id="chatHistoryMessages" style="background: white; border-radius: 8px; padding: 16px; min-height: 300px; border: 1px solid var(--border); margin-bottom: 20px;">
+                                <!-- Chat messages will be rendered here -->
+                            </div>
+                            <div id="extractionPanel" style="display: none;">
+                                <div style="background: var(--glass-light); border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                                    <h3 style="margin-bottom: 16px;">抽出された情報</h3>
+                                    <div id="extractionPreview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;"></div>
+                                    <div style="margin-top: 20px; display: flex; gap: 12px;">
+                                        <button class="btn btn-primary" id="applyExtractedBtn">✓ 選択した項目を適用</button>
+                                        <button class="btn" id="cancelExtractionBtn">キャンセル</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Direct Chat sub-pane (new) -->
+                        <div id="directChatSubPane" style="display: none;">
+                            <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                                <button class="btn btn-primary" onclick="loadDirectChat()">🔄 再読み込み</button>
+                            </div>
+                            <div id="directChatDisplay" style="background: white; border-radius: 8px; padding: 16px; min-height: 300px; max-height: 500px; overflow-y: auto; border: 1px solid var(--border); margin-bottom: 20px;"></div>
+                            <div style="display: flex; gap: 12px; align-items: flex-end;">
+                                <textarea id="adminDirectReply" placeholder="お客様に返信…" rows="1" style="flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: none; min-height: 44px; max-height: 120px; line-height: 1.5; overflow-y: auto;"></textarea>
+                                <button class="btn btn-primary" onclick="sendAdminDirectReply()" style="flex-shrink: 0; height: 44px;">送信</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Chat Tab -->
+                    <div id="agentChatTab" class="tab-pane" style="padding: 0; display: flex; flex-direction: column;">
+                        <div class="chat-container">
+                            <div class="chat-messages" id="agentChatMessages">
+                                <div class="chat-welcome">
+                                    <div class="chat-welcome-icon">🤖</div>
+                                    <div class="chat-welcome-title">エージェント相談室</div>
+                                    <div class="chat-hints">
+                                        <div class="chat-hint">次のアプローチは？</div>
+                                        <div class="chat-hint">潜在ニーズ分析</div>
+                                        <div class="chat-hint">物件提案のコツ</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="agent-quick-actions" id="agentQuickActions">
+                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">次のアプローチは？</button>
+                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">潜在ニーズ分析</button>
+                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">物件提案のコツ</button>
+                            </div>
+                            <div class="chat-input-container">
+                                <textarea class="chat-input" id="agentChatInput" placeholder="メッセージを入力..."></textarea>
+                                <button class="chat-send" id="agentChatSend">送信</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal">
+            <h2 class="modal-title" id="confirmTitle"></h2>
+            <p class="modal-message" id="confirmMessage"></p>
+            <div class="modal-actions">
+                <button class="btn" id="confirmCancel">キャンセル</button>
+                <button class="btn btn-danger" id="confirmOk"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal-overlay">
+        <div class="modal">
+            <h2 class="modal-title">パスワードを変更</h2>
+            <form class="password-form" id="passwordForm">
+                <div class="password-form-group">
+                    <label for="currentPasswordInput">現在のパスワード</label>
+                    <input type="password" id="currentPasswordInput" required>
+                </div>
+                <div class="password-form-group">
+                    <label for="newPasswordInput">新しいパスワード</label>
+                    <input type="password" id="newPasswordInput" required>
+                </div>
+                <div class="password-form-group">
+                    <label for="confirmPasswordInput">新しいパスワード（確認）</label>
+                    <input type="password" id="confirmPasswordInput" required>
+                </div>
+                <div style="color: var(--danger); font-size: 13px; display: none;" id="passwordError"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn" id="passwordCancel">キャンセル</button>
+                    <button type="submit" class="btn btn-success" id="passwordSave">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ======================== STATE MANAGEMENT ========================
+        let adminPass = null;
+        let customers = [];
+        let selectedToken = null;
+        let currentTab = 'dashboard';
+        let agentChatMessages = [];
+        let currentChecklist = [];
+        let autoRefreshInterval = null;
+        let lastUpdateTime = null;
+
+        // ======================== API UTILITIES ========================
+        const api = {
+            baseURL: '/api/admin',
+
+            async call(method, endpoint, data = null) {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Pass': adminPass
+                    }
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                try {
+                    const response = await fetch(`${this.baseURL}${endpoint}`, options);
+                    if (response.status === 401) {
+                        showLogin();
+                        throw new Error('Authentication failed');
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('API Error:', error);
+                    throw error;
+                }
+            },
+
+            async testAuth() {
+                return this.call('GET', '/customers');
+            },
+
+            async getCustomers() {
+                return this.call('GET', '/customers');
+            },
+
+            async getCustomer(token) {
+                return this.call('GET', `/customer/${token}`);
+            },
+
+            async updateCustomer(token, data) {
+                return this.call('PUT', `/customer/${token}`, data);
+            },
+
+            async blockCustomer(token) {
+                return this.call('POST', `/block/${token}`);
+            },
+
+            async unblockCustomer(token) {
+                return this.call('POST', `/unblock/${token}`);
+            },
+
+            async deleteCustomer(token) {
+                return this.call('DELETE', `/customer/${token}`);
+            },
+
+            async getInteractions(token) {
+                return this.call('GET', `/interactions/${token}`);
+            },
+
+            async addInteraction(token, data) {
+                return this.call('POST', `/interactions/${token}`, data);
+            },
+
+            async deleteInteraction(token, id) {
+                return this.call('DELETE', `/interaction/${token}/${id}`);
+            },
+
+            async getTodos(token) {
+                return this.call('GET', `/todos/${token}`);
+            },
+
+            async addTodo(token, data) {
+                return this.call('POST', `/todos/${token}`, data);
+            },
+
+            async updateTodo(token, id, data) {
+                return this.call('PUT', `/todo/${token}/${id}`, data);
+            },
+
+            async deleteTodo(token, id) {
+                return this.call('DELETE', `/todo/${token}/${id}`);
+            },
+
+            async getChecklist(token) {
+                return this.call('GET', `/checklist/${token}`);
+            },
+
+            async updateChecklist(token, data) {
+                return this.call('PUT', `/checklist/${token}`, data);
+            },
+
+            async chatWithAgent(token, messages) {
+                return this.call('POST', `/chat-agent/${token}`, { messages });
+            },
+
+            async suggestTodos(token) {
+                return this.call('POST', `/suggest-todos/${token}`);
+            },
+
+            async extractFromChat(token) {
+                return this.call('POST', `/extract-from-chat/${token}`);
+            },
+
+            async applyExtractedInfo(token, fields) {
+                return this.call('POST', `/apply-extracted-info/${token}`, { fields });
+            },
+
+            async changePassword(currentPassword, newPassword) {
+                return this.call('POST', '/change-password', { currentPassword, newPassword });
+            },
+            // タグ管理
+            async getTags() { return this.call('GET', '/tags'); },
+            async createTag(name, color) { return this.call('POST', '/tags', { name, color }); },
+            async deleteTag(id) { return this.call('DELETE', `/tags/${id}`); },
+            async updateCustomerTags(token, tags) { return this.call('PUT', `/customer/${token}/tags`, { tags }); },
+            // ブロードキャスト
+            async getBroadcasts() { return this.call('GET', '/broadcasts'); },
+            async previewBroadcast(filterType, tags) { return this.call('POST', '/broadcasts/preview', { filterType, tags }); },
+            async sendBroadcast(message, filterType, tags) { return this.call('POST', '/broadcasts/send', { message, filterType, tags }); }
+        };
+
+        // ======================== TOAST NOTIFICATIONS ========================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(400px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ======================== MODAL ========================
+        let modalCallback = null;
+
+        function showConfirmModal(title, message, okText, callback) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmOk').textContent = okText;
+            document.getElementById('confirmModal').classList.add('show');
+            modalCallback = callback;
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            modalCallback = null;
+        }
+
+        document.getElementById('confirmCancel').addEventListener('click', closeModal);
+        document.getElementById('confirmOk').addEventListener('click', () => {
+            if (modalCallback) modalCallback();
+            closeModal();
+        });
+
+        // ======================== PASSWORD CHANGE MODAL ========================
+        function showPasswordModal() {
+            document.getElementById('passwordForm').reset();
+            document.getElementById('passwordError').style.display = 'none';
+            document.getElementById('passwordModal').classList.add('show');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('show');
+            document.getElementById('passwordForm').reset();
+            document.getElementById('passwordError').style.display = 'none';
+        }
+
+        document.getElementById('passwordCancel').addEventListener('click', closePasswordModal);
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentPasswordInput').value;
+            const newPassword = document.getElementById('newPasswordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+            const errorDiv = document.getElementById('passwordError');
+
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = '新しいパスワードが一致しません';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                errorDiv.textContent = '新しいパスワードは4文字以上である必要があります';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                document.getElementById('passwordSave').disabled = true;
+                await api.changePassword(currentPassword, newPassword);
+                sessionStorage.setItem('adminPass', newPassword);
+                adminPass = newPassword;
+                showToast('パスワードが正常に変更されました', 'success');
+                closePasswordModal();
+            } catch (error) {
+                errorDiv.textContent = '現在のパスワードが正しくない、またはエラーが発生しました';
+                errorDiv.style.display = 'block';
+            } finally {
+                document.getElementById('passwordSave').disabled = false;
+            }
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', showPasswordModal);
+
+        // ======================== LOGIN ========================
+        function showLogin() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminContainer').style.display = 'none';
+            adminPass = null;
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminContainer').style.display = 'flex';
+            startAutoRefresh();
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            // Auto-refresh every 30 seconds
+            autoRefreshInterval = setInterval(() => {
+                const currentSelectedToken = selectedToken;
+                loadDashboard().then(() => {
+                    // Keep the same customer selected if possible
+                    if (currentSelectedToken) {
+                        selectCustomer(currentSelectedToken);
+                    }
+                    updateLastUpdatedTime();
+                });
+            }, 30000);
+            updateLastUpdatedTime();
+        }
+
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            lastUpdateTime = `${hours}:${minutes}:${seconds}`;
+            const indicator = document.getElementById('lastUpdatedIndicator');
+            if (indicator) {
+                indicator.textContent = `最終更新: ${lastUpdateTime}`;
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                adminPass = password;
+                await api.testAuth();
+                sessionStorage.setItem('adminPass', password);
+                document.getElementById('passwordInput').value = '';
+                errorDiv.classList.remove('show');
+                loadDashboard();
+                showDashboard();
+            } catch (error) {
+                errorDiv.textContent = 'パスワードが正しくありません';
+                errorDiv.classList.add('show');
+                adminPass = null;
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('adminPass');
+            showLogin();
+        });
+
+        // ======================== DASHBOARD LOADING ========================
+        async function loadDashboard() {
+            try {
+                const result = await api.getCustomers();
+                customers = result.customers || [];
+                renderCustomerList();
+                renderStats();
+            } catch (error) {
+                showToast('エラー: ダッシュボードの読み込みに失敗しました', 'error');
+            }
+        }
+
+        function renderCustomerList() {
+            const list = document.getElementById('customerList');
+            list.innerHTML = '';
+
+            customers.forEach(customer => {
+                const item = document.createElement('div');
+                item.className = `customer-item ${customer.token === selectedToken ? 'active' : ''}`;
+                item.setAttribute('data-token', customer.token);
+                const tagBadges = (customer.tags && customer.tags.length > 0)
+                    ? `<div class="customer-tags-row">${customer.tags.slice(0, 3).map(t => `<span class="customer-tag-badge">${t}</span>`).join('')}${customer.tags.length > 3 ? `<span class="customer-tag-badge tag-more">+${customer.tags.length - 3}</span>` : ''}</div>`
+                    : '';
+                item.innerHTML = `
+                    <div class="customer-name">${customer.name || '名前未設定'}</div>
+                    <div class="customer-meta">
+                        <span>${customer.area || '-'}</span>
+                        <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
+                            ${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}
+                        </span>
+                    </div>
+                    ${tagBadges}
+                `;
+                item.addEventListener('click', () => selectCustomer(customer.token));
+                list.appendChild(item);
+            });
+        }
+
+        function renderStats() {
+            const stats = {
+                total: customers.length,
+                active: customers.filter(c => c.status === 'active' || !c.status).length,
+                blocked: customers.filter(c => c.status === 'blocked').length,
+                withdrawn: customers.filter(c => c.status === 'withdrawn').length
+            };
+
+            const grid = document.getElementById('statsGrid');
+            grid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total}</div>
+                    <div class="stat-label">総顧客数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.active}</div>
+                    <div class="stat-label">アクティブ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.blocked}</div>
+                    <div class="stat-label">ブロック</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.withdrawn}</div>
+                    <div class="stat-label">退会</div>
+                </div>
+            `;
+        }
+
+        // ======================== CUSTOMER SELECTION ========================
+        async function selectCustomer(token) {
+            selectedToken = token;
+            renderCustomerList();
+
+            try {
+                const result = await api.getCustomer(token);
+                const customer = result.customer;
+                renderActionBar(customer);
+                loadCustomerTabs(customer);
+                showCustomerView();
+            } catch (error) {
+                showToast('エラー: 顧客データの読み込みに失敗しました', 'error');
+            }
+        }
+
+        function showCustomerView() {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('customerView').style.display = 'flex';
+        }
+
+        function renderActionBar(customer) {
+            document.getElementById('actionBarTitle').textContent = customer.name || '名前未設定';
+
+            const statusBadge = document.getElementById('actionBarStatus');
+            const statusMap = {
+                'active': 'status-active',
+                'blocked': 'status-blocked',
+                'withdrawn': 'status-withdrawn'
+            };
+            statusBadge.className = `customer-status ${statusMap[customer.status] || 'status-active'}`;
+            statusBadge.textContent = customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ';
+
+            const blockBtn = document.getElementById('blockUnblockBtn');
+            if (customer.status === 'blocked') {
+                blockBtn.textContent = 'ブロック解除';
+                blockBtn.onclick = () => unblockCustomer();
+            } else {
+                blockBtn.textContent = 'ブロック';
+                blockBtn.onclick = () => blockCustomer();
+            }
+        }
+
+        async function blockCustomer() {
+            showConfirmModal('ブロック', 'このお客様をブロックしますか？', 'ブロック', async () => {
+                try {
+                    await api.blockCustomer(selectedToken);
+                    showToast('ブロックしました', 'success');
+                    loadDashboard();
+                    const result = await api.getCustomer(selectedToken);
+                    renderActionBar(result.customer);
+                } catch (error) {
+                    showToast('エラー: ブロックに失敗しました', 'error');
+                }
+            });
+        }
+
+        async function unblockCustomer() {
+            showConfirmModal('ブロック解除', 'このお客様のブロックを解除しますか？', 'ブロック解除', async () => {
+                try {
+                    await api.unblockCustomer(selectedToken);
+                    showToast('ブロックを解除しました', 'success');
+                    loadDashboard();
+                    const result = await api.getCustomer(selectedToken);
+                    renderActionBar(result.customer);
+                } catch (error) {
+                    showToast('エラー: ブロック解除に失敗しました', 'error');
+                }
+            });
+        }
+
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            showConfirmModal('削除', 'このお客様を削除しますか？この操作は取り消せません。', '削除', async () => {
+                try {
+                    await api.deleteCustomer(selectedToken);
+                    showToast('削除しました', 'success');
+                    selectedToken = null;
+                    loadDashboard();
+                    document.getElementById('emptyState').style.display = 'flex';
+                    document.getElementById('customerView').style.display = 'none';
+                } catch (error) {
+                    showToast('エラー: 削除に失敗しました', 'error');
+                }
+            });
+        });
+
+        // ======================== TAB NAVIGATION ========================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+                const tab = e.target.dataset.tab;
+                currentTab = tab;
+                e.target.classList.add('active');
+                document.getElementById(`${tab}Tab`).classList.add('active');
+
+                if (tab === 'agentChat') {
+                    if (agentChatMessages.length > 0) {
+                        renderAgentChat();
+                    } else {
+                        showAgentChatWelcome();
+                    }
+                }
+            });
+        });
+
+        // ======================== CUSTOMER INFO TAB ========================
+        async function loadCustomerTabs(customer) {
+            await loadDashboardTab(customer);
+            loadInfoForm(customer);
+            await loadChecklistTab(customer);
+            await loadInteractionsTab(customer);
+            await loadTodosTab(customer);
+            loadChatHistoryTab(customer);
+            loadAgentChat(customer);
+        }
+
+        async function loadDashboardTab(customer) {
+            const grid = document.getElementById('dashboardGrid');
+            let checklistProgress = 0;
+            let checklistTotal = 0;
+            if (Array.isArray(currentChecklist)) {
+                currentChecklist.forEach(phase => {
+                    if (phase.items) {
+                        checklistTotal += phase.items.length;
+                        checklistProgress += phase.items.filter(item => item.checked).length;
+                    }
+                });
+            }
+
+            grid.innerHTML = `
+                <div class="info-card">
+                    <div class="info-label">氏名</div>
+                    <div class="info-value">${customer.name || '-'}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">家族構成</div>
+                    <div class="info-value">${customer.family || '-'}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">対象エリア</div>
+                    <div class="info-value">${customer.area || '-'}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">予算</div>
+                    <div class="info-value">${customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-'}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">ステータス</div>
+                    <div class="info-value">${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">チェックリスト進捗</div>
+                    <div class="info-value">${checklistProgress}/${checklistTotal}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${checklistTotal > 0 ? (checklistProgress / checklistTotal * 100) : 0}%"></div>
+                    </div>
+                    <div class="progress-text">${checklistTotal > 0 ? Math.round((checklistProgress / checklistTotal) * 100) : 0}%完了</div>
+                </div>
+            `;
+
+            try {
+                const result = await api.getInteractions(selectedToken);
+                const interactions = result.interactions || [];
+                const recentInteractions = interactions.slice(0, 3).reverse();
+                const interactionsHtml = recentInteractions.map(i => `
+                    <div class="interaction-item" style="margin-bottom: 8px; padding: 12px; background: var(--glass-light); border-radius: 8px;">
+                        <div class="interaction-date">${new Date(i.date).toLocaleString('ja-JP')}</div>
+                        <span class="interaction-method">${i.method}</span>
+                        <div class="interaction-text">${i.content}</div>
+                    </div>
+                `).join('');
+                document.getElementById('recentInteractions').innerHTML = interactionsHtml || '<p style="color: var(--text-secondary); font-size: 14px;">やり取りがありません</p>';
+            } catch (error) {
+                document.getElementById('recentInteractions').innerHTML = '<p style="color: var(--text-secondary); font-size: 14px;">読み込みエラー</p>';
+            }
+
+            try {
+                const result = await api.getTodos(selectedToken);
+                const todos = result.todos || [];
+                const recentTodos = todos.slice(0, 3);
+                const todosHtml = recentTodos.map(t => `
+                    <div class="todo-item" style="margin-bottom: 8px;">
+                        <input type="checkbox" ${t.done ? 'checked' : ''} disabled style="cursor: not-allowed;">
+                        <div class="todo-content">
+                            <div class="todo-text">${t.text}</div>
+                            <div class="todo-meta">
+                                <span class="todo-priority priority-${t.priority}">${t.priority === 'high' ? '高' : t.priority === 'low' ? '低' : '中'}</span>
+                                ${t.deadline ? `<span class="todo-deadline">${t.deadline}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('recentTodos').innerHTML = todosHtml || '<p style="color: var(--text-secondary); font-size: 14px;">ToDoがありません</p>';
+            } catch (error) {
+                document.getElementById('recentTodos').innerHTML = '<p style="color: var(--text-secondary); font-size: 14px;">読み込みエラー</p>';
+            }
+        }
+
+        function loadInfoForm(customer) {
+            const form = document.getElementById('customerInfoForm');
+            const fields = ['name', 'age', 'family', 'householdIncome', 'currentHome', 'reason', 'searchReason', 'area', 'budget', 'propertyType', 'purpose', 'freeComment', 'size', 'layout', 'stationDistance', 'occupation', 'income', 'savings', 'loanStatus', 'motivation', 'timeline', 'email', 'phone', 'line', 'referral', 'spouseOccupation', 'spouseIncome', 'currentRent', 'pet', 'parking', 'specialRequirements', 'memo'];
+
+            fields.forEach(field => {
+                const input = form.querySelector(`[name="${field}"]`);
+                if (input) {
+                    input.value = customer[field] || '';
+                }
+            });
+
+            // タグ表示
+            renderCustomerTagSelect(customer.tags || []);
+        }
+
+        async function renderCustomerTagSelect(customerTags) {
+            const container = document.getElementById('customerTagSelect');
+            try {
+                const result = await api.getTags();
+                const allTags = result.tags || [];
+                if (allTags.length === 0) {
+                    container.innerHTML = '<span style="font-size: 12px; color: var(--text-secondary);">タグがありません（一斉配信 → タグ管理から作成してください）</span>';
+                    return;
+                }
+                container.innerHTML = allTags.map(tag => {
+                    const checked = customerTags.includes(tag.name) ? 'checked' : '';
+                    return `<label style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: ${checked ? tag.color + '20' : 'white'}; border: 1px solid ${checked ? tag.color : 'var(--border)'}; cursor: pointer; font-size: 13px; transition: all 0.2s;">
+                        <input type="checkbox" class="customer-tag-cb" value="${tag.name}" ${checked} style="cursor: pointer;">
+                        <span style="width: 10px; height: 10px; background: ${tag.color}; border-radius: 50%; flex-shrink: 0;"></span>
+                        ${tag.name}
+                    </label>`;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<span style="color: #ff3b30; font-size: 12px;">タグの読み込みに失敗</span>';
+            }
+        }
+
+        async function saveCustomerTags() {
+            if (!selectedToken) return;
+            const tags = Array.from(document.querySelectorAll('.customer-tag-cb:checked')).map(el => el.value);
+            try {
+                await api.updateCustomerTags(selectedToken, tags);
+                showToast('タグを保存しました', 'success');
+            } catch (e) {
+                showToast('タグの保存に失敗しました', 'error');
+            }
+        }
+
+        document.getElementById('customerInfoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = document.getElementById('customerInfoForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            try {
+                await api.updateCustomer(selectedToken, data);
+                showToast('保存しました', 'success');
+            } catch (error) {
+                showToast('エラー: 保存に失敗しました', 'error');
+            }
+        });
+
+        document.getElementById('cancelInfoBtn').addEventListener('click', async () => {
+            try {
+                const result = await api.getCustomer(selectedToken);
+                loadInfoForm(result.customer);
+            } catch (error) {
+                showToast('エラー: リセットに失敗しました', 'error');
+            }
+        });
+
+        // ======================== CHECKLIST TAB ========================
+        async function loadChecklistTab(customer) {
+            try {
+                const result = await api.getChecklist(selectedToken);
+                currentChecklist = result.checklist || [];
+            } catch (error) {
+                currentChecklist = [];
+            }
+
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklistContainer');
+            container.innerHTML = '';
+
+            if (!Array.isArray(currentChecklist)) return;
+
+            currentChecklist.forEach((phase, phaseIndex) => {
+                const phaseItems = phase.items || [];
+                const completedCount = phaseItems.filter(item => item.checked).length;
+
+                const phaseDiv = document.createElement('div');
+                phaseDiv.className = 'checklist-phase';
+
+                const header = document.createElement('div');
+                header.className = 'phase-header';
+                header.innerHTML = `
+                    <div class="phase-title">
+                        <span class="phase-toggle">▶</span>
+                        ${phase.name}
+                    </div>
+                    <div class="phase-progress">${completedCount}/${phaseItems.length}</div>
+                `;
+
+                const items = document.createElement('div');
+                items.className = 'phase-items';
+                items.innerHTML = phaseItems.map((item, itemIndex) => `
+                    <div class="checklist-item">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} data-phase="${phaseIndex}" data-item="${itemIndex}">
+                        <div class="checklist-item-content">
+                            <div class="checklist-item-title">${item.title}</div>
+                            <div class="checklist-item-detail">${item.detail || ''}</div>
+                            ${item.ref ? `<span class="ref-badge">参考: ${item.ref}</span>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+                header.addEventListener('click', () => {
+                    items.classList.toggle('open');
+                    header.querySelector('.phase-toggle').classList.toggle('open');
+                });
+
+                phaseDiv.appendChild(header);
+                phaseDiv.appendChild(items);
+                container.appendChild(phaseDiv);
+            });
+
+            container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', async (e) => {
+                    const phaseIdx = parseInt(e.target.dataset.phase);
+                    const itemIdx = parseInt(e.target.dataset.item);
+                    currentChecklist[phaseIdx].items[itemIdx].checked = e.target.checked;
+                    try {
+                        await api.updateChecklist(selectedToken, { checklist: currentChecklist });
+                        showToast('チェックリストを更新しました', 'success');
+                        // ダッシュボード進捗も更新
+                        try {
+                            const result = await api.getCustomer(selectedToken);
+                            await loadDashboardTab(result.customer);
+                        } catch (err) {}
+                        renderChecklist();
+                    } catch (error) {
+                        showToast('エラー: 更新に失敗しました', 'error');
+                        e.target.checked = !e.target.checked;
+                    }
+                });
+            });
+        }
+
+        // ======================== INTERACTIONS TAB ========================
+        async function loadInteractionsTab(customer) {
+            try {
+                const result = await api.getInteractions(selectedToken);
+                const interactions = result.interactions || [];
+                renderInteractionsList(interactions);
+            } catch (error) {
+                showToast('エラー: やり取り履歴の読み込みに失敗しました', 'error');
+            }
+        }
+
+        function renderInteractionsList(interactions) {
+            const list = document.getElementById('interactionsList');
+            list.innerHTML = interactions.reverse().map(interaction => `
+                <div class="interaction-item">
+                    <div class="interaction-content">
+                        <div class="interaction-date">${new Date(interaction.date).toLocaleString('ja-JP')}</div>
+                        <span class="interaction-method">${interaction.method}</span>
+                        <div class="interaction-text">${interaction.content}</div>
+                    </div>
+                    <button class="interaction-delete" data-id="${interaction.id}">削除</button>
+                </div>
+            `).join('');
+
+            list.querySelectorAll('.interaction-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    try {
+                        await api.deleteInteraction(selectedToken, id);
+                        showToast('削除しました', 'success');
+                        const result = await api.getInteractions(selectedToken);
+                        const interactions = result.interactions || [];
+                        renderInteractionsList(interactions);
+                    } catch (error) {
+                        showToast('エラー: 削除に失敗しました', 'error');
+                    }
+                });
+            });
+        }
+
+        document.getElementById('interactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const method = document.getElementById('interactionMethod').value;
+            const content = document.getElementById('interactionContent').value;
+            const date = document.getElementById('interactionDate') ? document.getElementById('interactionDate').value : new Date().toISOString();
+
+            if (!method || !content.trim()) {
+                showToast('連絡方法と内容を入力してください', 'info');
+                return;
+            }
+
+            try {
+                await api.addInteraction(selectedToken, { method, content, date: date || new Date().toISOString() });
+                showToast('追加しました', 'success');
+                document.getElementById('interactionMethod').value = '';
+                document.getElementById('interactionContent').value = '';
+                const result = await api.getInteractions(selectedToken);
+                const interactions = result.interactions || [];
+                renderInteractionsList(interactions);
+            } catch (error) {
+                showToast('エラー: 追加に失敗しました', 'error');
+            }
+        });
+
+        // ======================== TODOS TAB ========================
+        async function loadTodosTab(customer) {
+            try {
+                const result = await api.getTodos(selectedToken);
+                const todos = result.todos || [];
+                renderTodosList(todos);
+            } catch (error) {
+                showToast('エラー: ToDoの読み込みに失敗しました', 'error');
+            }
+        }
+
+        function renderTodosList(todos) {
+            const list = document.getElementById('todosList');
+            list.innerHTML = todos.map(todo => `
+                <div class="todo-item">
+                    <input type="checkbox" ${todo.done ? 'checked' : ''} data-id="${todo.id}">
+                    <div class="todo-content">
+                        <div class="todo-text">${todo.text}</div>
+                        <div class="todo-meta">
+                            <span class="todo-priority priority-${todo.priority}">${todo.priority === 'high' ? '高' : todo.priority === 'low' ? '低' : '中'}</span>
+                            ${todo.deadline ? `<span class="todo-deadline">${todo.deadline}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="todo-actions">
+                        <button class="todo-delete" data-id="${todo.id}">削除</button>
+                    </div>
+                </div>
+            `).join('');
+
+            list.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', async (e) => {
+                    const id = e.target.dataset.id;
+                    try {
+                        await api.updateTodo(selectedToken, id, { done: e.target.checked });
+                        showToast('更新しました', 'success');
+                    } catch (error) {
+                        showToast('エラー: 更新に失敗しました', 'error');
+                        e.target.checked = !e.target.checked;
+                    }
+                });
+            });
+
+            list.querySelectorAll('.todo-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    try {
+                        await api.deleteTodo(selectedToken, id);
+                        showToast('削除しました', 'success');
+                        const result = await api.getTodos(selectedToken);
+                        const todos = result.todos || [];
+                        renderTodosList(todos);
+                    } catch (error) {
+                        showToast('エラー: 削除に失敗しました', 'error');
+                    }
+                });
+            });
+        }
+
+        document.getElementById('todoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('todoText').value;
+            const priority = document.getElementById('todoPriority').value;
+            const deadline = document.getElementById('todoDeadline').value;
+
+            if (!text.trim()) {
+                showToast('ToDoを入力してください', 'info');
+                return;
+            }
+
+            try {
+                await api.addTodo(selectedToken, { text, priority, deadline: deadline || null });
+                showToast('追加しました', 'success');
+                document.getElementById('todoText').value = '';
+                document.getElementById('todoPriority').value = 'medium';
+                document.getElementById('todoDeadline').value = '';
+                const result = await api.getTodos(selectedToken);
+                const todos = result.todos || [];
+                renderTodosList(todos);
+            } catch (error) {
+                showToast('エラー: 追加に失敗しました', 'error');
+            }
+        });
+
+        document.getElementById('aiSuggestBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('aiSuggestBtn');
+            btn.disabled = true;
+
+            try {
+                const result = await api.suggestTodos(selectedToken);
+                const suggestions = result.suggestions || [];
+                displaySuggestions(suggestions);
+            } catch (error) {
+                showToast('エラー: AI提案の取得に失敗しました', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        function displaySuggestions(suggestions) {
+            const container = document.getElementById('suggestionsContainer');
+            // suggestionsは {text, priority, reason} のオブジェクト配列
+            const priorityColors = { '高': '#ff3b30', '中': '#ff9500', '低': '#34c759' };
+            const priorityMap = { '高': 'high', '中': 'medium', '低': 'low' };
+            container.innerHTML = `
+                <div class="suggestions-list">
+                    <h4 style="margin-bottom: 12px; font-size: 14px; font-weight: 600;">💡 AI提案（チャット履歴・顧客情報から総合分析）</h4>
+                    ${suggestions.map((s, index) => `
+                        <div class="suggestion-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="background: ${priorityColors[s.priority] || '#ff9500'}; color: white; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; flex-shrink: 0;">${s.priority || '中'}</span>
+                                <span style="font-weight: 600; flex: 1;">${s.text}</span>
+                                <button class="suggestion-add" data-index="${index}">追加</button>
+                            </div>
+                            ${s.reason ? `<div style="font-size: 12px; color: #6e6e73; line-height: 1.5; padding-left: 4px;">📋 ${s.reason}</div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            container.querySelectorAll('.suggestion-add').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const index = e.target.dataset.index;
+                    const s = suggestions[index];
+                    const priority = priorityMap[s.priority] || 'medium';
+                    try {
+                        await api.addTodo(selectedToken, { text: s.text, priority, deadline: null });
+                        showToast('追加しました', 'success');
+                        e.target.textContent = '✓';
+                        e.target.disabled = true;
+                        e.target.style.background = '#34c759';
+                        const result = await api.getTodos(selectedToken);
+                        const todos = result.todos || [];
+                        renderTodosList(todos);
+                    } catch (error) {
+                        showToast('エラー: 追加に失敗しました', 'error');
+                    }
+                });
+            });
+        }
+
+        // ======================== CHAT HISTORY TAB ========================
+        let currentExtractedInfo = {};
+
+        function loadChatHistoryTab(customer) {
+            const chatHistory = customer.chatHistory || [];
+            renderChatHistory(chatHistory);
+            renderChatHistoryStats(chatHistory);
+
+            // Set up event listeners
+            document.getElementById('refreshChatHistoryBtn').onclick = () => {
+                renderChatHistory(chatHistory);
+                showToast('チャット履歴を再読み込みしました', 'success');
+            };
+
+            document.getElementById('extractInfoBtn').onclick = async () => {
+                await extractInfoFromChat();
+            };
+
+            document.getElementById('cancelExtractionBtn').onclick = () => {
+                document.getElementById('extractionPanel').style.display = 'none';
+            };
+
+            document.getElementById('applyExtractedBtn').onclick = async () => {
+                await applyExtractedInfo();
+            };
+        }
+
+        function renderChatHistory(chatHistory) {
+            const messagesDiv = document.getElementById('chatHistoryMessages');
+
+            if (!chatHistory || chatHistory.length === 0) {
+                messagesDiv.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">チャット履歴がありません</p>';
+                return;
+            }
+
+            const messagesHtml = chatHistory.map(msg => {
+                const isUser = msg.role === 'user';
+                return `
+                    <div style="margin-bottom: 16px; display: flex; ${isUser ? 'justify-content: flex-end;' : 'justify-content: flex-start;'}">
+                        <div style="
+                            max-width: 70%;
+                            padding: 12px 16px;
+                            border-radius: 12px;
+                            ${isUser ? 'background: #0071e3; color: white;' : 'background: var(--glass-light); color: var(--text);'}
+                            word-wrap: break-word;
+                            white-space: pre-wrap;
+                        ">
+                            ${formatMessage(msg.content)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            messagesDiv.innerHTML = messagesHtml;
+            // Auto-scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function renderChatHistoryStats(chatHistory) {
+            const statsDiv = document.getElementById('chatHistoryStats');
+            if (!chatHistory || chatHistory.length === 0) {
+                statsDiv.style.display = 'none';
+                return;
+            }
+
+            statsDiv.style.display = 'block';
+            const messageCount = chatHistory.length;
+            document.getElementById('messageCountInfo').textContent = `${messageCount}件のメッセージ`;
+
+            // Calculate date range
+            if (chatHistory.length > 0) {
+                const dates = chatHistory
+                    .filter(msg => msg.timestamp)
+                    .map(msg => new Date(msg.timestamp).getTime())
+                    .sort((a, b) => a - b);
+
+                if (dates.length > 0) {
+                    const firstDate = new Date(dates[0]).toLocaleDateString('ja-JP');
+                    const lastDate = new Date(dates[dates.length - 1]).toLocaleDateString('ja-JP');
+                    if (firstDate !== lastDate) {
+                        document.getElementById('dateRangeInfo').textContent = `${firstDate} - ${lastDate}`;
+                    } else {
+                        document.getElementById('dateRangeInfo').textContent = `${firstDate}`;
+                    }
+                }
+            }
+        }
+
+        async function extractInfoFromChat() {
+            try {
+                document.getElementById('extractInfoBtn').disabled = true;
+                document.getElementById('extractInfoBtn').textContent = '抽出中...';
+
+                const result = await api.extractFromChat(selectedToken);
+                currentExtractedInfo = result.extracted || {};
+
+                if (Object.keys(currentExtractedInfo).length === 0) {
+                    showToast('チャット履歴から新しい情報を抽出できませんでした', 'info');
+                    document.getElementById('extractInfoBtn').disabled = false;
+                    document.getElementById('extractInfoBtn').textContent = '🔍 チャットから情報を自動抽出';
+                    return;
+                }
+
+                renderExtractionPreview();
+                document.getElementById('extractionPanel').style.display = 'block';
+                showToast(`${Object.keys(currentExtractedInfo).length}個の情報を抽出しました`, 'success');
+            } catch (error) {
+                showToast('情報抽出に失敗しました: ' + error.message, 'error');
+            } finally {
+                document.getElementById('extractInfoBtn').disabled = false;
+                document.getElementById('extractInfoBtn').textContent = '🔍 チャットから情報を自動抽出';
+            }
+        }
+
+        function renderExtractionPreview() {
+            const previewDiv = document.getElementById('extractionPreview');
+            const fieldLabels = {
+                'age': '年齢',
+                'family': '家族構成',
+                'householdIncome': '世帯年収',
+                'currentHome': '現住所',
+                'reason': '探索理由',
+                'searchReason': '探索理由(登録時)',
+                'area': '対象エリア',
+                'budget': '予算',
+                'freeComment': 'フリーコメント',
+                'propertyType': '物件種別',
+                'purpose': '登録目的',
+                'size': '希望面積',
+                'layout': '間取り',
+                'stationDistance': '駅距離',
+                'occupation': '職業',
+                'income': '年収',
+                'savings': '貯蓄',
+                'loanStatus': 'ローン状況',
+                'motivation': '購入動機',
+                'timeline': '購入時期',
+                'spouseOccupation': '配偶者職業',
+                'spouseIncome': '配偶者年収',
+                'currentRent': '現在の家賃',
+                'pet': 'ペット',
+                'parking': '駐車場',
+                'specialRequirements': 'こだわり条件'
+            };
+
+            let html = '';
+            Object.keys(currentExtractedInfo).forEach(key => {
+                const label = fieldLabels[key] || key;
+                const value = currentExtractedInfo[key];
+                html += `
+                    <label style="display: flex; align-items: center; padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); cursor: pointer;">
+                        <input type="checkbox" data-field="${key}" checked style="margin-right: 12px; cursor: pointer;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px;">${label}</div>
+                            <div style="color: var(--text-secondary); font-size: 13px;">${value}</div>
+                        </div>
+                    </label>
+                `;
+            });
+            previewDiv.innerHTML = html;
+        }
+
+        async function applyExtractedInfo() {
+            try {
+                const checkboxes = document.querySelectorAll('#extractionPreview input[type="checkbox"]');
+                const fieldsToApply = {};
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const field = checkbox.dataset.field;
+                        fieldsToApply[field] = currentExtractedInfo[field];
+                    }
+                });
+
+                if (Object.keys(fieldsToApply).length === 0) {
+                    showToast('適用する項目を選択してください', 'info');
+                    return;
+                }
+
+                document.getElementById('applyExtractedBtn').disabled = true;
+                document.getElementById('applyExtractedBtn').textContent = '適用中...';
+
+                await api.applyExtractedInfo(selectedToken, fieldsToApply);
+                showToast(`${Object.keys(fieldsToApply).length}個の項目を適用しました`, 'success');
+
+                // Reload customer info to show updated fields
+                const result = await api.getCustomer(selectedToken);
+                loadInfoForm(result.customer);
+
+                document.getElementById('extractionPanel').style.display = 'none';
+                currentExtractedInfo = {};
+            } catch (error) {
+                showToast('適用に失敗しました: ' + error.message, 'error');
+            } finally {
+                document.getElementById('applyExtractedBtn').disabled = false;
+                document.getElementById('applyExtractedBtn').textContent = '✓ 選択した項目を適用';
+            }
+        }
+
+        // ======================== AGENT CHAT TAB ========================
+        function loadAgentChat(customer) {
+            // サーバーに保存された履歴を復元
+            const saved = (customer && customer.agentChatHistory) || [];
+            agentChatMessages = saved.map(m => ({
+                role: m.role === 'model' ? 'assistant' : m.role,
+                content: m.content || (m.parts && m.parts[0] && m.parts[0].text) || ''
+            }));
+
+            if (agentChatMessages.length > 0) {
+                renderAgentChat();
+            } else {
+                showAgentChatWelcome();
+            }
+        }
+
+        function showAgentChatWelcome() {
+            const messagesDiv = document.getElementById('agentChatMessages');
+            messagesDiv.innerHTML = `
+                <div class="chat-welcome">
+                    <div class="chat-welcome-icon">🤖</div>
+                    <div class="chat-welcome-title">エージェント相談室</div>
+                    <div class="chat-hints">
+                        <div class="chat-hint">次のアプローチは？</div>
+                        <div class="chat-hint">潜在ニーズ分析</div>
+                        <div class="chat-hint">物件提案のコツ</div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.querySelectorAll('.chat-hint').forEach(hint => {
+                hint.addEventListener('click', () => {
+                    document.getElementById('agentChatInput').value = hint.textContent;
+                });
+            });
+        }
+
+        function sendQuickAction(text) {
+            document.getElementById('agentChatInput').value = text;
+            document.getElementById('agentChatSend').click();
+        }
+
+        document.getElementById('agentChatSend').addEventListener('click', async () => {
+            const input = document.getElementById('agentChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messagesDiv = document.getElementById('agentChatMessages');
+            if (messagesDiv.querySelector('.chat-welcome')) {
+                messagesDiv.innerHTML = '';
+            }
+
+            agentChatMessages.push({ role: 'user', content: message });
+            renderAgentChat();
+            input.value = '';
+            input.style.height = 'auto';
+
+            try {
+                const response = await api.chatWithAgent(selectedToken, agentChatMessages);
+                agentChatMessages.push({ role: 'assistant', content: response.reply });
+                renderAgentChat();
+            } catch (error) {
+                showToast('エラー: メッセージの送信に失敗しました', 'error');
+                agentChatMessages.pop();
+            }
+        });
+
+        function renderAgentChat() {
+            const messagesDiv = document.getElementById('agentChatMessages');
+            messagesDiv.innerHTML = agentChatMessages.map(msg => `
+                <div class="chat-message ${msg.role === 'user' ? 'user' : ''}">
+                    <div class="message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}">
+                        <div class="message-content">${formatMessage(msg.content)}</div>
+                    </div>
+                </div>
+            `).join('');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        document.getElementById('agentChatInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('agentChatSend').click();
+            }
+        });
+
+        // ======================== DIRECT CHAT (個人チャット) ========================
+        function switchAdminChatSub(tab) {
+            document.getElementById('subTabAI').classList.toggle('active', tab === 'ai');
+            document.getElementById('subTabDirect').classList.toggle('active', tab === 'direct');
+            document.getElementById('aiChatSubPane').style.display = tab === 'ai' ? 'block' : 'none';
+            document.getElementById('directChatSubPane').style.display = tab === 'direct' ? 'block' : 'none';
+
+            if (tab === 'direct') loadDirectChat();
+        }
+
+        async function loadDirectChat() {
+            if (!selectedToken) return;
+            const container = document.getElementById('directChatDisplay');
+            container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">読み込み中...</div>';
+
+            try {
+                const result = await api.call('GET', `/direct-chat/${selectedToken}`);
+                const messages = result.messages || [];
+
+                if (messages.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">まだメッセージはありません</div>';
+                    return;
+                }
+
+                let html = '';
+                messages.forEach(msg => {
+                    const isUser = msg.role === 'user';
+                    const isAgent = msg.role === 'agent';
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric'}) : '';
+                    const label = isUser ? '👤 お客様' : '🏢 あなた';
+                    // 管理画面: お客様が左、あなた(岡本)が右
+                    const align = isAgent ? 'right' : 'left';
+                    const bgColor = isAgent ? '#34c759' : '#f5f5f7';
+                    const textColor = isAgent ? 'white' : '#1d1d1f';
+                    const labelColor = isAgent ? 'rgba(255,255,255,0.7)' : '#6e6e73';
+                    const timeColor = isAgent ? 'rgba(255,255,255,0.5)' : '#aeaeb2';
+                    const radius = isAgent ? '12px 12px 4px 12px' : '12px 12px 12px 4px';
+
+                    html += `<div style="margin-bottom: 12px; text-align: ${align};">
+                        <div style="display: inline-block; max-width: 80%; padding: 12px 16px; background: ${bgColor}; color: ${textColor}; border-radius: ${radius}; text-align: left; ${!isAgent ? 'border: 1px solid #e5e5e7;' : 'box-shadow: 0 2px 8px rgba(52,199,89,0.25);'}">
+                            <div style="font-size: 11px; color: ${labelColor}; margin-bottom: 4px; font-weight: 600;">${label}</div>
+                            <div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${msg.content}</div>
+                            <div style="font-size: 10px; color: ${timeColor}; margin-top: 4px;">${time}</div>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html;
+                container.scrollTop = container.scrollHeight;
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center;color:#ff3b30;padding:40px;">読み込みに失敗しました</div>';
+            }
+        }
+
+        async function sendAdminDirectReply() {
+            if (!selectedToken) return;
+            const input = document.getElementById('adminDirectReply');
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                await api.call('POST', `/direct-chat/${selectedToken}`, { message: text });
+                input.value = '';
+                input.style.height = 'auto';
+                showToast('送信しました', 'success');
+                loadDirectChat();
+            } catch (e) {
+                showToast('送信に失敗しました', 'error');
+            }
+        }
+
+        // 管理画面個人チャット: Enter=改行、Shift+Enter=送信 & 自動高さ調整
+        (function() {
+            const ta = document.getElementById('adminDirectReply');
+            if (!ta) return;
+            ta.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+            ta.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.shiftKey) {
+                    e.preventDefault();
+                    sendAdminDirectReply();
+                }
+            });
+        })();
+
+        // ======================== BROADCAST (一斉配信) ========================
+        function openBroadcastView() {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('customerView').style.display = 'none';
+            document.getElementById('broadcastView').style.display = 'flex';
+            // 顧客一覧のactive解除
+            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
+            initBroadcastTab();
+        }
+
+        function closeBroadcastView() {
+            document.getElementById('broadcastView').style.display = 'none';
+            if (selectedToken) {
+                document.getElementById('customerView').style.display = 'flex';
+            } else {
+                document.getElementById('emptyState').style.display = 'flex';
+            }
+        }
+
+        function switchBroadcastSub(sub) {
+            ['bcastSubCompose', 'bcastSubHistory', 'bcastSubTags'].forEach(id => document.getElementById(id).classList.remove('active'));
+            ['bcastComposePane', 'bcastHistoryPane', 'bcastTagsPane'].forEach(id => document.getElementById(id).style.display = 'none');
+            if (sub === 'compose') {
+                document.getElementById('bcastSubCompose').classList.add('active');
+                document.getElementById('bcastComposePane').style.display = 'block';
+            } else if (sub === 'history') {
+                document.getElementById('bcastSubHistory').classList.add('active');
+                document.getElementById('bcastHistoryPane').style.display = 'block';
+                loadBroadcastHistory();
+            } else if (sub === 'tags') {
+                document.getElementById('bcastSubTags').classList.add('active');
+                document.getElementById('bcastTagsPane').style.display = 'block';
+                loadTagMaster();
+            }
+        }
+
+        let cachedTags = [];
+
+        async function initBroadcastTab() {
+            try {
+                const result = await api.getTags();
+                cachedTags = result.tags || [];
+                renderBcastTagCheckboxes();
+                // 初回プレビュー
+                previewBroadcast();
+            } catch (e) {
+                console.error('タグ読み込みエラー:', e);
+            }
+        }
+
+        function renderBcastTagCheckboxes() {
+            const container = document.getElementById('bcastTagCheckboxes');
+            container.innerHTML = cachedTags.map(tag => `
+                <label style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: white; border: 1px solid var(--border); cursor: pointer; font-size: 13px; transition: all 0.2s;">
+                    <input type="checkbox" value="${tag.name}" style="cursor: pointer;">
+                    <span style="width: 10px; height: 10px; background: ${tag.color}; border-radius: 50%; flex-shrink: 0;"></span>
+                    ${tag.name}
+                </label>
+            `).join('');
+        }
+
+        function onFilterTypeChange() {
+            const type = document.getElementById('bcastFilterType').value;
+            document.getElementById('bcastTagSection').style.display = type === 'all' ? 'none' : 'block';
+            document.getElementById('bcastPreviewCount').textContent = '—';
+        }
+
+        function getSelectedBcastTags() {
+            return Array.from(document.querySelectorAll('#bcastTagCheckboxes input:checked')).map(el => el.value);
+        }
+
+        async function previewBroadcast() {
+            const filterType = document.getElementById('bcastFilterType').value;
+            const tags = getSelectedBcastTags();
+            if (filterType !== 'all' && tags.length === 0) {
+                document.getElementById('bcastPreviewCount').textContent = '—';
+                return;
+            }
+            try {
+                const result = await api.previewBroadcast(filterType, tags);
+                document.getElementById('bcastPreviewCount').textContent = result.matchCount;
+            } catch (e) {
+                showToast('プレビューに失敗しました', 'error');
+            }
+        }
+
+        async function sendBroadcast() {
+            const message = document.getElementById('broadcastMessage').value.trim();
+            const filterType = document.getElementById('bcastFilterType').value;
+            const tags = getSelectedBcastTags();
+
+            if (!message) { showToast('メッセージを入力してください', 'error'); return; }
+            if (filterType !== 'all' && tags.length === 0) { showToast('タグを選択してください', 'error'); return; }
+
+            // まずプレビューで件数確認
+            try {
+                const preview = await api.previewBroadcast(filterType, tags);
+                if (preview.matchCount === 0) { showToast('配信対象のお客様がいません', 'error'); return; }
+
+                const filterLabel = {
+                    'all': '全てのお客様',
+                    'include-all': `${tags.join(' & ')} を全て含む`,
+                    'include-any': `${tags.join(' / ')} のいずれかを含む`,
+                    'exclude-all': `${tags.join(' & ')} を全て含む人を除外`,
+                    'exclude-any': `${tags.join(' / ')} のいずれかを含む人を除外`,
+                }[filterType] || filterType;
+
+                showConfirmModal(
+                    '一斉配信の確認',
+                    `対象: ${filterLabel}\n${preview.matchCount}人のお客様にメッセージを配信します。\n\nメッセージ:\n「${message.slice(0, 100)}${message.length > 100 ? '...' : ''}」`,
+                    '配信する',
+                    async () => {
+                        document.getElementById('sendBroadcastBtn').disabled = true;
+                        try {
+                            const result = await api.sendBroadcast(message, filterType, tags);
+                            showToast(`${result.sentCount}人のお客様にメッセージを配信しました`, 'success');
+                            document.getElementById('broadcastMessage').value = '';
+                            document.querySelectorAll('#bcastTagCheckboxes input').forEach(el => el.checked = false);
+                            document.getElementById('bcastPreviewCount').textContent = '—';
+                        } catch (e) {
+                            showToast('配信に失敗しました: ' + (e.message || ''), 'error');
+                        } finally {
+                            document.getElementById('sendBroadcastBtn').disabled = false;
+                        }
+                    }
+                );
+            } catch (e) {
+                showToast('エラーが発生しました', 'error');
+            }
+        }
+
+        async function loadBroadcastHistory() {
+            const container = document.getElementById('bcastHistoryList');
+            try {
+                const result = await api.getBroadcasts();
+                const broadcasts = result.broadcasts || [];
+                if (broadcasts.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">配信履歴はまだありません</p>';
+                    return;
+                }
+                container.innerHTML = broadcasts.map(b => {
+                    const date = new Date(b.sentAt).toLocaleString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const filterLabel = {
+                        'all': '全員',
+                        'include-all': `${(b.filterTags || []).join(' & ')} (AND)`,
+                        'include-any': `${(b.filterTags || []).join(' / ')} (OR)`,
+                        'exclude-all': `${(b.filterTags || []).join(' & ')} 除外(AND)`,
+                        'exclude-any': `${(b.filterTags || []).join(' / ')} 除外(OR)`,
+                    }[b.filterType] || b.filterType;
+                    return `
+                        <div style="background: var(--glass-light); backdrop-filter: blur(var(--glass-blur)); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.5);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">${date}</span>
+                                <span style="font-size: 12px; font-weight: 600; color: #0071e3; background: #f0f7ff; padding: 2px 10px; border-radius: 10px;">${b.recipientCount}人に配信</span>
+                            </div>
+                            <p style="font-size: 14px; line-height: 1.6; margin: 0 0 8px; white-space: pre-wrap;">${(b.message || '').slice(0, 200)}${(b.message || '').length > 200 ? '...' : ''}</p>
+                            <p style="font-size: 11px; color: var(--text-secondary); margin: 0;">フィルター: ${filterLabel}</p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="text-align: center; color: #ff3b30; padding: 40px;">読み込みに失敗しました</p>';
+            }
+        }
+
+        // タグ管理
+        async function loadTagMaster() {
+            const container = document.getElementById('tagMasterList');
+            try {
+                const result = await api.getTags();
+                cachedTags = result.tags || [];
+                if (cachedTags.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">タグがまだありません。上のフォームから作成してください。</p>';
+                    return;
+                }
+                container.innerHTML = cachedTags.map(tag => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--glass-light); backdrop-filter: blur(var(--glass-blur)); border-radius: 10px; padding: 12px 16px; border: 1px solid rgba(255,255,255,0.5);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="width: 14px; height: 14px; background: ${tag.color}; border-radius: 50%;"></span>
+                            <span style="font-size: 14px; font-weight: 500;">${tag.name}</span>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteTag('${tag.id}', '${tag.name}')" style="font-size: 11px; padding: 4px 12px;">削除</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="text-align: center; color: #ff3b30;">読み込みに失敗しました</p>';
+            }
+        }
+
+        async function createTag() {
+            const name = document.getElementById('newTagName').value.trim();
+            const color = document.getElementById('newTagColor').value;
+            if (!name) { showToast('タグ名を入力してください', 'error'); return; }
+            try {
+                await api.createTag(name, color);
+                document.getElementById('newTagName').value = '';
+                showToast(`タグ「${name}」を作成しました`, 'success');
+                loadTagMaster();
+                // チェックボックスも更新
+                const result = await api.getTags();
+                cachedTags = result.tags || [];
+                renderBcastTagCheckboxes();
+            } catch (e) {
+                showToast(e.message || 'タグの作成に失敗しました', 'error');
+            }
+        }
+
+        async function deleteTag(id, name) {
+            showConfirmModal('タグの削除', `タグ「${name}」を削除しますか？\n全てのお客様からこのタグが除去されます。`, '削除する', async () => {
+                try {
+                    await api.deleteTag(id);
+                    showToast(`タグ「${name}」を削除しました`, 'success');
+                    loadTagMaster();
+                    const result = await api.getTags();
+                    cachedTags = result.tags || [];
+                    renderBcastTagCheckboxes();
+                } catch (e) {
+                    showToast('削除に失敗しました', 'error');
+                }
+            });
+        }
+
+        // ======================== MESSAGE FORMATTING ========================
+        function formatMessage(content) {
+            if (!content) return '';
+
+            let html = content;
+
+            // Handle TERASS_PICKS tag
+            html = html.replace(/\{\{TERASS_PICKS\|(.+?)\|(.+?)\}\}/g, (_, desc, cta) => {
+                return `<div style="background: linear-gradient(135deg, #f0f7ff, #e8f4f8); border: 1px solid #b3d4fc; border-radius: 12px; padding: 16px; margin: 8px 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;"><span style="font-size: 20px;">🏠</span><strong style="color: #0071e3; font-size: 14px;">TERASS Picks</strong></div><p style="font-size: 13px; line-height: 1.6; color: #333; margin: 0 0 8px 0;">${desc}</p><p style="font-size: 12px; color: #666; margin: 0;">✨ ${cta}</p></div>`;
+            });
+
+            // Handle ARTICLE tags
+            html = html.replace(/\{\{ARTICLE\|(.+?)\|(.+?)\}\}/g, (_, title, url) => {
+                return `<a href="${url}" target="_blank" style="display: block; padding: 10px 14px; background: #f0f7ff; border-radius: 8px; text-decoration: none; color: #1d1d1f; border: 1px solid #e5e5ea; margin: 6px 0;"><span style="font-size: 11px; color: #0071e3; font-weight: 600;">📖 おすすめ記事</span><br><span style="font-size: 13px; font-weight: 600;">${title}</span></a>`;
+            });
+
+            // Handle BOOKING tags
+            html = html.replace(/\{\{BOOKING\|(.+?)\}\}/g, (_, url) => {
+                return `<a href="${url}" target="_blank" style="display: block; padding: 12px 16px; background: #0071e3; border-radius: 8px; text-decoration: none; color: white; text-align: center; margin: 6px 0; font-weight: 600;">📅 オンライン面談を予約する</a>`;
+            });
+
+            // Handle CHOICES tags
+            html = html.replace(/\{\{CHOICES\|(.+?)\}\}/g, (_, choicesStr) => {
+                const options = choicesStr.split('|').map(s => s.trim()).filter(Boolean);
+                return `<div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0;">${options.map(opt => `<span style="padding: 6px 12px; background: #f0f0f5; border-radius: 16px; font-size: 12px; cursor: default;">${opt}</span>`).join('')}</div>`;
+            });
+
+            html = html
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/### (.*?)(<br>|$)/g, '<h3>$1</h3>')
+                .replace(/- (.*?)(<br>|$)/g, '<li>$1</li>')
+                .replace(/(\d+)\. (.*?)(<br>|$)/g, '<li>$2</li>');
+
+            if (html.includes('<li>')) {
+                html = html.replace(/(<li>.*?<\/li>)/s, (match) => '<ul>' + match + '</ul>');
+            }
+
+            return html;
+        }
+
+        // ======================== SEARCH ========================
+        document.getElementById('customerSearch').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.customer-item');
+
+            items.forEach(item => {
+                const name = item.querySelector('.customer-name').textContent.toLowerCase();
+                const meta = item.querySelector('.customer-meta').textContent.toLowerCase();
+                const matches = name.includes(query) || meta.includes(query);
+                item.style.display = matches ? '' : 'none';
+            });
+        });
+
+        // ======================== ENTER KEY FOR CHAT ========================
+        // ======================== INIT ========================
+        // Check for persistent login with sessionStorage
+        const savedPassword = sessionStorage.getItem('adminPass');
+        if (savedPassword) {
+            adminPass = savedPassword;
+            api.testAuth().then(() => {
+                loadDashboard();
+                showDashboard();
+            }).catch(() => {
+                sessionStorage.removeItem('adminPass');
+                adminPass = null;
+                showLogin();
+            });
+        } else {
+            showLogin();
+        }
+    </script>
+</body>
+</html>

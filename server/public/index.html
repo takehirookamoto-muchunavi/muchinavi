@@ -1,0 +1,3402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MuchiNavi — あなたの住まい探しAIアシスタント</title>
+  <meta name="description" content="AIがあなたにぴったりの住まい探しをサポート。住宅ローン・エリア選び・物件タイプの相談が24時間無料。不動産エージェント岡本岳大が提供するAIアシスタント。">
+  <meta name="keywords" content="住宅購入,マイホーム,住宅ローン,不動産相談,AI,住まい探し,TERASS">
+  <meta name="author" content="岡本岳大 | TERASS">
+  <!-- OGP -->
+  <meta property="og:title" content="MuchiNavi — あなたの住まい探しAIアシスタント">
+  <meta property="og:description" content="AIが住宅購入をサポート。住宅ローン・エリア選び・物件探しの相談が24時間無料。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://muchinavi.com">
+  <meta property="og:site_name" content="MuchiNavi">
+  <meta property="og:locale" content="ja_JP">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="MuchiNavi — 住まい探しAIアシスタント">
+  <meta name="twitter:description" content="AIが住宅購入をサポート。24時間無料で相談できます。">
+  <meta name="theme-color" content="#1d1d1f">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MuchiNavi">
+  <meta name="mobile-web-app-capable" content="yes">
+  <style>
+    /* パフォーマンス: 低速端末でアニメーション無効化 */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #1d1d1f;
+      --accent: #0071e3;
+      --accent-hover: #0077ED;
+      --accent-subtle: rgba(0,113,227,0.06);
+      --bg: #f5f5f7;
+      --card: rgba(255,255,255,0.82);
+      --text: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-light: #aeaeb2;
+      --border: rgba(0,0,0,0.08);
+      --success: #34c759;
+      --danger: #ff3b30;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --shadow-md: 0 4px 24px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+      --transition: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ===== Background decoration (軽量版) ===== */
+    .bg-glow {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 0;
+      will-change: auto;
+    }
+    .bg-glow-1 { top: -200px; right: -100px; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
+    .bg-glow-2 { bottom: -200px; left: -100px; background: radial-gradient(circle, #5856d6 0%, transparent 70%); }
+
+    /* ===== Container ===== */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ===== Step card ===== */
+    .step-card {
+      background: rgba(255,255,255,0.95);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 48px 36px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      animation: cardIn 0.35s ease-out;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes cardOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-20px) scale(0.96); }
+    }
+    .step-card.leaving {
+      animation: cardOut 0.3s ease forwards;
+    }
+
+    /* ===== Step elements ===== */
+    .step-icon {
+      font-size: 56px;
+      margin-bottom: 20px;
+      display: inline-block;
+      /* floatアニメーション削除で軽量化 */
+    }
+    /* @keyframes float 削除済み（パフォーマンス改善） */
+    .step-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+    .step-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .step-response {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s ease;
+    }
+    .step-response.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== Progress bar ===== */
+    .progress-container {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .progress-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.2s ease;
+    }
+    .progress-dot.active {
+      background: var(--accent);
+      width: 24px;
+      border-radius: 4px;
+    }
+    .progress-dot.done {
+      background: var(--success);
+    }
+    .progress-label {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    /* ===== Inputs ===== */
+    .input-field {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-family: inherit;
+      background: white;
+      color: var(--text);
+      outline: none;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.12);
+    }
+    .input-field::placeholder {
+      color: var(--text-light);
+    }
+
+    /* ===== Buttons ===== */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 40px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 200px;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,113,227,0.3);
+    }
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+    .btn-primary:disabled {
+      background: var(--text-light);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn-secondary {
+      display: inline-block;
+      padding: 10px 20px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      border-radius: 980px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(0,0,0,0.04);
+      color: var(--text);
+    }
+    .btn-login {
+      background: none;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      padding: 12px 32px;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-login:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* ===== Login screen ===== */
+    .login-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-screen.active { display: flex; }
+    .login-card {
+      background: rgba(255,255,255,0.95);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 48px 36px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    /* ===== Choice cards ===== */
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .choice-card {
+      padding: 20px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    .choice-card:hover {
+      border-color: rgba(0,113,227,0.3);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .choice-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+    }
+    .choice-icon { font-size: 28px; margin-bottom: 8px; }
+    .choice-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* ===== Slider ===== */
+    .slider-container {
+      width: 100%;
+      margin: 16px 0;
+    }
+    .budget-display {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to right, var(--accent), #5856d6);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 8px;
+    }
+
+    /* ===== Sub-question ===== */
+    .sub-question {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      animation: cardIn 0.4s ease;
+    }
+    .sub-question label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    /* ===== Completion ===== */
+    @keyframes confetti {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+    }
+    .completion-check {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--success);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      animation: checkPop 0.6s ease;
+    }
+    @keyframes checkPop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .completion-check svg {
+      width: 40px; height: 40px;
+      stroke: white;
+      stroke-width: 3;
+      fill: none;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: checkDraw 0.6s 0.3s forwards;
+    }
+    @keyframes checkDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ===== Chat UI ===== */
+    .chat-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 100%;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+    .chat-screen.active { display: flex; }
+
+    .chat-header {
+      padding: 20px 24px;
+      text-align: center;
+      background: #1d1d1f;
+      color: white;
+    }
+    .chat-header-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      opacity: 0.4;
+      margin-bottom: 4px;
+    }
+    .chat-header-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .chat-header-sub {
+      font-size: 12px;
+      opacity: 0.5;
+      margin-top: 4px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .chat-message {
+      display: flex;
+      gap: 8px;
+      animation: msgIn 0.4s ease;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chat-message.user { justify-content: flex-end; }
+    .chat-bubble {
+      max-width: 80%;
+      padding: 14px 20px;
+      font-size: 14px;
+      line-height: 1.75;
+      word-wrap: break-word;
+    }
+    .chat-message.assistant .chat-bubble {
+      background: white;
+      color: var(--text);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .chat-message.user .chat-bubble {
+      background: var(--accent);
+      color: white;
+      border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
+      box-shadow: 0 2px 8px rgba(0,113,227,0.25);
+    }
+    .chat-bubble p { margin: 0 0 8px 0; }
+    .chat-bubble p:last-child { margin-bottom: 0; }
+    .chat-bubble ul, .chat-bubble ol { margin: 6px 0; padding-left: 20px; }
+    .chat-bubble li { margin-bottom: 4px; line-height: 1.6; }
+    .chat-bubble strong { font-weight: 600; }
+
+    /* 個人チャット用の色分け */
+    .chat-bubble.direct-user {
+      background: #34c759;
+      color: white;
+      border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
+      box-shadow: 0 2px 8px rgba(52,199,89,0.25);
+    }
+    .chat-bubble.direct-assistant {
+      background: #f0faf3;
+      color: var(--text);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+      border: 1px solid rgba(52,199,89,0.2);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .chat-input-bar {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: white;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .chat-input-bar textarea {
+      flex: 1;
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.2s;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      line-height: 1.5;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .chat-input-bar textarea:focus {
+      border-color: var(--accent);
+    }
+    .chat-input-bar button {
+      padding: 12px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      height: 44px;
+    }
+    .chat-input-bar button:hover { background: var(--accent-hover); }
+    .chat-input-bar button:disabled {
+      background: var(--text-light);
+      cursor: not-allowed;
+    }
+
+    .chat-room-tabs {
+      display: flex;
+      background: #f5f5f7;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 0;
+    }
+    .chat-room-tab {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      background: none;
+      border: none;
+      color: #6e6e73;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      border-bottom: 2px solid transparent;
+    }
+    .chat-room-tab.active {
+      color: #0071e3;
+      border-bottom-color: #0071e3;
+    }
+    .chat-room-tab .tab-badge {
+      display: none;
+      position: absolute;
+      top: 6px;
+      right: calc(50% - 40px);
+      width: 8px;
+      height: 8px;
+      background: #ff3b30;
+      border-radius: 50%;
+    }
+    .chat-room-tab .tab-badge.show { display: block; }
+
+    .chat-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .chat-welcome-icon { font-size: 48px; margin-bottom: 16px; }
+    .chat-welcome h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .chat-welcome p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 300px;
+    }
+    .chat-hints {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    .chat-hint {
+      font-size: 12px;
+      padding: 8px 14px;
+      background: var(--accent-subtle);
+      color: var(--accent);
+      border-radius: 980px;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .chat-hint:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 18px;
+      background: white;
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--text-light);
+      animation: typingBounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* ===== Article Card ===== */
+    .article-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      margin: 12px 0 8px;
+      background: linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%);
+      border: 1px solid rgba(0,113,227,0.12);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .article-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,113,227,0.15);
+      border-color: var(--accent);
+    }
+    .article-card-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .article-card-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .article-card-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 2px;
+      display: block;
+    }
+    .article-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      line-height: 1.4;
+      display: block;
+    }
+    .article-card-arrow {
+      font-size: 16px;
+      color: var(--accent);
+      flex-shrink: 0;
+      display: inline-block;
+    }
+
+    /* ===== Booking Card ===== */
+    .booking-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      margin: 12px 0 8px;
+      background: linear-gradient(135deg, #1d1d1f 0%, #2c2c2e 100%);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: white;
+    }
+    .booking-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .booking-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .booking-card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .booking-card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      opacity: 0.5;
+      margin-bottom: 2px;
+      display: block;
+    }
+    .booking-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: block;
+    }
+    .booking-card-sub {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-top: 2px;
+      display: block;
+    }
+    .booking-card-arrow {
+      font-size: 18px;
+      opacity: 0.4;
+      display: inline-block;
+    }
+
+    /* ===== Chat header action buttons ===== */
+    .chat-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .chat-header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 9px 16px;
+      border-radius: 980px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      border: none;
+      line-height: 1;
+    }
+    /* オンライン面談 — 白地にアクセントカラー */
+    .chat-header-btn.booking {
+      background: white;
+      color: #0071e3;
+    }
+    .chat-header-btn.booking:hover {
+      background: #f0f0f0;
+    }
+    /* マイページ — 半透明白 */
+    .chat-header-btn.profile {
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .chat-header-btn.profile:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    /* 設定 — 控えめ */
+    .chat-header-btn.settings-toggle {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 9px 12px;
+    }
+    .chat-header-btn.settings-toggle:hover {
+      background: rgba(255,255,255,0.18);
+      color: white;
+    }
+
+    /* ===== Choice Chips in Chat ===== */
+    .chat-choices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 4px;
+    }
+    .chat-choice-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: white;
+      border: 2px solid var(--accent);
+      border-radius: 980px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      line-height: 1.3;
+    }
+    .chat-choice-chip:hover {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,113,227,0.25);
+    }
+    .chat-choice-chip:active {
+      transform: scale(0.96);
+    }
+    .chat-choice-chip.used {
+      background: var(--accent-subtle);
+      border-color: rgba(0,113,227,0.2);
+      color: var(--text-secondary);
+      cursor: default;
+      pointer-events: none;
+    }
+    .chat-choice-chip.used::before {
+      content: '✓ ';
+    }
+
+    /* ===== Settings dropdown ===== */
+    .settings-wrapper {
+      position: relative;
+    }
+    .settings-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+      min-width: 180px;
+      z-index: 200;
+      animation: fadeInDown 0.2s ease;
+    }
+    .settings-dropdown.show { display: block; }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .settings-dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .settings-dropdown-item:hover { background: var(--bg); }
+    .settings-dropdown-item.danger { color: var(--danger); }
+
+    /* ===== Withdraw / Block modals ===== */
+    .overlay-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .overlay-modal.active { display: flex; }
+    .modal-inner {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      animation: cardIn 0.4s ease;
+    }
+    .modal-inner-icon { font-size: 48px; margin-bottom: 16px; }
+    .modal-inner-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .modal-inner-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px; }
+    .modal-btn-row { display: flex; gap: 12px; }
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-btn-cancel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .modal-btn-cancel:hover { background: #e8e8ed; }
+    .modal-btn-danger {
+      background: var(--danger);
+      border: none;
+      color: white;
+    }
+    .modal-btn-danger:hover { background: #e63329; }
+
+    /* Block screen */
+    .blocked-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+    }
+    .blocked-screen.active { display: flex; flex-direction: column; }
+    .blocked-icon { font-size: 64px; margin-bottom: 20px; }
+    .blocked-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .blocked-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+    /* ===== Profile Screen ===== */
+    .profile-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 100%;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 150;
+    }
+    .profile-screen.active { display: flex; }
+
+    .profile-header {
+      padding: 20px 24px;
+      text-align: center;
+      background: #1d1d1f;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .profile-back-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 8px 0;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+    }
+    .profile-back-btn:hover { opacity: 0.7; }
+    .profile-header-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      flex: 1;
+    }
+
+    .profile-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .profile-section {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .profile-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.6;
+    }
+
+    .profile-field {
+      margin-bottom: 16px;
+    }
+    .profile-field:last-child { margin-bottom: 0; }
+    .profile-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .profile-field input,
+    .profile-field select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: white;
+      color: var(--text);
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .profile-field input:focus,
+    .profile-field select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-subtle);
+    }
+
+    .profile-save-btn {
+      width: calc(100% - 32px);
+      padding: 16px 24px;
+      margin: 32px 16px 40px;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .profile-save-btn:hover { background: var(--accent-hover); }
+    .profile-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .profile-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      max-width: 90%;
+      text-align: center;
+      z-index: 200;
+    }
+    .profile-toast.success {
+      background: var(--success);
+      color: white;
+    }
+    .profile-toast.error {
+      background: var(--danger);
+      color: white;
+    }
+    .profile-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 560px) {
+      /* Onboarding */
+      .container { padding: 12px; }
+      .step-card { padding: 28px 18px; }
+      .step-icon { font-size: 40px; margin-bottom: 14px; }
+      .step-title { font-size: 18px; }
+      .step-subtitle { font-size: 13px; }
+      .choices { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .choice-card { padding: 14px 10px; }
+      .choice-icon { font-size: 24px; }
+      .choice-label { font-size: 12px; }
+      .input-field { font-size: 16px; padding: 12px 14px; }
+      .next-btn { font-size: 15px; padding: 14px; }
+      .prefecture-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+      .prefecture-btn { padding: 10px 6px; font-size: 11px; }
+      .birthdate-container { gap: 10px; }
+      .birthdate-selector select { font-size: 13px; padding: 12px 10px; }
+      .next-choice-btn { font-size: 14px; padding: 12px 28px; min-width: 140px; }
+
+      /* Chat Header */
+      .chat-header { padding: 14px 16px; }
+      .chat-header-title { font-size: 17px; }
+      .chat-header-label { font-size: 9px; letter-spacing: 2px; }
+      .chat-header-sub { font-size: 11px; }
+      .chat-header-actions { gap: 6px; margin-top: 10px; }
+      .chat-header-btn { font-size: 12px; padding: 8px 14px; }
+      .chat-header-btn.settings-toggle { padding: 8px 10px; }
+
+      /* Chat Messages */
+      .chat-messages { padding: 16px 10px; gap: 12px; }
+      .chat-bubble {
+        max-width: 88%;
+        padding: 11px 14px;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .chat-bubble p { margin: 0 0 6px 0; }
+      .chat-bubble ul, .chat-bubble ol { padding-left: 16px; }
+
+      /* Chat Input */
+      .chat-input-bar { padding: 10px 10px; gap: 8px; }
+      .chat-input-bar textarea {
+        padding: 10px 14px;
+        font-size: 16px; /* 16px prevents iOS zoom on focus */
+        min-height: 40px;
+        max-height: 100px;
+      }
+      .chat-input-bar button { padding: 10px 18px; font-size: 13px; height: 40px; }
+
+      /* Article Card */
+      .article-card { padding: 12px 14px; gap: 10px; margin: 8px 0 6px; }
+      .article-card-icon { font-size: 20px; }
+      .article-card-title { font-size: 12px; }
+      .article-card-label { font-size: 9px; }
+
+      /* Booking Card */
+      .booking-card { padding: 14px 14px; gap: 10px; margin: 8px 0 6px; }
+      .booking-card-icon { width: 36px; height: 36px; font-size: 16px; border-radius: 10px; }
+      .booking-card-title { font-size: 13px; }
+      .booking-card-sub { font-size: 10px; }
+      .booking-card-label { font-size: 9px; }
+
+      /* Choice Chips */
+      .chat-choices { gap: 6px; margin: 8px 0 4px; }
+      .chat-choice-chip { padding: 8px 12px; font-size: 12px; }
+
+      /* Welcome */
+      .chat-welcome { padding: 24px 16px; }
+      .chat-welcome-icon { font-size: 36px; }
+      .chat-welcome h3 { font-size: 16px; }
+      .chat-welcome p { font-size: 12px; max-width: 260px; }
+      .chat-hints { gap: 6px; margin-top: 14px; }
+      .chat-hint { font-size: 11px; padding: 6px 10px; }
+
+      /* Modal */
+      .overlay-modal { padding: 16px; }
+      .modal-inner { padding: 28px 20px; }
+      .modal-inner-icon { font-size: 36px; margin-bottom: 12px; }
+      .modal-inner-title { font-size: 16px; }
+      .modal-inner-text { font-size: 13px; }
+      .modal-btn { font-size: 14px; padding: 12px; }
+
+      /* Settings dropdown */
+      .settings-dropdown { min-width: 150px; right: 8px; }
+    }
+
+    /* Extra small screens (iPhone SE etc.) */
+    @media (max-width: 375px) {
+      .step-card { padding: 24px 14px; }
+      .step-icon { font-size: 36px; }
+      .step-title { font-size: 16px; }
+      .chat-bubble { max-width: 92%; font-size: 12.5px; }
+      .chat-header { padding: 12px 12px; }
+      .chat-header-title { font-size: 15px; }
+      .chat-input-bar textarea { padding: 10px 12px; }
+      .chat-input-bar button { padding: 10px 14px; font-size: 12px; height: 38px; }
+      .chat-choice-chip { padding: 6px 10px; font-size: 11px; }
+      .chat-header-btn { font-size: 11px; padding: 7px 10px; }
+    }
+
+    /* Safe area support for notched devices */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .chat-input-bar {
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      }
+      .chat-header {
+        padding-top: calc(14px + env(safe-area-inset-top));
+      }
+    }
+
+    /* ===== Back Button ===== */
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      padding: 8px 14px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      border-radius: 980px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .back-button:hover {
+      background: rgba(0,0,0,0.04);
+      color: var(--text);
+    }
+
+    /* ===== Next Button (for choice/prefecture) ===== */
+    .next-choice-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 40px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 200px;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+    }
+    .next-choice-btn.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .next-choice-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,113,227,0.3);
+    }
+    .next-choice-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ===== Prefecture Grid ===== */
+    .prefecture-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .prefecture-region-header {
+      grid-column: 1 / -1;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .prefecture-btn {
+      padding: 12px 8px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
+      font-family: inherit;
+    }
+    .prefecture-btn:hover {
+      border-color: rgba(0,113,227,0.3);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .prefecture-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+    }
+
+    /* ===== Birthdate Selectors ===== */
+    .birthdate-container {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .birthdate-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 120px;
+    }
+    .birthdate-selector label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .birthdate-selector select {
+      padding: 14px 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+      background: white;
+      color: var(--text);
+      outline: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .birthdate-selector select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.12);
+    }
+
+    /* ===== Powered by footer ===== */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: var(--text-light);
+    }
+    .footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- ===== Onboarding ===== -->
+  <div class="container" id="onboarding">
+    <div class="progress-container" id="progress" style="display:none;">
+      <div class="progress-dots" id="progress-dots"></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+
+    <div class="step-card" id="step-card">
+      <!-- Steps will be rendered here by JS -->
+    </div>
+
+    <div class="footer">
+      Powered by <a href="https://muchinochi.com" target="_blank">muchinochi</a>
+    </div>
+  </div>
+
+  <!-- ===== ログイン画面 ===== -->
+  <div class="login-screen" id="login-screen">
+    <!-- 通常ログインフォーム -->
+    <div class="login-card" id="login-form-card">
+      <div class="step-icon">🔑</div>
+      <h2 class="step-title">ログイン</h2>
+      <p class="step-subtitle">登録時のメールアドレスとパスワードを入力してください</p>
+      <div style="text-align: left; display: flex; flex-direction: column; gap: 14px; margin-top: 24px;">
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス</label>
+          <input class="input-field" type="email" id="login-email" placeholder="example@email.com" style="text-align: left;">
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">パスワード</label>
+          <div style="position: relative;">
+            <input class="input-field" type="password" id="login-password" placeholder="パスワード" style="text-align: left; padding-right: 50px;" onkeypress="if(event.key==='Enter')doLogin()">
+            <button type="button" onclick="togglePasswordVisibility('login-password', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+          </div>
+        </div>
+      </div>
+      <div id="login-error" style="color: var(--danger); font-size: 13px; margin-top: 12px; display: none;"></div>
+      <div style="margin-top: 24px;">
+        <button class="btn-primary" onclick="doLogin()">ログイン</button>
+      </div>
+      <button onclick="showResetForm()" style="margin-top: 16px; background:none; border:none; color:var(--accent); font-size:13px; cursor:pointer; font-family:inherit;">パスワードをお忘れの方</button>
+      <div style="margin-top: 12px;">
+        <button class="btn-login" onclick="hideLoginForm()">← 新規登録に戻る</button>
+      </div>
+    </div>
+
+    <!-- パスワードリセットフォーム -->
+    <div class="login-card" id="reset-form-card" style="display: none;">
+      <div class="step-icon">🔄</div>
+      <h2 class="step-title">パスワード再設定</h2>
+      <p class="step-subtitle">登録時のメールアドレスを入力してください。<br>確認後、新しいパスワードを設定できます。</p>
+      <div style="text-align: left; display: flex; flex-direction: column; gap: 14px; margin-top: 24px;">
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス</label>
+          <input class="input-field" type="email" id="reset-email" placeholder="example@email.com" style="text-align: left;">
+        </div>
+        <div id="reset-password-section" style="display: none;">
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">新しいパスワード</label>
+            <div style="position: relative;">
+              <input class="input-field" type="password" id="reset-new-password" placeholder="6文字以上" style="text-align: left; padding-right: 50px;">
+              <button type="button" onclick="togglePasswordVisibility('reset-new-password', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">新しいパスワード（確認）</label>
+            <div style="position: relative;">
+              <input class="input-field" type="password" id="reset-new-password-confirm" placeholder="もう一度入力" style="text-align: left; padding-right: 50px;" onkeypress="if(event.key==='Enter')doResetPassword()">
+              <button type="button" onclick="togglePasswordVisibility('reset-new-password-confirm', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="reset-error" style="color: var(--danger); font-size: 13px; margin-top: 12px; display: none;"></div>
+      <div id="reset-success" style="color: var(--success); font-size: 13px; margin-top: 12px; display: none;"></div>
+      <div style="margin-top: 24px;">
+        <button class="btn-primary" id="reset-btn" onclick="doVerifyEmail()">メールアドレスを確認</button>
+      </div>
+      <div style="margin-top: 12px;">
+        <button class="btn-login" onclick="showLoginCard()">← ログインに戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Chat Screen ===== -->
+  <div class="chat-screen" id="chat-screen">
+    <div class="chat-header">
+      <div class="chat-header-label">AI Assistant</div>
+      <div class="chat-header-title">MuchiNavi</div>
+      <div class="chat-header-sub" id="chat-customer-name"></div>
+      <div class="chat-header-actions">
+        <a class="chat-header-btn booking" id="chat-booking-btn" href="#" target="_blank" rel="noopener">
+          📅 オンライン面談
+        </a>
+        <button class="chat-header-btn profile" onclick="openProfile()">
+          👤 マイページ
+        </button>
+        <div class="settings-wrapper">
+          <button class="chat-header-btn settings-toggle" onclick="toggleSettings(event)">⚙️</button>
+          <div class="settings-dropdown" id="settings-dropdown">
+            <button class="settings-dropdown-item" onclick="doLogout()">ログアウト</button>
+            <button class="settings-dropdown-item danger" onclick="showWithdrawModal()">退会する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat room tab switcher -->
+    <div class="chat-room-tabs">
+      <button class="chat-room-tab active" id="tab-ai" onclick="switchChatRoom('ai')">
+        🤖 MuchiNavi
+        <span class="tab-badge" id="badge-ai"></span>
+      </button>
+      <button class="chat-room-tab" id="tab-direct" onclick="switchChatRoom('direct')">
+        💬 エージェントに相談
+        <span class="tab-badge" id="badge-direct"></span>
+      </button>
+    </div>
+
+    <!-- AI Chat Room (existing) -->
+    <div class="chat-messages" id="chat-messages" style="display: flex;">
+      <div class="chat-welcome" id="chat-welcome">
+        <div class="chat-welcome-icon">🏠</div>
+        <h3>MuchiNaviに何でも聞いてください</h3>
+        <p>住宅ローン、物件の選び方、スケジュール…<br>住まい探しのことなら何でもお気軽にどうぞ。</p>
+        <div class="chat-hints">
+          <button class="chat-hint" onclick="sendHint('住宅ローンって何から始めればいいですか？')">住宅ローンの始め方</button>
+          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')">物件探しのコツ</button>
+          <button class="chat-hint" onclick="sendHint('購入までのスケジュール感を教えてください')">購入スケジュール</button>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-bar" id="ai-chat-input-bar">
+      <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
+      <button onclick="sendMessage()" id="chat-send-btn">送信</button>
+    </div>
+
+    <!-- Direct Chat Room (new) -->
+    <div class="chat-messages" id="direct-chat-messages" style="display: none;">
+      <div class="chat-welcome" id="direct-chat-welcome">
+        <div class="chat-welcome-icon">💬</div>
+        <h3>担当エージェントに直接相談できます</h3>
+        <p>AIではなく、担当エージェントに直接メッセージを送れます。<br>お返事までお時間をいただく場合があります。</p>
+      </div>
+    </div>
+    <div class="chat-input-bar" id="direct-chat-input-bar" style="display: none;">
+      <textarea id="direct-chat-input" placeholder="エージェントにメッセージ…" rows="1"></textarea>
+      <button onclick="sendDirectMessage()" id="direct-send-btn">送信</button>
+    </div>
+  </div>
+
+  <!-- ===== プロフィール編集画面 ===== -->
+  <div class="profile-screen" id="profile-screen">
+    <div class="profile-header">
+      <button class="profile-back-btn" onclick="closeProfile()">← チャットに戻る</button>
+      <div class="profile-header-title">マイページ</div>
+    </div>
+    <div class="profile-body">
+      <div class="profile-section">
+        <div class="profile-section-title">基本情報</div>
+        <div class="profile-field">
+          <label>お名前</label>
+          <input type="text" id="prof-name" placeholder="例: 山田太郎">
+        </div>
+        <div class="profile-field">
+          <label>生まれ年</label>
+          <select id="prof-birthYear">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label>生まれ月</label>
+          <select id="prof-birthMonth">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label>お住まいの都道府県</label>
+          <select id="prof-prefecture">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label>ご家族構成</label>
+          <input type="text" id="prof-family" placeholder="例: 夫婦＋子ども1人">
+        </div>
+        <div class="profile-field">
+          <label>世帯年収</label>
+          <select id="prof-householdIncome" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+            <option value="">選択してください</option>
+            <option value="〜499万円">〜499万円</option>
+            <option value="500〜999万円">500〜999万円</option>
+            <option value="1,000〜1,499万円">1,000〜1,499万円</option>
+            <option value="1,500〜1,999万円">1,500〜1,999万円</option>
+            <option value="2,000〜2,499万円">2,000〜2,499万円</option>
+            <option value="2,500〜2,999万円">2,500〜2,999万円</option>
+            <option value="3,000万円〜">3,000万円〜</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">お住まいの希望</div>
+        <div class="profile-field">
+          <label>物件種別</label>
+          <select id="prof-propertyType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+            <option value="">選択してください</option>
+            <option value="中古戸建て">中古戸建て</option>
+            <option value="中古マンション">中古マンション</option>
+            <option value="新築戸建て">新築戸建て</option>
+            <option value="注文住宅">注文住宅</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label>希望エリア</label>
+          <input type="text" id="prof-area" placeholder="例: 東京都世田谷区">
+        </div>
+        <div class="profile-field">
+          <label>ご予算</label>
+          <input type="text" id="prof-budget" placeholder="例: 5000万円">
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">連絡先</div>
+        <div class="profile-field">
+          <label>メールアドレス</label>
+          <input type="email" id="prof-email" placeholder="example@mail.com">
+        </div>
+        <div class="profile-field">
+          <label>電話番号</label>
+          <input type="tel" id="prof-phone" placeholder="090-XXXX-XXXX">
+        </div>
+        <div class="profile-field">
+          <label>LINE ID</label>
+          <input type="text" id="prof-line" placeholder="LINE ID">
+        </div>
+      </div>
+
+      <button class="profile-save-btn" id="profile-save-btn" onclick="saveProfile()">変更を保存する</button>
+
+      <div class="profile-section" style="margin-top: 20px;">
+        <div class="profile-section-title">パスワード変更</div>
+        <div class="profile-field">
+          <label>新しいパスワード</label>
+          <div style="position: relative;">
+            <input type="password" id="prof-new-password" placeholder="6文字以上" style="padding-right: 50px;">
+            <button type="button" onclick="togglePasswordVisibility('prof-new-password', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+          </div>
+        </div>
+        <div class="profile-field">
+          <label>新しいパスワード（確認）</label>
+          <div style="position: relative;">
+            <input type="password" id="prof-new-password-confirm" placeholder="もう一度入力" style="padding-right: 50px;">
+            <button type="button" onclick="togglePasswordVisibility('prof-new-password-confirm', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+          </div>
+        </div>
+        <button class="profile-save-btn" style="margin-top: 12px; background: #34c759;" onclick="changeCustomerPassword()">パスワードを変更する</button>
+      </div>
+
+      <div class="profile-toast" id="profile-toast"></div>
+    </div>
+  </div>
+
+  <!-- ===== 退会確認モーダル ===== -->
+  <div class="overlay-modal" id="withdraw-modal">
+    <div class="modal-inner">
+      <div class="modal-inner-icon">😢</div>
+      <h2 class="modal-inner-title">本当に退会しますか？</h2>
+      <p class="modal-inner-text">退会すると、チャット履歴を含むすべてのデータが削除されます。この操作は取り消せません。</p>
+      <div class="modal-btn-row">
+        <button class="modal-btn modal-btn-cancel" onclick="closeWithdrawModal()">キャンセル</button>
+        <button class="modal-btn modal-btn-danger" onclick="executeWithdraw()">退会する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ブロック画面 ===== -->
+  <div class="blocked-screen" id="blocked-screen">
+    <div class="blocked-icon">🚫</div>
+    <h2 class="blocked-title">ご利用いただけません</h2>
+    <p class="blocked-text">このサービスは現在ご利用いただけません。<br>ご不明な点がございましたらお問い合わせください。</p>
+  </div>
+
+  <script>
+    // ===== Version check =====
+    console.log('[MuchiNavi v2] ページ読み込み完了 - 最新バージョン');
+
+    // ===== State =====
+    const customerData = {};
+    let currentStep = 0;
+    let chatMessages = [];
+    let sessionToken = null;
+    let selectedChoiceValue = null; // Track selected choice value for later submission
+    let currentChatRoom = 'ai'; // 'ai' or 'direct'
+    let directChatMessages = [];
+    const TOTAL_STEPS = 14; // 0=welcome, 1=name, 2=birthdate, 3=prefecture, 4=family, 5=householdIncome, 6=propertyType, 7=purpose, 8=searchReason, 9=area, 10=budget, 11=freeComment, 12=contact, 13=password
+
+    // Prefecture data organized by region
+    const prefecturesByRegion = {
+      '北海道・東北': ['北海道', '青森', '岩手', '宮城', '秋田', '山形', '福島'],
+      '関東': ['茨城', '栃木', '群馬', '埼玉', '千葉', '東京', '神奈川'],
+      '中部': ['新潟', '富山', '石川', '福井', '山梨', '長野', '岐阜', '静岡', '愛知'],
+      '近畿': ['三重', '滋賀', '京都', '大阪', '兵庫', '奈良', '和歌山'],
+      '中国・四国': ['鳥取', '島根', '岡山', '広島', '山口', '徳島', '香川', '愛媛', '高知'],
+      '九州・沖縄': ['福岡', '佐賀', '長崎', '熊本', '大分', '宮崎', '鹿児島', '沖縄'],
+    };
+
+    // ===== Steps config =====
+    const steps = [
+      {
+        type: 'welcome',
+        icon: '🏠',
+        title: 'MuchiNaviへようこそ',
+        subtitle: 'AIがあなたの住まい探しをサポートします。\n簡単な質問に答えるだけで、あなた専用のアドバイザーが準備できます。',
+        buttonText: 'はじめる ✨',
+      },
+      {
+        type: 'text',
+        key: 'name',
+        icon: '😊',
+        title: 'お名前を教えてください',
+        subtitle: '※ 本名でのご記入をお願いします（今後のやり取りで正確にサポートするため）',
+        placeholder: '例: 山田太郎',
+        required: true,
+        response: (val) => `${val}さん、よろしくお願いします！`,
+      },
+      {
+        type: 'birthdate',
+        key: 'birthInfo',
+        icon: '🎂',
+        title: '{name}さんの生まれ年と\n生まれ月を教えてください',
+        subtitle: 'ライフプランの作成に使用します',
+        required: true,
+        response: (val) => `ありがとうございます！`,
+      },
+      {
+        type: 'prefecture',
+        key: 'prefecture',
+        icon: '🗾',
+        title: '{name}さんが\n今お住まいの都道府県は？',
+        subtitle: '',
+        required: true,
+        response: (val) => `${val}にお住まいなんですね！`,
+      },
+      {
+        type: 'choice',
+        key: 'family',
+        icon: '👨‍👩‍👧‍👦',
+        title: '{name}さんは\n誰と一緒に住む予定ですか？',
+        subtitle: '',
+        choices: [
+          { icon: '🧑', label: 'おひとり', value: '単身' },
+          { icon: '👫', label: 'パートナーと', value: 'パートナーと二人' },
+          { icon: '👨‍👩‍👧', label: '家族で', value: '家族', hasSubQuestion: true },
+          { icon: '🤔', label: 'まだ決めてない', value: '未定' },
+        ],
+        subQuestion: {
+          label: 'お子様は何人ですか？',
+          type: 'choice-inline',
+          options: ['1人', '2人', '3人以上'],
+        },
+        response: (val) => `${val}でのお住まいですね！`,
+      },
+      {
+        type: 'choice',
+        key: 'householdIncome',
+        icon: '💼',
+        title: '{name}さんの\n世帯年収を教えてください',
+        subtitle: 'ローンの目安や資金計画に活用します',
+        choices: [
+          { icon: '', label: '〜499万円', value: '〜499万円' },
+          { icon: '', label: '500〜999万円', value: '500〜999万円' },
+          { icon: '', label: '1,000〜1,499万円', value: '1,000〜1,499万円' },
+          { icon: '', label: '1,500〜1,999万円', value: '1,500〜1,999万円' },
+          { icon: '', label: '2,000〜2,499万円', value: '2,000〜2,499万円' },
+          { icon: '', label: '2,500〜2,999万円', value: '2,500〜2,999万円' },
+          { icon: '', label: '3,000万円〜', value: '3,000万円〜' },
+        ],
+        response: (val) => `ありがとうございます！`,
+      },
+      {
+        type: 'choice',
+        key: 'propertyType',
+        icon: '🏗️',
+        title: 'どんな住まいをお考えですか？',
+        subtitle: '今のイメージで大丈夫です',
+        choices: [
+          { icon: '🏠', label: '中古戸建て', value: '中古戸建て' },
+          { icon: '🏢', label: '中古マンション', value: '中古マンション' },
+          { icon: '🏡', label: '新築戸建て', value: '新築戸建て' },
+          { icon: '🏗️', label: '注文住宅', value: '注文住宅' },
+        ],
+        response: (val) => `${val}をお探しなんですね！`,
+      },
+      {
+        type: 'choice',
+        key: 'purpose',
+        icon: '🎯',
+        title: '今回はどんなきっかけで\nご登録いただきましたか？',
+        subtitle: '一番近いものをお選びください',
+        choices: [
+          { icon: '🔍', label: '住まい探し全般', value: '住まい探し全般' },
+          { icon: '📰', label: '記事が参考になった', value: '記事が参考になった' },
+          { icon: '🤝', label: 'ハウスメーカー紹介', value: 'ハウスメーカー紹介・割引を受けたい' },
+          { icon: '💬', label: 'とりあえず相談', value: 'とりあえず相談したい' },
+        ],
+        response: (val) => `なるほど、承知しました！`,
+      },
+      {
+        type: 'textarea',
+        key: 'searchReason',
+        icon: '📝',
+        title: '{name}さんが住まいを探している\n理由を教えてください',
+        subtitle: '詳しく書いていただくほど、的確なサポートができます',
+        placeholder: '例: 子どもが小学校に上がるタイミングで、学区の良いエリアに引っ越したい',
+        required: true,
+        response: (val) => `詳しくありがとうございます！`,
+      },
+      {
+        type: 'text',
+        key: 'area',
+        icon: '📍',
+        title: 'どのあたりに住みたいですか？',
+        subtitle: 'まだ決まっていなくても大丈夫です',
+        placeholder: '例: 世田谷区、横浜市',
+        skipText: 'まだ決まっていない',
+        skipValue: '未定（一緒に探したい）',
+        skipResponse: '大丈夫です！一緒に探しましょう 🔍',
+        response: (val) => `${val}エリアですね、素敵な場所ですね！`,
+      },
+      {
+        type: 'slider',
+        key: 'budget',
+        icon: '💰',
+        title: 'ご予算のイメージは？',
+        subtitle: 'ざっくりで大丈夫です。あとから変更もできます。',
+        min: 2000,
+        max: 15000,
+        step: 500,
+        default: 5000,
+        format: (val) => {
+          if (val >= 10000) return `${(val/10000).toFixed(1)}億円`;
+          return `${val.toLocaleString()}万円`;
+        },
+        skipText: 'まだわからない',
+        skipValue: '未定',
+        skipResponse: '全然OKです！これから一緒に考えましょう 💡',
+        response: (val) => `了解です！ぴったりの物件を探しましょう`,
+      },
+      {
+        type: 'textarea',
+        key: 'freeComment',
+        icon: '💬',
+        title: '最後に、何か気になることや\nご要望があればお聞かせください',
+        subtitle: '何でもOKです！空白のまま進むこともできます',
+        placeholder: '例: 駅近がいい、ペット可の物件が希望、予算内で最大限の広さがほしい…など',
+        required: false,
+        skipText: '特にないので次へ',
+        skipValue: '',
+        skipResponse: '了解です！',
+        response: (val) => `ありがとうございます！しっかり参考にさせていただきます`,
+      },
+      {
+        type: 'contact',
+        key: 'contact',
+        icon: '📱',
+        title: '連絡先を教えてください',
+        subtitle: '個人チャットの通知や、重要なご連絡に使用します。\n情報は厳重に管理しますのでご安心ください。',
+        response: () => '次へ進みます！',
+      },
+      {
+        type: 'password',
+        key: 'password',
+        icon: '🔒',
+        title: 'パスワードを設定してください',
+        subtitle: '他の端末からもログインできるようになります',
+        required: true,
+        response: () => '設定完了！',
+      },
+    ];
+
+    // ===== Render step =====
+    function renderStep(stepIdx) {
+      const step = steps[stepIdx];
+      const card = document.getElementById('step-card');
+      const progress = document.getElementById('progress');
+
+      // Show progress from step 1
+      if (stepIdx > 0) {
+        progress.style.display = 'block';
+        renderProgress(stepIdx);
+      }
+
+      // Replace title template
+      let title = step.title;
+      if (customerData.name) {
+        title = title.replace('{name}', customerData.name);
+      }
+      let subtitle = step.subtitle || '';
+
+      // Back button (appended after action buttons, not on welcome step 0)
+      let backButtonHTML = '';
+      if (stepIdx > 0) {
+        backButtonHTML = `<div style="margin-top: 12px;"><button class="back-button" onclick="prevStep()">← 戻る</button></div>`;
+      }
+
+      let html = `
+        <div class="step-icon">${step.icon}</div>
+        <h2 class="step-title">${title.replace(/\n/g, '<br>')}</h2>
+        ${subtitle ? `<p class="step-subtitle">${subtitle.replace(/\n/g, '<br>')}</p>` : ''}
+      `;
+
+      if (step.type === 'welcome') {
+        html += `<button class="btn-primary" onclick="nextStep()">${step.buttonText}</button>`;
+        html += `
+          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">すでにアカウントをお持ちの方</p>
+            <button class="btn-login" onclick="showLoginForm()">ログイン</button>
+          </div>
+        `;
+      }
+      else if (step.type === 'text') {
+        const prefillValue = step.key && customerData[step.key] ? customerData[step.key] : '';
+        html += `
+          <input class="input-field" type="text" id="step-input"
+            placeholder="${step.placeholder || ''}"
+            value="${prefillValue}"
+            onkeypress="if(event.key==='Enter' && this.value.trim())nextStep(this.value.trim())">
+          <div style="margin-top: 16px;">
+            <button class="btn-primary" onclick="submitTextStep()" id="next-btn">次へ →</button>
+          </div>
+        `;
+        if (step.skipText) {
+          html += `<div style="margin-top: 12px;"><button class="btn-secondary" onclick="skipStep()">${step.skipText}</button></div>`;
+        }
+        html += `<div class="step-response" id="step-response"></div>`;
+      }
+      else if (step.type === 'textarea') {
+        const prefillValue = step.key && customerData[step.key] ? customerData[step.key] : '';
+        html += `
+          <textarea class="input-field" id="step-input"
+            placeholder="${step.placeholder || ''}"
+            rows="4"
+            style="resize: vertical; min-height: 100px; font-family: inherit; line-height: 1.6;">${prefillValue}</textarea>
+          <div style="margin-top: 16px;">
+            <button class="btn-primary" onclick="submitTextStep()" id="next-btn">次へ →</button>
+          </div>
+        `;
+        if (step.skipText) {
+          html += `<div style="margin-top: 12px;"><button class="btn-secondary" onclick="skipStep()">${step.skipText}</button></div>`;
+        }
+        html += `<div class="step-response" id="step-response"></div>`;
+      }
+      else if (step.type === 'choice') {
+        html += `<div class="choices">`;
+        step.choices.forEach((c, i) => {
+          const isSelected = selectedChoiceValue === c.value;
+          const selectedClass = isSelected ? 'selected' : '';
+          html += `
+            <div class="choice-card ${selectedClass}" onclick="selectChoice(${i}, '${c.value}', ${!!c.hasSubQuestion})">
+              <div class="choice-icon">${c.icon}</div>
+              <div class="choice-label">${c.label}</div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        html += `<div id="sub-question-area"></div>`;
+        const btnShowClass = selectedChoiceValue !== null ? 'show' : '';
+        html += `<button class="next-choice-btn ${btnShowClass}" id="next-choice-btn" onclick="submitChoiceStep()">次へ →</button>`;
+        html += `<div class="step-response" id="step-response"></div>`;
+      }
+      else if (step.type === 'birthdate') {
+        const currentYear = new Date().getFullYear();
+        let yearOptions = '';
+        for (let y = 2010; y >= 1950; y--) {
+          const selected = customerData.birthYear === y ? 'selected' : '';
+          yearOptions += `<option value="${y}" ${selected}>${y}年</option>`;
+        }
+        let monthOptions = '';
+        for (let m = 1; m <= 12; m++) {
+          const selected = customerData.birthMonth === m ? 'selected' : '';
+          monthOptions += `<option value="${m}" ${selected}>${m}月</option>`;
+        }
+        html += `
+          <div class="birthdate-container">
+            <div class="birthdate-selector">
+              <label>生まれ年</label>
+              <select id="birth-year" onchange="validateBirthdate()">
+                <option value="">選択してください</option>
+                ${yearOptions}
+              </select>
+            </div>
+            <div class="birthdate-selector">
+              <label>生まれ月</label>
+              <select id="birth-month" onchange="validateBirthdate()">
+                <option value="">選択してください</option>
+                ${monthOptions}
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button class="btn-primary" id="submit-birthdate-btn" onclick="submitBirthdate()" disabled>次へ →</button>
+          </div>
+          <div class="step-response" id="step-response"></div>
+        `;
+      }
+      else if (step.type === 'prefecture') {
+        let prefectureHTML = '';
+        for (const [region, prefs] of Object.entries(prefecturesByRegion)) {
+          prefectureHTML += `<div class="prefecture-region-header">${region}</div>`;
+          prefs.forEach(pref => {
+            const selected = customerData.prefecture === pref ? 'selected' : '';
+            prefectureHTML += `<button class="prefecture-btn ${selected}" onclick="selectPrefecture('${pref}', event)">${pref}</button>`;
+          });
+        }
+        html += `
+          <div class="prefecture-grid">
+            ${prefectureHTML}
+          </div>
+          <button class="next-choice-btn" id="next-prefecture-btn" onclick="submitPrefectureStep()" style="display: ${customerData.prefecture ? 'inline-flex' : 'none'};">次へ →</button>
+          <div class="step-response" id="step-response"></div>
+        `;
+      }
+      else if (step.type === 'slider') {
+        // Try to restore previous budget value from customerData
+        let sliderValue = step.default;
+        if (step.key && customerData[step.key]) {
+          // Extract the numeric value from the formatted budget string
+          const budgetStr = customerData[step.key];
+          const numMatch = budgetStr.match(/(\d+)/);
+          if (numMatch) {
+            sliderValue = parseInt(numMatch[1]) * 500; // Assuming 500 step
+          }
+        }
+        html += `
+          <div class="slider-container">
+            <div class="budget-display" id="budget-display">${step.format(sliderValue)}</div>
+            <input type="range" id="budget-slider"
+              min="${step.min}" max="${step.max}" step="${step.step}" value="${sliderValue}"
+              oninput="updateBudget(this.value)">
+            <div class="slider-labels">
+              <span>${step.format(step.min)}</span>
+              <span>${step.format(step.max)}〜</span>
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button class="btn-primary" onclick="submitSlider()">次へ →</button>
+          </div>
+        `;
+        if (step.skipText) {
+          html += `<div style="margin-top: 12px;"><button class="btn-secondary" onclick="skipStep()">${step.skipText}</button></div>`;
+        }
+        html += `<div class="step-response" id="step-response"></div>`;
+      }
+      else if (step.type === 'contact') {
+        html += `
+          <div style="text-align: left; display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
+              <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号（任意）</label>
+              <input class="input-field" type="tel" id="contact-phone" placeholder="090-xxxx-xxxx" style="text-align: left;">
+            </div>
+          </div>
+          <div style="margin-top: 24px;">
+            <button class="btn-primary" onclick="submitContact()">次へ →</button>
+          </div>
+          <div class="step-response" id="step-response"></div>
+        `;
+      }
+      else if (step.type === 'password') {
+        html += `
+          <div style="text-align: left; display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">パスワード <span style="color: var(--danger);">*</span></label>
+              <div style="position: relative;">
+                <input class="input-field" type="password" id="password-input" placeholder="6文字以上" style="text-align: left; padding-right: 50px;">
+                <button type="button" onclick="togglePasswordVisibility('password-input', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">パスワード（確認） <span style="color: var(--danger);">*</span></label>
+              <div style="position: relative;">
+                <input class="input-field" type="password" id="password-confirm" placeholder="もう一度入力" style="text-align: left; padding-right: 50px;">
+                <button type="button" onclick="togglePasswordVisibility('password-confirm', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">表示</button>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
+              ※ メールアドレスとこのパスワードで、どの端末からでもログインできます
+            </p>
+          </div>
+          <div style="margin-top: 24px;">
+            <button class="btn-primary" onclick="submitPassword()">登録する 🎉</button>
+          </div>
+          <div class="step-response" id="step-response"></div>
+        `;
+      }
+
+      // Append back button at the bottom (after all action buttons)
+      html += backButtonHTML;
+
+      // Animate transition
+      card.classList.add('leaving');
+      setTimeout(() => {
+        card.classList.remove('leaving');
+        card.innerHTML = html;
+        card.style.animation = 'none';
+        card.offsetHeight; // trigger reflow
+        card.style.animation = '';
+
+        // Focus input
+        const input = document.getElementById('step-input');
+        if (input) setTimeout(() => input.focus(), 300);
+      }, 250);
+    }
+
+    function renderProgress(stepIdx) {
+      const dots = document.getElementById('progress-dots');
+      const label = document.getElementById('progress-label');
+      let html = '';
+      for (let i = 1; i < TOTAL_STEPS; i++) {
+        let cls = 'progress-dot';
+        if (i < stepIdx) cls += ' done';
+        else if (i === stepIdx) cls += ' active';
+        html += `<div class="${cls}"></div>`;
+      }
+      dots.innerHTML = html;
+      label.textContent = `ステップ ${stepIdx} / ${TOTAL_STEPS - 1}`;
+    }
+
+    // ===== Step handlers =====
+    function nextStep(value) {
+      const step = steps[currentStep];
+      if (value !== undefined && step.key) {
+        customerData[step.key] = value;
+      }
+
+      // Show response if exists
+      if (step.response && value !== undefined) {
+        showResponse(step.response(value));
+        setTimeout(() => {
+          currentStep++;
+          if (currentStep < TOTAL_STEPS) {
+            renderStep(currentStep);
+          } else {
+            showCompletion();
+          }
+        }, 1200);
+      } else {
+        currentStep++;
+        if (currentStep < TOTAL_STEPS) {
+          renderStep(currentStep);
+        } else {
+          showCompletion();
+        }
+      }
+    }
+
+    function submitTextStep() {
+      const input = document.getElementById('step-input');
+      const val = input.value.trim();
+      if (!val) {
+        input.style.borderColor = 'var(--danger)';
+        input.focus();
+        return;
+      }
+      nextStep(val);
+    }
+
+    function skipStep() {
+      const step = steps[currentStep];
+      customerData[step.key] = step.skipValue;
+      showResponse(step.skipResponse);
+      setTimeout(() => {
+        currentStep++;
+        renderStep(currentStep);
+      }, 1200);
+    }
+
+    function selectChoice(idx, value, hasSub) {
+      // Highlight selected
+      document.querySelectorAll('.choice-card').forEach((c, i) => {
+        c.classList.toggle('selected', i === idx);
+      });
+
+      if (hasSub) {
+        const step = steps[currentStep];
+        const area = document.getElementById('sub-question-area');
+        selectedChoiceValue = value; // Store the value with sub-question
+        area.innerHTML = `
+          <div class="sub-question">
+            <label>${step.subQuestion.label}</label>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              ${step.subQuestion.options.map(opt =>
+                `<button class="chat-hint" onclick="submitChoiceWithSub('${value}', '${opt}')" style="font-size: 14px; padding: 10px 18px;">${opt}</button>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+        // Show next button after sub-question appears
+        const nextBtn = document.getElementById('next-choice-btn');
+        if (nextBtn) {
+          setTimeout(() => nextBtn.classList.add('show'), 100);
+        }
+      } else {
+        // No sub-question: store value and show next button
+        selectedChoiceValue = value;
+        const nextBtn = document.getElementById('next-choice-btn');
+        if (nextBtn) {
+          nextBtn.classList.add('show');
+        }
+      }
+    }
+
+    function submitChoiceStep() {
+      if (selectedChoiceValue !== null) {
+        nextStep(selectedChoiceValue);
+        selectedChoiceValue = null;
+      }
+    }
+
+    function submitChoiceWithSub(mainVal, subVal) {
+      nextStep(`${mainVal}（子ども${subVal}）`);
+      selectedChoiceValue = null;
+    }
+
+    function validateBirthdate() {
+      const yearSelect = document.getElementById('birth-year');
+      const monthSelect = document.getElementById('birth-month');
+      const submitBtn = document.getElementById('submit-birthdate-btn');
+      const year = yearSelect.value;
+      const month = monthSelect.value;
+
+      if (year && month) {
+        submitBtn.disabled = false;
+      } else {
+        submitBtn.disabled = true;
+      }
+    }
+
+    function submitBirthdate() {
+      const year = parseInt(document.getElementById('birth-year').value);
+      const month = parseInt(document.getElementById('birth-month').value);
+
+      if (!year || !month) {
+        return;
+      }
+
+      // Calculate age
+      const today = new Date();
+      let age = today.getFullYear() - year;
+      if (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < 1)) {
+        age--;
+      }
+
+      customerData.birthYear = year;
+      customerData.birthMonth = month;
+      customerData.age = age;
+
+      nextStep(`${year}年${month}月生まれ`);
+    }
+
+    function selectPrefecture(prefName, evt) {
+      // Unselect all, select this one
+      document.querySelectorAll('.prefecture-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      if (evt && evt.target) {
+        evt.target.classList.add('selected');
+      }
+      customerData.prefecture = prefName;
+
+      // Show next button
+      const nextBtn = document.getElementById('next-prefecture-btn');
+      if (nextBtn) {
+        nextBtn.style.display = 'inline-flex';
+        setTimeout(() => nextBtn.classList.add('show'), 50);
+      }
+    }
+
+    function submitPrefectureStep() {
+      if (customerData.prefecture) {
+        nextStep(customerData.prefecture);
+      }
+    }
+
+    function prevStep() {
+      // Go back one step
+      if (currentStep > 0) {
+        currentStep--;
+        renderStep(currentStep);
+      }
+    }
+
+    function updateBudget(val) {
+      const step = steps[currentStep];
+      document.getElementById('budget-display').textContent = step.format(parseInt(val));
+    }
+
+    function submitSlider() {
+      const step = steps[currentStep];
+      const val = document.getElementById('budget-slider').value;
+      nextStep(step.format(parseInt(val)));
+    }
+
+    function submitContact() {
+      const email = document.getElementById('contact-email').value.trim();
+      const phone = document.getElementById('contact-phone').value.trim();
+
+      if (!email || !email.includes('@')) {
+        document.getElementById('contact-email').style.borderColor = 'var(--danger)';
+        document.getElementById('contact-email').focus();
+        return;
+      }
+
+      customerData.email = email;
+      customerData.phone = phone || '未入力';
+      nextStep('contact-done');
+    }
+
+    function submitPassword() {
+      const pw = document.getElementById('password-input').value;
+      const pwConfirm = document.getElementById('password-confirm').value;
+
+      if (!pw || pw.length < 6) {
+        document.getElementById('password-input').style.borderColor = 'var(--danger)';
+        document.getElementById('password-input').focus();
+        return;
+      }
+      if (pw !== pwConfirm) {
+        document.getElementById('password-confirm').style.borderColor = 'var(--danger)';
+        document.getElementById('password-confirm').focus();
+        return;
+      }
+
+      customerData.password = pw;
+      // パスワード自体を value として渡す（nextStepでstep.key='password'にpwが入る＝上書きされても同じ値）
+      nextStep(pw);
+    }
+
+    function showResponse(text) {
+      const el = document.getElementById('step-response');
+      if (el) {
+        el.textContent = text;
+        setTimeout(() => el.classList.add('show'), 50);
+      }
+    }
+
+    // ===== Login Functions =====
+    function showLoginForm() {
+      document.getElementById('login-screen').classList.add('active');
+      setTimeout(() => document.getElementById('login-email').focus(), 100);
+    }
+
+    function hideLoginForm() {
+      document.getElementById('login-screen').classList.remove('active');
+      document.getElementById('login-error').style.display = 'none';
+    }
+
+    // ===== パスワード表示切替 =====
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '非表示';
+      } else {
+        input.type = 'password';
+        btn.textContent = '表示';
+      }
+    }
+
+    // ===== リセットフォーム表示切替 =====
+    function showResetForm() {
+      document.getElementById('login-form-card').style.display = 'none';
+      document.getElementById('reset-form-card').style.display = '';
+      document.getElementById('reset-email').value = '';
+      document.getElementById('reset-error').style.display = 'none';
+      document.getElementById('reset-success').style.display = 'none';
+      document.getElementById('reset-password-section').style.display = 'none';
+      document.getElementById('reset-btn').textContent = 'メールアドレスを確認';
+      document.getElementById('reset-btn').onclick = doVerifyEmail;
+      setTimeout(() => document.getElementById('reset-email').focus(), 100);
+    }
+
+    function showLoginCard() {
+      document.getElementById('reset-form-card').style.display = 'none';
+      document.getElementById('login-form-card').style.display = '';
+      document.getElementById('login-error').style.display = 'none';
+      setTimeout(() => document.getElementById('login-email').focus(), 100);
+    }
+
+    // ===== メール確認 → パスワードリセット =====
+    async function doVerifyEmail() {
+      const email = document.getElementById('reset-email').value.trim();
+      const errorDiv = document.getElementById('reset-error');
+      const successDiv = document.getElementById('reset-success');
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      if (!email) {
+        errorDiv.textContent = 'メールアドレスを入力してください';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.verified) {
+          errorDiv.textContent = data.error || '確認に失敗しました';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        // メール確認成功 → パスワード入力欄を表示
+        successDiv.textContent = 'メールアドレスが確認できました。新しいパスワードを設定してください。';
+        successDiv.style.display = 'block';
+        document.getElementById('reset-password-section').style.display = '';
+        document.getElementById('reset-email').disabled = true;
+        document.getElementById('reset-btn').textContent = 'パスワードを再設定する';
+        document.getElementById('reset-btn').onclick = doResetPassword;
+        setTimeout(() => document.getElementById('reset-new-password').focus(), 100);
+      } catch (e) {
+        errorDiv.textContent = 'ネットワークエラーが発生しました';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    async function doResetPassword() {
+      const email = document.getElementById('reset-email').value.trim();
+      const pw = document.getElementById('reset-new-password').value;
+      const pwConfirm = document.getElementById('reset-new-password-confirm').value;
+      const errorDiv = document.getElementById('reset-error');
+      const successDiv = document.getElementById('reset-success');
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      if (!pw || pw.length < 6) {
+        errorDiv.textContent = 'パスワードは6文字以上で入力してください';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (pw !== pwConfirm) {
+        errorDiv.textContent = 'パスワードが一致しません';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, newPassword: pw }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.reset) {
+          errorDiv.textContent = data.error || '再設定に失敗しました';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        successDiv.textContent = 'パスワードを再設定しました！ログイン画面に戻ってログインしてください。';
+        successDiv.style.display = 'block';
+        document.getElementById('reset-btn').style.display = 'none';
+        setTimeout(() => showLoginCard(), 2500);
+      } catch (e) {
+        errorDiv.textContent = 'ネットワークエラーが発生しました';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorDiv = document.getElementById('login-error');
+
+      if (!email) {
+        errorDiv.textContent = 'メールアドレスを入力してください';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: password || '' }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          errorDiv.textContent = data.error || 'ログインに失敗しました';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        // Login success
+        sessionToken = data.token;
+        localStorage.setItem('muchinavi_token', sessionToken);
+        history.replaceState(null, '', `?t=${sessionToken}`);
+        Object.assign(customerData, data.customer);
+        chatMessages = data.chatHistory || [];
+        directChatMessages = data.directChatHistory || [];
+
+        hideLoginForm();
+        startChat();
+
+        // パスワード未設定の場合、マイページを開いてパスワード設定を促す
+        if (data.needsPassword) {
+          setTimeout(() => {
+            openProfile();
+            showProfileToast('セキュリティのため、パスワードを設定してください', 'error');
+          }, 500);
+        }
+      } catch (e) {
+        errorDiv.textContent = 'ネットワークエラーが発生しました';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    // ===== Completion =====
+    function showCompletion() {
+      document.getElementById('progress').style.display = 'none';
+      const card = document.getElementById('step-card');
+      card.classList.add('leaving');
+
+      setTimeout(() => {
+        card.classList.remove('leaving');
+        card.innerHTML = `
+          <div class="completion-check">
+            <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
+          </div>
+          <h2 class="step-title">登録完了！</h2>
+          <p class="step-subtitle">
+            ${customerData.name}さん専用の<br>AIアシスタントが準備できました
+          </p>
+          <button class="btn-primary" onclick="startChat()" style="margin-top: 8px;">
+            MuchiNaviに相談する 💬
+          </button>
+          <p style="font-size: 11px; color: var(--text-light); margin-top: 16px;">
+            岡本から直接ご連絡させていただきます
+          </p>
+        `;
+        card.style.animation = 'none';
+        card.offsetHeight;
+        card.style.animation = '';
+
+        // Send notification to agent
+        notifyAgent();
+      }, 250);
+    }
+
+    // ===== Notify Agent & Save =====
+    async function notifyAgent() {
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(customerData),
+        });
+        const data = await res.json();
+        if (data.token) {
+          sessionToken = data.token;
+          // Save token to localStorage AND update URL
+          localStorage.setItem('muchinavi_token', sessionToken);
+          history.replaceState(null, '', `?t=${sessionToken}`);
+        }
+      } catch (e) {
+        console.error('通知送信エラー:', e);
+      }
+    }
+
+    // ===== Chat =====
+    function startChat() {
+      document.getElementById('onboarding').style.display = 'none';
+      document.getElementById('chat-screen').classList.add('active');
+      document.getElementById('chat-customer-name').textContent =
+        `${customerData.name}さんの住まい相談`;
+
+      // Restore chat history if any
+      if (chatMessages.length > 0) {
+        document.getElementById('chat-welcome').style.display = 'none';
+        renderChatMessages();
+      }
+
+      document.getElementById('chat-input').focus();
+    }
+
+    function sendHint(text) {
+      document.getElementById('chat-input').value = text;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      console.log('[MuchiNavi v2] sendMessage called, isSending:', isSending);
+      if (isSending) { console.log('[MuchiNavi] blocked: isSending is true'); return; }
+
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) { console.log('[MuchiNavi] blocked: empty text'); return; }
+
+      isSending = true;
+      console.log('[MuchiNavi] sending:', text);
+
+      // Hide welcome (may not exist if session restored)
+      const welcomeEl = document.getElementById('chat-welcome');
+      if (welcomeEl) welcomeEl.style.display = 'none';
+
+      // Add user message
+      chatMessages.push({ role: 'user', content: text });
+      renderChatMessages();
+      input.value = '';
+      input.style.height = 'auto';
+      input.focus();
+
+      // Show typing indicator
+      showTyping();
+
+      // Disable send
+      document.getElementById('chat-send-btn').disabled = true;
+
+      try {
+        console.log('[MuchiNavi] fetching /api/chat...');
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer: customerData,
+            messages: chatMessages,
+            token: sessionToken,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        console.log('[MuchiNavi] response status:', res.status);
+        const data = await res.json();
+        console.log('[MuchiNavi] response data:', data);
+        hideTyping();
+
+        if (data.error) {
+          chatMessages.push({ role: 'assistant', content: data.error });
+        } else {
+          chatMessages.push({ role: 'assistant', content: data.reply });
+        }
+        renderChatMessages();
+      } catch (e) {
+        console.error('[MuchiNavi] fetch error:', e);
+        hideTyping();
+        const msg = e.name === 'AbortError'
+          ? '回答の生成に時間がかかっています。もう一度お試しください。'
+          : 'ネットワークエラーが発生しました。再度お試しください。';
+        chatMessages.push({ role: 'assistant', content: msg });
+        renderChatMessages();
+      }
+
+      document.getElementById('chat-send-btn').disabled = false;
+      isSending = false;
+    }
+
+    function switchChatRoom(room) {
+      currentChatRoom = room;
+
+      // Toggle tab active state
+      document.getElementById('tab-ai').classList.toggle('active', room === 'ai');
+      document.getElementById('tab-direct').classList.toggle('active', room === 'direct');
+
+      // Toggle message containers
+      document.getElementById('chat-messages').style.display = room === 'ai' ? 'flex' : 'none';
+      document.getElementById('ai-chat-input-bar').style.display = room === 'ai' ? 'flex' : 'none';
+      document.getElementById('direct-chat-messages').style.display = room === 'direct' ? 'flex' : 'none';
+      document.getElementById('direct-chat-input-bar').style.display = room === 'direct' ? 'flex' : 'none';
+
+      // Clear badge
+      document.getElementById(`badge-${room}`).classList.remove('show');
+
+      if (room === 'direct') {
+        renderDirectMessages();
+        scrollDirectChat();
+      }
+    }
+
+    function renderDirectMessages() {
+      const container = document.getElementById('direct-chat-messages');
+      const welcome = document.getElementById('direct-chat-welcome');
+
+      if (directChatMessages.length === 0) {
+        // Show welcome, clear any rendered messages except welcome
+        container.innerHTML = '';
+        const welcomeClone = welcome.cloneNode(true);
+        container.appendChild(welcomeClone);
+        return;
+      }
+
+      // Build messages HTML (LINE風: 自分が右、エージェントが左)
+      let html = '';
+      directChatMessages.forEach(msg => {
+        const isUser = msg.role === 'user';
+        const side = isUser ? 'user' : 'assistant';
+        const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}) : '';
+        html += `<div class="chat-message ${side}">
+          <div class="chat-bubble direct-${side}">
+            ${isUser ? '' : '<div style="font-size:10px;font-weight:600;color:#34c759;margin-bottom:4px;">担当エージェント</div>'}
+            <div style="white-space:pre-wrap;">${msg.content}</div>
+            ${time ? `<div style="font-size:10px;color:${isUser ? 'rgba(255,255,255,0.6)' : '#aeaeb2'};margin-top:4px;text-align:${isUser?'right':'left'}">${time}</div>` : ''}
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function scrollDirectChat() {
+      const el = document.getElementById('direct-chat-messages');
+      setTimeout(() => { el.scrollTop = el.scrollHeight; }, 50);
+    }
+
+    async function sendDirectMessage() {
+      const input = document.getElementById('direct-chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const msg = { role: 'user', content: text, timestamp: new Date().toISOString() };
+      directChatMessages.push(msg);
+      renderDirectMessages();
+      scrollDirectChat();
+      input.value = '';
+      input.style.height = 'auto';
+      input.focus();
+
+      // Save to server
+      try {
+        await fetch(`/api/direct-chat-history/${sessionToken}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: directChatMessages }),
+        });
+      } catch (e) {
+        console.error('Direct chat save error:', e);
+      }
+    }
+
+    // Poll for new direct messages every 15 seconds
+    setInterval(async () => {
+      if (!sessionToken) return;
+      try {
+        const res = await fetch(`/api/session/${sessionToken}`);
+        const data = await res.json();
+        if (data.directChatHistory && data.directChatHistory.length > directChatMessages.length) {
+          directChatMessages = data.directChatHistory;
+          if (currentChatRoom === 'direct') {
+            renderDirectMessages();
+            scrollDirectChat();
+          } else {
+            // Show badge on direct tab
+            document.getElementById('badge-direct').classList.add('show');
+          }
+        }
+      } catch (e) {}
+    }, 15000);
+
+    // TimeRex URL (injected from server config)
+    let timerexURL = '';
+    fetch('/api/config').then(r => r.json()).then(d => { timerexURL = d.timerexURL || ''; updateBookingButton(); }).catch(() => {});
+
+    function updateBookingButton() {
+      const btn = document.getElementById('chat-booking-btn');
+      if (btn && timerexURL) {
+        btn.href = timerexURL;
+        btn.style.display = 'inline-flex';
+      } else if (btn) {
+        btn.style.display = 'none';
+      }
+    }
+
+    function formatContent(text) {
+      if (!text) return '';
+
+      // Extract article tags before HTML escaping
+      const articles = [];
+      text = text.replace(/\{\{ARTICLE\|(.+?)\|(.+?)\}\}/g, (_, title, url) => {
+        articles.push({ title, url });
+        return `__ARTICLE_${articles.length - 1}__`;
+      });
+
+      // Extract choice chips
+      const choiceSets = [];
+      text = text.replace(/\{\{CHOICES\|(.+?)\}\}/g, (_, choicesStr) => {
+        const options = choicesStr.split('|').map(s => s.trim()).filter(Boolean);
+        choiceSets.push(options);
+        return `__CHOICES_${choiceSets.length - 1}__`;
+      });
+
+      // Extract TERASS Picks tags
+      let terassPicksInfo = null;
+      text = text.replace(/\{\{TERASS_PICKS\|(.+?)\|(.+?)\}\}/g, (_, desc, cta) => {
+        terassPicksInfo = { desc, cta };
+        return '__TERASS_PICKS__';
+      });
+
+      // Extract booking tags
+      let bookingURL = '';
+      text = text.replace(/\{\{BOOKING\|(.+?)\}\}/g, (_, url) => {
+        bookingURL = url;
+        return '__BOOKING__';
+      });
+
+      let html = text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/【(.+?)】/g, '<strong>【$1】</strong>')
+        .replace(/^[\-•]\s+(.+)$/gm, '<li>$1</li>')
+        .replace(/^\d+[\.\)]\s+(.+)$/gm, '<li>$1</li>')
+        .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      html = '<p>' + html + '</p>';
+      html = html.replace(/<p>\s*<\/p>/g, '').replace(/<p><ul>/g, '<ul>').replace(/<\/ul><\/p>/g, '</ul>');
+
+      // Replace article placeholders with cards (use <span> to avoid <p>/<div> nesting issues)
+      articles.forEach((a, i) => {
+        const card = `</p><a class="article-card" href="${a.url}" target="_blank" rel="noopener"><span class="article-card-icon">📖</span><span class="article-card-content"><span class="article-card-label">おすすめ記事</span><span class="article-card-title">${a.title}</span></span><span class="article-card-arrow">→</span></a><p>`;
+        html = html.replace(`__ARTICLE_${i}__`, card);
+      });
+
+      // Replace booking placeholder with card
+      if (bookingURL) {
+        const card = `</p><a class="booking-card" href="${bookingURL}" target="_blank" rel="noopener"><span class="booking-card-icon">📅</span><span class="booking-card-content"><span class="booking-card-label">無料相談</span><span class="booking-card-title">岡本とオンライン面談</span><span class="booking-card-sub">ご都合のいい日時を選べます</span></span><span class="booking-card-arrow">→</span></a><p>`;
+        html = html.replace('__BOOKING__', card);
+      }
+
+      // Replace TERASS Picks placeholder with card
+      if (terassPicksInfo) {
+        const card = `</p><div style="background: linear-gradient(135deg, #f0f7ff, #e8f4f8); border: 1px solid #b3d4fc; border-radius: 16px; padding: 20px; margin: 12px 0;"><div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><span style="font-size: 24px;">🏠</span><strong style="color: #0071e3; font-size: 15px;">TERASS Picks</strong></div><p style="font-size: 14px; line-height: 1.7; color: #333; margin: 0 0 12px 0;">${terassPicksInfo.desc}</p><p style="font-size: 13px; color: #666; margin: 0;"><span style="background: #0071e3; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 6px;">✨</span>${terassPicksInfo.cta}</p></div><p>`;
+        html = html.replace('__TERASS_PICKS__', card);
+      }
+
+      // Replace choice chip placeholders
+      choiceSets.forEach((options, i) => {
+        const chips = `</p><div class="chat-choices" data-choice-set="${i}">${options.map(opt => `<button class="chat-choice-chip" onclick="selectChatChoice(this, '${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}</div><p>`;
+        html = html.replace(`__CHOICES_${i}__`, chips);
+      });
+
+      // Clean up empty <p> tags and stray <br> around cards
+      html = html.replace(/<p>\s*<\/p>/g, '');
+      html = html.replace(/<br>\s*(<a class="article-card)/g, '$1');
+      html = html.replace(/<br>\s*(<a class="booking-card)/g, '$1');
+      html = html.replace(/<br>\s*(<div class="chat-choices)/g, '$1');
+      html = html.replace(/<br>\s*(<div style="background: linear-gradient)/g, '$1');
+      html = html.replace(/(<\/a>)\s*<br>/g, '$1');
+      html = html.replace(/(<\/div>)\s*<br>/g, '$1');
+
+      return html;
+    }
+
+    let isSending = false; // 二重送信防止
+
+    // ===== textarea 自動高さ調整 & キーハンドラ =====
+    function setupChatTextarea(textareaId, sendFunction) {
+      const textarea = document.getElementById(textareaId);
+      if (!textarea) return;
+
+      // 自動高さ調整
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+      });
+
+      // PC: Enter = 改行（デフォルト動作）、Shift+Enter = 送信
+      textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.shiftKey) {
+          e.preventDefault();
+          sendFunction();
+        }
+      });
+    }
+
+    // DOM読み込み後にセットアップ
+    document.addEventListener('DOMContentLoaded', function() {
+      setupChatTextarea('chat-input', sendMessage);
+      setupChatTextarea('direct-chat-input', sendDirectMessage);
+    });
+
+    function selectChatChoice(btn, text) {
+      if (isSending) return; // 送信中なら無視
+
+      // 全チップを無効化
+      const container = btn.closest('.chat-choices');
+      if (container) {
+        container.querySelectorAll('.chat-choice-chip').forEach(chip => {
+          chip.classList.add('used');
+          chip.onclick = null;
+        });
+        btn.classList.remove('used');
+        btn.style.background = 'var(--accent)';
+        btn.style.color = 'white';
+        btn.style.borderColor = 'var(--accent)';
+      }
+
+      // 直接メッセージを送信（inputを経由しない）
+      sendChoiceMessage(text);
+    }
+
+    async function sendChoiceMessage(text) {
+      if (isSending || !text) return;
+      isSending = true;
+
+      // Hide welcome (may not exist if session restored)
+      const welcomeEl = document.getElementById('chat-welcome');
+      if (welcomeEl) welcomeEl.style.display = 'none';
+      chatMessages.push({ role: 'user', content: text });
+      renderChatMessages();
+      document.getElementById('chat-input').value = '';
+      showTyping();
+      document.getElementById('chat-send-btn').disabled = true;
+
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer: customerData,
+            messages: chatMessages,
+            token: sessionToken,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        hideTyping();
+        if (data.error) {
+          chatMessages.push({ role: 'assistant', content: data.error });
+        } else {
+          chatMessages.push({ role: 'assistant', content: data.reply });
+        }
+        renderChatMessages();
+      } catch (e) {
+        hideTyping();
+        const msg = e.name === 'AbortError'
+          ? '回答の生成に時間がかかっています。もう一度お試しください。'
+          : 'ネットワークエラーが発生しました。再度お試しください。';
+        chatMessages.push({ role: 'assistant', content: msg });
+        renderChatMessages();
+      }
+
+      document.getElementById('chat-send-btn').disabled = false;
+      isSending = false;
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chat-messages');
+      container.innerHTML = chatMessages.map((m, idx) => {
+        if (m.role === 'user') {
+          const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          return `<div class="chat-message user"><div class="chat-bubble" style="white-space:pre-wrap;">${escaped}</div></div>`;
+        }
+        // AI message - check if the NEXT message is a user picking a choice
+        const nextMsg = chatMessages[idx + 1];
+        let content = formatContent(m.content);
+
+        // If next user message exists and this AI message had choices, mark them as used
+        if (nextMsg && nextMsg.role === 'user' && content.includes('chat-choices')) {
+          const selectedText = nextMsg.content;
+          // Disable all chips and highlight the selected one
+          content = content.replace(/class="chat-choice-chip"/g, 'class="chat-choice-chip used" disabled');
+          content = content.replace(
+            new RegExp(`class="chat-choice-chip used" disabled>` + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + `<`),
+            `class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">${selectedText}<`
+          );
+          // Remove onclick from all chips in this message
+          content = content.replace(/onclick="selectChatChoice\([^"]*\)"/g, '');
+        }
+
+        return `<div class="chat-message assistant"><div class="chat-bubble">${content}</div></div>`;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() {
+      const container = document.getElementById('chat-messages');
+      const el = document.createElement('div');
+      el.id = 'typing';
+      el.className = 'chat-message assistant';
+      el.innerHTML = `
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      container.appendChild(el);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTyping() {
+      const el = document.getElementById('typing');
+      if (el) el.remove();
+    }
+
+    // ===== Init: Check for existing session =====
+    async function init() {
+      // Check URL param first, then localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromURL = urlParams.get('t');
+      const tokenFromStorage = localStorage.getItem('muchinavi_token');
+      const token = tokenFromURL || tokenFromStorage;
+      const withdrawParam = urlParams.get('withdraw');
+
+      if (token) {
+        try {
+          const res = await fetch(`/api/session/${token}`);
+          const data = await res.json();
+
+          // ブロック済み
+          if (data.found && data.blocked) {
+            localStorage.removeItem('muchinavi_token');
+            showBlockedScreen();
+            return;
+          }
+
+          if (data.found) {
+            // Restore session
+            sessionToken = token;
+            localStorage.setItem('muchinavi_token', token);
+            history.replaceState(null, '', `?t=${token}`);
+
+            // Restore customer data
+            Object.assign(customerData, data.customer);
+            chatMessages = data.chatHistory || [];
+            if (data.directChatHistory && data.directChatHistory.length > 0) {
+              directChatMessages = data.directChatHistory;
+            }
+
+            // URLに withdraw=true がある場合は退会確認を表示
+            if (withdrawParam === 'true') {
+              startChat();
+              showWithdrawModal();
+              return;
+            }
+
+            // Skip onboarding, go to chat
+            startChat();
+            return;
+          }
+        } catch (e) {
+          console.error('セッション復元エラー:', e);
+        }
+      }
+
+      // No session found — show onboarding
+      renderStep(0);
+    }
+
+    // ===== Settings menu =====
+    function toggleSettings(event) {
+      event.stopPropagation();
+      const dd = document.getElementById('settings-dropdown');
+      dd.classList.toggle('show');
+    }
+    // Close dropdown when clicking elsewhere
+    document.addEventListener('click', () => {
+      document.getElementById('settings-dropdown').classList.remove('show');
+    });
+
+    // ===== Logout =====
+    function doLogout() {
+      document.getElementById('settings-dropdown').classList.remove('show');
+      localStorage.removeItem('muchinavi_token');
+      sessionToken = null;
+      chatMessages = [];
+      directChatMessages = [];
+      Object.keys(customerData).forEach(k => delete customerData[k]);
+      // Reload to show welcome/login screen
+      window.location.href = window.location.pathname;
+    }
+
+    // ===== Withdraw (退会) =====
+    function showWithdrawModal() {
+      document.getElementById('settings-dropdown').classList.remove('show');
+      document.getElementById('withdraw-modal').classList.add('active');
+    }
+
+    function closeWithdrawModal() {
+      document.getElementById('withdraw-modal').classList.remove('active');
+    }
+
+    async function executeWithdraw() {
+      if (!sessionToken) {
+        closeWithdrawModal();
+        return;
+      }
+      try {
+        const res = await fetch(`/api/withdraw/${sessionToken}`, { method: 'POST' });
+        const data = await res.json();
+        closeWithdrawModal();
+        if (data.success) {
+          // LocalStorage をクリアしてオンボーディングへ
+          localStorage.removeItem('muchinavi_token');
+          showWithdrawComplete();
+        }
+      } catch (e) {
+        console.error('退会エラー:', e);
+        closeWithdrawModal();
+        alert('退会処理中にエラーが発生しました。もう一度お試しください。');
+      }
+    }
+
+    function showWithdrawComplete() {
+      document.getElementById('chat-screen').classList.remove('active');
+      document.getElementById('onboarding').style.display = '';
+      const card = document.getElementById('step-card');
+      card.innerHTML = `
+        <div class="step-icon">👋</div>
+        <h2 class="step-title">ご利用ありがとうございました</h2>
+        <p class="step-subtitle">退会処理が完了しました。<br>またのご利用をお待ちしております。</p>
+        <button class="btn-primary" onclick="location.href='/';" style="margin-top: 16px;">トップに戻る</button>
+      `;
+      document.getElementById('progress').style.display = 'none';
+      history.replaceState(null, '', '/');
+    }
+
+    // ===== Block screen =====
+    function showBlockedScreen() {
+      document.getElementById('blocked-screen').classList.add('active');
+      document.getElementById('onboarding').style.display = 'none';
+      document.getElementById('chat-screen').classList.remove('active');
+    }
+
+    // ===== Profile Page Functions =====
+
+    function populateProfileSelects() {
+      // Birth year
+      const yearSelect = document.getElementById('prof-birthYear');
+      for (let y = 2010; y >= 1950; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + '年';
+        yearSelect.appendChild(opt);
+      }
+      // Birth month
+      const monthSelect = document.getElementById('prof-birthMonth');
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m + '月';
+        monthSelect.appendChild(opt);
+      }
+      // Prefectures
+      const prefSelect = document.getElementById('prof-prefecture');
+      const prefs = ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
+      prefs.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        prefSelect.appendChild(opt);
+      });
+    }
+
+    async function openProfile() {
+      // Close settings dropdown
+      document.getElementById('settings-dropdown').classList.remove('show');
+
+      const token = localStorage.getItem('muchinavi_token');
+      if (!token) return;
+
+      try {
+        const res = await fetch(`/api/customer/profile/${token}`);
+        const data = await res.json();
+        if (!data.success) return;
+
+        const p = data.profile;
+        document.getElementById('prof-name').value = p.name || '';
+        document.getElementById('prof-birthYear').value = p.birthYear || '';
+        document.getElementById('prof-birthMonth').value = p.birthMonth || '';
+        document.getElementById('prof-prefecture').value = p.prefecture || '';
+        document.getElementById('prof-family').value = p.family || '';
+        document.getElementById('prof-householdIncome').value = p.householdIncome || '';
+        document.getElementById('prof-propertyType').value = p.propertyType || '';
+        document.getElementById('prof-area').value = p.area || '';
+        document.getElementById('prof-budget').value = p.budget || '';
+        document.getElementById('prof-email').value = p.email || '';
+        document.getElementById('prof-phone').value = p.phone || '';
+        document.getElementById('prof-line').value = p.line || '';
+
+        document.getElementById('profile-screen').classList.add('active');
+      } catch (e) {
+        console.error('Profile load error:', e);
+      }
+    }
+
+    function closeProfile() {
+      document.getElementById('profile-screen').classList.remove('active');
+    }
+
+    async function saveProfile() {
+      const token = localStorage.getItem('muchinavi_token');
+      if (!token) return;
+
+      const btn = document.getElementById('profile-save-btn');
+      btn.disabled = true;
+      btn.textContent = '保存中...';
+
+      const profileData = {
+        name: document.getElementById('prof-name').value.trim(),
+        birthYear: document.getElementById('prof-birthYear').value,
+        birthMonth: document.getElementById('prof-birthMonth').value,
+        prefecture: document.getElementById('prof-prefecture').value,
+        family: document.getElementById('prof-family').value.trim(),
+        householdIncome: document.getElementById('prof-householdIncome').value,
+        propertyType: document.getElementById('prof-propertyType').value,
+        area: document.getElementById('prof-area').value.trim(),
+        budget: document.getElementById('prof-budget').value.trim(),
+        email: document.getElementById('prof-email').value.trim(),
+        phone: document.getElementById('prof-phone').value.trim(),
+        line: document.getElementById('prof-line').value.trim(),
+      };
+
+      try {
+        const res = await fetch(`/api/customer/profile/${token}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profileData),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showProfileToast('保存しました ✓', 'success');
+          // Update the chat header name display
+          if (profileData.name) {
+            document.getElementById('chat-customer-name').textContent = profileData.name + ' さん';
+          }
+        } else {
+          showProfileToast('保存に失敗しました', 'error');
+        }
+      } catch (e) {
+        showProfileToast('通信エラーが発生しました', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = '変更を保存する';
+    }
+
+    function showProfileToast(msg, type) {
+      const toast = document.getElementById('profile-toast');
+      toast.textContent = msg;
+      toast.className = 'profile-toast ' + type + ' show';
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    async function changeCustomerPassword() {
+      const pw = document.getElementById('prof-new-password').value;
+      const pwConfirm = document.getElementById('prof-new-password-confirm').value;
+      if (!pw || pw.length < 6) {
+        showProfileToast('パスワードは6文字以上で入力してください', 'error');
+        return;
+      }
+      if (pw !== pwConfirm) {
+        showProfileToast('パスワードが一致しません', 'error');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/customer/change-password/${sessionToken}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newPassword: pw }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showProfileToast('パスワードを変更しました ✓', 'success');
+          document.getElementById('prof-new-password').value = '';
+          document.getElementById('prof-new-password-confirm').value = '';
+        } else {
+          showProfileToast(data.error || '変更に失敗しました', 'error');
+        }
+      } catch (e) {
+        showProfileToast('通信エラーが発生しました', 'error');
+      }
+    }
+
+    // Initialize profile selects
+    populateProfileSelects();
+
+    // ===== Service Worker 登録 =====
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log('SW registered:', reg.scope);
+      }).catch((err) => {
+        console.log('SW registration failed:', err);
+      });
+    }
+
+    // ===== ホーム画面追加の案内バナー（PWA Install Prompt） =====
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // チャット画面がアクティブな時に表示
+      setTimeout(showInstallBanner, 3000);
+    });
+
+    function showInstallBanner() {
+      if (!deferredPrompt) return;
+      // 既に表示済みなら出さない
+      if (localStorage.getItem('muchinavi_install_dismissed')) return;
+
+      const banner = document.createElement('div');
+      banner.id = 'install-banner';
+      banner.innerHTML = `
+        <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;
+          background:#1d1d1f;color:white;padding:16px 20px;border-radius:16px;
+          box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:360px;width:calc(100% - 40px);
+          display:flex;align-items:center;gap:14px;font-family:-apple-system,sans-serif;
+          animation:slideUpBanner 0.4s ease-out;">
+          <div style="font-size:32px;flex-shrink:0;">📱</div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:14px;margin-bottom:4px;">ホーム画面に追加</div>
+            <div style="font-size:12px;color:#aeaeb2;line-height:1.4;">アプリとして快適にご利用いただけます</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+            <button onclick="doInstallPWA()" style="background:#0071e3;color:white;border:none;
+              padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+              font-family:inherit;">追加</button>
+            <button onclick="dismissInstallBanner()" style="background:none;color:#aeaeb2;border:none;
+              padding:4px;font-size:11px;cursor:pointer;font-family:inherit;">後で</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(banner);
+    }
+
+    function doInstallPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choice) => {
+        deferredPrompt = null;
+        const banner = document.getElementById('install-banner');
+        if (banner) banner.remove();
+        if (choice.outcome === 'accepted') {
+          localStorage.setItem('muchinavi_install_dismissed', '1');
+        }
+      });
+    }
+
+    function dismissInstallBanner() {
+      const banner = document.getElementById('install-banner');
+      if (banner) banner.remove();
+      localStorage.setItem('muchinavi_install_dismissed', '1');
+    }
+
+    // iOS Safari向け案内（beforeinstallpromptが発火しない）
+    function checkIOSInstallPrompt() {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isStandalone = window.navigator.standalone === true;
+      const dismissed = localStorage.getItem('muchinavi_ios_install_dismissed');
+
+      if (isIOS && !isStandalone && !dismissed) {
+        setTimeout(() => {
+          const banner = document.createElement('div');
+          banner.id = 'ios-install-banner';
+          banner.innerHTML = `
+            <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;
+              background:#1d1d1f;color:white;padding:16px 20px;border-radius:16px;
+              box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:380px;width:calc(100% - 40px);
+              font-family:-apple-system,sans-serif;animation:slideUpBanner 0.4s ease-out;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                <span style="font-size:28px;">📱</span>
+                <div>
+                  <div style="font-weight:600;font-size:14px;">アプリとして使えます</div>
+                  <div style="font-size:12px;color:#aeaeb2;margin-top:2px;">ホーム画面に追加して快適に</div>
+                </div>
+                <button onclick="dismissIOSBanner()" style="margin-left:auto;background:none;border:none;
+                  color:#aeaeb2;font-size:18px;cursor:pointer;padding:4px;">✕</button>
+              </div>
+              <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;font-size:13px;line-height:1.6;">
+                ① Safariのメニューバーにある<br>　 <span style="font-size:16px;">□↑</span>（共有）ボタンをタップ<br>
+                ②「ホーム画面に追加」を選択<br>
+                <span style="font-size:11px;color:#8e8e93;">※ 見つからない場合はメニューを<br>　 上にスクロールしてください</span>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(banner);
+        }, 5000);
+      }
+    }
+
+    function dismissIOSBanner() {
+      const banner = document.getElementById('ios-install-banner');
+      if (banner) banner.remove();
+      localStorage.setItem('muchinavi_ios_install_dismissed', '1');
+    }
+
+    // チャット画面表示後にiOS案内チェック
+    const origStartChat = startChat;
+    startChat = function() {
+      origStartChat.apply(this, arguments);
+      checkIOSInstallPrompt();
+    };
+
+    init();
+  </script>
+
+  <style>
+    @keyframes slideUpBanner {
+      from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+  </style>
+</body>
+</html>
