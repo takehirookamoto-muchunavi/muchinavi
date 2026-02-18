@@ -425,7 +425,27 @@
             font-weight: 600;
             font-size: 14px;
             margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .stage-badge {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+        }
+        .stage-badge.stage-1 { background: rgba(88,86,214,0.25); color: #a5a4e3; }
+        .stage-badge.stage-2 { background: rgba(0,113,227,0.25); color: #6ab4ff; }
+        .stage-badge.stage-3 { background: rgba(255,159,10,0.25); color: #ffb84d; }
+        .stage-badge.stage-4 { background: rgba(52,199,89,0.25); color: #5ed888; }
+        .stage-badge.stage-5 { background: rgba(0,199,190,0.25); color: #33d4cc; }
+        .stage-badge.stage-6 { background: rgba(175,82,222,0.25); color: #c99de8; }
+        .stage-badge.stage-7 { background: rgba(255,69,58,0.25); color: #ff7b74; }
+        .stage-badge.stage-8 { background: rgba(255,214,10,0.25); color: #ffd94d; }
 
         .customer-meta {
             font-size: 12px;
@@ -2025,6 +2045,19 @@
                                 <label class="form-label">特別な要望</label>
                                 <textarea class="form-textarea" name="specialRequirements" placeholder="その他の要望があれば入力してください"></textarea>
                             </div>
+                            <div class="form-group">
+                                <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 進捗ステージ</label>
+                                <select class="form-input" name="stage">
+                                    <option value="1">1. 登録完了</option>
+                                    <option value="2">2. 情報入力</option>
+                                    <option value="3">3. 面談予約</option>
+                                    <option value="4">4. 相談中</option>
+                                    <option value="5">5. 物件探し</option>
+                                    <option value="6">6. 内見</option>
+                                    <option value="7">7. 契約手続き</option>
+                                    <option value="8">8. 引渡し完了</option>
+                                </select>
+                            </div>
                             <div class="form-group form-full-width">
                                 <label class="form-label">メモ</label>
                                 <textarea class="form-textarea" name="memo" placeholder="内部用メモ"></textarea>
@@ -2558,8 +2591,11 @@
             const tagBadges = (customer.tags && customer.tags.length > 0)
                 ? `<div class="customer-tags-row">${customer.tags.slice(0, 3).map(t => `<span class="customer-tag-badge">${t}</span>`).join('')}${customer.tags.length > 3 ? `<span class="customer-tag-badge tag-more">+${customer.tags.length - 3}</span>` : ''}</div>`
                 : '';
+            const stageLabels = ['登録','情報入力','面談予約','相談中','物件探し','内見','契約','引渡し'];
+            const stageNum = customer.stage || 1;
+            const stageBadge = `<span class="stage-badge stage-${stageNum}">${stageLabels[stageNum - 1]}</span>`;
             item.innerHTML = `
-                <div class="customer-name">${customer.name || '名前未設定'}</div>
+                <div class="customer-name">${customer.name || '名前未設定'} ${stageBadge}</div>
                 <div class="customer-meta">
                     <span>${customer.area || '-'}</span>
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
@@ -2950,7 +2986,7 @@
 
         function loadInfoForm(customer) {
             const form = document.getElementById('customerInfoForm');
-            const fields = ['name', 'age', 'family', 'prefecture', 'householdIncome', 'currentHome', 'reason', 'searchReason', 'area', 'budget', 'propertyType', 'purpose', 'freeComment', 'size', 'layout', 'stationDistance', 'occupation', 'income', 'savings', 'loanStatus', 'motivation', 'timeline', 'email', 'phone', 'line', 'referral', 'spouseOccupation', 'spouseIncome', 'currentRent', 'pet', 'parking', 'specialRequirements', 'memo'];
+            const fields = ['name', 'age', 'family', 'prefecture', 'householdIncome', 'currentHome', 'reason', 'searchReason', 'area', 'budget', 'propertyType', 'purpose', 'freeComment', 'size', 'layout', 'stationDistance', 'occupation', 'income', 'savings', 'loanStatus', 'motivation', 'timeline', 'email', 'phone', 'line', 'referral', 'spouseOccupation', 'spouseIncome', 'currentRent', 'pet', 'parking', 'specialRequirements', 'memo', 'stage'];
 
             fields.forEach(field => {
                 const input = form.querySelector(`[name="${field}"]`);

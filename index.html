@@ -553,6 +553,118 @@
       cursor: not-allowed;
     }
 
+    /* Progress Bar */
+    .progress-bar-container {
+      background: #fff;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding: 14px 16px 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    .progress-bar-container.collapsed {
+      padding: 8px 16px;
+    }
+    .progress-bar-steps {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .progress-bar-container.collapsed .progress-bar-steps {
+      margin-bottom: 0;
+    }
+    .progress-bar-container.collapsed .progress-bar-labels,
+    .progress-bar-container.collapsed .progress-bar-status {
+      display: none;
+    }
+    .progress-step {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e5e5ea;
+      border: 2px solid #e5e5ea;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-step.completed {
+      background: #0071e3;
+      border-color: #0071e3;
+    }
+    .progress-step.completed svg { stroke: #fff; }
+    .progress-step.active {
+      background: #fff;
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+    }
+    .progress-step.active::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #0071e3;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .progress-line {
+      flex: 1;
+      height: 2px;
+      background: #e5e5ea;
+      margin: 0 -1px;
+      z-index: 1;
+    }
+    .progress-line.completed {
+      background: #0071e3;
+    }
+    .progress-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .progress-label {
+      font-size: 9px;
+      color: #aeaeb2;
+      text-align: center;
+      width: 18px;
+      overflow: visible;
+      white-space: nowrap;
+    }
+    .progress-label.active {
+      color: #0071e3;
+      font-weight: 600;
+    }
+    .progress-label.completed {
+      color: #6e6e73;
+    }
+    .progress-bar-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 4px;
+      border-top: 1px solid rgba(0,0,0,0.04);
+    }
+    .progress-status-text {
+      font-size: 12px;
+      color: #1d1d1f;
+      font-weight: 600;
+    }
+    .progress-status-count {
+      font-size: 11px;
+      color: #aeaeb2;
+    }
+    .progress-bar-container.collapsed .progress-step {
+      width: 12px;
+      height: 12px;
+    }
+    .progress-bar-container.collapsed .progress-step.active::after {
+      width: 5px;
+      height: 5px;
+    }
+
     .chat-room-tabs {
       display: flex;
       background: #f5f5f7;
@@ -1481,6 +1593,16 @@
             <button class="settings-dropdown-item danger" onclick="showWithdrawModal()">退会する</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container" id="progress-bar" onclick="toggleProgressBar()">
+      <div class="progress-bar-steps" id="progress-steps"></div>
+      <div class="progress-bar-labels" id="progress-labels"></div>
+      <div class="progress-bar-status">
+        <span class="progress-status-text" id="progress-status-text"></span>
+        <span class="progress-status-count" id="progress-status-count"></span>
       </div>
     </div>
 
@@ -2571,7 +2693,76 @@
         renderChatMessages();
       }
 
+      // Load and render progress bar
+      loadProgressBar();
+
       document.getElementById('chat-input').focus();
+    }
+
+    // ===== Progress Bar =====
+    const STAGE_LABELS = ['登録', '情報入力', '面談予約', '相談中', '物件探し', '内見', '契約', '引渡し'];
+    const STAGE_ICONS = [
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+    ];
+
+    async function loadProgressBar() {
+      try {
+        const res = await fetch(`/api/customer/profile/${customerData.token}`);
+        const data = await res.json();
+        const stage = data.profile?.stage || 1;
+        renderProgressBar(stage);
+      } catch(e) {
+        renderProgressBar(1);
+      }
+    }
+
+    function renderProgressBar(stage) {
+      const stepsEl = document.getElementById('progress-steps');
+      const labelsEl = document.getElementById('progress-labels');
+      const statusText = document.getElementById('progress-status-text');
+      const statusCount = document.getElementById('progress-status-count');
+
+      stepsEl.innerHTML = '';
+      labelsEl.innerHTML = '';
+
+      STAGE_LABELS.forEach((label, i) => {
+        const stepNum = i + 1;
+        const isCompleted = stepNum < stage;
+        const isActive = stepNum === stage;
+
+        // Step circle
+        const step = document.createElement('div');
+        step.className = 'progress-step' + (isCompleted ? ' completed' : '') + (isActive ? ' active' : '');
+        if (isCompleted) step.innerHTML = STAGE_ICONS[i];
+        stepsEl.appendChild(step);
+
+        // Connecting line (except after last step)
+        if (i < STAGE_LABELS.length - 1) {
+          const line = document.createElement('div');
+          line.className = 'progress-line' + (stepNum < stage ? ' completed' : '');
+          stepsEl.appendChild(line);
+        }
+
+        // Label
+        const labelEl = document.createElement('div');
+        labelEl.className = 'progress-label' + (isCompleted ? ' completed' : '') + (isActive ? ' active' : '');
+        labelEl.textContent = label;
+        labelsEl.appendChild(labelEl);
+      });
+
+      statusText.textContent = `現在: ${STAGE_LABELS[stage - 1]}`;
+      statusCount.textContent = `${stage} / ${STAGE_LABELS.length}`;
+    }
+
+    function toggleProgressBar() {
+      document.getElementById('progress-bar').classList.toggle('collapsed');
     }
 
     function sendHint(text) {

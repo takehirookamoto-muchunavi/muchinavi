@@ -407,6 +407,7 @@ app.post('/api/register', async (req, res) => {
     chatHistory: [],
     directChatHistory: [],
     tags: autoTags,
+    stage: 1,
     createdAt: new Date().toISOString(),
   };
   saveDB(db);
@@ -833,6 +834,7 @@ app.get('/api/customer/profile/:token', (req, res) => {
   const profile = {};
   const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line'];
   fields.forEach(k => { profile[k] = record[k] || ''; });
+  profile.stage = record.stage || 1;
   res.json({ success: true, profile });
 });
 
@@ -863,6 +865,15 @@ app.put('/api/customer/profile/:token', (req, res) => {
     let age = now.getFullYear() - parseInt(updates.birthYear);
     if (now.getMonth() + 1 < parseInt(updates.birthMonth)) age--;
     record.age = age;
+  }
+
+  // Auto-stage: check if profile is 70%+ filled → stage 2
+  if (!record.stage || record.stage < 2) {
+    const profileFields = ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
+    const filled = profileFields.filter(f => record[f] && record[f] !== '' && record[f] !== '-' && record[f] !== '未入力').length;
+    if (filled >= Math.ceil(profileFields.length * 0.7)) {
+      record.stage = 2;
+    }
   }
 
   saveDB(db);
@@ -1843,7 +1854,7 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage'];
   const updates = req.body;
 
   // Track old values for auto-tag update
