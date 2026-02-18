@@ -400,6 +400,11 @@ app.post('/api/register', async (req, res) => {
 
   // Save to DB
   const db = loadDB();
+  // Determine initial stage based on profile completeness
+  const profileFields = ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
+  const filled = profileFields.filter(f => customer[f] && customer[f] !== '' && customer[f] !== '-' && customer[f] !== '未入力').length;
+  const initialStage = (filled >= Math.ceil(profileFields.length * 0.7)) ? 2 : 1;
+
   db[token] = {
     ...customer,
     passwordHash,
@@ -407,9 +412,10 @@ app.post('/api/register', async (req, res) => {
     chatHistory: [],
     directChatHistory: [],
     tags: autoTags,
-    stage: 1,
+    stage: initialStage,
     createdAt: new Date().toISOString(),
   };
+  if (initialStage > 1) console.log(`📊 登録時ステージ自動判定: ${initialStage} (${filled}/${profileFields.length}項目入力済み)`);
   saveDB(db);
 
   console.log('📩 新規登録:', customer.name, customer.email, '→ トークン:', token);

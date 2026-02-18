@@ -1720,6 +1720,12 @@
           <label>お住まいの都道府県</label>
           <select id="prof-prefecture">
             <option value="">選択してください</option>
+            <option value="北海道">北海道</option><option value="青森">青森</option><option value="岩手">岩手</option><option value="宮城">宮城</option><option value="秋田">秋田</option><option value="山形">山形</option><option value="福島">福島</option>
+            <option value="茨城">茨城</option><option value="栃木">栃木</option><option value="群馬">群馬</option><option value="埼玉">埼玉</option><option value="千葉">千葉</option><option value="東京">東京</option><option value="神奈川">神奈川</option>
+            <option value="新潟">新潟</option><option value="富山">富山</option><option value="石川">石川</option><option value="福井">福井</option><option value="山梨">山梨</option><option value="長野">長野</option><option value="岐阜">岐阜</option><option value="静岡">静岡</option><option value="愛知">愛知</option>
+            <option value="三重">三重</option><option value="滋賀">滋賀</option><option value="京都">京都</option><option value="大阪">大阪</option><option value="兵庫">兵庫</option><option value="奈良">奈良</option><option value="和歌山">和歌山</option>
+            <option value="鳥取">鳥取</option><option value="島根">島根</option><option value="岡山">岡山</option><option value="広島">広島</option><option value="山口">山口</option><option value="徳島">徳島</option><option value="香川">香川</option><option value="愛媛">愛媛</option><option value="高知">高知</option>
+            <option value="福岡">福岡</option><option value="佐賀">佐賀</option><option value="長崎">長崎</option><option value="熊本">熊本</option><option value="大分">大分</option><option value="宮崎">宮崎</option><option value="鹿児島">鹿児島</option><option value="沖縄">沖縄</option>
           </select>
         </div>
         <div class="profile-field">
@@ -1772,10 +1778,6 @@
         <div class="profile-field">
           <label>電話番号</label>
           <input type="tel" id="prof-phone" placeholder="090-XXXX-XXXX">
-        </div>
-        <div class="profile-field">
-          <label>LINE ID</label>
-          <input type="text" id="prof-line" placeholder="LINE ID">
         </div>
       </div>
 
@@ -2755,16 +2757,19 @@
 
     async function loadProgressBar() {
       try {
-        const res = await fetch(`/api/customer/profile/${customerData.token}`);
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        const res = await fetch(`/api/customer/profile/${token}`);
         const data = await res.json();
         const stage = data.profile?.stage || 1;
-        renderProgressBar(stage);
+        const profile = data.profile || {};
+        renderProgressBar(stage, profile);
       } catch(e) {
-        renderProgressBar(1);
+        renderProgressBar(1, {});
       }
     }
 
-    function renderProgressBar(stage) {
+    function renderProgressBar(stage, profile) {
+      profile = profile || {};
       const stepsEl = document.getElementById('progress-steps');
       const labelsEl = document.getElementById('progress-labels');
       const statusText = document.getElementById('progress-status-text');
@@ -2803,11 +2808,21 @@
 
       // Next action guide
       const nextActionEl = document.getElementById('progress-next-action');
+      // Check missing profile fields for stage 1
+      const fieldLabels = {
+        name: 'お名前', birthYear: '生まれ年', prefecture: '都道府県',
+        family: 'ご家族構成', householdIncome: '世帯年収', propertyType: '物件種別',
+        area: '希望エリア', budget: 'ご予算', email: 'メール', phone: '電話番号'
+      };
+      const missingFields = Object.entries(fieldLabels)
+        .filter(([k]) => !profile[k] || profile[k] === '' || profile[k] === '-' || profile[k] === '未入力')
+        .map(([, v]) => v);
+      const filledCount = Object.keys(fieldLabels).length - missingFields.length;
+      const totalFields = Object.keys(fieldLabels).length;
+
       const nextActions = {
         1: {
-          text: 'マイページからプロフィール情報を入力すると、より的確なアドバイスができるようになります。',
-          btn: 'プロフィールを入力する',
-          action: 'openProfile()'
+          custom_stage1: true
         },
         2: {
           custom: true
@@ -2839,7 +2854,27 @@
       };
 
       const action = nextActions[stage];
-      if (action && action.custom) {
+      if (action && action.custom_stage1) {
+        // Stage 1: show profile completion status
+        if (missingFields.length === 0) {
+          nextActionEl.innerHTML = `
+            <div class="next-label">情報入力完了</div>
+            <div class="next-text">プロフィール情報がすべて入力されています。次のステップへ進む準備ができました！</div>
+          `;
+        } else {
+          const pct = Math.round((filledCount / totalFields) * 100);
+          const missingList = missingFields.map(f => `<span style="display:inline-block;padding:2px 8px;background:rgba(255,59,48,0.08);color:#ff3b30;border-radius:10px;font-size:11px;margin:2px;">${f}</span>`).join(' ');
+          nextActionEl.innerHTML = `
+            <div class="next-label">Next Step — プロフィール入力 ${pct}%</div>
+            <div style="background:#e5e5ea;border-radius:4px;height:6px;margin:6px 0 8px;overflow:hidden;">
+              <div style="background:#0071e3;height:100%;width:${pct}%;border-radius:4px;transition:width 0.5s ease;"></div>
+            </div>
+            <div class="next-text">以下の項目を入力すると、より的確なアドバイスが受けられます。</div>
+            <div style="margin:6px 0 8px;">${missingList}</div>
+            <button class="next-btn" onclick="event.stopPropagation(); openProfile()">マイページで入力する</button>
+          `;
+        }
+      } else if (action && action.custom) {
         // Stage 2: booking flow with two-step (book → confirm)
         const bookingClicked = sessionStorage.getItem('booking_clicked');
         if (!bookingClicked) {
@@ -3496,7 +3531,6 @@
         document.getElementById('prof-budget').value = p.budget || '';
         document.getElementById('prof-email').value = p.email || '';
         document.getElementById('prof-phone').value = p.phone || '';
-        document.getElementById('prof-line').value = p.line || '';
 
         document.getElementById('profile-screen').classList.add('active');
       } catch (e) {
@@ -3528,7 +3562,6 @@
         budget: document.getElementById('prof-budget').value.trim(),
         email: document.getElementById('prof-email').value.trim(),
         phone: document.getElementById('prof-phone').value.trim(),
-        line: document.getElementById('prof-line').value.trim(),
       };
 
       try {
@@ -3545,6 +3578,8 @@
           if (profileData.name) {
             document.getElementById('chat-customer-name').textContent = profileData.name + ' さん';
           }
+          // Refresh progress bar (stage may have changed)
+          loadProgressBar();
         } else {
           showProfileToast('保存に失敗しました', 'error');
         }
