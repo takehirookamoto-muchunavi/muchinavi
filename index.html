@@ -428,6 +428,37 @@
       text-align: center;
       background: #1d1d1f;
       color: white;
+      transition: all 0.3s ease;
+    }
+    .chat-header.compact {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .chat-header.compact .chat-header-label,
+    .chat-header.compact .chat-header-sub {
+      display: none;
+    }
+    .chat-header.compact .chat-header-title {
+      font-size: 15px;
+      margin: 0;
+    }
+    .chat-header.compact .chat-header-actions {
+      margin-top: 0;
+      gap: 4px;
+    }
+    .chat-header.compact .chat-header-btn {
+      font-size: 10px;
+      padding: 5px 10px;
+    }
+    .chat-header.compact .chat-header-btn.settings-toggle {
+      padding: 5px 8px;
+    }
+    .chat-header.compact .chat-header-btn svg {
+      width: 11px;
+      height: 11px;
     }
     .chat-header-label {
       font-size: 10px;
@@ -571,6 +602,7 @@
       justify-content: space-between;
       position: relative;
       margin-bottom: 8px;
+      min-width: 0;
     }
     .progress-bar-container.collapsed .progress-bar-steps {
       margin-bottom: 0;
@@ -1290,6 +1322,19 @@
       .chat-header-btn { font-size: 12px; padding: 8px 14px; }
       .chat-header-btn.settings-toggle { padding: 8px 10px; }
 
+      /* Progress Bar - scrollable on mobile */
+      .progress-bar-container { padding: 10px 12px 8px; }
+      .progress-bar-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        margin: 0 -4px;
+        padding: 0 4px;
+      }
+      .progress-bar-scroll-wrapper::-webkit-scrollbar { display: none; }
+      .progress-bar-steps { min-width: 340px; }
+      .progress-bar-labels { min-width: 340px; }
+
       /* Chat Messages */
       .chat-messages { padding: 16px 10px; gap: 12px; }
       .chat-bubble {
@@ -1639,8 +1684,10 @@
     <!-- Progress Bar -->
     <div class="progress-bar-container" id="progress-bar">
       <div onclick="toggleProgressBar()" style="cursor:pointer;">
-        <div class="progress-bar-steps" id="progress-steps"></div>
-        <div class="progress-bar-labels" id="progress-labels"></div>
+        <div class="progress-bar-scroll-wrapper">
+          <div class="progress-bar-steps" id="progress-steps"></div>
+          <div class="progress-bar-labels" id="progress-labels"></div>
+        </div>
         <div class="progress-bar-status">
           <span class="progress-status-text" id="progress-status-text"></span>
           <span class="progress-status-count" id="progress-status-count"></span>
@@ -2938,6 +2985,29 @@
     function toggleProgressBar() {
       document.getElementById('progress-bar').classList.toggle('collapsed');
     }
+
+    // ヘッダー自動縮小：スクロールで compact モードに
+    (function() {
+      const chatMessages = document.querySelector('.chat-messages');
+      const chatHeader = document.querySelector('.chat-header');
+      if (chatMessages && chatHeader) {
+        let lastScrollTop = 0;
+        chatMessages.addEventListener('scroll', function() {
+          const st = chatMessages.scrollTop;
+          if (st > 30) {
+            chatHeader.classList.add('compact');
+          } else {
+            chatHeader.classList.remove('compact');
+          }
+          lastScrollTop = st;
+        });
+        // ヘッダータップで展開/縮小をトグル
+        chatHeader.addEventListener('click', function(e) {
+          if (e.target.closest('.chat-header-btn') || e.target.closest('.settings-wrapper')) return;
+          chatHeader.classList.toggle('compact');
+        });
+      }
+    })();
 
     function sendHint(text) {
       document.getElementById('chat-input').value = text;
