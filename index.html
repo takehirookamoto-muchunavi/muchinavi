@@ -431,11 +431,7 @@
       transition: all 0.3s ease;
     }
     .chat-header.compact {
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
+      padding: 8px 16px;
     }
     .chat-header.compact .chat-header-label,
     .chat-header.compact .chat-header-sub {
@@ -443,10 +439,9 @@
     }
     .chat-header.compact .chat-header-title {
       font-size: 15px;
-      margin: 0;
     }
     .chat-header.compact .chat-header-actions {
-      margin-top: 0;
+      margin-top: 6px;
       gap: 4px;
     }
     .chat-header.compact .chat-header-btn {
@@ -1504,6 +1499,18 @@
       .chat-header {
         padding-top: calc(14px + env(safe-area-inset-top));
       }
+      .chat-header.compact {
+        padding-top: calc(6px + env(safe-area-inset-top));
+      }
+    }
+
+    /* Ensure input bar is always visible */
+    .chat-input-bar {
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .chat-messages {
+      min-height: 0;
     }
 
     /* ===== Back Button ===== */
@@ -2879,6 +2886,9 @@
       // Load and render progress bar
       loadProgressBar();
 
+      // ヘッダー自動縮小を有効化
+      setTimeout(setupCompactHeader, 100);
+
       document.getElementById('chat-input').focus();
     }
 
@@ -2896,15 +2906,21 @@
     ];
 
     async function loadProgressBar() {
+      // まず即座にデフォルト表示（フリーズ防止）
+      renderProgressBar(1, {});
       try {
         const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
-        const res = await fetch(`/api/customer/profile/${token}`);
+        if (!token) return;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(`/api/customer/profile/${token}`, { signal: controller.signal });
+        clearTimeout(timeout);
         const data = await res.json();
         const stage = data.profile?.stage || 1;
         const profile = data.profile || {};
         renderProgressBar(stage, profile);
       } catch(e) {
-        renderProgressBar(1, {});
+        console.error('進捗バー読み込みエラー:', e);
       }
     }
 
@@ -3113,28 +3129,28 @@
       document.getElementById('progress-bar').classList.toggle('collapsed');
     }
 
-    // ヘッダー自動縮小：スクロールで compact モードに
-    (function() {
-      const chatMessages = document.querySelector('.chat-messages');
-      const chatHeader = document.querySelector('.chat-header');
-      if (chatMessages && chatHeader) {
-        let lastScrollTop = 0;
-        chatMessages.addEventListener('scroll', function() {
-          const st = chatMessages.scrollTop;
-          if (st > 30) {
-            chatHeader.classList.add('compact');
+    // ヘッダー自動縮小（startChatから呼び出し）
+    let headerListenerAttached = false;
+    function setupCompactHeader() {
+      if (headerListenerAttached) return;
+      headerListenerAttached = true;
+      try {
+        const msgEl = document.querySelector('.chat-messages');
+        const hdr = document.querySelector('.chat-header');
+        if (!msgEl || !hdr) return;
+        msgEl.addEventListener('scroll', function() {
+          if (msgEl.scrollTop > 30) {
+            hdr.classList.add('compact');
           } else {
-            chatHeader.classList.remove('compact');
+            hdr.classList.remove('compact');
           }
-          lastScrollTop = st;
-        });
-        // ヘッダータップで展開/縮小をトグル
-        chatHeader.addEventListener('click', function(e) {
+        }, { passive: true });
+        hdr.addEventListener('click', function(e) {
           if (e.target.closest('.chat-header-btn') || e.target.closest('.settings-wrapper')) return;
-          chatHeader.classList.toggle('compact');
+          hdr.classList.toggle('compact');
         });
-      }
-    })();
+      } catch(e) { console.error('compact header error:', e); }
+    }
 
     function sendHint(text) {
       document.getElementById('chat-input').value = text;
