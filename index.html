@@ -732,6 +732,97 @@
       width: 12px;
       height: 12px;
     }
+
+    /* Mobile card view - hidden on desktop */
+    .progress-mobile-card {
+      display: none;
+      padding: 12px 16px;
+    }
+    .progress-mobile-mini {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .progress-mobile-mini-dot {
+      width: 10px;
+      height: 10px;
+      background: #0071e3;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .progress-mobile-mini-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+    .progress-mobile-mini-count {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-left: auto;
+    }
+    .progress-card-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .progress-card-prev,
+    .progress-card-next {
+      font-size: 10px;
+      color: #aeaeb2;
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+    .progress-card-arrow {
+      color: #aeaeb2;
+      font-size: 10px;
+    }
+    .progress-card-current-label {
+      font-size: 10px;
+      color: #0071e3;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .progress-card-current {
+      background: linear-gradient(135deg, #f0f7ff, #e8f4f8);
+      border: 1px solid rgba(0,113,227,0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .progress-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+    }
+    .progress-card-count {
+      font-size: 12px;
+      color: #aeaeb2;
+    }
+    .progress-card-dots {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .progress-card-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #e5e5ea;
+    }
+    .progress-card-dot.completed { background: #0071e3; }
+    .progress-card-dot.active {
+      background: #0071e3;
+      width: 18px;
+      border-radius: 3px;
+    }
     .progress-bar-container.collapsed .progress-step.active::after {
       width: 5px;
       height: 5px;
@@ -1322,18 +1413,16 @@
       .chat-header-btn { font-size: 12px; padding: 8px 14px; }
       .chat-header-btn.settings-toggle { padding: 8px 10px; }
 
-      /* Progress Bar - scrollable on mobile */
-      .progress-bar-container { padding: 10px 12px 8px; }
-      .progress-bar-scroll-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        margin: 0 -4px;
-        padding: 0 4px;
-      }
-      .progress-bar-scroll-wrapper::-webkit-scrollbar { display: none; }
-      .progress-bar-steps { min-width: 340px; }
-      .progress-bar-labels { min-width: 340px; }
+      /* Progress Bar - mobile card view */
+      .progress-bar-container { padding: 0; }
+      .progress-bar-container.collapsed { padding: 0; }
+      .progress-bar-scroll-wrapper { display: none; }
+      .progress-bar-status { display: none !important; }
+      .progress-bar-container .progress-mobile-card { display: block; }
+      .progress-bar-container .progress-mobile-mini { display: none; }
+      .progress-bar-container.collapsed .progress-mobile-card { display: none; }
+      .progress-bar-container.collapsed .progress-next-action { display: none; }
+      .progress-bar-container.collapsed .progress-mobile-mini { display: flex; }
 
       /* Chat Messages */
       .chat-messages { padding: 16px 10px; gap: 12px; }
@@ -1683,7 +1772,9 @@
 
     <!-- Progress Bar -->
     <div class="progress-bar-container" id="progress-bar">
+      <div class="progress-mobile-mini" onclick="toggleProgressBar()" id="progress-mobile-mini"></div>
       <div onclick="toggleProgressBar()" style="cursor:pointer;">
+        <div class="progress-mobile-card" id="progress-mobile-card"></div>
         <div class="progress-bar-scroll-wrapper">
           <div class="progress-bar-steps" id="progress-steps"></div>
           <div class="progress-bar-labels" id="progress-labels"></div>
@@ -2854,6 +2945,42 @@
 
       statusText.textContent = `現在: ${STAGE_LABELS[stage - 1]}`;
       statusCount.textContent = `${stage} / ${STAGE_LABELS.length}`;
+
+      // Mobile card view
+      const mobileCard = document.getElementById('progress-mobile-card');
+      const mobileMini = document.getElementById('progress-mobile-mini');
+      if (mobileCard) {
+        const prevLabel = stage > 1 ? STAGE_LABELS[stage - 2] : '';
+        const nextLabel = stage < STAGE_LABELS.length ? STAGE_LABELS[stage] : '';
+        const navHtml = `<div class="progress-card-nav">
+          ${prevLabel ? `<span class="progress-card-prev">${prevLabel}</span><span class="progress-card-arrow">→</span>` : ''}
+          <span style="font-size:11px;font-weight:700;color:#0071e3;">現在地</span>
+          ${nextLabel ? `<span class="progress-card-arrow">→</span><span class="progress-card-next">${nextLabel}</span>` : ''}
+        </div>`;
+        const dotsHtml = STAGE_LABELS.map((_, i) => {
+          const num = i + 1;
+          if (num < stage) return '<span class="progress-card-dot completed"></span>';
+          if (num === stage) return '<span class="progress-card-dot active"></span>';
+          return '<span class="progress-card-dot"></span>';
+        }).join('');
+        mobileCard.innerHTML = `
+          ${navHtml}
+          <div class="progress-card-current">
+            <div class="progress-card-current-label">ステップ ${stage}</div>
+            <div class="progress-card-title">${STAGE_LABELS[stage - 1]}</div>
+            <div class="progress-card-count">${stage} / ${STAGE_LABELS.length} ステップ完了</div>
+          </div>
+          <div class="progress-card-dots">${dotsHtml}</div>
+        `;
+      }
+      if (mobileMini) {
+        mobileMini.innerHTML = `
+          <span class="progress-mobile-mini-dot"></span>
+          <span class="progress-mobile-mini-text">${STAGE_LABELS[stage - 1]}</span>
+          <span class="progress-mobile-mini-count">${stage}/${STAGE_LABELS.length}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aeaeb2" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        `;
+      }
 
       // Next action guide
       const nextActionEl = document.getElementById('progress-next-action');
