@@ -1406,6 +1406,7 @@ app.get('/api/admin/customers', adminAuth, (req, res) => {
     messageCount: (record.chatHistory || []).length,
     directChatCount: (record.directChatHistory || []).length,
     tags: record.tags || [],
+    stage: record.stage || 1,
   }));
   res.json({ customers });
 });
