@@ -656,6 +656,46 @@
       font-size: 11px;
       color: #aeaeb2;
     }
+    .progress-next-action {
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #f0f7ff, #e8f4f8);
+      border-radius: 10px;
+      border: 1px solid rgba(0,113,227,0.1);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #1d1d1f;
+    }
+    .progress-next-action .next-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0071e3;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .progress-next-action .next-text {
+      color: #333;
+    }
+    .progress-next-action .next-btn {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      background: #0071e3;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .progress-next-action .next-btn:hover {
+      background: #0077ed;
+    }
+    .progress-bar-container.collapsed .progress-next-action {
+      display: none;
+    }
     .progress-bar-container.collapsed .progress-step {
       width: 12px;
       height: 12px;
@@ -1604,6 +1644,7 @@
         <span class="progress-status-text" id="progress-status-text"></span>
         <span class="progress-status-count" id="progress-status-count"></span>
       </div>
+      <div class="progress-next-action" id="progress-next-action"></div>
     </div>
 
     <!-- Chat room tab switcher -->
@@ -2759,6 +2800,98 @@
 
       statusText.textContent = `現在: ${STAGE_LABELS[stage - 1]}`;
       statusCount.textContent = `${stage} / ${STAGE_LABELS.length}`;
+
+      // Next action guide
+      const nextActionEl = document.getElementById('progress-next-action');
+      const nextActions = {
+        1: {
+          text: 'マイページからプロフィール情報を入力すると、より的確なアドバイスができるようになります。',
+          btn: 'プロフィールを入力する',
+          action: 'openProfile()'
+        },
+        2: {
+          custom: true
+        },
+        3: {
+          text: '面談予約ありがとうございます！当日まで気になることがあれば、チャットでご相談ください。',
+          btn: null
+        },
+        4: {
+          text: '相談を進めながら、希望に合う物件を一緒に探していきましょう。気になる条件があればチャットで教えてください。',
+          btn: null
+        },
+        5: {
+          text: '物件が見つかったら、実際に内見に行きましょう。岡本が同行してプロの目線でアドバイスします。',
+          btn: null
+        },
+        6: {
+          text: '内見で気に入った物件があれば、契約に向けた手続きに進みます。不安なことは何でも相談してください。',
+          btn: null
+        },
+        7: {
+          text: '契約手続きを進めています。必要書類やスケジュールなど、気になることがあれば聞いてください。',
+          btn: null
+        },
+        8: {
+          text: 'おめでとうございます！新しいお住まいでの生活をお楽しみください。何かあればいつでもご連絡ください。',
+          btn: null
+        }
+      };
+
+      const action = nextActions[stage];
+      if (action && action.custom) {
+        // Stage 2: booking flow with two-step (book → confirm)
+        const bookingClicked = sessionStorage.getItem('booking_clicked');
+        if (!bookingClicked) {
+          nextActionEl.innerHTML = `
+            <div class="next-label">Next Step</div>
+            <div class="next-text">オンライン面談を予約して、住まい探しの専門家に直接相談してみませんか？</div>
+            <button class="next-btn" onclick="event.stopPropagation(); openBookingAndTrack()">オンライン面談を予約</button>
+          `;
+        } else {
+          nextActionEl.innerHTML = `
+            <div class="next-label">予約は完了しましたか？</div>
+            <div class="next-text">オンライン面談の予約が完了した方は、下のボタンを押してください。</div>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <button class="next-btn" onclick="event.stopPropagation(); confirmBooking()" style="background:#34c759;">予約しました</button>
+              <button class="next-btn" onclick="event.stopPropagation(); openBookingAndTrack()" style="background:#6e6e73;">まだ予約していない</button>
+            </div>
+          `;
+        }
+      } else if (action) {
+        nextActionEl.innerHTML = `
+          <div class="next-label">Next Step</div>
+          <div class="next-text">${action.text}</div>
+          ${action.btn ? `<button class="next-btn" onclick="event.stopPropagation(); ${action.action}">${action.btn}</button>` : ''}
+        `;
+      }
+    }
+
+    function openBookingAndTrack() {
+      sessionStorage.setItem('booking_clicked', 'true');
+      const bookingBtn = document.getElementById('chat-booking-btn');
+      if (bookingBtn && bookingBtn.href) {
+        window.open(bookingBtn.href, '_blank');
+      }
+      // Re-render progress bar to show confirmation UI
+      loadProgressBar();
+    }
+
+    async function confirmBooking() {
+      try {
+        const res = await fetch(`/api/customer/advance-stage/${customerData.token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stage: 3 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          sessionStorage.removeItem('booking_clicked');
+          renderProgressBar(3);
+        }
+      } catch(e) {
+        console.error('ステージ更新エラー:', e);
+      }
     }
 
     function toggleProgressBar() {

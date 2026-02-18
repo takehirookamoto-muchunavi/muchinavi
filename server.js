@@ -880,6 +880,28 @@ app.put('/api/customer/profile/:token', (req, res) => {
   res.json({ success: true, message: '保存しました', changed });
 });
 
+// ===== 顧客ステージ更新（自動進行用）=====
+app.post('/api/customer/advance-stage/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  if (record.status === 'blocked' || record.status === 'withdrawn')
+    return res.status(403).json({ error: 'access denied' });
+
+  const { stage } = req.body;
+  const currentStage = record.stage || 1;
+
+  // Only allow advancing forward (not going back), max +1 step at a time from customer side
+  if (stage && stage > currentStage && stage <= currentStage + 1 && stage <= 3) {
+    record.stage = stage;
+    saveDB(db);
+    console.log(`📊 ステージ進行: ${record.name} → ${stage}`);
+    res.json({ success: true, stage: record.stage });
+  } else {
+    res.json({ success: false, message: 'ステージ変更できません', stage: currentStage });
+  }
+});
+
 // ===== 顧客パスワード変更 =====
 app.post('/api/customer/change-password/:token', (req, res) => {
   const db = loadDB();
