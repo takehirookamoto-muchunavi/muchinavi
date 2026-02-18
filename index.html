@@ -2916,7 +2916,9 @@
 
     async function confirmBooking() {
       try {
-        const res = await fetch(`/api/customer/advance-stage/${customerData.token}`, {
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        if (!token) { console.error('トークンが見つかりません'); return; }
+        const res = await fetch(`/api/customer/advance-stage/${token}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stage: 3 })
@@ -2924,7 +2926,9 @@
         const data = await res.json();
         if (data.success) {
           sessionStorage.removeItem('booking_clicked');
-          renderProgressBar(3);
+          loadProgressBar();
+        } else {
+          console.error('ステージ更新失敗:', data);
         }
       } catch(e) {
         console.error('ステージ更新エラー:', e);
