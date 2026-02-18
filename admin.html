@@ -221,12 +221,16 @@
         }
 
         .tag-category-header .tag-category-arrow {
-            transition: transform 0.2s ease;
-            font-size: 10px;
+            transition: transform 0.25s ease;
+            opacity: 0.4;
         }
 
         .tag-category-header.collapsed .tag-category-arrow {
             transform: rotate(-90deg);
+        }
+
+        .tag-category-header:hover .tag-category-arrow {
+            opacity: 0.7;
         }
 
         .tag-category-items {
@@ -2616,7 +2620,11 @@
             });
 
             // カテゴリアイコン
-            const categoryIcons = { '都道府県': '📍', '物件種別': '🏠', 'その他': '🏷️' };
+            const categoryIcons = {
+                '都道府県': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+                '物件種別': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+                'その他': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>'
+            };
 
             // カテゴリごとに描画
             [...categoryOrder, 'その他'].forEach(catName => {
@@ -2629,10 +2637,10 @@
                 const catHeader = document.createElement('div');
                 catHeader.className = 'tag-category-header';
                 catHeader.innerHTML = `
-                    <span>${categoryIcons[catName] || ''} ${catName}</span>
+                    <span style="display:flex;align-items:center;">${categoryIcons[catName] || ''} ${catName}</span>
                     <span style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:rgba(255,255,255,0.3);">${catTags.length}タグ / ${totalInCategory}人</span>
-                        <span class="tag-category-arrow">▼</span>
+                        <svg class="tag-category-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </span>
                 `;
 
@@ -2675,8 +2683,6 @@
                 catHeader.addEventListener('click', () => {
                     catHeader.classList.toggle('collapsed');
                     catItemsContainer.classList.toggle('collapsed');
-                    const arrow = catHeader.querySelector('.tag-category-arrow');
-                    if (arrow) arrow.textContent = catItemsContainer.classList.contains('collapsed') ? '▶' : '▼';
                 });
 
                 list.appendChild(catHeader);
