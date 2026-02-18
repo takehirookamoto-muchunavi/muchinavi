@@ -1406,7 +1406,7 @@ app.get('/api/admin/customers', adminAuth, (req, res) => {
     messageCount: (record.chatHistory || []).length,
     directChatCount: (record.directChatHistory || []).length,
     tags: record.tags || [],
-    stage: record.stage || 1,
+    stage: parseInt(record.stage, 10) || 1,
   }));
   res.json({ customers });
 });
@@ -1897,7 +1897,11 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const oldPrefecture = record.prefecture;
   const oldPropertyType = record.propertyType;
 
-  updatable.forEach(key => { if (updates[key] !== undefined) record[key] = updates[key]; });
+  updatable.forEach(key => {
+    if (updates[key] !== undefined) {
+      record[key] = (key === 'stage') ? parseInt(updates[key], 10) : updates[key];
+    }
+  });
 
   // Auto-update tags if prefecture or propertyType changed
   if ((updates.prefecture && updates.prefecture !== oldPrefecture) ||
