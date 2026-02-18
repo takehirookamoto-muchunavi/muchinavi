@@ -447,6 +447,45 @@
         .stage-badge.stage-7 { background: rgba(255,69,58,0.25); color: #ff7b74; }
         .stage-badge.stage-8 { background: rgba(255,214,10,0.25); color: #ffd94d; }
 
+        .stage-alert-banner {
+            background: rgba(255,69,58,0.15);
+            border: 1px solid rgba(255,69,58,0.3);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #ff7b74;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .stage-alert-banner:hover {
+            background: rgba(255,69,58,0.25);
+        }
+        .stage-alert-banner svg {
+            flex-shrink: 0;
+        }
+        .stage-alert-icon {
+            position: relative;
+            display: inline-flex;
+        }
+        .stage-alert-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff453a;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: alertPulse 2s infinite;
+        }
+        @keyframes alertPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
         .customer-meta {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.7);
@@ -1705,6 +1744,7 @@
                     placeholder="検索..."
                 >
             </div>
+            <div id="stageAlertBanner" style="display:none;"></div>
             <div class="sidebar-customers" id="customerList"></div>
             <div class="sidebar-footer">
                 <button class="btn btn-primary" onclick="openBroadcastView()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg> 一斉配信</button>
@@ -2052,8 +2092,8 @@
                                     <option value="2">2. 情報入力</option>
                                     <option value="3">3. 面談予約</option>
                                     <option value="4">4. 相談中</option>
-                                    <option value="5">5. 物件探し</option>
-                                    <option value="6">6. 内見</option>
+                                    <option value="5">5. ライフプラン</option>
+                                    <option value="6">6. 物件探し・内見</option>
                                     <option value="7">7. 契約手続き</option>
                                     <option value="8">8. 引渡し完了</option>
                                 </select>
@@ -2591,11 +2631,12 @@
             const tagBadges = (customer.tags && customer.tags.length > 0)
                 ? `<div class="customer-tags-row">${customer.tags.slice(0, 3).map(t => `<span class="customer-tag-badge">${t}</span>`).join('')}${customer.tags.length > 3 ? `<span class="customer-tag-badge tag-more">+${customer.tags.length - 3}</span>` : ''}</div>`
                 : '';
-            const stageLabels = ['登録','情報入力','面談予約','相談中','物件探し','内見','契約','引渡し'];
+            const stageLabels = ['登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
             const stageNum = customer.stage || 1;
             const stageBadge = `<span class="stage-badge stage-${stageNum}">${stageLabels[stageNum - 1]}</span>`;
+            const alertDot = (stageNum === 3) ? '<span class="stage-alert-dot" title="面談後ステージ未更新"></span>' : '';
             item.innerHTML = `
-                <div class="customer-name">${customer.name || '名前未設定'} ${stageBadge}</div>
+                <div class="customer-name">${customer.name || '名前未設定'} ${stageBadge}${alertDot}</div>
                 <div class="customer-meta">
                     <span>${customer.area || '-'}</span>
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
@@ -2612,6 +2653,20 @@
             const list = document.getElementById('customerList');
             list.innerHTML = '';
 
+            // 面談予約済み（stage=3）で未更新の顧客アラート
+            const alertBanner = document.getElementById('stageAlertBanner');
+            const stage3Customers = customers.filter(c => (c.stage || 1) === 3);
+            if (stage3Customers.length > 0) {
+                alertBanner.style.display = 'block';
+                alertBanner.innerHTML = `<div class="stage-alert-banner" onclick="filterStage3()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff453a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span><strong>${stage3Customers.length}名</strong>が面談予約済みでステージ未更新です</span>
+                </div>`;
+            } else {
+                alertBanner.style.display = 'none';
+                alertBanner.innerHTML = '';
+            }
+
             if (sidebarView === 'tag') {
                 renderTagGroupedList(list);
             } else {
@@ -2619,6 +2674,18 @@
                     list.appendChild(createCustomerItem(customer));
                 });
             }
+        }
+
+        function filterStage3() {
+            const searchInput = document.getElementById('customerSearch');
+            searchInput.value = '';
+            // 一時的にstage3の顧客だけ表示
+            const list = document.getElementById('customerList');
+            list.innerHTML = '';
+            const stage3 = customers.filter(c => (c.stage || 1) === 3);
+            stage3.forEach(customer => {
+                list.appendChild(createCustomerItem(customer));
+            });
         }
 
         function renderTagGroupedList(list) {
