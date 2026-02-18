@@ -1637,12 +1637,14 @@
     </div>
 
     <!-- Progress Bar -->
-    <div class="progress-bar-container" id="progress-bar" onclick="toggleProgressBar()">
-      <div class="progress-bar-steps" id="progress-steps"></div>
-      <div class="progress-bar-labels" id="progress-labels"></div>
-      <div class="progress-bar-status">
-        <span class="progress-status-text" id="progress-status-text"></span>
-        <span class="progress-status-count" id="progress-status-count"></span>
+    <div class="progress-bar-container" id="progress-bar">
+      <div onclick="toggleProgressBar()" style="cursor:pointer;">
+        <div class="progress-bar-steps" id="progress-steps"></div>
+        <div class="progress-bar-labels" id="progress-labels"></div>
+        <div class="progress-bar-status">
+          <span class="progress-status-text" id="progress-status-text"></span>
+          <span class="progress-status-count" id="progress-status-count"></span>
+        </div>
       </div>
       <div class="progress-next-action" id="progress-next-action"></div>
     </div>
