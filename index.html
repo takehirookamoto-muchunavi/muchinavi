@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>MuchiNavi — あなたの住まい探しAIアシスタント</title>
   <meta name="description" content="AIがあなたにぴったりの住まい探しをサポート。住宅ローン・エリア選び・物件タイプの相談が24時間無料。不動産エージェント岡本岳大が提供するAIアシスタント。">
   <meta name="keywords" content="住宅購入,マイホーム,住宅ローン,不動産相談,AI,住まい探し,TERASS">
@@ -414,12 +414,14 @@
     .chat-screen {
       display: none;
       flex-direction: column;
-      height: 100vh;
+      height: 100dvh;
+      height: 100vh; /* fallback */
       max-width: 100%;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: var(--bg);
       z-index: 100;
+      overflow: hidden;
     }
     .chat-screen.active { display: flex; }
 
@@ -3961,10 +3963,29 @@
     }
 
     // チャット画面表示後にiOS案内チェック
+    // モバイルビューポート高さ修正（100vhがアドレスバーを含む問題対策）
+    function fixMobileHeight() {
+      const cs = document.querySelector('.chat-screen');
+      if (cs && cs.classList.contains('active')) {
+        cs.style.height = window.innerHeight + 'px';
+      }
+    }
+    window.addEventListener('resize', fixMobileHeight);
+    // visualViewport API対応ブラウザ（キーボード表示時の高さ変化に対応）
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function() {
+        const cs = document.querySelector('.chat-screen');
+        if (cs && cs.classList.contains('active')) {
+          cs.style.height = window.visualViewport.height + 'px';
+        }
+      });
+    }
+
     const origStartChat = startChat;
     startChat = function() {
       origStartChat.apply(this, arguments);
       checkIOSInstallPrompt();
+      fixMobileHeight();
     };
 
     init();
