@@ -195,6 +195,49 @@
             left: 262px;
         }
 
+        /* カテゴリヘッダー（大分類） */
+        .tag-category-header {
+            padding: 10px 12px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .tag-category-header:first-child {
+            border-top: none;
+            margin-top: 0;
+        }
+
+        .tag-category-header:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .tag-category-header .tag-category-arrow {
+            transition: transform 0.2s ease;
+            font-size: 10px;
+        }
+
+        .tag-category-header.collapsed .tag-category-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .tag-category-items {
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+        }
+
+        .tag-category-items.collapsed {
+            max-height: 0 !important;
+        }
+
         /* タググループ */
         .tag-group-header {
             padding: 8px 12px;
@@ -2554,41 +2597,90 @@
                 }
             });
 
-            // タグ色を取得する関数
-            const getTagColor = (tagName) => {
+            // タグ情報を取得する関数
+            const getTagInfo = (tagName) => {
                 const tagData = (window.allTags || []).find(t => t.name === tagName);
-                return tagData ? tagData.color : '#888';
+                return tagData || { name: tagName, color: '#888', category: '' };
             };
 
-            // 各タググループを描画
-            Object.keys(tagGroups).sort().forEach(tagName => {
-                const groupCustomers = tagGroups[tagName];
-                const color = getTagColor(tagName);
+            // カテゴリ別にタグを分類
+            const categoryOrder = ['都道府県', '物件種別'];
+            const categories = {};
+            categoryOrder.forEach(cat => { categories[cat] = []; });
+            categories['その他'] = [];
 
-                const header = document.createElement('div');
-                header.className = 'tag-group-header';
-                header.innerHTML = `
-                    <span><span class="tag-color-dot" style="background:${color}"></span>${tagName}</span>
-                    <span>
-                        <span class="tag-group-count">${groupCustomers.length}</span>
-                        <span class="tag-group-arrow">▼</span>
+            Object.keys(tagGroups).forEach(tagName => {
+                const info = getTagInfo(tagName);
+                const cat = info.category && categoryOrder.includes(info.category) ? info.category : 'その他';
+                categories[cat].push({ name: tagName, color: info.color, customers: tagGroups[tagName] });
+            });
+
+            // カテゴリアイコン
+            const categoryIcons = { '都道府県': '📍', '物件種別': '🏠', 'その他': '🏷️' };
+
+            // カテゴリごとに描画
+            [...categoryOrder, 'その他'].forEach(catName => {
+                const catTags = categories[catName];
+                if (catTags.length === 0) return;
+
+                const totalInCategory = catTags.reduce((sum, t) => sum + t.customers.length, 0);
+
+                // カテゴリヘッダー
+                const catHeader = document.createElement('div');
+                catHeader.className = 'tag-category-header';
+                catHeader.innerHTML = `
+                    <span>${categoryIcons[catName] || ''} ${catName}</span>
+                    <span style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:10px;color:rgba(255,255,255,0.3);">${catTags.length}タグ / ${totalInCategory}人</span>
+                        <span class="tag-category-arrow">▼</span>
                     </span>
                 `;
 
-                const itemsContainer = document.createElement('div');
-                itemsContainer.className = 'tag-group-items';
-                groupCustomers.forEach(customer => {
-                    itemsContainer.appendChild(createCustomerItem(customer));
-                });
-                itemsContainer.style.maxHeight = itemsContainer.scrollHeight + 1000 + 'px';
+                const catItemsContainer = document.createElement('div');
+                catItemsContainer.className = 'tag-category-items';
 
-                header.addEventListener('click', () => {
-                    header.classList.toggle('collapsed');
-                    itemsContainer.classList.toggle('collapsed');
+                // カテゴリ内のタグをソートして描画
+                catTags.sort((a, b) => a.name.localeCompare(b.name, 'ja')).forEach(tag => {
+                    const header = document.createElement('div');
+                    header.className = 'tag-group-header';
+                    header.style.paddingLeft = '20px';
+                    header.innerHTML = `
+                        <span><span class="tag-color-dot" style="background:${tag.color}"></span>${tag.name}</span>
+                        <span>
+                            <span class="tag-group-count">${tag.customers.length}</span>
+                            <span class="tag-group-arrow">▼</span>
+                        </span>
+                    `;
+
+                    const itemsContainer = document.createElement('div');
+                    itemsContainer.className = 'tag-group-items';
+                    tag.customers.forEach(customer => {
+                        itemsContainer.appendChild(createCustomerItem(customer));
+                    });
+                    itemsContainer.style.maxHeight = itemsContainer.scrollHeight + 1000 + 'px';
+
+                    header.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        header.classList.toggle('collapsed');
+                        itemsContainer.classList.toggle('collapsed');
+                    });
+
+                    catItemsContainer.appendChild(header);
+                    catItemsContainer.appendChild(itemsContainer);
                 });
 
-                list.appendChild(header);
-                list.appendChild(itemsContainer);
+                // デフォルトでカテゴリは開いた状態
+                catItemsContainer.style.maxHeight = catItemsContainer.scrollHeight + 5000 + 'px';
+
+                catHeader.addEventListener('click', () => {
+                    catHeader.classList.toggle('collapsed');
+                    catItemsContainer.classList.toggle('collapsed');
+                    const arrow = catHeader.querySelector('.tag-category-arrow');
+                    if (arrow) arrow.textContent = catItemsContainer.classList.contains('collapsed') ? '▶' : '▼';
+                });
+
+                list.appendChild(catHeader);
+                list.appendChild(catItemsContainer);
             });
 
             // タグなしグループ

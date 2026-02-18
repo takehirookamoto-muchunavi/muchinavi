@@ -368,11 +368,14 @@ app.post('/api/register', async (req, res) => {
   const tagData = loadTags();
 
   // Helper: ensure tag exists and add to autoTags
-  function ensureTagAndAdd(tagName, color) {
+  function ensureTagAndAdd(tagName, color, category) {
     if (!tagName || tagName === '-' || tagName === '未入力') return;
     const existing = tagData.tags.find(t => t.name === tagName);
     if (!existing) {
-      tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: tagName, color: color });
+      tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: tagName, color: color, category: category || '' });
+    } else if (category && !existing.category) {
+      // Existing tag without category - add category
+      existing.category = category;
     }
     if (!autoTags.includes(tagName)) {
       autoTags.push(tagName);
@@ -381,12 +384,12 @@ app.post('/api/register', async (req, res) => {
 
   // Prefecture auto-tag (都道府県)
   if (customer.prefecture) {
-    ensureTagAndAdd(customer.prefecture, '#5856d6');
+    ensureTagAndAdd(customer.prefecture, '#5856d6', '都道府県');
   }
 
   // Property type auto-tag (物件種別)
   if (customer.propertyType) {
-    ensureTagAndAdd(customer.propertyType, '#0071e3');
+    ensureTagAndAdd(customer.propertyType, '#0071e3', '物件種別');
   }
 
   // Save tags if new ones were created
@@ -1514,7 +1517,7 @@ app.post('/api/admin/tags', adminAuth, (req, res) => {
   if (data.tags.some(t => t.name === name.trim())) {
     return res.status(400).json({ error: '同名のタグが既に存在します' });
   }
-  const tag = { id: `tag_${Date.now()}`, name: name.trim(), color: color || '#0071e3' };
+  const tag = { id: `tag_${Date.now()}`, name: name.trim(), color: color || '#0071e3', category: req.body.category || '' };
   data.tags.push(tag);
   saveTags(data);
   console.log(`🏷️ タグ作成: ${tag.name}`);
@@ -1855,15 +1858,18 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
     const tagData = loadTags();
     if (!record.tags) record.tags = [];
 
-    function ensureAutoTag(newVal, oldVal, color) {
+    function ensureAutoTag(newVal, oldVal, color, category) {
       if (!newVal || newVal === '-' || newVal === '未入力') return;
       // Remove old auto-tag if it changed
       if (oldVal && oldVal !== newVal) {
         record.tags = record.tags.filter(t => t !== oldVal);
       }
       // Ensure tag exists in tag master
-      if (!tagData.tags.find(t => t.name === newVal)) {
-        tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: newVal, color: color });
+      const existingTag = tagData.tags.find(t => t.name === newVal);
+      if (!existingTag) {
+        tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: newVal, color: color, category: category || '' });
+      } else if (category && !existingTag.category) {
+        existingTag.category = category;
       }
       // Add tag to customer if not already present
       if (!record.tags.includes(newVal)) {
@@ -1871,8 +1877,8 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
       }
     }
 
-    if (updates.prefecture) ensureAutoTag(updates.prefecture, oldPrefecture, '#5856d6');
-    if (updates.propertyType) ensureAutoTag(updates.propertyType, oldPropertyType, '#0071e3');
+    if (updates.prefecture) ensureAutoTag(updates.prefecture, oldPrefecture, '#5856d6', '都道府県');
+    if (updates.propertyType) ensureAutoTag(updates.propertyType, oldPropertyType, '#0071e3', '物件種別');
     saveTags(tagData);
   }
 
