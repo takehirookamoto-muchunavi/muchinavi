@@ -3896,7 +3896,7 @@
                 xhr.onload = () => {
                     progressEl.style.display = 'none';
                     if (xhr.status === 200) {
-                        resolve(JSON.parse(xhr.responseText));
+                        resolve(JSON.parse(xhr.responseText).file);
                     } else {
                         let errMsg = 'アップロードに失敗しました';
                         try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch(e) {}

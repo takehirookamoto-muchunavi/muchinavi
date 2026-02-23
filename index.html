@@ -3666,7 +3666,7 @@
             progressEl.classList.remove('active');
             if (xhr.status === 200) {
               const data = JSON.parse(xhr.responseText);
-              resolve(data);
+              resolve(data.file);
             } else {
               let errMsg = 'アップロードに失敗しました';
               try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch(e) {}
