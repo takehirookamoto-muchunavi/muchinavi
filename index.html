@@ -1625,21 +1625,22 @@
 
     /* ===== File Upload ===== */
     .file-attach-btn {
-      background: none;
-      border: none;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 50%;
       cursor: pointer;
-      padding: 6px;
-      color: var(--text-light);
-      transition: color 0.2s;
+      padding: 0;
+      color: var(--accent);
+      transition: all 0.2s;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 44px;
-      width: 36px;
+      height: 40px;
+      width: 40px;
     }
-    .file-attach-btn:hover { color: var(--accent); }
-    .file-attach-btn svg { width: 20px; height: 20px; }
+    .file-attach-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .file-attach-btn svg { width: 18px; height: 18px; }
 
     .file-preview-bar {
       display: none;
