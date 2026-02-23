@@ -908,6 +908,81 @@ app.post('/api/customer/advance-stage/:token', (req, res) => {
   }
 });
 
+// ===== フィードバック送信 =====
+app.post('/api/customer/feedback/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  if (record.status === 'blocked' || record.status === 'withdrawn')
+    return res.status(403).json({ error: 'access denied' });
+
+  const { rating, tags, comment, trigger } = req.body;
+  if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: '評価は1〜5で入力してください' });
+
+  if (!record.feedback) record.feedback = [];
+  record.feedback.push({
+    id: 'fb_' + Date.now(),
+    rating: parseInt(rating, 10),
+    tags: tags || [],
+    comment: comment || '',
+    trigger: trigger || 'manual', // 'stage_change' | 'conversation' | 'manual'
+    stage: record.stage || 1,
+    createdAt: new Date().toISOString()
+  });
+  saveDB(db);
+
+  console.log(`💬 フィードバック: ${record.name} ★${rating} ${tags?.join(',')||''} ${comment||''}`);
+
+  // 管理者にメール通知（低評価の場合）
+  if (parseInt(rating, 10) <= 2) {
+    sendNotificationEmail({
+      to: NOTIFY_EMAIL,
+      subject: `⚠️ 低評価フィードバック: ${record.name}さん (★${rating})`,
+      html: `<p><strong>${record.name}</strong>さんから低評価のフィードバックがありました。</p>
+        <p>評価: ★${rating}/5</p>
+        <p>選択項目: ${(tags||[]).join(', ') || 'なし'}</p>
+        <p>コメント: ${comment || 'なし'}</p>
+        <p>ステージ: ${record.stage || 1}</p>
+        <p>トリガー: ${trigger || '-'}</p>`
+    }).catch(e => console.error('フィードバック通知メール失敗:', e.message));
+  }
+
+  res.json({ success: true });
+});
+
+// ===== 管理API: フィードバック一覧 =====
+app.get('/api/admin/feedback', adminAuth, (req, res) => {
+  const db = loadDB();
+  const allFeedback = [];
+  Object.entries(db).forEach(([token, record]) => {
+    if (record.feedback && record.feedback.length > 0) {
+      record.feedback.forEach(fb => {
+        allFeedback.push({
+          ...fb,
+          customerName: record.name || '名前未設定',
+          customerToken: token
+        });
+      });
+    }
+  });
+  allFeedback.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // 統計
+  const ratings = allFeedback.map(f => f.rating);
+  const avg = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+  const distribution = [0, 0, 0, 0, 0];
+  ratings.forEach(r => { distribution[r - 1]++; });
+
+  res.json({
+    feedback: allFeedback,
+    stats: {
+      total: allFeedback.length,
+      average: parseFloat(avg),
+      distribution
+    }
+  });
+});
+
 // ===== 顧客パスワード変更 =====
 app.post('/api/customer/change-password/:token', (req, res) => {
   const db = loadDB();

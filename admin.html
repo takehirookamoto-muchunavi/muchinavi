@@ -1869,6 +1869,7 @@
                     <button class="tab-btn" data-tab="todo">ToDo</button>
                     <button class="tab-btn" data-tab="chatHistory">チャット履歴</button>
                     <button class="tab-btn" data-tab="agentChat">エージェント相談室</button>
+                    <button class="tab-btn" data-tab="feedback">フィードバック</button>
                 </div>
 
                 <!-- Tab Content -->
@@ -2244,6 +2245,13 @@
                                 <textarea class="chat-input" id="agentChatInput" placeholder="メッセージを入力..."></textarea>
                                 <button class="chat-send" id="agentChatSend">送信</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Tab -->
+                    <div id="feedbackTab" class="tab-pane">
+                        <div id="feedbackContent" style="padding: 8px 0;">
+                            <p style="color: var(--text-secondary); font-size: 13px;">フィードバックデータを読み込み中...</p>
                         </div>
                     </div>
 
@@ -2954,6 +2962,9 @@
                     } else {
                         showAgentChatWelcome();
                     }
+                }
+                if (tab === 'feedback') {
+                    loadFeedbackTab();
                 }
             });
         });
@@ -4069,6 +4080,78 @@
             });
         } else {
             showLogin();
+        }
+
+        // ======================== FEEDBACK TAB ========================
+        async function loadFeedbackTab() {
+            const container = document.getElementById('feedbackContent');
+            container.innerHTML = '<p style="color:var(--text-secondary);font-size:13px;">読み込み中...</p>';
+            try {
+                const res = await fetch('/api/admin/feedback', {
+                    headers: { 'Authorization': 'Basic ' + btoa('admin:' + adminPass) }
+                });
+                const data = await res.json();
+                renderFeedbackTab(data);
+            } catch(e) {
+                container.innerHTML = '<p style="color:#ff453a;font-size:13px;">フィードバックの読み込みに失敗しました</p>';
+            }
+        }
+
+        function renderFeedbackTab(data) {
+            const container = document.getElementById('feedbackContent');
+            const { feedback, stats } = data;
+
+            if (!feedback || feedback.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-secondary);"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;opacity:0.4;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p style="font-size:13px;">まだフィードバックはありません</p></div>';
+                return;
+            }
+
+            // 統計カード
+            const starBars = stats.distribution.map((count, i) => {
+                const pct = stats.total > 0 ? Math.round(count / stats.total * 100) : 0;
+                return `<div style="display:flex;align-items:center;gap:8px;font-size:11px;">
+                    <span style="width:16px;text-align:right;color:var(--text-secondary);">${i+1}★</span>
+                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
+                        <div style="width:${pct}%;height:100%;background:${i >= 3 ? '#34c759' : i >= 2 ? '#ffb800' : '#ff453a'};border-radius:3px;"></div>
+                    </div>
+                    <span style="width:24px;color:var(--text-secondary);">${count}</span>
+                </div>`;
+            }).reverse().join('');
+
+            // 個別フィードバック
+            const fbItems = feedback.slice(0, 50).map(fb => {
+                const stars = '★'.repeat(fb.rating) + '☆'.repeat(5 - fb.rating);
+                const starColor = fb.rating >= 4 ? '#34c759' : fb.rating >= 3 ? '#ffb800' : '#ff453a';
+                const date = new Date(fb.createdAt).toLocaleDateString('ja-JP', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                const tags = (fb.tags||[]).map(t => `<span style="display:inline-block;padding:2px 8px;background:rgba(0,113,227,0.1);color:#0071e3;border-radius:10px;font-size:10px;margin:1px;">${t}</span>`).join(' ');
+                return `<div style="padding:12px 0;border-bottom:1px solid var(--border);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                        <span style="font-weight:600;font-size:13px;">${fb.customerName}</span>
+                        <span style="font-size:11px;color:var(--text-secondary);">${date}</span>
+                    </div>
+                    <div style="color:${starColor};font-size:14px;letter-spacing:2px;margin-bottom:4px;">${stars}</div>
+                    ${tags ? `<div style="margin-bottom:4px;">${tags}</div>` : ''}
+                    ${fb.comment ? `<div style="font-size:12px;color:var(--text-primary);background:rgba(255,255,255,0.05);padding:8px 10px;border-radius:8px;margin-top:4px;">"${fb.comment}"</div>` : ''}
+                </div>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+                        <div style="font-size:28px;font-weight:700;color:var(--text-primary);">${stats.average}</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">平均スコア</div>
+                    </div>
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+                        <div style="font-size:28px;font-weight:700;color:var(--text-primary);">${stats.total}</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">件数</div>
+                    </div>
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
+                        ${starBars}
+                    </div>
+                </div>
+                <h3 style="font-size:14px;margin-bottom:12px;">フィードバック一覧</h3>
+                ${fbItems}
+            `;
         }
     </script>
 </body>

@@ -825,6 +825,114 @@
       height: 5px;
     }
 
+    /* Feedback Card */
+    .feedback-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 8px 12px 12px;
+      animation: msgIn 0.4s ease;
+    }
+    .feedback-card-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+    }
+    .feedback-card-sub {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-bottom: 12px;
+    }
+    .feedback-stars {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .feedback-star {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid #e5e5ea;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 18px;
+    }
+    .feedback-star:hover {
+      border-color: #ffb800;
+      background: #fffbf0;
+    }
+    .feedback-star.selected {
+      border-color: #ffb800;
+      background: #fff8e6;
+    }
+    .feedback-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .feedback-tag {
+      padding: 5px 12px;
+      border-radius: 980px;
+      border: 1px solid #e5e5ea;
+      background: #fff;
+      font-size: 11px;
+      color: #6e6e73;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .feedback-tag.selected {
+      border-color: #0071e3;
+      background: #f0f7ff;
+      color: #0071e3;
+    }
+    .feedback-comment {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      min-height: 44px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      transition: border 0.2s;
+    }
+    .feedback-comment:focus { border-color: #0071e3; }
+    .feedback-comment::placeholder { color: #c7c7cc; }
+    .feedback-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 20px;
+      background: #0071e3;
+      color: #fff;
+      border: none;
+      border-radius: 980px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .feedback-submit:hover { background: #0077ed; }
+    .feedback-submit:disabled { background: #c7c7cc; cursor: not-allowed; }
+    .feedback-thanks {
+      text-align: center;
+      padding: 16px;
+      font-size: 14px;
+      color: #34c759;
+      font-weight: 600;
+    }
+
     .chat-room-tabs {
       display: flex;
       background: #f5f5f7;
@@ -3126,6 +3234,128 @@
       }
     }
 
+    // ===== Feedback System =====
+    const FEEDBACK_TAGS = [
+      '知りたいことがわかった',
+      '話しやすかった',
+      '新しい発見があった',
+      'もう少し詳しく聞きたかった',
+      '自分には合わなかった'
+    ];
+    let feedbackState = { rating: 0, tags: [], comment: '' };
+    let lastFeedbackMessageCount = parseInt(localStorage.getItem('muchinavi_fb_msg_count') || '0', 10);
+
+    function shouldShowFeedback(trigger) {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      const dismissed = localStorage.getItem('muchinavi_fb_dismissed_' + trigger);
+      if (dismissed) return false;
+      return true;
+    }
+
+    function checkConversationFeedback() {
+      // 10往復ごとにフィードバックを表示（ユーザーメッセージ数ベース）
+      const userMsgCount = chatMessages.filter(m => m.role === 'user').length;
+      if (userMsgCount > 0 && userMsgCount % 10 === 0 && userMsgCount !== lastFeedbackMessageCount) {
+        lastFeedbackMessageCount = userMsgCount;
+        localStorage.setItem('muchinavi_fb_msg_count', String(userMsgCount));
+        if (shouldShowFeedback('conv_' + userMsgCount)) {
+          showFeedbackInChat('conversation');
+        }
+      }
+    }
+
+    function showFeedbackInChat(trigger) {
+      feedbackState = { rating: 0, tags: [], comment: '' };
+      const msgContainer = document.getElementById('chat-messages');
+      const existing = msgContainer.querySelector('.feedback-card');
+      if (existing) return; // 既に表示中
+
+      const card = document.createElement('div');
+      card.className = 'feedback-card';
+      card.id = 'feedback-card-active';
+      card.innerHTML = `
+        <div class="feedback-card-header">MuchiNaviの使い心地はいかがですか？</div>
+        <div class="feedback-card-sub">1タップで完了。改善に役立てます。</div>
+        <div class="feedback-stars" id="feedback-stars">
+          ${[1,2,3,4,5].map(n => `<div class="feedback-star" data-rating="${n}" onclick="selectFeedbackRating(${n})">${n <= 0 ? '☆' : '★'}</div>`).join('')}
+        </div>
+        <div class="feedback-tags" id="feedback-tags" style="display:none;">
+          ${FEEDBACK_TAGS.map(t => `<div class="feedback-tag" onclick="toggleFeedbackTag(this, '${t}')">${t}</div>`).join('')}
+        </div>
+        <textarea class="feedback-comment" id="feedback-comment" placeholder="もしよければ、ご感想をお聞かせください（任意）" rows="2" style="display:none;"></textarea>
+        <button class="feedback-submit" id="feedback-submit" onclick="submitFeedback('${trigger}')" style="display:none;" disabled>送信する</button>
+      `;
+      msgContainer.appendChild(card);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
+    function selectFeedbackRating(n) {
+      feedbackState.rating = n;
+      document.querySelectorAll('#feedback-stars .feedback-star').forEach((el, i) => {
+        el.classList.toggle('selected', i < n);
+        el.textContent = '★';
+        el.style.color = i < n ? '#ffb800' : '#e5e5ea';
+      });
+      // 星を選んだらタグ・コメント・送信を表示
+      document.getElementById('feedback-tags').style.display = 'flex';
+      document.getElementById('feedback-comment').style.display = 'block';
+      const btn = document.getElementById('feedback-submit');
+      btn.style.display = 'inline-flex';
+      btn.disabled = false;
+    }
+
+    function toggleFeedbackTag(el, tag) {
+      el.classList.toggle('selected');
+      if (feedbackState.tags.includes(tag)) {
+        feedbackState.tags = feedbackState.tags.filter(t => t !== tag);
+      } else {
+        feedbackState.tags.push(tag);
+      }
+    }
+
+    async function submitFeedback(trigger) {
+      const comment = document.getElementById('feedback-comment')?.value || '';
+      feedbackState.comment = comment;
+      const btn = document.getElementById('feedback-submit');
+      btn.disabled = true;
+      btn.textContent = '送信中...';
+
+      try {
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        const res = await fetch(`/api/customer/feedback/${token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rating: feedbackState.rating,
+            tags: feedbackState.tags,
+            comment: feedbackState.comment,
+            trigger
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('muchinavi_fb_dismissed_' + trigger, '1');
+          const card = document.getElementById('feedback-card-active');
+          if (card) {
+            card.innerHTML = '<div class="feedback-thanks">ご意見ありがとうございます！<br><span style="font-size:12px;color:#aeaeb2;font-weight:400;">サービス改善に活用させていただきます。</span></div>';
+            setTimeout(() => { card.style.opacity = '0'; card.style.transition = 'opacity 0.5s'; setTimeout(() => card.remove(), 500); }, 3000);
+          }
+        }
+      } catch(e) {
+        console.error('フィードバック送信エラー:', e);
+        btn.textContent = '送信に失敗しました';
+      }
+    }
+
+    // ステージ変更時のフィードバック表示
+    function checkStageFeedback(oldStage, newStage) {
+      if (newStage > oldStage && newStage >= 3) {
+        if (shouldShowFeedback('stage_' + newStage)) {
+          setTimeout(() => showFeedbackInChat('stage_change'), 1500);
+        }
+      }
+    }
+
     function toggleProgressBar() {
       document.getElementById('progress-bar').classList.toggle('collapsed');
     }
@@ -3225,6 +3455,9 @@
 
       document.getElementById('chat-send-btn').disabled = false;
       isSending = false;
+
+      // フィードバック表示チェック
+      checkConversationFeedback();
     }
 
     function switchChatRoom(room) {
