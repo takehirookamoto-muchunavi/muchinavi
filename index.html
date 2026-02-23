@@ -1623,6 +1623,171 @@
       min-height: 0;
     }
 
+    /* ===== File Upload ===== */
+    .file-attach-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      color: var(--text-light);
+      transition: color 0.2s;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      width: 36px;
+    }
+    .file-attach-btn:hover { color: var(--accent); }
+    .file-attach-btn svg { width: 20px; height: 20px; }
+
+    .file-preview-bar {
+      display: none;
+      padding: 8px 16px 0;
+      background: white;
+      border-top: 1px solid var(--border);
+    }
+    .file-preview-bar.active { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .file-preview-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-light);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 220px;
+    }
+    .file-preview-item img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .file-preview-item .file-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: #e8e0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .file-preview-info {
+      overflow: hidden;
+    }
+    .file-preview-name {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+    .file-preview-size {
+      font-size: 10px;
+      color: var(--text-light);
+    }
+    .file-preview-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 2px;
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .file-preview-remove:hover { color: #e53e3e; }
+
+    .file-upload-progress {
+      display: none;
+      padding: 8px 16px;
+      background: white;
+    }
+    .file-upload-progress.active { display: block; }
+    .file-upload-progress-bar {
+      height: 3px;
+      background: var(--bg-light);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .file-upload-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .file-upload-progress-text {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .file-limit-hint {
+      font-size: 10px;
+      color: var(--text-light);
+      padding: 0 16px 4px;
+      background: white;
+      display: none;
+    }
+    .file-limit-hint.active { display: block; }
+
+    /* File attachment in chat bubble */
+    .chat-file-attachment {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .chat-file-attachment:hover { background: rgba(0,0,0,0.08); }
+    .chat-file-attachment img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .chat-file-attachment .file-att-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: #e8e0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .chat-file-attachment .file-att-info {
+      overflow: hidden;
+    }
+    .chat-file-attachment .file-att-name {
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-file-attachment .file-att-size {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
     /* ===== Back Button ===== */
     .back-button {
       display: inline-flex;
@@ -1877,6 +2042,10 @@
         <button class="chat-header-btn profile" onclick="openProfile()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> マイページ
         </button>
+        <button class="chat-header-btn notification-bell" onclick="openNotifications()" id="notification-bell" style="position:relative;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="notification-badge" style="display:none;position:absolute;top:-2px;right:-2px;background:#ff3b30;color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 4px;">0</span>
+        </button>
         <div class="settings-wrapper">
           <button class="chat-header-btn settings-toggle" onclick="toggleSettings(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
           <div class="settings-dropdown" id="settings-dropdown">
@@ -1929,7 +2098,17 @@
         </div>
       </div>
     </div>
+    <div class="file-preview-bar" id="ai-file-preview"></div>
+    <div class="file-limit-hint" id="ai-file-hint">対応形式: JPG, PNG, GIF, WEBP, PDF（最大10MB）</div>
+    <div class="file-upload-progress" id="ai-file-progress">
+      <div class="file-upload-progress-bar"><div class="file-upload-progress-fill" id="ai-progress-fill"></div></div>
+      <div class="file-upload-progress-text" id="ai-progress-text">アップロード中...</div>
+    </div>
     <div class="chat-input-bar" id="ai-chat-input-bar">
+      <button class="file-attach-btn" onclick="document.getElementById('ai-file-input').click()" title="ファイルを添付">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      </button>
+      <input type="file" id="ai-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'ai')">
       <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
       <button onclick="sendMessage()" id="chat-send-btn">送信</button>
     </div>
@@ -1942,7 +2121,17 @@
         <p>AIではなく、担当エージェントに直接メッセージを送れます。<br>お返事までお時間をいただく場合があります。</p>
       </div>
     </div>
+    <div class="file-preview-bar" id="direct-file-preview"></div>
+    <div class="file-limit-hint" id="direct-file-hint">対応形式: JPG, PNG, GIF, WEBP, PDF（最大10MB）</div>
+    <div class="file-upload-progress" id="direct-file-progress">
+      <div class="file-upload-progress-bar"><div class="file-upload-progress-fill" id="direct-progress-fill"></div></div>
+      <div class="file-upload-progress-text" id="direct-progress-text">アップロード中...</div>
+    </div>
     <div class="chat-input-bar" id="direct-chat-input-bar" style="display: none;">
+      <button class="file-attach-btn" onclick="document.getElementById('direct-file-input').click()" title="ファイルを添付">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      </button>
+      <input type="file" id="direct-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'direct')">
       <textarea id="direct-chat-input" placeholder="エージェントにメッセージ…" rows="1"></textarea>
       <button onclick="sendDirectMessage()" id="direct-send-btn">送信</button>
     </div>
@@ -2064,6 +2253,19 @@
   </div>
 
   <!-- ===== 退会確認モーダル ===== -->
+  <!-- ===== お知らせモーダル ===== -->
+  <div class="overlay-modal" id="notification-modal">
+    <div class="modal-inner" style="max-width: 400px; max-height: 80vh; padding: 0; overflow: hidden;">
+      <div style="padding: 20px 24px 16px; border-bottom: 1px solid #e5e5e7;">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1d1d1f;">お知らせ</h2>
+      </div>
+      <div id="notification-list" style="overflow-y: auto; max-height: 60vh; padding: 8px 0;"></div>
+      <div style="padding: 12px 24px; border-top: 1px solid #e5e5e7;">
+        <button class="modal-btn" onclick="closeNotifications()" style="width: 100%; background: #f5f5f7; color: #1d1d1f; border-radius: 10px; font-size: 14px;">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay-modal" id="withdraw-modal">
     <div class="modal-inner">
       <div class="modal-inner-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
@@ -2996,6 +3198,9 @@
       // Load and render progress bar
       loadProgressBar();
 
+      // お知らせ読み込み
+      loadAnnouncements();
+
       // ヘッダー自動縮小を有効化
       setTimeout(setupCompactHeader, 100);
 
@@ -3356,6 +3561,150 @@
       }
     }
 
+    // ===== File Upload =====
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+    let pendingFiles = { ai: null, direct: null };
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function handleFileSelect(input, room) {
+      const file = input.files[0];
+      if (!file) return;
+
+      // Validate
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        alert('対応していないファイル形式です。\nJPG, PNG, GIF, WEBP, PDFのみ対応しています。');
+        input.value = '';
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        alert('ファイルサイズが大きすぎます。\n最大10MBまでアップロードできます。\n\n選択されたファイル: ' + formatFileSize(file.size));
+        input.value = '';
+        return;
+      }
+
+      pendingFiles[room] = file;
+      showFilePreview(file, room);
+      input.value = '';
+    }
+
+    function showFilePreview(file, room) {
+      const preview = document.getElementById(room + '-file-preview');
+      const hint = document.getElementById(room + '-file-hint');
+      const isImage = file.type.startsWith('image/');
+
+      let thumbHTML;
+      if (isImage) {
+        const url = URL.createObjectURL(file);
+        thumbHTML = `<img src="${url}" alt="preview">`;
+      } else {
+        thumbHTML = `<div class="file-icon">PDF</div>`;
+      }
+
+      preview.innerHTML = `
+        <div class="file-preview-item">
+          ${thumbHTML}
+          <div class="file-preview-info">
+            <div class="file-preview-name">${file.name}</div>
+            <div class="file-preview-size">${formatFileSize(file.size)}</div>
+          </div>
+          <button class="file-preview-remove" onclick="cancelFileUpload('${room}')">&times;</button>
+        </div>
+      `;
+      preview.classList.add('active');
+      hint.classList.remove('active');
+    }
+
+    function cancelFileUpload(room) {
+      pendingFiles[room] = null;
+      const preview = document.getElementById(room + '-file-preview');
+      preview.innerHTML = '';
+      preview.classList.remove('active');
+    }
+
+    function showFileHint(room) {
+      const hint = document.getElementById(room + '-file-hint');
+      hint.classList.add('active');
+      setTimeout(() => hint.classList.remove('active'), 4000);
+    }
+
+    async function uploadFile(file, room) {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return null;
+
+      const progressEl = document.getElementById(room + '-file-progress');
+      const fillEl = document.getElementById(room + '-progress-fill');
+      const textEl = document.getElementById(room + '-progress-text');
+      progressEl.classList.add('active');
+      fillEl.style.width = '0%';
+      textEl.textContent = 'アップロード中...';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Use XMLHttpRequest for progress tracking
+        return await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `/api/customer/upload/${token}`);
+
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              fillEl.style.width = pct + '%';
+              textEl.textContent = `アップロード中... ${pct}%`;
+            }
+          };
+
+          xhr.onload = () => {
+            progressEl.classList.remove('active');
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data);
+            } else {
+              let errMsg = 'アップロードに失敗しました';
+              try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch(e) {}
+              alert(errMsg);
+              resolve(null);
+            }
+          };
+
+          xhr.onerror = () => {
+            progressEl.classList.remove('active');
+            alert('ネットワークエラーが発生しました');
+            resolve(null);
+          };
+
+          xhr.send(formData);
+        });
+      } catch (e) {
+        progressEl.classList.remove('active');
+        console.error('Upload error:', e);
+        return null;
+      }
+    }
+
+    function renderFileAttachment(fileData) {
+      const isImage = fileData.mimetype && fileData.mimetype.startsWith('image/');
+      const thumb = isImage
+        ? `<img src="${fileData.url}" alt="${fileData.originalName}" loading="lazy">`
+        : `<div class="file-att-icon">PDF</div>`;
+
+      return `<a href="${fileData.url}" target="_blank" class="chat-file-attachment" title="タップしてダウンロード">
+        ${thumb}
+        <div class="file-att-info">
+          <div class="file-att-name">${fileData.originalName}</div>
+          <div class="file-att-size">${formatFileSize(fileData.size)}</div>
+        </div>
+      </a>`;
+    }
+
     function toggleProgressBar() {
       document.getElementById('progress-bar').classList.toggle('collapsed');
     }
@@ -3394,17 +3743,32 @@
 
       const input = document.getElementById('chat-input');
       const text = input.value.trim();
-      if (!text) { console.log('[MuchiNavi] blocked: empty text'); return; }
+      const pendingFile = pendingFiles.ai;
+
+      if (!text && !pendingFile) { console.log('[MuchiNavi] blocked: empty text and no file'); return; }
 
       isSending = true;
-      console.log('[MuchiNavi] sending:', text);
+      console.log('[MuchiNavi] sending:', text, pendingFile ? '+ file' : '');
+
+      // Upload file first if present
+      let uploadedFile = null;
+      if (pendingFile) {
+        uploadedFile = await uploadFile(pendingFile, 'ai');
+        cancelFileUpload('ai');
+        if (!uploadedFile && !text) {
+          isSending = false;
+          return;
+        }
+      }
 
       // Hide welcome (may not exist if session restored)
       const welcomeEl = document.getElementById('chat-welcome');
       if (welcomeEl) welcomeEl.style.display = 'none';
 
       // Add user message
-      chatMessages.push({ role: 'user', content: text });
+      const msgObj = { role: 'user', content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : '') };
+      if (uploadedFile) msgObj.file = uploadedFile;
+      chatMessages.push(msgObj);
       renderChatMessages();
       input.value = '';
       input.style.height = 'auto';
@@ -3500,9 +3864,11 @@
         const isUser = msg.role === 'user';
         const side = isUser ? 'user' : 'assistant';
         const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}) : '';
+        const fileHTML = msg.file ? renderFileAttachment(msg.file) : '';
         html += `<div class="chat-message ${side}">
           <div class="chat-bubble direct-${side}">
             ${isUser ? '' : '<div style="font-size:10px;font-weight:600;color:#34c759;margin-bottom:4px;">担当エージェント</div>'}
+            ${fileHTML}
             <div style="white-space:pre-wrap;">${msg.content}</div>
             ${time ? `<div style="font-size:10px;color:${isUser ? 'rgba(255,255,255,0.6)' : '#aeaeb2'};margin-top:4px;text-align:${isUser?'right':'left'}">${time}</div>` : ''}
           </div>
@@ -3519,9 +3885,24 @@
     async function sendDirectMessage() {
       const input = document.getElementById('direct-chat-input');
       const text = input.value.trim();
-      if (!text) return;
+      const pendingFile = pendingFiles.direct;
 
-      const msg = { role: 'user', content: text, timestamp: new Date().toISOString() };
+      if (!text && !pendingFile) return;
+
+      // Upload file first if present
+      let uploadedFile = null;
+      if (pendingFile) {
+        uploadedFile = await uploadFile(pendingFile, 'direct');
+        cancelFileUpload('direct');
+        if (!uploadedFile && !text) return;
+      }
+
+      const msg = {
+        role: 'user',
+        content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : ''),
+        timestamp: new Date().toISOString()
+      };
+      if (uploadedFile) msg.file = uploadedFile;
       directChatMessages.push(msg);
       renderDirectMessages();
       scrollDirectChat();
@@ -3756,7 +4137,8 @@
       container.innerHTML = chatMessages.map((m, idx) => {
         if (m.role === 'user') {
           const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          return `<div class="chat-message user"><div class="chat-bubble" style="white-space:pre-wrap;">${escaped}</div></div>`;
+          const fileHTML = m.file ? renderFileAttachment(m.file) : '';
+          return `<div class="chat-message user"><div class="chat-bubble" style="white-space:pre-wrap;">${fileHTML}${escaped}</div></div>`;
         }
         // AI message - check if the NEXT message is a user picking a choice
         const nextMsg = chatMessages[idx + 1];
@@ -3867,6 +4249,86 @@
     });
 
     // ===== Logout =====
+    // ===== お知らせ通知 =====
+    let announcements = [];
+
+    async function loadAnnouncements() {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return;
+      try {
+        const res = await fetch(`/api/customer/announcements/${token}`);
+        const data = await res.json();
+        announcements = data.announcements || [];
+        updateNotificationBadge(data.unreadCount || 0);
+      } catch (e) {
+        console.error('Announcements load error:', e);
+      }
+    }
+
+    function updateNotificationBadge(count) {
+      const badge = document.getElementById('notification-badge');
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function openNotifications() {
+      const modal = document.getElementById('notification-modal');
+      const list = document.getElementById('notification-list');
+
+      if (announcements.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px 24px;color:#8e8e93;font-size:14px;">お知らせはありません</div>';
+      } else {
+        const typeIcons = {
+          update: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+          feature: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+          info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+        };
+        const typeLabels = { update: 'アップデート', feature: '新機能', info: 'お知らせ' };
+
+        list.innerHTML = announcements.map(a => {
+          const date = new Date(a.createdAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+          const icon = typeIcons[a.type] || typeIcons.info;
+          const label = typeLabels[a.type] || 'お知らせ';
+          const unreadDot = a.isRead ? '' : '<div style="width:8px;height:8px;border-radius:50%;background:#ff3b30;flex-shrink:0;"></div>';
+          return `<div style="padding: 14px 24px; border-bottom: 1px solid #f0f0f0; ${a.isRead ? 'opacity: 0.7;' : ''}">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              ${icon}
+              <span style="font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;">${label}</span>
+              <span style="font-size:11px;color:#aeaeb2;margin-left:auto;">${date}</span>
+              ${unreadDot}
+            </div>
+            <div style="font-weight:600;font-size:14px;color:#1d1d1f;margin-bottom:4px;">${a.title}</div>
+            <div style="font-size:13px;color:#6e6e73;line-height:1.5;">${a.content}</div>
+          </div>`;
+        }).join('');
+      }
+
+      modal.classList.add('active');
+
+      // Mark all as read
+      const unreadIds = announcements.filter(a => !a.isRead).map(a => a.id);
+      if (unreadIds.length > 0) {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        fetch(`/api/customer/announcements/${token}/read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: unreadIds })
+        }).then(() => {
+          announcements.forEach(a => a.isRead = true);
+          updateNotificationBadge(0);
+        }).catch(e => console.error('Mark read error:', e));
+      }
+    }
+
+    function closeNotifications() {
+      document.getElementById('notification-modal').classList.remove('active');
+    }
+
     function doLogout() {
       document.getElementById('settings-dropdown').classList.remove('show');
       localStorage.removeItem('muchinavi_token');

@@ -6,8 +6,36 @@ const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const nodemailer = require('nodemailer');
 const compression = require('compression');
+const multer = require('multer');
 
 const app = express();
+
+// ===== ファイルアップロード設定 =====
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const name = crypto.randomBytes(12).toString('hex') + ext;
+      cb(null, name);
+    }
+  }),
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ALLOWED_TYPES.includes(file.mimetype) && ALLOWED_EXTENSIONS.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('対応していないファイル形式です。JPG, PNG, GIF, WEBP, PDFのみ対応しています。'));
+    }
+  }
+});
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
@@ -264,6 +292,14 @@ app.get('/sw.js', (req, res) => {
   res.setHeader('Service-Worker-Allowed', '/');
   res.sendFile(path.join(__dirname, 'public', 'sw.js'));
 });
+
+// アップロードファイル配信
+app.use('/uploads', express.static(UPLOAD_DIR, {
+  maxAge: '7d',
+  setHeaders: (res) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+}));
 
 // 静的ファイルにキャッシュ設定（HTML/CSS/JSを5分キャッシュ）
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -908,6 +944,98 @@ app.post('/api/customer/advance-stage/:token', (req, res) => {
   }
 });
 
+// ===== ファイルアップロード（顧客側） =====
+app.post('/api/customer/upload/:token', (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'ファイルサイズが10MBを超えています' });
+      }
+      return res.status(400).json({ error: err.message || 'アップロードに失敗しました' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'ファイルが選択されていません' });
+
+    const db = loadDB();
+    const record = db[req.params.token];
+    if (!record) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: 'not found' });
+    }
+
+    const fileInfo = {
+      id: 'file_' + Date.now(),
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      url: '/uploads/' + req.file.filename,
+      sender: 'customer',
+      createdAt: new Date().toISOString()
+    };
+
+    if (!record.files) record.files = [];
+    record.files.push(fileInfo);
+    saveDB(db);
+
+    console.log(`📎 ファイル受信: ${record.name} → ${req.file.originalname} (${(req.file.size/1024).toFixed(1)}KB)`);
+    res.json({ success: true, file: fileInfo });
+  });
+});
+
+// ===== ファイルアップロード（管理者側） =====
+app.post('/api/admin/upload/:token', adminAuth, (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'ファイルサイズが10MBを超えています' });
+      }
+      return res.status(400).json({ error: err.message || 'アップロードに失敗しました' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'ファイルが選択されていません' });
+
+    const db = loadDB();
+    const record = db[req.params.token];
+    if (!record) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: 'not found' });
+    }
+
+    const fileInfo = {
+      id: 'file_' + Date.now(),
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      url: '/uploads/' + req.file.filename,
+      sender: 'agent',
+      createdAt: new Date().toISOString()
+    };
+
+    if (!record.files) record.files = [];
+    record.files.push(fileInfo);
+    saveDB(db);
+
+    console.log(`📎 ファイル送信: → ${record.name} : ${req.file.originalname} (${(req.file.size/1024).toFixed(1)}KB)`);
+    res.json({ success: true, file: fileInfo });
+  });
+});
+
+// ===== ファイル一覧（顧客側） =====
+app.get('/api/customer/files/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  res.json({ files: record.files || [] });
+});
+
+// ===== ファイル一覧（管理者側） =====
+app.get('/api/admin/files/:token', adminAuth, (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  res.json({ files: record.files || [] });
+});
+
 // ===== フィードバック送信 =====
 app.post('/api/customer/feedback/:token', (req, res) => {
   const db = loadDB();
@@ -981,6 +1109,89 @@ app.get('/api/admin/feedback', adminAuth, (req, res) => {
       distribution
     }
   });
+});
+
+// ===== お知らせ通知 =====
+const ANNOUNCEMENTS_FILE = path.join(__dirname, 'announcements.json');
+
+function loadAnnouncements() {
+  try {
+    if (fs.existsSync(ANNOUNCEMENTS_FILE)) {
+      return JSON.parse(fs.readFileSync(ANNOUNCEMENTS_FILE, 'utf-8'));
+    }
+  } catch (e) { console.error('Error loading announcements:', e); }
+  return [];
+}
+
+function saveAnnouncements(data) {
+  fs.writeFileSync(ANNOUNCEMENTS_FILE, JSON.stringify(data, null, 2));
+}
+
+// 管理者: お知らせ一覧取得
+app.get('/api/admin/announcements', adminAuth, (req, res) => {
+  res.json(loadAnnouncements());
+});
+
+// 管理者: お知らせ作成
+app.post('/api/admin/announcements', adminAuth, (req, res) => {
+  const { title, content, type } = req.body;
+  if (!title || !content) return res.status(400).json({ error: 'タイトルと内容は必須です' });
+
+  const announcements = loadAnnouncements();
+  const announcement = {
+    id: crypto.randomBytes(8).toString('hex'),
+    title: title.trim(),
+    content: content.trim(),
+    type: type || 'update', // update, feature, info
+    createdAt: new Date().toISOString()
+  };
+  announcements.unshift(announcement);
+  saveAnnouncements(announcements);
+  res.json(announcement);
+});
+
+// 管理者: お知らせ削除
+app.delete('/api/admin/announcements/:id', adminAuth, (req, res) => {
+  let announcements = loadAnnouncements();
+  announcements = announcements.filter(a => a.id !== req.params.id);
+  saveAnnouncements(announcements);
+  res.json({ success: true });
+});
+
+// 顧客: お知らせ取得（未読含む）
+app.get('/api/customer/announcements/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+
+  const announcements = loadAnnouncements();
+  const readIds = record.readAnnouncements || [];
+  const result = announcements.map(a => ({
+    ...a,
+    isRead: readIds.includes(a.id)
+  }));
+  const unreadCount = result.filter(a => !a.isRead).length;
+
+  res.json({ announcements: result, unreadCount });
+});
+
+// 顧客: お知らせ既読
+app.post('/api/customer/announcements/:token/read', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+
+  if (!record.readAnnouncements) record.readAnnouncements = [];
+  const { ids } = req.body;
+  if (ids && Array.isArray(ids)) {
+    ids.forEach(id => {
+      if (!record.readAnnouncements.includes(id)) {
+        record.readAnnouncements.push(id);
+      }
+    });
+    saveDB(db);
+  }
+  res.json({ success: true });
 });
 
 // ===== 顧客パスワード変更 =====
@@ -1588,16 +1799,18 @@ app.post('/api/admin/direct-chat/:token', adminAuth, (req, res) => {
   const db = loadDB();
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'not found' });
-  const { message } = req.body;
-  if (!message || !message.trim()) return res.status(400).json({ error: 'empty message' });
+  const { message, file } = req.body;
+  if ((!message || !message.trim()) && !file) return res.status(400).json({ error: 'empty message' });
 
-  const trimmedMsg = message.trim();
+  const trimmedMsg = (message || '').trim();
   if (!record.directChatHistory) record.directChatHistory = [];
-  record.directChatHistory.push({
+  const msgObj = {
     role: 'agent',
     content: trimmedMsg,
     timestamp: new Date().toISOString()
-  });
+  };
+  if (file) msgObj.file = file;
+  record.directChatHistory.push(msgObj);
   saveDB(db);
 
   // お客様へメール通知（メールアドレスがある場合）
