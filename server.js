@@ -962,10 +962,18 @@ app.post('/api/customer/upload/:token', (req, res) => {
       return res.status(404).json({ error: 'not found' });
     }
 
+    // multerはlatin1でデコードするため、日本語ファイル名をUTF-8に変換
+    let originalName;
+    try {
+      originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+    } catch (e) {
+      originalName = req.file.originalname;
+    }
+
     const fileInfo = {
       id: 'file_' + Date.now(),
       filename: req.file.filename,
-      originalName: req.file.originalname,
+      originalName: originalName,
       mimetype: req.file.mimetype,
       size: req.file.size,
       url: '/uploads/' + req.file.filename,
@@ -977,7 +985,7 @@ app.post('/api/customer/upload/:token', (req, res) => {
     record.files.push(fileInfo);
     saveDB(db);
 
-    console.log(`📎 ファイル受信: ${record.name} → ${req.file.originalname} (${(req.file.size/1024).toFixed(1)}KB)`);
+    console.log(`📎 ファイル受信: ${record.name} → ${originalName} (${(req.file.size/1024).toFixed(1)}KB)`);
     res.json({ success: true, file: fileInfo });
   });
 });
@@ -1000,10 +1008,17 @@ app.post('/api/admin/upload/:token', adminAuth, (req, res) => {
       return res.status(404).json({ error: 'not found' });
     }
 
+    let originalName;
+    try {
+      originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+    } catch (e) {
+      originalName = req.file.originalname;
+    }
+
     const fileInfo = {
       id: 'file_' + Date.now(),
       filename: req.file.filename,
-      originalName: req.file.originalname,
+      originalName: originalName,
       mimetype: req.file.mimetype,
       size: req.file.size,
       url: '/uploads/' + req.file.filename,
@@ -1015,7 +1030,7 @@ app.post('/api/admin/upload/:token', adminAuth, (req, res) => {
     record.files.push(fileInfo);
     saveDB(db);
 
-    console.log(`📎 ファイル送信: → ${record.name} : ${req.file.originalname} (${(req.file.size/1024).toFixed(1)}KB)`);
+    console.log(`📎 ファイル送信: → ${record.name} : ${originalName} (${(req.file.size/1024).toFixed(1)}KB)`);
     res.json({ success: true, file: fileInfo });
   });
 });

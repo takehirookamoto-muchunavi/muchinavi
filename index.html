@@ -1625,22 +1625,25 @@
 
     /* ===== File Upload ===== */
     .file-attach-btn {
-      background: var(--bg-light);
-      border: 1px solid var(--border);
-      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
       cursor: pointer;
-      padding: 0;
+      padding: 0 10px;
       color: var(--accent);
       transition: all 0.2s;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 40px;
-      width: 40px;
+      gap: 4px;
+      height: 44px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: inherit;
     }
-    .file-attach-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
-    .file-attach-btn svg { width: 18px; height: 18px; }
+    .file-attach-btn:hover, .file-attach-btn:active { background: var(--accent); color: white; }
+    .file-attach-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
     .file-preview-bar {
       display: none;
@@ -2106,8 +2109,9 @@
       <div class="file-upload-progress-text" id="ai-progress-text">アップロード中...</div>
     </div>
     <div class="chat-input-bar" id="ai-chat-input-bar">
-      <button class="file-attach-btn" onclick="document.getElementById('ai-file-input').click()" title="ファイルを添付">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      <button class="file-attach-btn" onclick="document.getElementById('ai-file-input').click()" title="ファイルを添付（JPG, PNG, PDF 最大10MB）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <span>資料</span>
       </button>
       <input type="file" id="ai-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'ai')">
       <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
@@ -2129,8 +2133,9 @@
       <div class="file-upload-progress-text" id="direct-progress-text">アップロード中...</div>
     </div>
     <div class="chat-input-bar" id="direct-chat-input-bar" style="display: none;">
-      <button class="file-attach-btn" onclick="document.getElementById('direct-file-input').click()" title="ファイルを添付">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      <button class="file-attach-btn" onclick="document.getElementById('direct-file-input').click()" title="ファイルを添付（JPG, PNG, PDF 最大10MB）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <span>資料</span>
       </button>
       <input type="file" id="direct-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'direct')">
       <textarea id="direct-chat-input" placeholder="エージェントにメッセージ…" rows="1"></textarea>
