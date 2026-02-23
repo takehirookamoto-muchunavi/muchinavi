@@ -3069,24 +3069,22 @@
           `;
         }
       } else if (action && action.custom) {
-        // Stage 2: booking flow with two-step (book → confirm)
-        const bookingClicked = sessionStorage.getItem('booking_clicked');
-        if (!bookingClicked) {
-          nextActionEl.innerHTML = `
-            <div class="next-label">Next Step</div>
-            <div class="next-text">オンライン面談を予約して、住まい探しの専門家に直接相談してみませんか？</div>
-            <button class="next-btn" onclick="event.stopPropagation(); openBookingAndTrack()">オンライン面談を予約</button>
-          `;
-        } else {
-          nextActionEl.innerHTML = `
-            <div class="next-label">予約は完了しましたか？</div>
-            <div class="next-text">オンライン面談の予約が完了した方は、下のボタンを押してください。</div>
-            <div style="display:flex;gap:8px;margin-top:6px;">
-              <button class="next-btn" onclick="event.stopPropagation(); confirmBooking()" style="background:#34c759;">予約しました</button>
-              <button class="next-btn" onclick="event.stopPropagation(); openBookingAndTrack()" style="background:#6e6e73;">まだ予約していない</button>
-            </div>
-          `;
-        }
+        // Stage 2: booking flow — always show both options
+        const bookingClicked = localStorage.getItem('muchinavi_booking_clicked');
+        nextActionEl.innerHTML = `
+          <div class="next-label">Next Step — オンライン面談</div>
+          <div class="next-text">住まい探しの専門家に直接相談してみませんか？予約が完了したら「予約完了」ボタンを押してください。</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <button class="next-btn" onclick="event.stopPropagation(); openBookingAndTrack()" style="background:#0071e3;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              面談を予約する
+            </button>
+            <button class="next-btn" onclick="event.stopPropagation(); confirmBooking()" style="background:#34c759;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>
+              予約完了を報告
+            </button>
+          </div>
+        `;
       } else if (action) {
         nextActionEl.innerHTML = `
           <div class="next-label">Next Step</div>
@@ -3097,16 +3095,15 @@
     }
 
     function openBookingAndTrack() {
-      sessionStorage.setItem('booking_clicked', 'true');
+      localStorage.setItem('muchinavi_booking_clicked', 'true');
       const bookingBtn = document.getElementById('chat-booking-btn');
       if (bookingBtn && bookingBtn.href) {
         window.open(bookingBtn.href, '_blank');
       }
-      // Re-render progress bar to show confirmation UI
-      loadProgressBar();
     }
 
     async function confirmBooking() {
+      if (!confirm('オンライン面談の予約は完了しましたか？')) return;
       try {
         const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
         if (!token) { console.error('トークンが見つかりません'); return; }
@@ -3117,13 +3114,15 @@
         });
         const data = await res.json();
         if (data.success) {
-          sessionStorage.removeItem('booking_clicked');
+          localStorage.removeItem('muchinavi_booking_clicked');
           loadProgressBar();
         } else {
           console.error('ステージ更新失敗:', data);
+          alert('更新に失敗しました。もう一度お試しください。');
         }
       } catch(e) {
         console.error('ステージ更新エラー:', e);
+        alert('通信エラーが発生しました。もう一度お試しください。');
       }
     }
 
