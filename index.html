@@ -1944,66 +1944,54 @@
       text-decoration: none;
     }
 
-    /* ===== Tutorial Overlay ===== */
+    /* ===== Tutorial ===== */
     .tutorial-overlay {
       display: none;
       position: fixed;
       inset: 0;
       z-index: 9998;
-      pointer-events: none;
     }
-    .tutorial-overlay.active { display: block; }
+    .tutorial-overlay.active { display: flex; align-items: flex-end; justify-content: center; }
 
     .tutorial-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.5);
       z-index: 9998;
-      pointer-events: auto;
     }
 
-    .tutorial-highlight {
-      position: absolute;
-      z-index: 9999;
+    .tutorial-highlight-ring {
+      position: relative;
+      z-index: 9999 !important;
+      animation: tutorialPulse 1.5s ease-in-out infinite;
       border-radius: 12px;
-      box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
-      pointer-events: none;
-      transition: all 0.4s ease;
+    }
+    @keyframes tutorialPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(106,90,205,0.5), 0 0 16px rgba(106,90,205,0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(106,90,205,0.3), 0 0 24px rgba(106,90,205,0.2); }
     }
 
-    .tutorial-tooltip {
-      position: absolute;
+    .tutorial-card {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
       z-index: 10000;
       background: white;
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 300px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-      pointer-events: auto;
-      animation: tutorialFadeIn 0.3s ease;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+      animation: tutorialSlideUp 0.35s ease;
     }
-
-    @keyframes tutorialFadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes tutorialSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
     }
-
-    .tutorial-tooltip::before {
-      content: '';
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: white;
-      transform: rotate(45deg);
-    }
-    .tutorial-tooltip.arrow-top::before { top: -6px; left: 24px; }
-    .tutorial-tooltip.arrow-bottom::before { bottom: -6px; left: 24px; }
-    .tutorial-tooltip.arrow-left::before { left: -6px; top: 20px; }
 
     .tutorial-step-indicator {
       display: flex;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     .tutorial-step-dot {
       width: 8px;
@@ -2015,17 +2003,31 @@
     .tutorial-step-dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
     .tutorial-step-dot.done { background: #34c759; }
 
+    .tutorial-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
     .tutorial-title {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       color: #1d1d1f;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .tutorial-desc {
-      font-size: 13px;
+      font-size: 14px;
       color: #6e6e73;
-      line-height: 1.6;
-      margin-bottom: 16px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .tutorial-target-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(106,90,205,0.1);
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
     }
 
     .tutorial-actions {
@@ -2034,12 +2036,12 @@
       align-items: center;
     }
     .tutorial-skip {
-      font-size: 12px;
+      font-size: 13px;
       color: #aeaeb2;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 4px 0;
+      padding: 8px 0;
       font-family: inherit;
     }
     .tutorial-skip:hover { color: #8e8e93; }
@@ -2048,20 +2050,14 @@
       color: white;
       border: none;
       border-radius: 980px;
-      padding: 10px 24px;
-      font-size: 13px;
+      padding: 12px 32px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.2s;
     }
     .tutorial-next:hover { background: var(--accent-hover); }
-
-    @media (max-width: 600px) {
-      .tutorial-tooltip { max-width: 260px; padding: 16px; }
-      .tutorial-title { font-size: 15px; }
-      .tutorial-desc { font-size: 12px; }
-    }
   </style>
 </head>
 <body>
@@ -2405,10 +2401,11 @@
 
   <!-- ===== チュートリアル ===== -->
   <div class="tutorial-overlay" id="tutorial-overlay">
-    <div class="tutorial-backdrop" id="tutorial-backdrop"></div>
-    <div class="tutorial-highlight" id="tutorial-highlight"></div>
-    <div class="tutorial-tooltip" id="tutorial-tooltip">
+    <div class="tutorial-backdrop" onclick="endTutorial()"></div>
+    <div class="tutorial-card" id="tutorial-card">
       <div class="tutorial-step-indicator" id="tutorial-dots"></div>
+      <div class="tutorial-icon" id="tutorial-icon"></div>
+      <div class="tutorial-target-label" id="tutorial-target-label"></div>
       <div class="tutorial-title" id="tutorial-title"></div>
       <div class="tutorial-desc" id="tutorial-desc"></div>
       <div class="tutorial-actions">
@@ -3325,64 +3322,65 @@
     // ===== Tutorial =====
     const TUTORIAL_STEPS = [
       {
-        target: '#chat-welcome',
+        icon: '👋',
+        label: 'はじめに',
         title: 'MuchiNaviへようこそ！',
-        desc: 'まずは使い方をご紹介します。\nAIが住まい探しの相談に24時間対応します。気になることは何でも聞いてください。',
-        arrow: 'top',
-        position: 'below'
+        desc: '住まい探しをAIがサポートします。\n30秒で主な使い方をご紹介します。',
+        target: null
       },
       {
-        target: '#chat-input',
-        title: 'ここからAIに質問',
-        desc: '住宅ローン、物件の選び方、購入スケジュールなど、気軽に質問してみてください。ヒントボタンもあります。',
-        arrow: 'bottom',
-        position: 'above'
+        icon: '💬',
+        label: 'AIチャット',
+        title: 'AIに何でも質問できます',
+        desc: '住宅ローン、物件の選び方、購入スケジュールなど、気軽に質問してみてください。画面下の入力欄から送信できます。',
+        target: '#chat-input'
       },
       {
-        target: '.file-attach-btn',
-        title: '資料の送受信',
-        desc: 'クリップボタンから画像やPDFを送れます。物件の資料や間取り図の共有にお使いください。（最大10MB）',
-        arrow: 'bottom',
-        position: 'above'
+        icon: '📎',
+        label: '資料送信',
+        title: '資料を送れます',
+        desc: '入力欄の横にある「資料」ボタンから、画像やPDFを送信できます。物件の図面や資料の共有にどうぞ。（最大10MB）',
+        target: '.file-attach-btn'
       },
       {
-        target: '#tab-direct',
-        title: 'エージェントに直接相談',
-        desc: 'AIではなく、担当エージェントの岡本に直接メッセージを送ることもできます。込み入った相談はこちらからどうぞ。',
-        arrow: 'top',
-        position: 'below'
+        icon: '👤',
+        label: 'エージェント相談',
+        title: '担当エージェントに直接相談',
+        desc: '画面上部のタブを切り替えると、AIではなく担当の岡本に直接メッセージを送れます。込み入った相談はこちらから。',
+        target: '#tab-direct'
       },
       {
-        target: '#progress-bar',
-        title: '進捗バー',
-        desc: '登録から引渡しまでの進捗が一目でわかります。タップすると詳細を確認できます。',
-        arrow: 'top',
-        position: 'below'
+        icon: '📊',
+        label: '進捗確認',
+        title: '進捗がひと目でわかります',
+        desc: 'チャットの上にある進捗バーで、登録から引渡しまでの現在地がわかります。タップすると詳細を確認できます。',
+        target: '#progress-bar'
       },
       {
-        target: '#chat-booking-btn',
-        title: 'オンライン面談',
-        desc: '準備ができたら、ここからオンライン面談を予約できます。住まい探しの専門家に直接相談しましょう。',
-        arrow: 'top',
-        position: 'below'
+        icon: '📅',
+        label: '面談予約',
+        title: 'オンライン面談を予約',
+        desc: '準備ができたら「オンライン面談」ボタンから予約できます。住まい探しの専門家に直接相談しましょう。',
+        target: '#chat-booking-btn'
       },
       {
-        target: '#notification-bell',
-        title: 'お知らせ',
-        desc: '新機能やアップデートのお知らせをここで確認できます。赤い印がついたら未読があります。',
-        arrow: 'top',
-        position: 'below'
+        icon: '🔔',
+        label: 'お知らせ / マイページ',
+        title: 'お知らせとマイページ',
+        desc: 'ベルのアイコンで新機能のお知らせを確認できます。「マイページ」からはご条件の変更やパスワード変更ができます。',
+        target: '#notification-bell'
       },
       {
-        target: '.chat-header-btn.profile',
-        title: 'マイページ',
-        desc: 'お名前やご条件の変更、パスワード変更はここから。情報が充実するほど、AIの回答も的確になります。',
-        arrow: 'top',
-        position: 'below'
+        icon: '🏠',
+        label: '準備完了',
+        title: 'さっそく始めましょう！',
+        desc: '何から聞けばいいか迷ったら、画面にあるヒントボタンを押すだけでOKです。あなたの住まい探しを全力でサポートします。',
+        target: null
       }
     ];
 
     let tutorialStep = 0;
+    let highlightedEl = null;
 
     function shouldShowTutorial() {
       return !localStorage.getItem('muchinavi_tutorial_done');
@@ -3396,14 +3394,17 @@
       const hdr = document.querySelector('.chat-header');
       if (hdr) hdr.classList.remove('compact');
 
-      // プログレスバーを展開
-      const pb = document.getElementById('progress-bar');
-      if (pb) pb.classList.remove('collapsed');
-
       setTimeout(() => {
         document.getElementById('tutorial-overlay').classList.add('active');
         showTutorialStep(0);
       }, 600);
+    }
+
+    function clearHighlight() {
+      if (highlightedEl) {
+        highlightedEl.classList.remove('tutorial-highlight-ring');
+        highlightedEl = null;
+      }
     }
 
     function showTutorialStep(stepIdx) {
@@ -3411,16 +3412,19 @@
       if (stepIdx >= steps.length) { endTutorial(); return; }
 
       const step = steps[stepIdx];
-      const targetEl = document.querySelector(step.target);
-
-      if (!targetEl || targetEl.offsetParent === null) {
-        // ターゲットが見つからない/非表示なら次へ
-        tutorialStep = stepIdx + 1;
-        showTutorialStep(tutorialStep);
-        return;
-      }
-
       tutorialStep = stepIdx;
+
+      // 前のハイライトをクリア
+      clearHighlight();
+
+      // ターゲットをハイライト
+      if (step.target) {
+        const targetEl = document.querySelector(step.target);
+        if (targetEl) {
+          targetEl.classList.add('tutorial-highlight-ring');
+          highlightedEl = targetEl;
+        }
+      }
 
       // ステップドット
       const dotsEl = document.getElementById('tutorial-dots');
@@ -3431,52 +3435,15 @@
         return `<div class="${cls}"></div>`;
       }).join('');
 
-      // テキスト
+      // コンテンツ
+      document.getElementById('tutorial-icon').textContent = step.icon;
+      document.getElementById('tutorial-target-label').textContent = step.label;
       document.getElementById('tutorial-title').textContent = step.title;
       document.getElementById('tutorial-desc').textContent = step.desc;
 
       // ボタン
       const nextBtn = document.getElementById('tutorial-next-btn');
-      if (stepIdx === steps.length - 1) {
-        nextBtn.textContent = 'はじめる！';
-      } else {
-        nextBtn.textContent = '次へ';
-      }
-
-      // ハイライト位置
-      const rect = targetEl.getBoundingClientRect();
-      const pad = 8;
-      const hl = document.getElementById('tutorial-highlight');
-      hl.style.top = (rect.top - pad) + 'px';
-      hl.style.left = (rect.left - pad) + 'px';
-      hl.style.width = (rect.width + pad * 2) + 'px';
-      hl.style.height = (rect.height + pad * 2) + 'px';
-
-      // ツールチップ位置
-      const tooltip = document.getElementById('tutorial-tooltip');
-      tooltip.className = 'tutorial-tooltip';
-
-      const tooltipWidth = Math.min(300, window.innerWidth - 32);
-      tooltip.style.maxWidth = tooltipWidth + 'px';
-
-      if (step.position === 'below') {
-        tooltip.classList.add('arrow-top');
-        tooltip.style.top = (rect.bottom + pad + 12) + 'px';
-        tooltip.style.bottom = 'auto';
-        tooltip.style.left = Math.max(16, Math.min(rect.left, window.innerWidth - tooltipWidth - 16)) + 'px';
-      } else {
-        tooltip.classList.add('arrow-bottom');
-        tooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
-        tooltip.style.top = 'auto';
-        tooltip.style.left = Math.max(16, Math.min(rect.left, window.innerWidth - tooltipWidth - 16)) + 'px';
-      }
-
-      // ターゲットが画面外ならスクロール
-      if (rect.top < 0 || rect.bottom > window.innerHeight) {
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => showTutorialStep(stepIdx), 400);
-        return;
-      }
+      nextBtn.textContent = (stepIdx === steps.length - 1) ? 'はじめる！' : '次へ';
     }
 
     function nextTutorialStep() {
@@ -3489,10 +3456,9 @@
     }
 
     function endTutorial() {
+      clearHighlight();
       document.getElementById('tutorial-overlay').classList.remove('active');
       localStorage.setItem('muchinavi_tutorial_done', '1');
-
-      // フォーカスをチャット入力に
       const input = document.getElementById('chat-input');
       if (input) input.focus();
     }
