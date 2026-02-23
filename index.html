@@ -1943,6 +1943,125 @@
       color: var(--text-secondary);
       text-decoration: none;
     }
+
+    /* ===== Tutorial Overlay ===== */
+    .tutorial-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+    }
+    .tutorial-overlay.active { display: block; }
+
+    .tutorial-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9998;
+      pointer-events: auto;
+    }
+
+    .tutorial-highlight {
+      position: absolute;
+      z-index: 9999;
+      border-radius: 12px;
+      box-shadow: 0 0 0 4000px rgba(0,0,0,0.55);
+      pointer-events: none;
+      transition: all 0.4s ease;
+    }
+
+    .tutorial-tooltip {
+      position: absolute;
+      z-index: 10000;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 300px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      pointer-events: auto;
+      animation: tutorialFadeIn 0.3s ease;
+    }
+
+    @keyframes tutorialFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tutorial-tooltip::before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: white;
+      transform: rotate(45deg);
+    }
+    .tutorial-tooltip.arrow-top::before { top: -6px; left: 24px; }
+    .tutorial-tooltip.arrow-bottom::before { bottom: -6px; left: 24px; }
+    .tutorial-tooltip.arrow-left::before { left: -6px; top: 20px; }
+
+    .tutorial-step-indicator {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .tutorial-step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e5e5e7;
+      transition: all 0.3s;
+    }
+    .tutorial-step-dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
+    .tutorial-step-dot.done { background: #34c759; }
+
+    .tutorial-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 6px;
+    }
+    .tutorial-desc {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .tutorial-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tutorial-skip {
+      font-size: 12px;
+      color: #aeaeb2;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 0;
+      font-family: inherit;
+    }
+    .tutorial-skip:hover { color: #8e8e93; }
+    .tutorial-next {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .tutorial-next:hover { background: var(--accent-hover); }
+
+    @media (max-width: 600px) {
+      .tutorial-tooltip { max-width: 260px; padding: 16px; }
+      .tutorial-title { font-size: 15px; }
+      .tutorial-desc { font-size: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -2280,6 +2399,21 @@
       <div class="modal-btn-row">
         <button class="modal-btn modal-btn-cancel" onclick="closeWithdrawModal()">キャンセル</button>
         <button class="modal-btn modal-btn-danger" onclick="executeWithdraw()">退会する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== チュートリアル ===== -->
+  <div class="tutorial-overlay" id="tutorial-overlay">
+    <div class="tutorial-backdrop" id="tutorial-backdrop"></div>
+    <div class="tutorial-highlight" id="tutorial-highlight"></div>
+    <div class="tutorial-tooltip" id="tutorial-tooltip">
+      <div class="tutorial-step-indicator" id="tutorial-dots"></div>
+      <div class="tutorial-title" id="tutorial-title"></div>
+      <div class="tutorial-desc" id="tutorial-desc"></div>
+      <div class="tutorial-actions">
+        <button class="tutorial-skip" onclick="endTutorial()">スキップ</button>
+        <button class="tutorial-next" id="tutorial-next-btn" onclick="nextTutorialStep()">次へ</button>
       </div>
     </div>
   </div>
@@ -3188,6 +3322,181 @@
       }
     }
 
+    // ===== Tutorial =====
+    const TUTORIAL_STEPS = [
+      {
+        target: '#chat-welcome',
+        title: 'MuchiNaviへようこそ！',
+        desc: 'まずは使い方をご紹介します。\nAIが住まい探しの相談に24時間対応します。気になることは何でも聞いてください。',
+        arrow: 'top',
+        position: 'below'
+      },
+      {
+        target: '#chat-input',
+        title: 'ここからAIに質問',
+        desc: '住宅ローン、物件の選び方、購入スケジュールなど、気軽に質問してみてください。ヒントボタンもあります。',
+        arrow: 'bottom',
+        position: 'above'
+      },
+      {
+        target: '.file-attach-btn',
+        title: '資料の送受信',
+        desc: 'クリップボタンから画像やPDFを送れます。物件の資料や間取り図の共有にお使いください。（最大10MB）',
+        arrow: 'bottom',
+        position: 'above'
+      },
+      {
+        target: '#tab-direct',
+        title: 'エージェントに直接相談',
+        desc: 'AIではなく、担当エージェントの岡本に直接メッセージを送ることもできます。込み入った相談はこちらからどうぞ。',
+        arrow: 'top',
+        position: 'below'
+      },
+      {
+        target: '#progress-bar',
+        title: '進捗バー',
+        desc: '登録から引渡しまでの進捗が一目でわかります。タップすると詳細を確認できます。',
+        arrow: 'top',
+        position: 'below'
+      },
+      {
+        target: '#chat-booking-btn',
+        title: 'オンライン面談',
+        desc: '準備ができたら、ここからオンライン面談を予約できます。住まい探しの専門家に直接相談しましょう。',
+        arrow: 'top',
+        position: 'below'
+      },
+      {
+        target: '#notification-bell',
+        title: 'お知らせ',
+        desc: '新機能やアップデートのお知らせをここで確認できます。赤い印がついたら未読があります。',
+        arrow: 'top',
+        position: 'below'
+      },
+      {
+        target: '.chat-header-btn.profile',
+        title: 'マイページ',
+        desc: 'お名前やご条件の変更、パスワード変更はここから。情報が充実するほど、AIの回答も的確になります。',
+        arrow: 'top',
+        position: 'below'
+      }
+    ];
+
+    let tutorialStep = 0;
+
+    function shouldShowTutorial() {
+      return !localStorage.getItem('muchinavi_tutorial_done');
+    }
+
+    function startTutorial() {
+      if (!shouldShowTutorial()) return;
+      tutorialStep = 0;
+
+      // ヘッダーを展開状態にする
+      const hdr = document.querySelector('.chat-header');
+      if (hdr) hdr.classList.remove('compact');
+
+      // プログレスバーを展開
+      const pb = document.getElementById('progress-bar');
+      if (pb) pb.classList.remove('collapsed');
+
+      setTimeout(() => {
+        document.getElementById('tutorial-overlay').classList.add('active');
+        showTutorialStep(0);
+      }, 600);
+    }
+
+    function showTutorialStep(stepIdx) {
+      const steps = TUTORIAL_STEPS;
+      if (stepIdx >= steps.length) { endTutorial(); return; }
+
+      const step = steps[stepIdx];
+      const targetEl = document.querySelector(step.target);
+
+      if (!targetEl || targetEl.offsetParent === null) {
+        // ターゲットが見つからない/非表示なら次へ
+        tutorialStep = stepIdx + 1;
+        showTutorialStep(tutorialStep);
+        return;
+      }
+
+      tutorialStep = stepIdx;
+
+      // ステップドット
+      const dotsEl = document.getElementById('tutorial-dots');
+      dotsEl.innerHTML = steps.map((_, i) => {
+        let cls = 'tutorial-step-dot';
+        if (i < stepIdx) cls += ' done';
+        if (i === stepIdx) cls += ' active';
+        return `<div class="${cls}"></div>`;
+      }).join('');
+
+      // テキスト
+      document.getElementById('tutorial-title').textContent = step.title;
+      document.getElementById('tutorial-desc').textContent = step.desc;
+
+      // ボタン
+      const nextBtn = document.getElementById('tutorial-next-btn');
+      if (stepIdx === steps.length - 1) {
+        nextBtn.textContent = 'はじめる！';
+      } else {
+        nextBtn.textContent = '次へ';
+      }
+
+      // ハイライト位置
+      const rect = targetEl.getBoundingClientRect();
+      const pad = 8;
+      const hl = document.getElementById('tutorial-highlight');
+      hl.style.top = (rect.top - pad) + 'px';
+      hl.style.left = (rect.left - pad) + 'px';
+      hl.style.width = (rect.width + pad * 2) + 'px';
+      hl.style.height = (rect.height + pad * 2) + 'px';
+
+      // ツールチップ位置
+      const tooltip = document.getElementById('tutorial-tooltip');
+      tooltip.className = 'tutorial-tooltip';
+
+      const tooltipWidth = Math.min(300, window.innerWidth - 32);
+      tooltip.style.maxWidth = tooltipWidth + 'px';
+
+      if (step.position === 'below') {
+        tooltip.classList.add('arrow-top');
+        tooltip.style.top = (rect.bottom + pad + 12) + 'px';
+        tooltip.style.bottom = 'auto';
+        tooltip.style.left = Math.max(16, Math.min(rect.left, window.innerWidth - tooltipWidth - 16)) + 'px';
+      } else {
+        tooltip.classList.add('arrow-bottom');
+        tooltip.style.bottom = (window.innerHeight - rect.top + pad + 12) + 'px';
+        tooltip.style.top = 'auto';
+        tooltip.style.left = Math.max(16, Math.min(rect.left, window.innerWidth - tooltipWidth - 16)) + 'px';
+      }
+
+      // ターゲットが画面外ならスクロール
+      if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => showTutorialStep(stepIdx), 400);
+        return;
+      }
+    }
+
+    function nextTutorialStep() {
+      tutorialStep++;
+      if (tutorialStep >= TUTORIAL_STEPS.length) {
+        endTutorial();
+      } else {
+        showTutorialStep(tutorialStep);
+      }
+    }
+
+    function endTutorial() {
+      document.getElementById('tutorial-overlay').classList.remove('active');
+      localStorage.setItem('muchinavi_tutorial_done', '1');
+
+      // フォーカスをチャット入力に
+      const input = document.getElementById('chat-input');
+      if (input) input.focus();
+    }
+
     // ===== Chat =====
     function startChat() {
       document.getElementById('onboarding').style.display = 'none';
@@ -3210,7 +3519,12 @@
       // ヘッダー自動縮小を有効化
       setTimeout(setupCompactHeader, 100);
 
-      document.getElementById('chat-input').focus();
+      // 初回チュートリアル
+      if (shouldShowTutorial()) {
+        setTimeout(startTutorial, 800);
+      } else {
+        document.getElementById('chat-input').focus();
+      }
     }
 
     // ===== Progress Bar =====
