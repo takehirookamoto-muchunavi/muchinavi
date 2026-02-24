@@ -120,62 +120,146 @@ async function sendNotificationEmail({ to, subject, html }) {
   }
 }
 
-// ===== Blog Articles Database =====
-const BLOG_ARTICLES = [
-  // --- 住宅ローン ---
-  { category: 'loan', title: '住宅ローンの基本と選び方完全ガイド', url: 'https://muchinochi55.com/【2025年版】住宅ローンの基本と選び方完全ガイド/', keywords: ['住宅ローン', '選び方', '基本', '金利'] },
-  { category: 'loan', title: '固定金利と変動金利どちらがいいのか', url: 'https://muchinochi55.com/【住宅ローンの『きほん』の『き』】固定金利と/', keywords: ['固定金利', '変動金利', '金利タイプ'] },
-  { category: 'loan', title: '月々の返済額はいくらが理想？無理のない住宅ローン', url: 'https://muchinochi55.com/【完全解説】月々の返済額はいくらが理想？無理/', keywords: ['返済額', '月々', '無理のない'] },
-  { category: 'loan', title: '住宅ローン審査に通りやすくなるコツ5選', url: 'https://muchinochi55.com/住宅ローン審査に通りやすくなるコツ5選｜30代フ/', keywords: ['審査', '通りやすい', 'コツ'] },
-  { category: 'loan', title: '頭金ゼロでも家は買える？', url: 'https://muchinochi55.com/【賢く家を買う方法】頭金ゼロでも家は買える？/', keywords: ['頭金', 'ゼロ', '初期費用'] },
-  { category: 'loan', title: 'ペアローンと連帯債務の違い', url: 'https://muchinochi55.com/ペアローンと連帯債務の違いとは？夫婦で選ぶべ/', keywords: ['ペアローン', '連帯債務', '夫婦', '共働き'] },
-  { category: 'loan', title: 'フリーランスでも住宅ローンは組める！', url: 'https://muchinochi55.com/フリーランスでも住宅ローンは組める！審査通過/', keywords: ['フリーランス', '自営業', '審査'] },
-  { category: 'loan', title: '住宅ローン控除の落とし穴', url: 'https://muchinochi55.com/住宅ローン控除の落とし穴｜資金計画で見落とし/', keywords: ['住宅ローン控除', '減税', '税金'] },
-  { category: 'loan', title: '金利上昇リスクに備える住宅ローン対策', url: 'https://muchinochi55.com/金利上昇リスクに備える住宅ローン対策｜失敗し/', keywords: ['金利上昇', 'リスク', '対策'] },
-  { category: 'loan', title: '団信とは？住宅ローンの生命保険', url: 'https://muchinochi55.com/団信とは？住宅ローンの生命保険のメリット・注/', keywords: ['団信', '生命保険', '保障'] },
-  { category: 'loan', title: '転職中の住宅ローン返済', url: 'https://muchinochi55.com/【転職検討中の方必見！】住宅ローン返済中に転/', keywords: ['転職', 'ローン返済'] },
-  { category: 'loan', title: '住宅ローン破綻を防ぐ方法', url: 'https://muchinochi55.com/住宅ローン破綻なんて怖くない！不動産のプロが/', keywords: ['破綻', '返済不能', '防ぐ'] },
-  // --- ライフプラン ---
+// ===== Blog Articles Database (WordPress自動連携) =====
+const BLOG_WP_URL = 'https://muchinochi55.com';
+let BLOG_ARTICLES = []; // WordPress APIから自動取得（起動時＋定期更新）
+let blogArticlesLastFetch = null;
+const BLOG_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6時間ごとに更新
+
+// WordPressカテゴリIDとシステム内カテゴリのマッピング（初回取得時に自動構築）
+let wpCategoryMap = {};
+
+// WordPress REST APIから全記事を取得
+async function fetchBlogArticlesFromWP() {
+  try {
+    console.log('📰 WordPress記事を取得中...');
+
+    // 1) カテゴリ一覧を取得
+    const catRes = await fetch(`${BLOG_WP_URL}/wp-json/wp/v2/categories?per_page=100`);
+    if (!catRes.ok) throw new Error(`カテゴリ取得失敗: ${catRes.status}`);
+    const categories = await catRes.json();
+
+    // カテゴリ名 → システム内カテゴリ名のマッピング
+    const categoryNameMap = {
+      '住宅ローン': 'loan', 'ローン': 'loan', 'loan': 'loan',
+      'ライフプラン': 'lifeplan', 'lifeplan': 'lifeplan', '生活設計': 'lifeplan',
+      '家探し': 'hunting', '物件選び': 'hunting', '物件探し': 'hunting', 'hunting': 'hunting',
+      'ハウスメーカー': 'housemaker', '注文住宅': 'housemaker', 'housemaker': 'housemaker',
+      '大阪': 'area-osaka', 'エリア大阪': 'area-osaka',
+      '東京': 'area-tokyo', 'エリア東京': 'area-tokyo',
+      'マンション': 'mansion', 'mansion': 'mansion',
+      'エリア': 'area', '不動産基礎知識': 'basics', '税金': 'tax',
+    };
+    wpCategoryMap = {};
+    categories.forEach(cat => {
+      const catName = cat.name.trim();
+      // 完全一致 → 部分一致の順で検索
+      let mapped = categoryNameMap[catName];
+      if (!mapped) {
+        for (const [key, val] of Object.entries(categoryNameMap)) {
+          if (catName.includes(key) || key.includes(catName)) { mapped = val; break; }
+        }
+      }
+      wpCategoryMap[cat.id] = mapped || catName.toLowerCase().replace(/\s+/g, '-');
+    });
+
+    // 2) タグ一覧を取得（キーワードとして利用）
+    let allTags = {};
+    let tagPage = 1;
+    while (true) {
+      const tagRes = await fetch(`${BLOG_WP_URL}/wp-json/wp/v2/tags?per_page=100&page=${tagPage}`);
+      if (!tagRes.ok) break;
+      const tags = await tagRes.json();
+      if (tags.length === 0) break;
+      tags.forEach(t => { allTags[t.id] = t.name; });
+      tagPage++;
+      if (tags.length < 100) break;
+    }
+
+    // 3) 全記事をページネーションで取得
+    let allArticles = [];
+    let page = 1;
+    while (true) {
+      const postRes = await fetch(
+        `${BLOG_WP_URL}/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=id,title,link,categories,tags,status&status=publish`
+      );
+      if (!postRes.ok) {
+        if (postRes.status === 400) break; // ページ超過
+        throw new Error(`記事取得失敗: ${postRes.status}`);
+      }
+      const posts = await postRes.json();
+      if (posts.length === 0) break;
+
+      posts.forEach(post => {
+        // タイトルからHTMLエンティティをデコード
+        const title = post.title.rendered
+          .replace(/&#8211;/g, '–').replace(/&#8212;/g, '—')
+          .replace(/&#8216;/g, "'").replace(/&#8217;/g, "'")
+          .replace(/&#8220;/g, '"').replace(/&#8221;/g, '"')
+          .replace(/&#038;/g, '&').replace(/&amp;/g, '&')
+          .replace(/<[^>]+>/g, '').trim();
+
+        // カテゴリ決定（最初のカテゴリを使用）
+        const catId = (post.categories && post.categories.length > 0) ? post.categories[0] : null;
+        const category = catId ? (wpCategoryMap[catId] || 'general') : 'general';
+
+        // タグからキーワードを抽出
+        const keywords = (post.tags || [])
+          .map(tagId => allTags[tagId])
+          .filter(Boolean);
+
+        // タイトルから追加キーワード抽出（日本語の主要名詞）
+        if (keywords.length === 0) {
+          const titleKeywords = title
+            .replace(/[【】「」『』（）\(\)\[\]｜|／\/、。！？!?…～〜]/g, ' ')
+            .split(/\s+/)
+            .filter(w => w.length >= 2 && w.length <= 15);
+          keywords.push(...titleKeywords.slice(0, 5));
+        }
+
+        allArticles.push({ category, title, url: post.link, keywords });
+      });
+
+      page++;
+      if (posts.length < 100) break;
+    }
+
+    if (allArticles.length > 0) {
+      BLOG_ARTICLES = allArticles;
+      blogArticlesLastFetch = Date.now();
+      console.log(`✅ WordPress記事取得完了: ${allArticles.length}本（${Object.keys(wpCategoryMap).length}カテゴリ）`);
+    } else {
+      console.warn('⚠️ WordPress記事が0件。フォールバック記事を維持します。');
+    }
+  } catch (err) {
+    console.error('❌ WordPress記事取得エラー:', err.message);
+    // 既存のキャッシュがあればそのまま使う。なければフォールバック。
+    if (BLOG_ARTICLES.length === 0) {
+      console.log('📦 フォールバック記事を使用します');
+      BLOG_ARTICLES = FALLBACK_ARTICLES;
+    }
+  }
+}
+
+// フォールバック記事（WordPress APIが使えない場合の最低限）
+const FALLBACK_ARTICLES = [
+  { category: 'loan', title: '住宅ローンの基本と選び方完全ガイド', url: 'https://muchinochi55.com/【2025年版】住宅ローンの基本と選び方完全ガイド/', keywords: ['住宅ローン', '選び方', '基本'] },
   { category: 'lifeplan', title: 'ライフプランを立てずに家を買うとどうなる？', url: 'https://muchinochi55.com/ライフプランを立てずに家を買うとどうなる？失/', keywords: ['ライフプラン', '失敗', '計画'] },
-  { category: 'lifeplan', title: '共働き世帯のライフプラン作成が未来を決める', url: 'https://muchinochi55.com/【どれくらい考えていますか？】共働き世帯こそ/', keywords: ['共働き', 'ライフプラン', '家計'] },
-  { category: 'lifeplan', title: '教育費と住宅ローンの賢い両立方法', url: 'https://muchinochi55.com/子供の進学を考えた家選び｜将来の教育費と住宅/', keywords: ['教育費', '子供', '進学', '両立'] },
-  { category: 'lifeplan', title: '家を買っても旅行・外食を楽しむ暮らし', url: 'https://muchinochi55.com/家を買っても「旅行・外食」を楽しむ暮らしにす/', keywords: ['旅行', '外食', '生活の質', '楽しむ'] },
-  { category: 'lifeplan', title: '老後の年金だけで大丈夫？', url: 'https://muchinochi55.com/【将来を見据えるのが重要！】老後の年金だけで/', keywords: ['老後', '年金', '将来'] },
-  { category: 'lifeplan', title: '家計診断で無理のない住宅購入', url: 'https://muchinochi55.com/【将来をしっかり考える】家計診断で「無理のな/', keywords: ['家計診断', '無理のない', '購入額'] },
-  { category: 'lifeplan', title: '賃貸vs購入どっちが得？30代ファミリー', url: 'https://muchinochi55.com/賃貸vs購入どっちが得？30代ファミリーの選び方完/', keywords: ['賃貸', '購入', '比較', '30代'] },
-  { category: 'lifeplan', title: '転職・独立を見据えた家選び', url: 'https://muchinochi55.com/将来の転職・独立を見据えた家選びとは｜ライフ/', keywords: ['転職', '独立', '将来'] },
-  // --- 家探し・物件選び ---
-  { category: 'hunting', title: '家を買う前に絶対やるべき準備', url: 'https://muchinochi55.com/【知らないと大損も？】家を買う前に絶対やるべ/', keywords: ['準備', '買う前', '始め方'] },
-  { category: 'hunting', title: '不動産購入の流れ7ステップ', url: 'https://muchinochi55.com/fudosan-purchase-flow-7steps/', keywords: ['購入の流れ', 'ステップ', '手順'] },
-  { category: 'hunting', title: '家を買うタイミングはいつがベスト？', url: 'https://muchinochi55.com/家を買うタイミングはいつがベスト？後悔しない/', keywords: ['タイミング', 'いつ', '時期'] },
-  { category: 'hunting', title: 'マイホーム購入でよくある不安と解消法', url: 'https://muchinochi55.com/【あなたはどうですか？】よくあるマイホーム購/', keywords: ['不安', '解消', 'よくある質問'] },
-  { category: 'hunting', title: '内見で確認すべき10のポイント', url: 'https://muchinochi55.com/【保存版】家を買う前の内見で必ず確認すべき10の/', keywords: ['内見', 'チェック', '確認'] },
-  { category: 'hunting', title: 'マイホームが決まらない理由と解決策', url: 'https://muchinochi55.com/myhome-kimaranai-riyuu-kaiketsu/', keywords: ['決まらない', '迷い', '解決'] },
   { category: 'hunting', title: '家探しで失敗しない3つのステップ', url: 'https://muchinochi55.com/家探し初心者必見！失敗しない3つのステップと成/', keywords: ['初心者', '失敗しない', 'ステップ'] },
-  { category: 'hunting', title: '条件だけで家を選ぶと後悔する理由', url: 'https://muchinochi55.com/条件だけで家を選ぶと後悔する理由｜理想の暮ら/', keywords: ['条件', '後悔', '理想'] },
-  { category: 'hunting', title: '新築vsリノベーション', url: 'https://muchinochi55.com/新築vsリノベーション｜後悔しない選び方と判断基/', keywords: ['新築', 'リノベーション', '中古', '比較'] },
-  { category: 'hunting', title: 'マンションと戸建てどっちが正解？', url: 'https://muchinochi55.com/マンションと戸建てどっちが正解？後悔しない選/', keywords: ['マンション', '戸建て', 'どっち'] },
-  { category: 'hunting', title: '勢いで家を買うは正解？', url: 'https://muchinochi55.com/【ちょっと待って！！】勢いで家を買うは正解？/', keywords: ['勢い', '即決', '慎重'] },
-  { category: 'hunting', title: '中古物件の購入前に知るべきこと', url: 'https://muchinochi55.com/【超・重要】中古物件って実際どう？購入前に知/', keywords: ['中古', '注意点', '購入前'] },
-  { category: 'hunting', title: '住宅展示場の賢い使い方', url: 'https://muchinochi55.com/住宅展示場って行く意味ある？後悔しないための5/', keywords: ['住宅展示場', '見学', 'ハウスメーカー'] },
-  // --- ハウスメーカー・注文住宅 ---
-  { category: 'housemaker', title: '注文住宅の予算オーバーを防ぐ方法', url: 'https://muchinochi55.com/chumon-jutaku-yosan-over/', keywords: ['注文住宅', '予算オーバー', 'コスト'] },
-  { category: 'housemaker', title: 'ハウスメーカー選びは営業担当で決まる', url: 'https://muchinochi55.com/注文住宅は営業担当で決まる｜後悔しないため/', keywords: ['ハウスメーカー', '営業担当', '選び方'] },
-  { category: 'housemaker', title: '土地と建築会社どちらを先に決める？', url: 'https://muchinochi55.com/custom-home-land-or-builder-first/', keywords: ['土地', '建築会社', '先に', '順番'] },
-  { category: 'housemaker', title: '住友林業vs積水ハウス比較', url: 'https://muchinochi55.com/sumitomoringyou-sekisuihouse-comparison/', keywords: ['住友林業', '積水ハウス', '比較'] },
-  { category: 'housemaker', title: '鉄骨vs木造の比較', url: 'https://muchinochi55.com/tetsukotsu-mokuzo-hikaku/', keywords: ['鉄骨', '木造', '構造', '比較'] },
-  // --- エリアガイド ---
-  { category: 'area-osaka', title: '大阪で子育てしやすい街ランキング', url: 'https://muchinochi55.com/大阪で子育てしやすい街ランキング【2025年版】～/', keywords: ['大阪', '子育て', 'ランキング'] },
-  { category: 'area-osaka', title: '北摂エリアの住みやすさランキング', url: 'https://muchinochi55.com/hokusetsu-livability-ranking/', keywords: ['北摂', '住みやすさ', '吹田', '豊中'] },
-  { category: 'area-osaka', title: '大阪転勤族の住む場所の選び方', url: 'https://muchinochi55.com/osaka-tenkin-sumubashoerabikata/', keywords: ['転勤', '大阪', '住む場所'] },
-  { category: 'area-osaka', title: '大阪で新築戸建てを買うなら', url: 'https://muchinochi55.com/大阪で新築戸建てを買うなら？プロが選ぶ失敗し/', keywords: ['大阪', '新築', '戸建て'] },
-  { category: 'area-tokyo', title: '東京23区で子育てにやさしい街ランキング', url: 'https://muchinochi55.com/東京23区で子育てにやさしい街ランキング2026年最/', keywords: ['東京', '23区', '子育て'] },
-  { category: 'area-tokyo', title: '世田谷・杉並・練馬で迷ったら', url: 'https://muchinochi55.com/「どこで子育てする？」世田谷・杉並・練馬で迷/', keywords: ['世田谷', '杉並', '練馬', '比較'] },
-  { category: 'area-tokyo', title: '23区か郊外かの選択', url: 'https://muchinochi55.com/「23区か？郊外か？」その選択が人生を左右する理/', keywords: ['23区', '郊外', '選択'] },
-  // --- マンション ---
-  { category: 'mansion', title: 'マンション購入時の管理費チェック', url: 'https://muchinochi55.com/【買う前に確認して！】マンション購入時の管理/', keywords: ['マンション', '管理費', '管理組合'] },
-  { category: 'mansion', title: 'マンション大規模修繕の注意点', url: 'https://muchinochi55.com/【どれくらい知っていますか？】マンション大規/', keywords: ['大規模修繕', 'マンション', '修繕積立金'] },
 ];
+
+// 定期的にWordPressから記事を更新
+function startBlogArticleSync() {
+  // 起動時に即取得
+  fetchBlogArticlesFromWP();
+  // 6時間ごとに再取得
+  setInterval(() => {
+    fetchBlogArticlesFromWP();
+  }, BLOG_CACHE_DURATION);
+}
+
+// 管理者用: 手動で記事を再取得するAPIエンドポイント
+// (後でapp.postに追加)
 
 // ===== Simple JSON Database =====
 const DATA_DIR = path.join(__dirname, 'data');
@@ -2699,6 +2783,26 @@ process.on('unhandledRejection', (reason) => {
   console.error('[FATAL] Unhandled Rejection:', reason);
 });
 
+// ===== 管理者用: 記事を手動で再取得 =====
+app.post('/api/admin/refresh-articles', adminAuth, async (req, res) => {
+  try {
+    await fetchBlogArticlesFromWP();
+    res.json({ success: true, count: BLOG_ARTICLES.length, lastFetch: blogArticlesLastFetch });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 管理者用: 現在の記事一覧を確認
+app.get('/api/admin/articles', adminAuth, (req, res) => {
+  res.json({
+    count: BLOG_ARTICLES.length,
+    lastFetch: blogArticlesLastFetch,
+    categories: [...new Set(BLOG_ARTICLES.map(a => a.category))],
+    articles: BLOG_ARTICLES.map(a => ({ category: a.category, title: a.title }))
+  });
+});
+
 // ===== Start =====
 app.listen(PORT, () => {
   const url = IS_PRODUCTION ? APP_URL : `http://localhost:${PORT}`;
@@ -2711,4 +2815,7 @@ app.listen(PORT, () => {
 ║   SMTP:       ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(26)}║
 ╚══════════════════════════════════════════╝
   `);
+
+  // サーバー起動後にWordPress記事を自動取得開始
+  startBlogArticleSync();
 });
