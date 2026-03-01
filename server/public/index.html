@@ -2504,11 +2504,11 @@
     </div>
     <!-- マイページ タブ切り替え -->
     <div class="mypage-tabs">
-      <button class="mypage-tab active" id="mypage-tab-profile" onclick="switchMypageTab('profile')">プロフィール</button>
-      <button class="mypage-tab" id="mypage-tab-carte" onclick="switchMypageTab('carte')">あなたのカルテ</button>
+      <button class="mypage-tab" id="mypage-tab-profile" onclick="switchMypageTab('profile')">プロフィール</button>
+      <button class="mypage-tab active" id="mypage-tab-carte" onclick="switchMypageTab('carte')">あなたのカルテ</button>
     </div>
     <!-- カルテタブ -->
-    <div class="carte-body" id="carte-body" style="display:none;">
+    <div class="carte-body" id="carte-body">
       <div class="carte-loading" id="carte-loading">
         <div style="text-align:center; padding: 40px 20px; color: var(--text-secondary);">
           <div style="font-size: 24px; margin-bottom: 12px;">📋</div>
@@ -2573,7 +2573,7 @@
         </div>
       </div>
     </div>
-    <div class="profile-body" id="profile-body">
+    <div class="profile-body" id="profile-body" style="display:none;">
       <div class="profile-section">
         <div class="profile-section-title">基本情報</div>
         <div class="profile-field">
@@ -2650,10 +2650,6 @@
         <div class="profile-field">
           <label>メールアドレス</label>
           <input type="email" id="prof-email" placeholder="example@mail.com">
-        </div>
-        <div class="profile-field">
-          <label>電話番号</label>
-          <input type="tel" id="prof-phone" placeholder="090-XXXX-XXXX">
         </div>
       </div>
 
@@ -3928,7 +3924,7 @@
       const fieldLabels = {
         name: 'お名前', birthYear: '生まれ年', prefecture: '都道府県',
         family: 'ご家族構成', householdIncome: '世帯年収', propertyType: '物件種別',
-        area: '希望エリア', budget: 'ご予算', email: 'メール', phone: '電話番号'
+        area: '希望エリア', budget: 'ご予算', email: 'メール'
       };
       const missingFields = Object.entries(fieldLabels)
         .filter(([k]) => !profile[k] || profile[k] === '' || profile[k] === '-' || profile[k] === '未入力')
@@ -3971,25 +3967,12 @@
 
       const action = nextActions[stage];
       if (action && action.custom_stage1) {
-        // Stage 1: show profile completion status
-        if (missingFields.length === 0) {
-          nextActionEl.innerHTML = `
-            <div class="next-label">情報入力完了</div>
-            <div class="next-text">プロフィール情報がすべて入力されています。次のステップへ進む準備ができました！</div>
-          `;
-        } else {
-          const pct = Math.round((filledCount / totalFields) * 100);
-          const missingList = missingFields.map(f => `<span style="display:inline-block;padding:2px 8px;background:rgba(255,59,48,0.08);color:#ff3b30;border-radius:10px;font-size:11px;margin:2px;">${f}</span>`).join(' ');
-          nextActionEl.innerHTML = `
-            <div class="next-label">Next Step — プロフィール入力 ${pct}%</div>
-            <div style="background:#e5e5ea;border-radius:4px;height:6px;margin:6px 0 8px;overflow:hidden;">
-              <div style="background:#0071e3;height:100%;width:${pct}%;border-radius:4px;transition:width 0.5s ease;"></div>
-            </div>
-            <div class="next-text">以下の項目を入力すると、より的確なアドバイスが受けられます。</div>
-            <div style="margin:6px 0 8px;">${missingList}</div>
-            <button class="next-btn" onclick="event.stopPropagation(); openProfile()">マイページで入力する</button>
-          `;
-        }
+        // Stage 1: 登録完了 → カルテを見るよう案内
+        nextActionEl.innerHTML = `
+          <div class="next-label">✅ 登録完了</div>
+          <div class="next-text">ご登録ありがとうございます！あなた専用のカルテが作成されました。現在の状況に合わせたアドバイスをご確認ください。</div>
+          <button class="next-btn" onclick="event.stopPropagation(); openProfile()">カルテを見る</button>
+        `;
       } else if (action && action.custom) {
         // Stage 2: booking flow — always show both options
         const bookingClicked = localStorage.getItem('muchinavi_booking_clicked');
@@ -4990,12 +4973,14 @@
       // 2. 進捗ステータス
       const stage = p.stage || 1;
       const stages = [
-        { name: '登録完了', desc: '基本情報の登録が完了しました' },
-        { name: '初回相談', desc: 'AIチャットまたはエージェントとの面談' },
-        { name: '条件整理', desc: '希望条件・予算の具体化' },
-        { name: '物件探し', desc: '条件に合う物件のご提案' },
-        { name: '内見・検討', desc: '気になる物件の見学と比較検討' },
-        { name: '契約・引渡し', desc: '購入手続きと新生活の準備' },
+        { name: '登録', desc: '基本情報の登録が完了しました' },
+        { name: '情報入力', desc: 'プロフィール情報の確認・補完' },
+        { name: '面談予約', desc: 'オンライン面談の予約' },
+        { name: '相談中', desc: 'エージェントとの面談・ヒアリング' },
+        { name: 'ライフプラン', desc: '将来の資金計画・ライフプラン作成' },
+        { name: '物件探し・内見', desc: '条件に合う物件のご提案と見学' },
+        { name: '契約', desc: '購入手続き・必要書類の準備' },
+        { name: '引渡し', desc: '新生活の準備とアフターサポート' },
       ];
       document.getElementById('carte-stage').innerHTML = stages.map((s, i) => {
         const stepNum = i + 1;
@@ -5210,9 +5195,9 @@
         document.getElementById('prof-area').value = p.area || '';
         document.getElementById('prof-budget').value = p.budget || '';
         document.getElementById('prof-email').value = p.email || '';
-        document.getElementById('prof-phone').value = p.phone || '';
-
         document.getElementById('profile-screen').classList.add('active');
+        // デフォルトでカルテタブを表示
+        switchMypageTab('carte');
       } catch (e) {
         console.error('Profile load error:', e);
       }
@@ -5241,7 +5226,6 @@
         area: document.getElementById('prof-area').value.trim(),
         budget: document.getElementById('prof-budget').value.trim(),
         email: document.getElementById('prof-email').value.trim(),
-        phone: document.getElementById('prof-phone').value.trim(),
       };
 
       try {
