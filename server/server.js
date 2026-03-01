@@ -181,7 +181,7 @@ async function fetchBlogArticlesFromWP() {
     let page = 1;
     while (true) {
       const postRes = await fetch(
-        `${BLOG_WP_URL}/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=id,title,link,categories,tags,status&status=publish`
+        `${BLOG_WP_URL}/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=id,title,link,categories,tags,status,date&status=publish&orderby=date&order=desc`
       );
       if (!postRes.ok) {
         if (postRes.status === 400) break; // ページ超過
@@ -217,7 +217,8 @@ async function fetchBlogArticlesFromWP() {
           keywords.push(...titleKeywords.slice(0, 5));
         }
 
-        allArticles.push({ category, title, url: post.link, keywords });
+        const publishDate = post.date ? post.date.slice(0, 10) : ''; // YYYY-MM-DD
+        allArticles.push({ category, title, url: post.link, keywords, publishDate });
       });
 
       page++;
@@ -567,14 +568,14 @@ app.post('/api/register', async (req, res) => {
         let recommendedArticles = [];
         try {
           if (GEMINI_API_KEY) {
-            const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】`).join('\n');
+            const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】(${a.publishDate || '不明'})`).join('\n');
             const customerProfile = `名前: ${customer.name}, 家族: ${customer.family || '未入力'}, 物件種別: ${customer.propertyType || '未入力'}, 目的: ${customer.purpose || '未入力'}, エリア: ${customer.area || '未入力'}, 予算: ${customer.budget || '未入力'}, 世帯年収: ${customer.householdIncome || '未入力'}, 探索理由: ${customer.searchReason || '未入力'}`;
             const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
-            const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。
+            const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。関連性が同程度の場合は、公開日が新しい記事を優先してください。
 
 お客様プロフィール: ${customerProfile}
 
-記事一覧:
+記事一覧（番号: タイトル【カテゴリ】(公開日)）:
 ${articleList}
 
 JSON形式で記事のインデックス番号を3つ返してください: {"indices": [0, 1, 2]}`);
@@ -1434,7 +1435,8 @@ app.post('/api/chat', async (req, res) => {
 `.trim();
 
     // Build compact article list (titles only, no URLs - URLs resolved server-side)
-    const articleListCompact = BLOG_ARTICLES.map(a => `${a.title}【${a.category}】`).join('、');
+    // 公開日・カテゴリ付きで、AIが最新記事も選べるようにする
+    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category}, ${a.publishDate || '不明'})`).join('\n');
 
     // ===== ハウスメーカー紹介・注文住宅 → 面談誘導プロンプト =====
     let housemaker_prompt = `\n【ハウスメーカー紹介・注文住宅に関する案内】
@@ -1678,9 +1680,13 @@ ${customerContext}
 {{CHOICES|選択肢1|選択肢2|選択肢3|選択肢4}}
 選択肢は3〜4個。具体的な質問や選択肢タップ後はそのまま回答。
 
-【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。フォーマット：
-{{ARTICLE|記事タイトル}}
-利用可能な記事: ${articleListCompact}
+【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。
+フォーマット（厳守）：{{ARTICLE|記事タイトル}}
+※記事タイトルのみを「」なしで入れること。カテゴリ名・日付・カッコは絶対に含めないこと。
+例：{{ARTICLE|住宅ローンの基礎知識}}
+★重要：関連記事が複数ある場合は、なるべく最新の記事（公開日が新しいもの）を優先して紹介すること。
+利用可能な記事（タイトル, カテゴリ, 公開日）:
+${articleListCompact}
 
 【面談予約リンクのルール】
 フォーマット：{{BOOKING|${TIMEREX_URL}}}
@@ -1759,12 +1765,20 @@ ${housemaker_prompt}`;
 
     // Resolve article titles to full URLs (AI only outputs title, server adds URL)
     reply = reply.replace(/\{\{ARTICLE\|(.+?)\}\}/g, (match, title) => {
-      const article = BLOG_ARTICLES.find(a => a.title === title || title.includes(a.title) || a.title.includes(title));
+      // AIがカテゴリ名を含めてしまった場合に除去（例：「記事タイトル【loan】」→「記事タイトル」）
+      const cleanTitle = title.replace(/【.+?】/g, '').replace(/\(.+?\)/g, '').replace(/「|」/g, '').trim();
+
+      // 完全一致 → 部分一致
+      const article = BLOG_ARTICLES.find(a =>
+        a.title === cleanTitle || a.title === title ||
+        cleanTitle.includes(a.title) || a.title.includes(cleanTitle) ||
+        title.includes(a.title) || a.title.includes(title)
+      );
       if (article) {
         return `{{ARTICLE|${article.title}|${article.url}}}`;
       }
       // Fuzzy match by keywords
-      const fuzzy = BLOG_ARTICLES.find(a => a.keywords.some(k => title.includes(k)));
+      const fuzzy = BLOG_ARTICLES.find(a => a.keywords.some(k => cleanTitle.includes(k) || title.includes(k)));
       if (fuzzy) {
         return `{{ARTICLE|${fuzzy.title}|${fuzzy.url}}}`;
       }
