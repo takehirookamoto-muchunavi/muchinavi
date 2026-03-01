@@ -570,7 +570,8 @@ app.post('/api/register', async (req, res) => {
           if (GEMINI_API_KEY) {
             const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】(${a.publishDate || '不明'})`).join('\n');
             const customerProfile = `名前: ${customer.name}, 家族: ${customer.family || '未入力'}, 物件種別: ${customer.propertyType || '未入力'}, 目的: ${customer.purpose || '未入力'}, エリア: ${customer.area || '未入力'}, 予算: ${customer.budget || '未入力'}, 世帯年収: ${customer.householdIncome || '未入力'}, 探索理由: ${customer.searchReason || '未入力'}`;
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
+            const articleGenAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+            const model = articleGenAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
             const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。関連性が同程度の場合は、公開日が新しい記事を優先してください。
 
 お客様プロフィール: ${customerProfile}
