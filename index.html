@@ -4582,7 +4582,7 @@
       let html = text
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/【(.+?)】/g, '<strong>【$1】</strong>')
+        .replace(/【([^\x00-\x7F]+?)】/g, '<strong>【$1】</strong>')
         .replace(/^[\-•]\s+(.+)$/gm, '<li>$1</li>')
         .replace(/^\d+[\.\)]\s+(.+)$/gm, '<li>$1</li>')
         .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
