@@ -1864,14 +1864,13 @@
                 <!-- Tab Navigation -->
                 <div class="tab-nav" id="tabNav">
                     <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+                    <button class="tab-btn" data-tab="carte">📋 カルテ</button>
                     <button class="tab-btn" data-tab="info">お客様情報</button>
                     <button class="tab-btn" data-tab="checklist">チェックリスト</button>
                     <button class="tab-btn" data-tab="interactions">やり取り履歴</button>
                     <button class="tab-btn" data-tab="todo">ToDo</button>
                     <button class="tab-btn" data-tab="chatHistory">チャット履歴</button>
-                    <button class="tab-btn" data-tab="agentChat">エージェント相談室</button>
                     <button class="tab-btn" data-tab="feedback">フィードバック</button>
-                    <button class="tab-btn" data-tab="carte">📋 カルテ</button>
                 </div>
 
                 <!-- Tab Content -->
@@ -2398,6 +2397,7 @@
         let adminPass = null;
         let customers = [];
         let selectedToken = null;
+        let currentCustomerData = null;
         let currentTab = 'dashboard';
         let agentChatMessages = [];
         let currentChecklist = [];
@@ -3059,13 +3059,14 @@
                     loadFeedbackTab();
                 }
                 if (tab === 'carte') {
-                    loadCarteTab();
+                    loadCarteTab(currentCustomerData);
                 }
             });
         });
 
         // ======================== CUSTOMER INFO TAB ========================
         async function loadCustomerTabs(customer) {
+            currentCustomerData = customer; // カルテタブ等で参照用に保持
             await loadDashboardTab(customer);
             loadInfoForm(customer);
             await loadChecklistTab(customer);
@@ -3073,6 +3074,7 @@
             await loadTodosTab(customer);
             loadChatHistoryTab(customer);
             loadAgentChat(customer);
+            loadCarteTab(customer);
         }
 
         async function loadDashboardTab(customer) {
@@ -4463,13 +4465,16 @@
         }
 
         // ======================== CARTE TAB ========================
-        async function loadCarteTab() {
-            if (!selectedCustomer) return;
-            const c = selectedCustomer;
+        async function loadCarteTab(customer) {
+            const c = customer || currentCustomerData;
+            if (!c) return;
+
+            // 年齢計算
+            const age = c.birthYear ? (new Date().getFullYear() - parseInt(c.birthYear)) : null;
 
             // ヘッダー情報
             document.getElementById('carteCustomerName').textContent = c.name || '-';
-            document.getElementById('carteAge').textContent = c.age ? `${c.age}歳` : '-';
+            document.getElementById('carteAge').textContent = age ? `${age}歳` : '-';
             document.getElementById('cartePrefecture').textContent = c.prefecture || '-';
             document.getElementById('cartePropertyType').textContent = c.propertyType || '-';
 
@@ -4481,17 +4486,19 @@
                 { label: '希望エリア', value: c.area || '-' },
                 { label: 'ご予算', value: c.budget || '-' },
                 { label: '登録きっかけ', value: c.purpose || '-' },
+                { label: '探索理由', value: c.searchReason || '-' },
+                { label: 'フリーコメント', value: c.freeComment || '-' },
             ];
-            document.getElementById('carteConditions').innerHTML = conditions.map(c =>
+            document.getElementById('carteConditions').innerHTML = conditions.map(item =>
                 `<div style="background: #f9f9fb; border-radius: 8px; padding: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">${c.label}</div>
-                    <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${c.value}</div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">${item.label}</div>
+                    <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${item.value}</div>
                 </div>`
             ).join('');
 
             // メモ・提案の読み込み
             try {
-                const token = c.token || Object.keys(customers_cache || {}).find(t => customers_cache[t]?.name === c.name);
+                const token = c.token || selectedToken;
                 if (token) {
                     const res = await fetch(`/api/admin/customer/${token}`, {
                         headers: { 'Authorization': 'Basic ' + btoa('admin:' + adminPass) }
@@ -4508,10 +4515,10 @@
         }
 
         async function saveCarteMemo() {
-            if (!selectedCustomer) return;
+            if (!selectedToken) return;
             const memo = document.getElementById('carteAgentMemo').value;
             try {
-                const token = selectedCustomer.token;
+                const token = selectedToken;
                 await fetch(`/api/admin/customer/${token}`, {
                     method: 'PUT',
                     headers: {
@@ -4529,10 +4536,10 @@
         }
 
         async function saveCarteAdvice() {
-            if (!selectedCustomer) return;
+            if (!selectedToken) return;
             const advice = document.getElementById('carteCustomerAdvice').value;
             try {
-                const token = selectedCustomer.token;
+                const token = selectedToken;
                 await fetch(`/api/admin/customer/${token}`, {
                     method: 'PUT',
                     headers: {
