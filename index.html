@@ -102,15 +102,55 @@
       animation: cardIn 0.35s ease-out;
     }
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateX(40px) scale(0.97); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
     @keyframes cardOut {
-      from { opacity: 1; transform: translateY(0) scale(1); }
-      to { opacity: 0; transform: translateY(-20px) scale(0.96); }
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to { opacity: 0; transform: translateX(-40px) scale(0.97); }
+    }
+    @keyframes cardInReverse {
+      from { opacity: 0; transform: translateX(-40px) scale(0.97); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
     .step-card.leaving {
-      animation: cardOut 0.3s ease forwards;
+      animation: cardOut 0.25s ease forwards;
+    }
+    .step-card.leaving-reverse {
+      animation: cardOut 0.25s ease forwards;
+    }
+    .step-card.entering-reverse {
+      animation: cardInReverse 0.35s ease-out;
+    }
+    /* 選択時のパルスアニメーション */
+    @keyframes selectPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    .choice-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+      animation: selectPulse 0.3s ease;
+    }
+    /* レスポンスメッセージのチャット風表示 */
+    .step-response {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: var(--accent-subtle);
+      padding: 10px 18px;
+      border-radius: 16px;
+      display: inline-block;
+    }
+    .step-response.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     /* ===== Step elements ===== */
@@ -134,24 +174,52 @@
       line-height: 1.7;
       margin-bottom: 28px;
     }
-    .step-response {
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
-      margin-top: 16px;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.2s ease;
-    }
-    .step-response.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* step-response styles moved to animation section above */
 
     /* ===== Progress bar ===== */
     .progress-container {
       margin-bottom: 32px;
       text-align: center;
+    }
+    .progress-bar-wrapper {
+      width: 100%;
+      height: 6px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #34c759);
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 20px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      border-radius: 3px;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .progress-percent {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .progress-remaining {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
     .progress-dots {
       display: flex;
@@ -307,14 +375,14 @@
     }
     .choice-card:hover {
       border-color: rgba(0,113,227,0.3);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,113,227,0.12);
     }
-    .choice-card.selected {
-      border-color: var(--accent);
-      background: var(--accent-subtle);
-      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+    .choice-card:active {
+      transform: scale(0.97);
+      transition-duration: 0.1s;
     }
+    /* choice-card.selected styles moved to animation section above */
     .choice-icon { font-size: 28px; margin-bottom: 8px; }
     .choice-label {
       font-size: 13px;
@@ -1398,6 +1466,171 @@
       width: 100%;
     }
 
+    /* ===== マイページタブ ===== */
+    .mypage-tabs {
+      display: flex;
+      background: #1d1d1f;
+      padding: 0 16px;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .mypage-tab {
+      flex: 1;
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+    .mypage-tab.active {
+      color: white;
+      border-bottom-color: var(--accent);
+    }
+    .mypage-tab:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ===== カルテ ===== */
+    .carte-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .carte-section {
+      margin-bottom: 20px;
+    }
+    .carte-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .carte-section-icon {
+      font-size: 18px;
+    }
+    .carte-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .carte-summary-card,
+    .carte-stage-card,
+    .carte-advice-card,
+    .carte-agent-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    .carte-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .carte-summary-row:last-child {
+      border-bottom: none;
+    }
+    .carte-summary-label {
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .carte-summary-value {
+      color: var(--primary);
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+    }
+    .carte-stage-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+    }
+    .carte-stage-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .carte-stage-dot.done {
+      background: var(--success);
+      color: white;
+    }
+    .carte-stage-dot.current {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.15);
+    }
+    .carte-stage-dot.upcoming {
+      background: var(--border);
+      color: var(--text-light);
+    }
+    .carte-stage-info {
+      flex: 1;
+    }
+    .carte-stage-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .carte-stage-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .carte-advice-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .carte-advice-item:last-child {
+      border-bottom: none;
+    }
+    .carte-advice-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .carte-advice-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .carte-action-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .carte-action-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
     .profile-section {
       background: white;
       border-radius: var(--radius);
@@ -2067,8 +2300,13 @@
   <!-- ===== Onboarding ===== -->
   <div class="container" id="onboarding">
     <div class="progress-container" id="progress" style="display:none;">
-      <div class="progress-dots" id="progress-dots"></div>
-      <div class="progress-label" id="progress-label"></div>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+      </div>
+      <div class="progress-info">
+        <span class="progress-percent" id="progress-percent">0%</span>
+        <span class="progress-remaining" id="progress-remaining"></span>
+      </div>
     </div>
 
     <div class="step-card" id="step-card">
@@ -2264,7 +2502,78 @@
       <button class="profile-back-btn" onclick="closeProfile()">← チャットに戻る</button>
       <div class="profile-header-title">マイページ</div>
     </div>
-    <div class="profile-body">
+    <!-- マイページ タブ切り替え -->
+    <div class="mypage-tabs">
+      <button class="mypage-tab active" id="mypage-tab-profile" onclick="switchMypageTab('profile')">プロフィール</button>
+      <button class="mypage-tab" id="mypage-tab-carte" onclick="switchMypageTab('carte')">あなたのカルテ</button>
+    </div>
+    <!-- カルテタブ -->
+    <div class="carte-body" id="carte-body" style="display:none;">
+      <div class="carte-loading" id="carte-loading">
+        <div style="text-align:center; padding: 40px 20px; color: var(--text-secondary);">
+          <div style="font-size: 24px; margin-bottom: 12px;">📋</div>
+          カルテを読み込み中...
+        </div>
+      </div>
+      <div id="carte-content" style="display:none;">
+        <!-- 現状サマリー -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">🏠</span>
+            <span class="carte-section-title">あなたの住まい探し</span>
+          </div>
+          <div class="carte-summary-card" id="carte-summary">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 購入進捗 -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">📊</span>
+            <span class="carte-section-title">進捗ステータス</span>
+          </div>
+          <div class="carte-stage-card" id="carte-stage">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 検討ポイント・提案 -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">💡</span>
+            <span class="carte-section-title">検討ポイント</span>
+          </div>
+          <div class="carte-advice-card" id="carte-advice">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 担当エージェント -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">👤</span>
+            <span class="carte-section-title">担当エージェント</span>
+          </div>
+          <div class="carte-agent-card">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">岡</div>
+              <div>
+                <div style="font-weight: 700; font-size: 15px; color: var(--primary);">岡本 岳大</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">TERASS エージェント</div>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px;">
+              お客様ファーストで、住宅購入がずっと幸せにつながるようサポートします。気になることがあればいつでもご相談ください。
+            </p>
+            <button class="carte-action-btn" onclick="closeProfile(); switchChatRoom('direct');">
+              岡本に直接相談する →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-body" id="profile-body">
       <div class="profile-section">
         <div class="profile-section-title">基本情報</div>
         <div class="profile-field">
@@ -2652,7 +2961,14 @@
       `;
 
       if (step.type === 'welcome') {
-        html += `<button class="btn-primary" onclick="nextStep()">${step.buttonText}</button>`;
+        html += `
+          <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px; opacity: 0.5; font-size: 12px; color: var(--text-secondary);">
+            <span>✓ 3分で完了</span>
+            <span>✓ 無料</span>
+            <span>✓ 24時間対応</span>
+          </div>
+        `;
+        html += `<button class="btn-primary" onclick="nextStep()" style="animation: cardIn 0.5s ease-out 0.2s both;">${step.buttonText}</button>`;
         html += `
           <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
             <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">すでにアカウントをお持ちの方</p>
@@ -2800,10 +3116,7 @@
               <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
-            <div>
-              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号（任意）</label>
-              <input class="input-field" type="tel" id="contact-phone" placeholder="090-xxxx-xxxx" style="text-align: left;">
-            </div>
+            <!-- 電話番号フィールドは削除済み -->
           </div>
           <div style="margin-top: 24px;">
             <button class="btn-primary" onclick="submitContact()">次へ →</button>
@@ -2849,7 +3162,7 @@
         card.innerHTML = html;
         card.style.animation = 'none';
         card.offsetHeight; // trigger reflow
-        card.style.animation = '';
+        card.style.animation = isGoingBack ? 'cardInReverse 0.35s ease-out' : '';
 
         // Focus input
         const input = document.getElementById('step-input');
@@ -2858,17 +3171,23 @@
     }
 
     function renderProgress(stepIdx) {
-      const dots = document.getElementById('progress-dots');
-      const label = document.getElementById('progress-label');
-      let html = '';
-      for (let i = 1; i < TOTAL_STEPS; i++) {
-        let cls = 'progress-dot';
-        if (i < stepIdx) cls += ' done';
-        else if (i === stepIdx) cls += ' active';
-        html += `<div class="${cls}"></div>`;
+      const totalQuestions = TOTAL_STEPS - 1; // ウェルカム画面を除く
+      const percent = Math.round((stepIdx / totalQuestions) * 100);
+      const remaining = totalQuestions - stepIdx;
+
+      const barFill = document.getElementById('progress-bar-fill');
+      const percentEl = document.getElementById('progress-percent');
+      const remainingEl = document.getElementById('progress-remaining');
+
+      if (barFill) barFill.style.width = percent + '%';
+      if (percentEl) percentEl.textContent = percent + '%';
+      if (remainingEl) {
+        if (remaining > 0) {
+          remainingEl.textContent = `あと ${remaining} 問`;
+        } else {
+          remainingEl.textContent = '最後のステップ！';
+        }
       }
-      dots.innerHTML = html;
-      label.textContent = `ステップ ${stepIdx} / ${TOTAL_STEPS - 1}`;
     }
 
     // ===== Step handlers =====
@@ -3027,11 +3346,14 @@
       }
     }
 
+    let isGoingBack = false;
     function prevStep() {
-      // Go back one step
+      // Go back one step with reverse animation
       if (currentStep > 0) {
+        isGoingBack = true;
         currentStep--;
         renderStep(currentStep);
+        isGoingBack = false;
       }
     }
 
@@ -4613,6 +4935,162 @@
 
     function closeNotifications() {
       document.getElementById('notification-modal').classList.remove('active');
+    }
+
+    // ===== マイページ タブ切り替え =====
+    function switchMypageTab(tab) {
+      document.getElementById('mypage-tab-profile').classList.toggle('active', tab === 'profile');
+      document.getElementById('mypage-tab-carte').classList.toggle('active', tab === 'carte');
+      document.getElementById('profile-body').style.display = tab === 'profile' ? '' : 'none';
+      document.getElementById('carte-body').style.display = tab === 'carte' ? '' : 'none';
+      if (tab === 'carte') {
+        loadCarte();
+      }
+    }
+
+    // ===== カルテ機能 =====
+    async function loadCarte() {
+      const loading = document.getElementById('carte-loading');
+      const content = document.getElementById('carte-content');
+      loading.style.display = '';
+      content.style.display = 'none';
+
+      try {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        const res = await fetch(`/api/customer/profile/${token}`);
+        const data = await res.json();
+        if (data.success && data.profile) {
+          renderCarte(data.profile);
+          loading.style.display = 'none';
+          content.style.display = '';
+        }
+      } catch(e) {
+        console.error('カルテ読込エラー:', e);
+        loading.innerHTML = '<div style="text-align:center;padding:40px;color:var(--danger);">読み込みに失敗しました</div>';
+      }
+    }
+
+    function renderCarte(p) {
+      // 1. 現状サマリー
+      const summaryItems = [
+        { label: 'お名前', value: p.name || '-' },
+        { label: '年齢', value: p.birthYear ? `${new Date().getFullYear() - p.birthYear}歳` : '-' },
+        { label: 'お住まい', value: p.prefecture || '-' },
+        { label: 'ご家族構成', value: p.family || '-' },
+        { label: '世帯年収', value: p.householdIncome || '-' },
+        { label: '物件種別', value: p.propertyType || '-' },
+        { label: '希望エリア', value: p.area || '-' },
+        { label: 'ご予算', value: p.budget || '-' },
+      ];
+      document.getElementById('carte-summary').innerHTML = summaryItems
+        .map(item => `<div class="carte-summary-row"><span class="carte-summary-label">${item.label}</span><span class="carte-summary-value">${item.value}</span></div>`)
+        .join('');
+
+      // 2. 進捗ステータス
+      const stage = p.stage || 1;
+      const stages = [
+        { name: '登録完了', desc: '基本情報の登録が完了しました' },
+        { name: '初回相談', desc: 'AIチャットまたはエージェントとの面談' },
+        { name: '条件整理', desc: '希望条件・予算の具体化' },
+        { name: '物件探し', desc: '条件に合う物件のご提案' },
+        { name: '内見・検討', desc: '気になる物件の見学と比較検討' },
+        { name: '契約・引渡し', desc: '購入手続きと新生活の準備' },
+      ];
+      document.getElementById('carte-stage').innerHTML = stages.map((s, i) => {
+        const stepNum = i + 1;
+        let dotClass = 'upcoming';
+        let dotContent = stepNum;
+        if (stepNum < stage) { dotClass = 'done'; dotContent = '✓'; }
+        else if (stepNum === stage) { dotClass = 'current'; }
+        return `<div class="carte-stage-step">
+          <div class="carte-stage-dot ${dotClass}">${dotContent}</div>
+          <div class="carte-stage-info">
+            <div class="carte-stage-name">${s.name}</div>
+            <div class="carte-stage-desc">${s.desc}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // 3. 検討ポイント（エージェントからのアドバイス + 自動生成）
+      let adviceHTML = '';
+
+      // エージェントからのカスタムアドバイスがあれば最優先表示
+      if (p.customerAdvice) {
+        adviceHTML += `
+          <div class="carte-advice-item" style="background: linear-gradient(135deg, rgba(0,113,227,0.04), rgba(88,86,214,0.04)); margin: -12px -12px 12px; padding: 16px; border-radius: 10px 10px 0 0; border-bottom: 2px solid var(--accent);">
+            <div class="carte-advice-title">👤 担当エージェントからのアドバイス</div>
+            <div class="carte-advice-text" style="white-space: pre-wrap;">${p.customerAdvice}</div>
+          </div>
+        `;
+      }
+
+      // 自動生成のアドバイス
+      const advices = generateAdvice(p);
+      adviceHTML += advices.map(a =>
+        `<div class="carte-advice-item">
+          <div class="carte-advice-title">${a.title}</div>
+          <div class="carte-advice-text">${a.text}</div>
+        </div>`
+      ).join('');
+
+      document.getElementById('carte-advice').innerHTML = adviceHTML;
+    }
+
+    function generateAdvice(p) {
+      const advices = [];
+
+      // 予算に基づくアドバイス
+      if (p.householdIncome && p.budget) {
+        advices.push({
+          title: '💰 資金計画について',
+          text: `世帯年収${p.householdIncome}で${p.budget}のご予算をお考えですね。住宅ローンの借入額や月々の返済額について、一度シミュレーションしてみましょう。AIチャットで「住宅ローンシミュレーション」と聞いてみてください。`
+        });
+      }
+
+      // 物件タイプに基づくアドバイス
+      if (p.propertyType) {
+        const typeAdvice = {
+          '中古戸建て': 'リフォーム費用や築年数による耐震性の確認がポイントです。インスペクション（建物検査）の活用もおすすめです。',
+          '中古マンション': '管理費・修繕積立金の確認、大規模修繕の履歴や今後の計画をチェックしましょう。',
+          '新築戸建て': '建売と注文住宅の違い、建築条件付き土地の仕組みなど、選択肢を広く検討できます。',
+          '注文住宅': '土地探しと建築会社選びが重要です。ハウスメーカー選びのポイントもお気軽にご相談ください。',
+        };
+        advices.push({
+          title: `🏠 ${p.propertyType}をお探しの方へ`,
+          text: typeAdvice[p.propertyType] || '物件探しのポイントをAIに聞いてみましょう。'
+        });
+      }
+
+      // エリアに基づくアドバイス
+      if (p.area && p.area !== '未定（一緒に探したい）') {
+        advices.push({
+          title: '📍 エリアについて',
+          text: `${p.area}エリアでお探しですね。通勤・通学のアクセスや、生活利便性、将来の資産価値なども考慮すると良いでしょう。`
+        });
+      } else {
+        advices.push({
+          title: '📍 エリア選びのヒント',
+          text: 'まだエリアが決まっていなくても大丈夫です。通勤時間・学区・生活環境など、優先順位を整理することから始めましょう。'
+        });
+      }
+
+      // 家族構成に基づくアドバイス
+      if (p.family && p.family.includes('子ども')) {
+        advices.push({
+          title: '👨‍👩‍👧 お子様がいらっしゃる方へ',
+          text: '学区情報、公園や病院へのアクセス、将来の部屋数なども考慮したいポイントです。お子様の成長に合わせた住まい選びをサポートします。'
+        });
+      }
+
+      // デフォルトのアドバイス
+      if (advices.length === 0) {
+        advices.push({
+          title: '✨ まずは気軽にご相談ください',
+          text: 'AIチャットで何でも質問できます。住宅購入の基礎知識から、具体的な物件相談まで、お気軽にどうぞ。'
+        });
+      }
+
+      return advices;
     }
 
     function doLogout() {

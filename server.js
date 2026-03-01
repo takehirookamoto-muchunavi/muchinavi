@@ -961,6 +961,8 @@ app.get('/api/customer/profile/:token', (req, res) => {
   const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line'];
   fields.forEach(k => { profile[k] = record[k] || ''; });
   profile.stage = record.stage || 1;
+  // カルテ用: エージェントからのアドバイス（お客様向け公開メモ）
+  profile.customerAdvice = record.customerAdvice || '';
   res.json({ success: true, profile });
 });
 
@@ -2305,7 +2307,7 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
   const updates = req.body;
 
   // Track old values for auto-tag update
