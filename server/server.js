@@ -226,9 +226,12 @@ async function fetchBlogArticlesFromWP() {
     }
 
     if (allArticles.length > 0) {
+      // 新しい記事が先に来るようにソート
+      allArticles.sort((a, b) => (b.publishDate || '').localeCompare(a.publishDate || ''));
       BLOG_ARTICLES = allArticles;
       blogArticlesLastFetch = Date.now();
       console.log(`✅ WordPress記事取得完了: ${allArticles.length}本（${Object.keys(wpCategoryMap).length}カテゴリ）`);
+      console.log(`📰 最新記事: ${allArticles[0]?.title} (${allArticles[0]?.publishDate})`);
     } else {
       console.warn('⚠️ WordPress記事が0件。フォールバック記事を維持します。');
     }
@@ -1435,9 +1438,8 @@ app.post('/api/chat', async (req, res) => {
 電話: ${customer.phone || '未入力'}
 `.trim();
 
-    // Build compact article list (titles only, no URLs - URLs resolved server-side)
-    // 公開日・カテゴリ付きで、AIが最新記事も選べるようにする
-    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category}, ${a.publishDate || '不明'})`).join('\n');
+    // Build compact article list (全記事、新しい順)
+    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category}, ${a.publishDate || ''})`).join('\n');
 
     // ===== ハウスメーカー紹介・注文住宅 → 面談誘導プロンプト =====
     let housemaker_prompt = `\n【ハウスメーカー紹介・注文住宅に関する案内】
@@ -1685,8 +1687,8 @@ ${customerContext}
 フォーマット（厳守）：{{ARTICLE|記事タイトル}}
 ※記事タイトルのみを「」なしで入れること。カテゴリ名・日付・カッコは絶対に含めないこと。
 例：{{ARTICLE|住宅ローンの基礎知識}}
-★重要：関連記事が複数ある場合は、なるべく最新の記事（公開日が新しいもの）を優先して紹介すること。
-利用可能な記事（タイトル, カテゴリ, 公開日）:
+★重要：お客様の悩み・質問内容に最も関連性の高い記事を選ぶこと。関連性が同程度なら新しい記事を優先。
+利用可能な全記事（新しい順、タイトル, カテゴリ, 公開日）:
 ${articleListCompact}
 
 【面談予約リンクのルール】
