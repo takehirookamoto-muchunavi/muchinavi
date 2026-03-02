@@ -2302,18 +2302,6 @@
                                 </div>
                             </div>
 
-                            <!-- お客様向け提案メモ -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">💡</span> お客様向け提案メモ
-                                </div>
-                                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">ここに入力した内容は、お客様のカルテページに「エージェントからのアドバイス」として表示されます。</p>
-                                <textarea id="carteCustomerAdvice" placeholder="お客様へのアドバイスや提案を記入&#10;&#10;例: 現在の年収と予算感は無理のない範囲です。頭金を増やせると月々の返済が楽になります。世田谷区で4LDKは難しいかもしれませんが、隣接する狛江市なら予算内で見つかりやすいです。" rows="6" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <span id="carteAdviceSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
-                                    <button class="btn btn-primary" onclick="saveCarteAdvice()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">提案を保存・公開</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -4506,7 +4494,6 @@
                     const data = await res.json();
                     if (data) {
                         document.getElementById('carteAgentMemo').value = data.agentMemo || '';
-                        document.getElementById('carteCustomerAdvice').value = data.customerAdvice || '';
                     }
                 }
             } catch(e) {
@@ -4535,26 +4522,6 @@
             }
         }
 
-        async function saveCarteAdvice() {
-            if (!selectedToken) return;
-            const advice = document.getElementById('carteCustomerAdvice').value;
-            try {
-                const token = selectedToken;
-                await fetch(`/api/admin/customer/${token}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Admin-Pass': adminPass
-                    },
-                    body: JSON.stringify({ customerAdvice: advice })
-                });
-                const saved = document.getElementById('carteAdviceSaved');
-                saved.style.display = '';
-                setTimeout(() => saved.style.display = 'none', 2000);
-            } catch(e) {
-                showToast('提案の保存に失敗しました', 'error');
-            }
-        }
     </script>
 </body>
 </html>

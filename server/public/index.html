@@ -4997,18 +4997,8 @@
         </div>`;
       }).join('');
 
-      // 3. 検討ポイント（エージェントからのアドバイス + 自動生成）
+      // 3. 検討ポイント（自動生成アドバイス）
       let adviceHTML = '';
-
-      // エージェントからのカスタムアドバイスがあれば最優先表示
-      if (p.customerAdvice) {
-        adviceHTML += `
-          <div class="carte-advice-item" style="background: linear-gradient(135deg, rgba(0,113,227,0.04), rgba(88,86,214,0.04)); margin: -12px -12px 12px; padding: 16px; border-radius: 10px 10px 0 0; border-bottom: 2px solid var(--accent);">
-            <div class="carte-advice-title">👤 担当エージェントからのアドバイス</div>
-            <div class="carte-advice-text" style="white-space: pre-wrap;">${p.customerAdvice}</div>
-          </div>
-        `;
-      }
 
       // 自動生成のアドバイス
       const advices = generateAdvice(p);
