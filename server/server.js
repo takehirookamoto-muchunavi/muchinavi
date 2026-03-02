@@ -546,7 +546,7 @@ app.post('/api/register', async (req, res) => {
 
   // ===== Slack通知（メールとは独立して必ず送信） =====
   try {
-    const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+    const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
     const slackMessage = {
       text: `🏠 *新規登録* | ${customer.name}さん`,
       blocks: [
