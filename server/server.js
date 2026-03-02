@@ -852,6 +852,55 @@ JSON形式で記事のインデックス番号を3つ返してください: {"in
       console.log('⚠️ SMTP未設定のためメール通知をスキップ');
     }
 
+    // ===== 3) Slack通知 =====
+    try {
+      const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+      const slackMessage = {
+        text: `🏠 *新規登録* | ${customer.name}さん`,
+        blocks: [
+          {
+            type: 'header',
+            text: { type: 'plain_text', text: '🏠 新規お客様が登録しました', emoji: true }
+          },
+          {
+            type: 'section',
+            fields: [
+              { type: 'mrkdwn', text: `*お名前:*\n${customer.name || '-'}` },
+              { type: 'mrkdwn', text: `*メール:*\n${customer.email || '-'}` },
+              { type: 'mrkdwn', text: `*希望エリア:*\n${customer.area || '-'}` },
+              { type: 'mrkdwn', text: `*予算:*\n${customer.budget || '-'}` },
+              { type: 'mrkdwn', text: `*物件種別:*\n${customer.propertyType || '-'}` },
+              { type: 'mrkdwn', text: `*家族構成:*\n${customer.family || '-'}` },
+              { type: 'mrkdwn', text: `*世帯年収:*\n${customer.householdIncome || '-'}` },
+              { type: 'mrkdwn', text: `*登録目的:*\n${customer.purpose || '-'}` },
+            ]
+          },
+          ...(customer.searchReason ? [{
+            type: 'section',
+            text: { type: 'mrkdwn', text: `*探索理由:*\n${customer.searchReason}` }
+          }] : []),
+          ...(customer.freeComment ? [{
+            type: 'section',
+            text: { type: 'mrkdwn', text: `*コメント:*\n${customer.freeComment}` }
+          }] : []),
+          {
+            type: 'context',
+            elements: [
+              { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
+            ]
+          }
+        ]
+      };
+      await fetch(SLACK_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slackMessage),
+      });
+      console.log('✅ Slack通知送信完了');
+    } catch (slackErr) {
+      console.error('⚠️ Slack通知エラー:', slackErr.message);
+    }
+
     res.json({ success: true, token });
   } catch (e) {
     console.error('❌ メール送信エラー:', e.message);
