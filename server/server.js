@@ -546,7 +546,7 @@ app.post('/api/register', async (req, res) => {
 
   // ===== Slack通知（メールとは独立して必ず送信） =====
   try {
-    const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+    const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
     const slackMessage = {
       text: `🏠 *新規登録* | ${customer.name}さん`,
       blocks: [
@@ -1443,6 +1443,44 @@ app.post('/api/direct-chat-history/:token', (req, res) => {
           </div>
         `,
       }).catch(e => console.error('通知メール送信エラー:', e.message));
+
+      // Slack通知
+      try {
+        const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+        await fetch(SLACK_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: `💬 ${customerName}さんからメッセージ`,
+            blocks: [
+              {
+                type: 'header',
+                text: { type: 'plain_text', text: '💬 個人チャット：新着メッセージ', emoji: true }
+              },
+              {
+                type: 'section',
+                fields: [
+                  { type: 'mrkdwn', text: `*送信者:*\n${customerName}さん` },
+                  { type: 'mrkdwn', text: `*メール:*\n${record.email || '-'}` },
+                ]
+              },
+              {
+                type: 'section',
+                text: { type: 'mrkdwn', text: `*メッセージ:*\n${msgPreview}` }
+              },
+              {
+                type: 'context',
+                elements: [
+                  { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
+                ]
+              }
+            ]
+          }),
+        });
+        console.log('✅ チャットSlack通知送信完了');
+      } catch (slackErr) {
+        console.error('⚠️ チャットSlack通知エラー:', slackErr.message);
+      }
     }
   }
 
