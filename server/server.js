@@ -546,7 +546,7 @@ app.post('/api/register', async (req, res) => {
 
   // ===== Slack通知（メールとは独立して必ず送信） =====
   try {
-    const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+    const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
     const slackMessage = {
       text: `🏠 *新規登録* | ${customer.name}さん`,
       blocks: [
@@ -1446,7 +1446,7 @@ app.post('/api/direct-chat-history/:token', async (req, res) => {
 
       // Slack通知
       try {
-        const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+        const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
         await fetch(SLACK_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
