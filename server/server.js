@@ -1405,7 +1405,7 @@ app.post('/api/chat-history/:token', (req, res) => {
 });
 
 // ===== Save direct chat history (顧客側から送信) =====
-app.post('/api/direct-chat-history/:token', (req, res) => {
+app.post('/api/direct-chat-history/:token', async (req, res) => {
   const db = loadDB();
   const record = db[req.params.token];
   if (!record) {
