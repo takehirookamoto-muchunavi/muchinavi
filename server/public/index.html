@@ -568,6 +568,26 @@
       line-height: 1.75;
       word-wrap: break-word;
     }
+    .chat-message.assistant {
+      align-items: flex-start;
+    }
+    .chat-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .chat-avatar svg {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      fill: none;
+    }
     .chat-message.assistant .chat-bubble {
       background: white;
       color: var(--text);
@@ -586,6 +606,15 @@
     .chat-bubble ul, .chat-bubble ol { margin: 6px 0; padding-left: 20px; }
     .chat-bubble li { margin-bottom: 4px; line-height: 1.6; }
     .chat-bubble strong { font-weight: 600; }
+    .chat-timestamp {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .chat-message.user .chat-timestamp {
+      text-align: right;
+    }
 
     /* 個人チャット用の色分け */
     .chat-bubble.direct-user {
@@ -698,6 +727,11 @@
       background: #fff;
       border-color: #0071e3;
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+      animation: stepPulse 2s ease-in-out infinite;
+    }
+    @keyframes stepPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+      50% { box-shadow: 0 0 0 5px rgba(0,113,227,0.25); }
     }
     .progress-step.active::after {
       content: '';
@@ -723,16 +757,18 @@
       margin-bottom: 6px;
     }
     .progress-label {
-      font-size: 9px;
+      font-size: 10px;
       color: #aeaeb2;
       text-align: center;
       width: 18px;
       overflow: visible;
       white-space: nowrap;
+      transition: all 0.3s ease;
     }
     .progress-label.active {
       color: #0071e3;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 11px;
     }
     .progress-label.completed {
       color: #6e6e73;
@@ -745,13 +781,14 @@
       border-top: 1px solid rgba(0,0,0,0.04);
     }
     .progress-status-text {
-      font-size: 12px;
+      font-size: 13px;
       color: #1d1d1f;
       font-weight: 600;
     }
     .progress-status-count {
-      font-size: 11px;
+      font-size: 12px;
       color: #aeaeb2;
+      font-weight: 500;
     }
     .progress-next-action {
       margin-top: 8px;
@@ -1490,7 +1527,7 @@
     }
     .mypage-tab {
       flex: 1;
-      padding: 12px 16px;
+      padding: 14px 16px;
       background: none;
       border: none;
       color: rgba(255,255,255,0.5);
@@ -1498,12 +1535,14 @@
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s ease;
       border-bottom: 3px solid transparent;
+      letter-spacing: 0.02em;
     }
     .mypage-tab.active {
       color: white;
       border-bottom-color: var(--accent);
+      background: rgba(0,113,227,0.08);
     }
     .mypage-tab:hover:not(.active) {
       color: rgba(255,255,255,0.8);
@@ -1534,6 +1573,14 @@
       font-size: 15px;
       font-weight: 700;
       color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+    .carte-section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin-left: 12px;
     }
     .carte-summary-card,
     .carte-stage-card,
@@ -1543,6 +1590,18 @@
       border-radius: var(--radius);
       padding: 20px;
       border: 1px solid var(--border);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .carte-summary-card:hover,
+    .carte-stage-card:hover,
+    .carte-advice-card:hover,
+    .carte-agent-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+    .carte-summary-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid rgba(0,113,227,0.1);
     }
     .carte-summary-row {
       display: flex;
@@ -1621,11 +1680,19 @@
       font-weight: 600;
       color: var(--primary);
       margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .carte-advice-title::before {
+      content: '💡';
+      font-size: 14px;
     }
     .carte-advice-text {
       font-size: 13px;
       color: var(--text-secondary);
       line-height: 1.7;
+      padding-left: 22px;
     }
     .carte-action-btn {
       width: 100%;
@@ -1737,6 +1804,32 @@
     }
 
     /* ===== Responsive ===== */
+    /* Tablet breakpoint */
+    @media (max-width: 768px) {
+      .chat-bubble { max-width: 85%; }
+      .chat-header-actions { flex-wrap: wrap; }
+      .progress-label { font-size: 9px; }
+      .progress-label.active { font-size: 10px; }
+      .carte-body { padding: 16px 12px; }
+    }
+
+    /* Large screen: limit chat width for readability */
+    @media (min-width: 900px) {
+      .chat-messages {
+        max-width: 760px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .chat-input-bar {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      .progress-bar-container {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+    }
+
     @media (max-width: 560px) {
       /* Onboarding */
       .container { padding: 12px; }
@@ -4375,7 +4468,7 @@
       if (welcomeEl) welcomeEl.style.display = 'none';
 
       // Add user message
-      const msgObj = { role: 'user', content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : '') };
+      const msgObj = { role: 'user', content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : ''), timestamp: new Date().toISOString() };
       if (uploadedFile) msgObj.file = uploadedFile;
       chatMessages.push(msgObj);
       renderChatMessages();
@@ -4411,9 +4504,9 @@
         hideTyping();
 
         if (data.error) {
-          chatMessages.push({ role: 'assistant', content: data.error });
+          chatMessages.push({ role: 'assistant', content: data.error, timestamp: new Date().toISOString() });
         } else {
-          chatMessages.push({ role: 'assistant', content: data.reply });
+          chatMessages.push({ role: 'assistant', content: data.reply, timestamp: new Date().toISOString() });
         }
         renderChatMessages();
       } catch (e) {
@@ -4422,7 +4515,7 @@
         const msg = e.name === 'AbortError'
           ? '回答の生成に時間がかかっています。もう一度お試しください。'
           : 'ネットワークエラーが発生しました。再度お試しください。';
-        chatMessages.push({ role: 'assistant', content: msg });
+        chatMessages.push({ role: 'assistant', content: msg, timestamp: new Date().toISOString() });
         renderChatMessages();
       }
 
@@ -4699,7 +4792,7 @@
       // Hide welcome (may not exist if session restored)
       const welcomeEl = document.getElementById('chat-welcome');
       if (welcomeEl) welcomeEl.style.display = 'none';
-      chatMessages.push({ role: 'user', content: text });
+      chatMessages.push({ role: 'user', content: text, timestamp: new Date().toISOString() });
       renderChatMessages();
       document.getElementById('chat-input').value = '';
       showTyping();
@@ -4723,9 +4816,9 @@
         const data = await res.json();
         hideTyping();
         if (data.error) {
-          chatMessages.push({ role: 'assistant', content: data.error });
+          chatMessages.push({ role: 'assistant', content: data.error, timestamp: new Date().toISOString() });
         } else {
-          chatMessages.push({ role: 'assistant', content: data.reply });
+          chatMessages.push({ role: 'assistant', content: data.reply, timestamp: new Date().toISOString() });
         }
         renderChatMessages();
       } catch (e) {
@@ -4733,7 +4826,7 @@
         const msg = e.name === 'AbortError'
           ? '回答の生成に時間がかかっています。もう一度お試しください。'
           : 'ネットワークエラーが発生しました。再度お試しください。';
-        chatMessages.push({ role: 'assistant', content: msg });
+        chatMessages.push({ role: 'assistant', content: msg, timestamp: new Date().toISOString() });
         renderChatMessages();
       }
 
@@ -4743,11 +4836,16 @@
 
     function renderChatMessages() {
       const container = document.getElementById('chat-messages');
+      const avatarSVG = '<div class="chat-avatar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+      const now = new Date();
+      const timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
       container.innerHTML = chatMessages.map((m, idx) => {
+        const msgTime = m.timestamp ? new Date(m.timestamp) : null;
+        const displayTime = msgTime ? msgTime.getHours() + ':' + String(msgTime.getMinutes()).padStart(2,'0') : '';
         if (m.role === 'user') {
           const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
           const fileHTML = m.file ? renderFileAttachment(m.file) : '';
-          return `<div class="chat-message user"><div class="chat-bubble" style="white-space:pre-wrap;">${fileHTML}${escaped}</div></div>`;
+          return '<div class="chat-message user"><div><div class="chat-bubble" style="white-space:pre-wrap;">' + fileHTML + escaped + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
         }
         // AI message - check if the NEXT message is a user picking a choice
         const nextMsg = chatMessages[idx + 1];
@@ -4759,14 +4857,14 @@
           // Disable all chips and highlight the selected one
           content = content.replace(/class="chat-choice-chip"/g, 'class="chat-choice-chip used" disabled');
           content = content.replace(
-            new RegExp(`class="chat-choice-chip used" disabled>` + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + `<`),
-            `class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">${selectedText}<`
+            new RegExp('class="chat-choice-chip used" disabled>' + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '<'),
+            'class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">' + selectedText + '<'
           );
           // Remove onclick from all chips in this message
           content = content.replace(/onclick="selectChatChoice\([^"]*\)"/g, '');
         }
 
-        return `<div class="chat-message assistant"><div class="chat-bubble">${content}</div></div>`;
+        return '<div class="chat-message assistant">' + avatarSVG + '<div><div class="chat-bubble">' + content + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
       }).join('');
       container.scrollTop = container.scrollHeight;
     }
