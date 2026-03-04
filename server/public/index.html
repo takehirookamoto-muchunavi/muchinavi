@@ -1045,9 +1045,9 @@
       justify-content: center;
       flex: 1;
       text-align: center;
-      padding: 40px 24px;
+      padding: 20px 24px 16px;
     }
-    .chat-welcome-icon { font-size: 48px; margin-bottom: 16px; }
+    .chat-welcome-icon { font-size: 48px; margin-bottom: 8px; }
     .chat-welcome h3 {
       font-size: 18px;
       font-weight: 700;
@@ -1067,19 +1067,33 @@
       justify-content: center;
     }
     .chat-hint {
-      font-size: 12px;
-      padding: 8px 14px;
-      background: var(--accent-subtle);
-      color: var(--accent);
-      border-radius: 980px;
+      font-size: 13px;
+      padding: 10px 16px;
+      background: white;
+      color: #1d1d1f;
+      border: 1.5px solid rgba(0, 113, 227, 0.2);
+      border-radius: 16px;
       cursor: pointer;
-      border: none;
       font-family: inherit;
-      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
     .chat-hint:hover {
       background: var(--accent);
       color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+      transform: translateY(-1px);
+    }
+    .chat-hint:active {
+      transform: scale(0.97);
+    }
+    .chat-hint .hint-icon {
+      font-size: 16px;
+      line-height: 1;
     }
 
     .typing-indicator {
@@ -1806,7 +1820,7 @@
       .chat-welcome h3 { font-size: 16px; }
       .chat-welcome p { font-size: 12px; max-width: 260px; }
       .chat-hints { gap: 6px; margin-top: 14px; }
-      .chat-hint { font-size: 11px; padding: 6px 10px; }
+      .chat-hint { font-size: 12px; padding: 8px 12px; }
 
       /* Modal */
       .overlay-modal { padding: 16px; }
@@ -2445,13 +2459,16 @@
     <!-- AI Chat Room (existing) -->
     <div class="chat-messages" id="chat-messages" style="display: flex;">
       <div class="chat-welcome" id="chat-welcome">
-        <div class="chat-welcome-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="chat-welcome-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <h3>MuchiNaviに何でも聞いてください</h3>
         <p>住宅ローン、物件の選び方、スケジュール…<br>住まい探しのことなら何でもお気軽にどうぞ。</p>
         <div class="chat-hints">
-          <button class="chat-hint" onclick="sendHint('住宅ローンって何から始めればいいですか？')">住宅ローンの始め方</button>
-          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')">物件探しのコツ</button>
-          <button class="chat-hint" onclick="sendHint('購入までのスケジュール感を教えてください')">購入スケジュール</button>
+          <button class="chat-hint" onclick="sendHint('住宅ローンのシミュレーションをお願いします')"><span class="hint-icon">💰</span>ローンシミュレーション</button>
+          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')"><span class="hint-icon">🏠</span>物件探しのコツ</button>
+          <button class="chat-hint" onclick="sendHint('購入までの全体スケジュールを教えてください')"><span class="hint-icon">📅</span>購入の流れ</button>
+          <button class="chat-hint" onclick="sendHint('注文住宅と建売住宅の違いを教えてください')"><span class="hint-icon">🔑</span>注文 vs 建売</button>
+          <button class="chat-hint" onclick="sendHint('頭金はいくら必要ですか？')"><span class="hint-icon">💡</span>頭金の目安</button>
+          <button class="chat-hint" onclick="sendHint('住宅購入の諸費用について教えてください')"><span class="hint-icon">📋</span>諸費用の内訳</button>
         </div>
       </div>
     </div>
@@ -4997,8 +5014,18 @@
         </div>`;
       }).join('');
 
-      // 3. 検討ポイント（自動生成アドバイス）
+      // 3. 検討ポイント（エージェントからのアドバイス + 自動生成）
       let adviceHTML = '';
+
+      // エージェントからのカスタムアドバイスがあれば最優先表示
+      if (p.customerAdvice) {
+        adviceHTML += `
+          <div class="carte-advice-item" style="background: linear-gradient(135deg, rgba(0,113,227,0.04), rgba(88,86,214,0.04)); margin: -12px -12px 12px; padding: 16px; border-radius: 10px 10px 0 0; border-bottom: 2px solid var(--accent);">
+            <div class="carte-advice-title">👤 担当エージェントからのアドバイス</div>
+            <div class="carte-advice-text" style="white-space: pre-wrap;">${p.customerAdvice}</div>
+          </div>
+        `;
+      }
 
       // 自動生成のアドバイス
       const advices = generateAdvice(p);
