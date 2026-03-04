@@ -93,7 +93,9 @@ if (IS_PRODUCTION && !GEMINI_API_KEY) {
 function createTransporter() {
   if (!SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
@@ -441,7 +443,9 @@ app.get('/api/test-email', async (req, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
     });
 
@@ -597,7 +601,9 @@ app.post('/api/register', async (req, res) => {
   try {
     if (SMTP_USER && SMTP_PASS) {
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
         auth: { user: SMTP_USER, pass: SMTP_PASS },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
@@ -610,8 +616,8 @@ app.post('/api/register', async (req, res) => {
         console.log('✅ SMTP接続OK');
       } catch (smtpErr) {
         console.error('❌ SMTP認証エラー:', smtpErr.message);
-        console.error('💡 Gmailのアプリパスワードを再確認してください: https://myaccount.google.com/apppasswords');
-        return res.json({ success: true, token, emailError: 'SMTP認証に失敗しました。アプリパスワードを確認してください。' });
+        console.error('💡 SMTP設定を確認してください（ホスト: ' + SMTP_HOST + ', ユーザー: ' + SMTP_USER + '）');
+        return res.json({ success: true, token, emailError: 'SMTP認証に失敗しました。メール設定を確認してください。' });
       }
 
       // ===== 1) お客様への登録完了メール =====
