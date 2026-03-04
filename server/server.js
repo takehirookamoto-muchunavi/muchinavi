@@ -97,6 +97,7 @@ function createTransporter() {
     port: SMTP_PORT,
     secure: SMTP_PORT === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+    tls: { rejectUnauthorized: false },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
@@ -447,6 +448,7 @@ app.get('/api/test-email', async (req, res) => {
       port: SMTP_PORT,
       secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
+      tls: { rejectUnauthorized: false },
     });
 
     // SMTP接続を検証
@@ -605,6 +607,7 @@ app.post('/api/register', async (req, res) => {
         port: SMTP_PORT,
         secure: SMTP_PORT === 465,
         auth: { user: SMTP_USER, pass: SMTP_PASS },
+        tls: { rejectUnauthorized: false },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000,
