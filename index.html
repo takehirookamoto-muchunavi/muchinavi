@@ -1925,20 +1925,24 @@
       .carte-body { padding: 16px 12px; }
     }
 
-    /* Large screen: limit chat width for readability */
-    @media (min-width: 900px) {
-      .chat-messages {
-        max-width: 760px;
-        margin: 0 auto;
-        width: 100%;
+    /* ===== PC / Large screen: centered card layout ===== */
+    @media (min-width: 768px) {
+      .chat-screen {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 480px;
+        box-shadow: -1px 0 40px rgba(0,0,0,0.06), 1px 0 40px rgba(0,0,0,0.06);
       }
-      .chat-input-bar {
-        max-width: 760px;
-        margin: 0 auto;
+    }
+    @media (min-width: 1024px) {
+      .chat-screen {
+        width: 520px;
       }
-      .progress-bar-container {
-        max-width: 760px;
-        margin: 0 auto;
+    }
+    @media (min-width: 1400px) {
+      .chat-screen {
+        width: 560px;
       }
     }
 
