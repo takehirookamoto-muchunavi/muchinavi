@@ -5868,27 +5868,20 @@
         </div>
       </div>
 
-      <!-- ブラウザ選択 -->
+      <!-- ブラウザ選択（OSによって自動で変わる） -->
       <div id="pwa-browser-select" class="pwa-browser-select">
-        <button class="pwa-browser-btn" onclick="showPwaSteps('safari')">
-          <span class="browser-icon">🧭</span>
-          <span class="browser-name">Safari</span>
-        </button>
-        <button class="pwa-browser-btn" onclick="showPwaSteps('chrome')">
-          <span class="browser-icon">🔵</span>
-          <span class="browser-name">Chrome</span>
-        </button>
+        <!-- JSで動的に生成 -->
       </div>
 
-      <!-- Safari手順 -->
-      <div id="pwa-steps-safari" class="pwa-steps" style="display:none;">
+      <!-- iPhone Safari 手順 -->
+      <div id="pwa-steps-iphone-safari" class="pwa-steps" style="display:none;">
         <div class="pwa-step">
           <div class="pwa-step-num">1</div>
           <div class="pwa-step-text">画面下部の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
         </div>
         <div class="pwa-step">
           <div class="pwa-step-num">2</div>
-          <div class="pwa-step-text">メニューを下にスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+          <div class="pwa-step-text">メニューをスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
         </div>
         <div class="pwa-step">
           <div class="pwa-step-num">3</div>
@@ -5896,15 +5889,47 @@
         </div>
       </div>
 
-      <!-- Chrome手順 -->
-      <div id="pwa-steps-chrome" class="pwa-steps" style="display:none;">
+      <!-- iPhone Chrome 手順 -->
+      <div id="pwa-steps-iphone-chrome" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">アドレスバー右の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text">メニューをスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Android Chrome 手順 -->
+      <div id="pwa-steps-android-chrome" class="pwa-steps" style="display:none;">
         <div class="pwa-step">
           <div class="pwa-step-num">1</div>
           <div class="pwa-step-text">画面右上の<strong>メニュー（ ⋮ ）</strong>をタップ</div>
         </div>
         <div class="pwa-step">
           <div class="pwa-step-num">2</div>
-          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>をタップ</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>をタップ<br><span style="font-size:12px;color:var(--text-light);">※「アプリをインストール」と表示される場合もあります</span></div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Android その他ブラウザ手順 -->
+      <div id="pwa-steps-android-other" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">ブラウザの<strong>メニュー（ ⋮ または ≡ ）</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>または<strong>「ページを追加」</strong>をタップ</div>
         </div>
         <div class="pwa-step">
           <div class="pwa-step-num">3</div>
@@ -5918,19 +5943,65 @@
 
   <script>
   // ===== PWA Install Banner =====
+  function detectPwaDevice() {
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    const isCriOS = /CriOS/.test(ua); // Chrome on iOS
+    const isSafari = isIOS && !isCriOS && /Safari/.test(ua);
+    return { isIOS, isAndroid, isCriOS, isSafari };
+  }
+
   function shouldShowPwaBanner() {
-    // すでにPWA（ホーム画面から起動）なら表示しない
     if (window.matchMedia('(display-mode: standalone)').matches) return false;
     if (window.navigator.standalone === true) return false;
-    // PC（幅769px以上）なら表示しない
     if (window.innerWidth >= 769) return false;
-    // 「表示しない」を選んだ場合
     if (localStorage.getItem('pwa_banner_dismissed')) return false;
     return true;
   }
 
   function showPwaBanner() {
     if (!shouldShowPwaBanner()) return;
+    const { isIOS, isAndroid, isCriOS, isSafari } = detectPwaDevice();
+    const selectDiv = document.getElementById('pwa-browser-select');
+
+    if (isIOS) {
+      // iPhone: Safari と Chrome の選択肢
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-safari\', this)">' +
+          '<span class="browser-icon">🧭</span><span class="browser-name">Safari</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>';
+      // 現在使用中のブラウザを自動選択
+      if (isCriOS) {
+        showPwaSteps('iphone-chrome', selectDiv.querySelectorAll('.pwa-browser-btn')[1]);
+      } else {
+        showPwaSteps('iphone-safari', selectDiv.querySelectorAll('.pwa-browser-btn')[0]);
+      }
+    } else if (isAndroid) {
+      // Android: Chrome とその他の選択肢
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-other\', this)">' +
+          '<span class="browser-icon">🌐</span><span class="browser-name">その他</span>' +
+        '</button>';
+      // Android はほぼ Chrome なのでデフォルト選択
+      showPwaSteps('android-chrome', selectDiv.querySelectorAll('.pwa-browser-btn')[0]);
+    } else {
+      // その他（判別不能）: 全選択肢を表示
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-safari\', this)">' +
+          '<span class="browser-icon">🧭</span><span class="browser-name">Safari</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>';
+    }
+
     document.getElementById('pwa-banner-overlay').style.display = 'flex';
   }
 
@@ -5940,13 +6011,15 @@
     localStorage.setItem('pwa_banner_dismissed', Date.now());
   }
 
-  function showPwaSteps(browser) {
+  function showPwaSteps(stepsId, btnEl) {
     // ボタンのアクティブ状態
     document.querySelectorAll('.pwa-browser-btn').forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    // 手順の表示切替
-    document.getElementById('pwa-steps-safari').style.display = browser === 'safari' ? 'flex' : 'none';
-    document.getElementById('pwa-steps-chrome').style.display = browser === 'chrome' ? 'flex' : 'none';
+    if (btnEl) btnEl.classList.add('active');
+    // 全手順を非表示
+    document.querySelectorAll('.pwa-steps').forEach(el => el.style.display = 'none');
+    // 選択された手順を表示
+    const target = document.getElementById('pwa-steps-' + stepsId);
+    if (target) target.style.display = 'flex';
   }
   </script>
 </body>
