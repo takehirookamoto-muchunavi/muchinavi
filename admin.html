@@ -4647,7 +4647,8 @@
         async function loadCarteTab() {
             if (!selectedToken) return;
             try {
-                const c = await api.getCustomer(selectedToken);
+                const result = await api.getCustomer(selectedToken);
+                const c = result.customer;
                 if (!c) return;
 
                 // ヘッダー情報
