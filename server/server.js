@@ -313,6 +313,41 @@ function saveBroadcasts(data) {
   fs.writeFileSync(BROADCASTS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+// ===== Events Database =====
+const EVENTS_FILE = path.join(DATA_DIR, 'events.json');
+function loadEvents() {
+  try {
+    if (fs.existsSync(EVENTS_FILE)) return JSON.parse(fs.readFileSync(EVENTS_FILE, 'utf-8'));
+  } catch (e) { console.error('イベントDB読み込みエラー:', e.message); }
+  return { events: [] };
+}
+function saveEvents(data) {
+  fs.writeFileSync(EVENTS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+// ===== Processes Database =====
+const PROCESSES_FILE = path.join(DATA_DIR, 'processes.json');
+function loadProcesses() {
+  try {
+    if (fs.existsSync(PROCESSES_FILE)) return JSON.parse(fs.readFileSync(PROCESSES_FILE, 'utf-8'));
+  } catch (e) { console.error('プロセスDB読み込みエラー:', e.message); }
+  return { processes: [] };
+}
+function saveProcesses(data) {
+  fs.writeFileSync(PROCESSES_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+// ===== 取引プロセステンプレート =====
+const PROCESS_STEP_TEMPLATE = {
+  application: { label: '申込', docs: ['買付証明書'], agentTasks: ['物件の最終確認', '買付価格の相談', '売主側への提出'] },
+  jusetsu_prep: { label: '重説準備', docs: ['物件概要書','登記簿謄本','建物図面','管理規約','重要事項説明書(下書き)'], agentTasks: ['物件調査','法令制限確認','重説書面作成'] },
+  terass_application: { label: 'TERASS申請', docs: ['TERASS社内申請書','重要事項説明書'], agentTasks: ['申請書提出','社内承認待ち'] },
+  jusetsu: { label: '重説実施', docs: ['重要事項説明書(最終版)'], agentTasks: ['お客様への説明実施','質疑応答','署名捺印'] },
+  contract: { label: '契約', docs: ['売買契約書','手付金受領証'], agentTasks: ['契約書確認','特約条項確認','署名捺印立会い','手付金授受'] },
+  loan_review: { label: 'ローン本審査', docs: ['ローン申込書','源泉徴収票','住民票','印鑑証明'], agentTasks: ['金融機関への申込','審査進捗フォロー','条件交渉'] },
+  settlement: { label: '決済・引渡し', docs: ['残金','登記費用','鍵'], agentTasks: ['残金決済立会い','鍵引渡し確認','登記手続き確認','引越しフォロー'] }
+};
+
 // ===== Tag Filtering Helper =====
 function filterCustomersByTags(customers, filterType, filterTags) {
   // customers: array of [token, record]
@@ -3013,6 +3048,302 @@ app.get('/api/admin/articles', adminAuth, (req, res) => {
     categories: [...new Set(BLOG_ARTICLES.map(a => a.category))],
     articles: BLOG_ARTICLES.map(a => ({ category: a.category, title: a.title }))
   });
+});
+
+// ========================================================
+// ===== イベント（カレンダー）管理 API =====
+// ========================================================
+
+// イベント一覧取得
+app.get('/api/admin/events', adminAuth, (req, res) => {
+  const data = loadEvents();
+  let events = data.events || [];
+  const { from, to, customerToken } = req.query;
+  if (from) events = events.filter(e => e.date >= from);
+  if (to) events = events.filter(e => e.date <= to);
+  if (customerToken) events = events.filter(e => e.customerToken === customerToken);
+  events.sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    return (a.startTime || '').localeCompare(b.startTime || '');
+  });
+  res.json({ events });
+});
+
+// イベント作成
+app.post('/api/admin/events', adminAuth, (req, res) => {
+  const { type, title, customerToken, date, startTime, endTime, location, notes } = req.body;
+  if (!title || !date) return res.status(400).json({ error: 'title と date は必須です' });
+  const data = loadEvents();
+  const event = {
+    id: 'evt_' + crypto.randomBytes(8).toString('hex'),
+    type: type || 'general',
+    title,
+    customerToken: customerToken || null,
+    date,
+    startTime: startTime || null,
+    endTime: endTime || null,
+    location: location || '',
+    notes: notes || '',
+    status: 'scheduled',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  data.events.push(event);
+  saveEvents(data);
+  res.json({ event });
+});
+
+// イベント更新
+app.put('/api/admin/event/:id', adminAuth, (req, res) => {
+  const data = loadEvents();
+  const idx = data.events.findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'イベントが見つかりません' });
+  const allowed = ['type','title','customerToken','date','startTime','endTime','location','notes','status'];
+  allowed.forEach(key => {
+    if (req.body[key] !== undefined) data.events[idx][key] = req.body[key];
+  });
+  data.events[idx].updatedAt = new Date().toISOString();
+  saveEvents(data);
+  res.json({ event: data.events[idx] });
+});
+
+// イベント削除
+app.delete('/api/admin/event/:id', adminAuth, (req, res) => {
+  const data = loadEvents();
+  const idx = data.events.findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'イベントが見つかりません' });
+  data.events.splice(idx, 1);
+  saveEvents(data);
+  res.json({ success: true });
+});
+
+// ========================================================
+// ===== 取引進捗（プロセス）管理 API =====
+// ========================================================
+
+// プロセス一覧取得
+app.get('/api/admin/processes', adminAuth, (req, res) => {
+  const data = loadProcesses();
+  let processes = data.processes || [];
+  const { status, customerToken } = req.query;
+  if (status) processes = processes.filter(p => p.status === status);
+  if (customerToken) processes = processes.filter(p => p.customerToken === customerToken);
+  res.json({ processes, stepTemplate: PROCESS_STEP_TEMPLATE });
+});
+
+// プロセス作成
+app.post('/api/admin/processes', adminAuth, (req, res) => {
+  const { customerToken, propertyName, propertyPrice } = req.body;
+  if (!customerToken) return res.status(400).json({ error: 'customerToken は必須です' });
+  const data = loadProcesses();
+  const steps = {};
+  Object.keys(PROCESS_STEP_TEMPLATE).forEach(key => {
+    steps[key] = { status: 'pending', deadline: null, completedAt: null, notes: '' };
+  });
+  const proc = {
+    id: 'proc_' + crypto.randomBytes(8).toString('hex'),
+    customerToken,
+    propertyName: propertyName || '',
+    propertyPrice: propertyPrice || '',
+    status: 'active',
+    steps,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  data.processes.push(proc);
+  saveProcesses(data);
+  res.json({ process: proc });
+});
+
+// プロセスのステップ更新
+app.put('/api/admin/process/:id/step/:key', adminAuth, (req, res) => {
+  const data = loadProcesses();
+  const proc = data.processes.find(p => p.id === req.params.id);
+  if (!proc) return res.status(404).json({ error: 'プロセスが見つかりません' });
+  const stepKey = req.params.key;
+  if (!proc.steps[stepKey]) return res.status(400).json({ error: '無効なステップです' });
+  const { status, deadline, notes } = req.body;
+  if (status) {
+    proc.steps[stepKey].status = status;
+    if (status === 'completed') proc.steps[stepKey].completedAt = new Date().toISOString();
+  }
+  if (deadline !== undefined) proc.steps[stepKey].deadline = deadline;
+  if (notes !== undefined) proc.steps[stepKey].notes = notes;
+  proc.updatedAt = new Date().toISOString();
+  // 全ステップ完了チェック
+  const allDone = Object.values(proc.steps).every(s => s.status === 'completed');
+  if (allDone) proc.status = 'completed';
+  saveProcesses(data);
+  res.json({ process: proc });
+});
+
+// プロセス削除
+app.delete('/api/admin/process/:id', adminAuth, (req, res) => {
+  const data = loadProcesses();
+  const idx = data.processes.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'プロセスが見つかりません' });
+  data.processes.splice(idx, 1);
+  saveProcesses(data);
+  res.json({ success: true });
+});
+
+// ========================================================
+// ===== 朝ブリーフィング API =====
+// ========================================================
+
+app.get('/api/admin/briefing', adminAuth, (req, res) => {
+  const db = loadDB();
+  const eventsData = loadEvents();
+  const processesData = loadProcesses();
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const weekLater = new Date(today.getTime() + 7 * 86400000).toISOString().split('T')[0];
+
+  const stageLabels = ['','登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
+  const STAGNATION = { 1:14, 2:14, 3:30, 4:30, 5:30, 6:45, 7:45 };
+
+  // --- 顧客集計 ---
+  const customers = [];
+  let activeCount = 0;
+  Object.entries(db).forEach(([token, record]) => {
+    if (record.status === 'blocked' || record.status === 'withdrawn') return;
+    activeCount++;
+    // 最終連絡日計算
+    let lastContactDate = null;
+    if (record.interactions && record.interactions.length > 0) {
+      lastContactDate = record.interactions[0].date;
+    }
+    if (record.directChatHistory) {
+      const agentMsgs = record.directChatHistory.filter(m => m.role === 'agent');
+      if (agentMsgs.length > 0) {
+        const lastAgent = agentMsgs[agentMsgs.length - 1].timestamp;
+        if (!lastContactDate || lastAgent > lastContactDate) lastContactDate = lastAgent;
+      }
+    }
+    const daysSinceContact = lastContactDate ? Math.floor((today - new Date(lastContactDate)) / 86400000) : null;
+
+    // ToDo集計
+    const todos = (record.todos || []).filter(t => !t.done);
+    const overdueTodos = todos.filter(t => t.deadline && t.deadline < todayStr);
+    const todayTodos = todos.filter(t => t.deadline === todayStr);
+    const weekTodos = todos.filter(t => t.deadline && t.deadline > todayStr && t.deadline <= weekLater);
+
+    // ステージ滞留
+    const stage = parseInt(record.stage) || 1;
+    let stagnantDays = null;
+    if (record.stageUpdatedAt && STAGNATION[stage]) {
+      stagnantDays = Math.floor((today - new Date(record.stageUpdatedAt)) / 86400000);
+    }
+
+    customers.push({
+      token, name: record.name || '(名前なし)', stage, stageLabel: stageLabels[stage] || '',
+      email: record.email, phone: record.phone, line: record.line,
+      budget: record.budget, area: record.area, propertyType: record.propertyType,
+      lastContactDate, daysSinceContact,
+      overdueTodos, todayTodos, weekTodos, allTodos: todos,
+      stagnantDays, stagnationThreshold: STAGNATION[stage] || null,
+      isStagnant: stagnantDays !== null && STAGNATION[stage] && stagnantDays >= STAGNATION[stage],
+      memo: record.memo, agentMemo: record.agentMemo
+    });
+  });
+
+  // --- 今日のイベント ---
+  const todayEvents = (eventsData.events || [])
+    .filter(e => e.date === todayStr && e.status === 'scheduled')
+    .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+  // 今週のイベント
+  const weekEvents = (eventsData.events || [])
+    .filter(e => e.date > todayStr && e.date <= weekLater && e.status === 'scheduled')
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.startTime || '').localeCompare(b.startTime || ''));
+
+  // イベントに顧客名を付与
+  const attachCustomerName = (evt) => {
+    if (evt.customerToken) {
+      const c = db[evt.customerToken];
+      return { ...evt, customerName: c ? c.name : '(不明)' };
+    }
+    return { ...evt, customerName: null };
+  };
+
+  // --- 取引進捗サマリー ---
+  const activeProcesses = (processesData.processes || []).filter(p => p.status === 'active');
+  const processSummary = {};
+  Object.keys(PROCESS_STEP_TEMPLATE).forEach(key => {
+    processSummary[key] = { label: PROCESS_STEP_TEMPLATE[key].label, customers: [] };
+  });
+  activeProcesses.forEach(proc => {
+    const c = db[proc.customerToken];
+    const cName = c ? c.name : '(不明)';
+    // 現在のステップ = 最初の未完了ステップ
+    for (const [key, step] of Object.entries(proc.steps)) {
+      if (step.status !== 'completed') {
+        processSummary[key].customers.push({
+          processId: proc.id, customerToken: proc.customerToken, customerName: cName,
+          propertyName: proc.propertyName, deadline: step.deadline, status: step.status
+        });
+        break;
+      }
+    }
+  });
+
+  // プロセスの期限切れ/今日期限
+  const processDeadlines = { overdue: [], today: [], week: [] };
+  activeProcesses.forEach(proc => {
+    const c = db[proc.customerToken];
+    const cName = c ? c.name : '(不明)';
+    Object.entries(proc.steps).forEach(([key, step]) => {
+      if (step.status === 'completed' || !step.deadline) return;
+      const item = { processId: proc.id, customerToken: proc.customerToken, customerName: cName,
+        propertyName: proc.propertyName, stepLabel: PROCESS_STEP_TEMPLATE[key].label, deadline: step.deadline };
+      if (step.deadline < todayStr) processDeadlines.overdue.push(item);
+      else if (step.deadline === todayStr) processDeadlines.today.push(item);
+      else if (step.deadline <= weekLater) processDeadlines.week.push(item);
+    });
+  });
+
+  // --- 要対応アクション集約 ---
+  const urgent = { overdue: [], today: [], week: [], followUp: [] };
+
+  customers.forEach(c => {
+    c.overdueTodos.forEach(t => urgent.overdue.push({ type: 'todo', customerName: c.name, customerToken: c.token, text: t.text, deadline: t.deadline, priority: t.priority }));
+    c.todayTodos.forEach(t => urgent.today.push({ type: 'todo', customerName: c.name, customerToken: c.token, text: t.text, deadline: t.deadline, priority: t.priority }));
+    c.weekTodos.forEach(t => urgent.week.push({ type: 'todo', customerName: c.name, customerToken: c.token, text: t.text, deadline: t.deadline, priority: t.priority }));
+    if (c.daysSinceContact !== null && c.daysSinceContact >= 14) {
+      urgent.followUp.push({ customerName: c.name, customerToken: c.token, daysSinceContact: c.daysSinceContact, stage: c.stage, stageLabel: c.stageLabel, isStagnant: c.isStagnant });
+    }
+    if (c.daysSinceContact === null && c.stage <= 3) {
+      urgent.followUp.push({ customerName: c.name, customerToken: c.token, daysSinceContact: null, stage: c.stage, stageLabel: c.stageLabel, noContact: true });
+    }
+  });
+
+  // プロセス期限もurgentに統合
+  processDeadlines.overdue.forEach(p => urgent.overdue.push({ type: 'process', ...p }));
+  processDeadlines.today.forEach(p => urgent.today.push({ type: 'process', ...p }));
+  processDeadlines.week.forEach(p => urgent.week.push({ type: 'process', ...p }));
+
+  // ソート: priority high > medium > low, 期限が近い順
+  const priorityOrder = { high: 3, medium: 2, low: 1 };
+  const sortByUrgency = (a, b) => (priorityOrder[b.priority] || 2) - (priorityOrder[a.priority] || 2) || (a.deadline || '').localeCompare(b.deadline || '');
+  urgent.overdue.sort(sortByUrgency);
+  urgent.today.sort(sortByUrgency);
+  urgent.week.sort(sortByUrgency);
+  urgent.followUp.sort((a, b) => (b.daysSinceContact || 999) - (a.daysSinceContact || 999));
+
+  res.json({
+    date: todayStr,
+    dayOfWeek: ['日','月','火','水','木','金','土'][today.getDay()],
+    stats: { totalActive: activeCount, totalCustomers: Object.keys(db).length },
+    todayEvents: todayEvents.map(attachCustomerName),
+    weekEvents: weekEvents.map(attachCustomerName),
+    urgent,
+    processSummary,
+    activeProcessCount: activeProcesses.length
+  });
+});
+
+// プロセステンプレート取得
+app.get('/api/admin/process-template', adminAuth, (req, res) => {
+  res.json({ template: PROCESS_STEP_TEMPLATE });
 });
 
 // ===== Start =====
