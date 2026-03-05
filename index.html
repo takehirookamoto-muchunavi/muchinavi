@@ -636,7 +636,7 @@
       border-top: 1px solid var(--border);
       background: white;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 10px;
     }
     .chat-input-bar textarea {
@@ -684,10 +684,13 @@
       font-size: 10px;
       color: var(--text-light);
       text-align: right;
-      padding: 2px 12px 0;
+      position: absolute;
+      bottom: -16px;
+      right: 4px;
       opacity: 0;
       transition: opacity 0.2s ease;
       pointer-events: none;
+      white-space: nowrap;
     }
     .input-hint.show {
       opacity: 1;
@@ -1925,25 +1928,40 @@
       .carte-body { padding: 16px 12px; }
     }
 
-    /* ===== PC / Large screen: centered card layout ===== */
+    /* ===== Tablet: moderate width ===== */
     @media (min-width: 768px) {
       .chat-screen {
         left: 50%;
         right: auto;
         transform: translateX(-50%);
-        width: 480px;
+        width: 700px;
         box-shadow: -1px 0 40px rgba(0,0,0,0.06), 1px 0 40px rgba(0,0,0,0.06);
       }
+      .chat-bubble { max-width: 70%; }
+      .chat-header { padding: 16px 28px; }
+      .chat-input-bar { padding: 16px 28px; }
+      .progress-bar-container { padding: 14px 28px 10px; }
     }
+    /* ===== PC: wide layout ===== */
     @media (min-width: 1024px) {
       .chat-screen {
-        width: 520px;
+        width: 860px;
       }
+      .chat-bubble { max-width: 65%; }
+      .chat-messages { padding: 28px 32px; }
+      .chat-header { padding: 18px 36px; }
+      .chat-input-bar { padding: 18px 36px; }
+      .progress-bar-container { padding: 14px 36px 10px; }
     }
+    /* ===== Large PC: full comfortable width ===== */
     @media (min-width: 1400px) {
       .chat-screen {
-        width: 560px;
+        width: 960px;
       }
+      .chat-messages { padding: 32px 48px; }
+      .chat-header { padding: 20px 48px; }
+      .chat-input-bar { padding: 20px 48px; }
+      .progress-bar-container { padding: 14px 48px 10px; }
     }
 
     @media (max-width: 560px) {
