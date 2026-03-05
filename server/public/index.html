@@ -482,8 +482,6 @@
     .chat-screen {
       display: none;
       flex-direction: column;
-      height: 100dvh;
-      height: 100vh; /* fallback */
       max-width: 100%;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -1918,6 +1916,99 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+
+    /* ===== PWA Install Banner ===== */
+    .pwa-banner-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .pwa-banner {
+      background: white;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 24px calc(20px + env(safe-area-inset-bottom, 0px));
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .pwa-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .pwa-banner-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pwa-banner-icon svg { width: 22px; height: 22px; stroke: white; fill: none; }
+    .pwa-banner-title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .pwa-banner-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .pwa-banner-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none; border: none;
+      font-size: 22px; color: var(--text-light);
+      cursor: pointer; padding: 4px;
+    }
+    .pwa-browser-select {
+      display: flex; gap: 10px; margin: 16px 0;
+    }
+    .pwa-browser-btn {
+      flex: 1;
+      padding: 14px 12px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .pwa-browser-btn:hover, .pwa-browser-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+    }
+    .pwa-browser-btn .browser-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .pwa-browser-btn .browser-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .pwa-steps {
+      margin-top: 16px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .pwa-step {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .pwa-step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent);
+      color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pwa-step-text { font-size: 14px; line-height: 1.6; color: var(--text); padding-top: 2px; }
+    .pwa-step-text strong { color: var(--accent); }
+    .pwa-step-text .step-icon { display: inline-block; vertical-align: middle; margin: 0 2px; }
+    .pwa-banner-dismiss {
+      display: block; width: 100%; margin-top: 20px;
+      padding: 14px; border: none; border-radius: 14px;
+      background: var(--accent);
+      color: white; font-size: 15px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .pwa-banner-dismiss:hover { background: var(--accent-hover); }
 
     /* ===== Responsive ===== */
     /* Tablet breakpoint */
@@ -4061,6 +4152,8 @@
         setTimeout(startTutorial, 800);
       } else {
         document.getElementById('chat-input').focus();
+        // チュートリアル後 or チュートリアル不要時にPWAバナー表示
+        setTimeout(() => { if (typeof showPwaBanner === 'function') showPwaBanner(); }, 1500);
       }
 
       // Input enhancement: Enter key + hint display + auto-resize
@@ -4928,6 +5021,25 @@
     document.addEventListener('DOMContentLoaded', function() {
       setupChatTextarea('chat-input', sendMessage);
       setupChatTextarea('direct-chat-input', sendDirectMessage);
+
+      // ===== iOS キーボード対応 =====
+      // visualViewport APIでキーボード表示時にチャット画面の高さを調整
+      if (window.visualViewport) {
+        function adjustForKeyboard() {
+          const chatScreen = document.getElementById('chat-screen');
+          if (!chatScreen || !chatScreen.classList.contains('active')) return;
+          const vv = window.visualViewport;
+          chatScreen.style.height = vv.height + 'px';
+          chatScreen.style.top = vv.offsetTop + 'px';
+          // キーボード表示時にメッセージ欄を最下部にスクロール
+          const msgs = document.getElementById('chat-messages');
+          if (msgs) {
+            requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+          }
+        }
+        window.visualViewport.addEventListener('resize', adjustForKeyboard);
+        window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+      }
     });
 
     function selectChatChoice(btn, text) {
@@ -5741,5 +5853,101 @@
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
   </style>
+
+  <!-- PWA Install Guide Banner -->
+  <div id="pwa-banner-overlay" class="pwa-banner-overlay" style="display:none;">
+    <div class="pwa-banner" style="position:relative;">
+      <button class="pwa-banner-close" onclick="closePwaBanner()" aria-label="閉じる">&times;</button>
+      <div class="pwa-banner-header">
+        <div class="pwa-banner-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="pwa-banner-title">ホーム画面に追加</div>
+          <div class="pwa-banner-sub">アプリのようにすぐ使えます</div>
+        </div>
+      </div>
+
+      <!-- ブラウザ選択 -->
+      <div id="pwa-browser-select" class="pwa-browser-select">
+        <button class="pwa-browser-btn" onclick="showPwaSteps('safari')">
+          <span class="browser-icon">🧭</span>
+          <span class="browser-name">Safari</span>
+        </button>
+        <button class="pwa-browser-btn" onclick="showPwaSteps('chrome')">
+          <span class="browser-icon">🔵</span>
+          <span class="browser-name">Chrome</span>
+        </button>
+      </div>
+
+      <!-- Safari手順 -->
+      <div id="pwa-steps-safari" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">画面下部の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text">メニューを下にスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text">右上の<strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Chrome手順 -->
+      <div id="pwa-steps-chrome" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">画面右上の<strong>メニュー（ ⋮ ）</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <button class="pwa-banner-dismiss" onclick="closePwaBanner()">OK</button>
+    </div>
+  </div>
+
+  <script>
+  // ===== PWA Install Banner =====
+  function shouldShowPwaBanner() {
+    // すでにPWA（ホーム画面から起動）なら表示しない
+    if (window.matchMedia('(display-mode: standalone)').matches) return false;
+    if (window.navigator.standalone === true) return false;
+    // PC（幅769px以上）なら表示しない
+    if (window.innerWidth >= 769) return false;
+    // 「表示しない」を選んだ場合
+    if (localStorage.getItem('pwa_banner_dismissed')) return false;
+    return true;
+  }
+
+  function showPwaBanner() {
+    if (!shouldShowPwaBanner()) return;
+    document.getElementById('pwa-banner-overlay').style.display = 'flex';
+  }
+
+  function closePwaBanner() {
+    const overlay = document.getElementById('pwa-banner-overlay');
+    overlay.style.display = 'none';
+    localStorage.setItem('pwa_banner_dismissed', Date.now());
+  }
+
+  function showPwaSteps(browser) {
+    // ボタンのアクティブ状態
+    document.querySelectorAll('.pwa-browser-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    // 手順の表示切替
+    document.getElementById('pwa-steps-safari').style.display = browser === 'safari' ? 'flex' : 'none';
+    document.getElementById('pwa-steps-chrome').style.display = browser === 'chrome' ? 'flex' : 'none';
+  }
+  </script>
 </body>
 </html>
