@@ -4577,7 +4577,7 @@
             container.innerHTML = '<p style="color:var(--text-secondary);font-size:13px;">読み込み中...</p>';
             try {
                 const res = await fetch('/api/admin/feedback', {
-                    headers: { 'Authorization': 'Basic ' + btoa('admin:' + adminPass) }
+                    headers: { 'X-Admin-Pass': adminPass }
                 });
                 const data = await res.json();
                 renderFeedbackTab(data);
@@ -4645,62 +4645,46 @@
 
         // ======================== CARTE TAB ========================
         async function loadCarteTab() {
-            if (!selectedCustomer) return;
-            const c = selectedCustomer;
-
-            // ヘッダー情報
-            document.getElementById('carteCustomerName').textContent = c.name || '-';
-            document.getElementById('carteAge').textContent = c.age ? `${c.age}歳` : '-';
-            document.getElementById('cartePrefecture').textContent = c.prefecture || '-';
-            document.getElementById('cartePropertyType').textContent = c.propertyType || '-';
-
-            // 条件グリッド
-            const conditions = [
-                { label: '世帯年収', value: c.householdIncome || '-' },
-                { label: 'ご家族', value: c.family || '-' },
-                { label: '物件種別', value: c.propertyType || '-' },
-                { label: '希望エリア', value: c.area || '-' },
-                { label: 'ご予算', value: c.budget || '-' },
-                { label: '登録きっかけ', value: c.purpose || '-' },
-            ];
-            document.getElementById('carteConditions').innerHTML = conditions.map(c =>
-                `<div style="background: #f9f9fb; border-radius: 8px; padding: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">${c.label}</div>
-                    <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${c.value}</div>
-                </div>`
-            ).join('');
-
-            // メモ・提案の読み込み
+            if (!selectedToken) return;
             try {
-                const token = c.token || Object.keys(customers_cache || {}).find(t => customers_cache[t]?.name === c.name);
-                if (token) {
-                    const res = await fetch(`/api/admin/customer/${token}`, {
-                        headers: { 'Authorization': 'Basic ' + btoa('admin:' + adminPass) }
-                    });
-                    const data = await res.json();
-                    if (data) {
-                        document.getElementById('carteAgentMemo').value = data.agentMemo || '';
-                        document.getElementById('carteCustomerAdvice').value = data.customerAdvice || '';
-                    }
-                }
+                const c = await api.getCustomer(selectedToken);
+                if (!c) return;
+
+                // ヘッダー情報
+                document.getElementById('carteCustomerName').textContent = c.name || '-';
+                document.getElementById('carteAge').textContent = c.age ? `${c.age}歳` : '-';
+                document.getElementById('cartePrefecture').textContent = c.prefecture || '-';
+                document.getElementById('cartePropertyType').textContent = c.propertyType || '-';
+
+                // 条件グリッド
+                const conditions = [
+                    { label: '世帯年収', value: c.householdIncome || '-' },
+                    { label: 'ご家族', value: c.family || '-' },
+                    { label: '物件種別', value: c.propertyType || '-' },
+                    { label: '希望エリア', value: c.area || '-' },
+                    { label: 'ご予算', value: c.budget || '-' },
+                    { label: '登録きっかけ', value: c.purpose || '-' },
+                ];
+                document.getElementById('carteConditions').innerHTML = conditions.map(item =>
+                    `<div style="background: #f9f9fb; border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">${item.label}</div>
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${item.value}</div>
+                    </div>`
+                ).join('');
+
+                // メモ・提案の読み込み
+                document.getElementById('carteAgentMemo').value = c.agentMemo || '';
+                document.getElementById('carteCustomerAdvice').value = c.customerAdvice || '';
             } catch(e) {
                 console.error('カルテ読込エラー:', e);
             }
         }
 
         async function saveCarteMemo() {
-            if (!selectedCustomer) return;
+            if (!selectedToken) return;
             const memo = document.getElementById('carteAgentMemo').value;
             try {
-                const token = selectedCustomer.token;
-                await fetch(`/api/admin/customer/${token}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + btoa('admin:' + adminPass)
-                    },
-                    body: JSON.stringify({ agentMemo: memo })
-                });
+                await api.updateCustomer(selectedToken, { agentMemo: memo });
                 const saved = document.getElementById('carteMemoSaved');
                 saved.style.display = '';
                 setTimeout(() => saved.style.display = 'none', 2000);
@@ -4710,18 +4694,10 @@
         }
 
         async function saveCarteAdvice() {
-            if (!selectedCustomer) return;
+            if (!selectedToken) return;
             const advice = document.getElementById('carteCustomerAdvice').value;
             try {
-                const token = selectedCustomer.token;
-                await fetch(`/api/admin/customer/${token}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + btoa('admin:' + adminPass)
-                    },
-                    body: JSON.stringify({ customerAdvice: advice })
-                });
+                await api.updateCustomer(selectedToken, { customerAdvice: advice });
                 const saved = document.getElementById('carteAdviceSaved');
                 saved.style.display = '';
                 setTimeout(() => saved.style.display = 'none', 2000);
