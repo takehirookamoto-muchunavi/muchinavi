@@ -561,13 +561,14 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .chat-message.user { justify-content: flex-end; }
+    .chat-message.user > div { max-width: 80%; }
     .chat-bubble {
-      max-width: 80%;
       padding: 14px 20px;
       font-size: 14px;
       line-height: 1.75;
       word-wrap: break-word;
     }
+    .chat-message.assistant > div { max-width: 80%; }
     .chat-message.assistant {
       align-items: flex-start;
     }
@@ -1921,7 +1922,7 @@
     /* ===== Responsive ===== */
     /* Tablet breakpoint */
     @media (max-width: 768px) {
-      .chat-bubble { max-width: 85%; }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 85%; }
       .chat-header-actions { flex-wrap: wrap; }
       .progress-label { font-size: 9px; }
       .progress-label.active { font-size: 10px; }
@@ -1937,7 +1938,7 @@
         width: 700px;
         box-shadow: -1px 0 40px rgba(0,0,0,0.06), 1px 0 40px rgba(0,0,0,0.06);
       }
-      .chat-bubble { max-width: 70%; }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 70%; }
       .chat-header { padding: 16px 28px; }
       .chat-input-bar { padding: 16px 28px; }
       .progress-bar-container { padding: 14px 28px 10px; }
@@ -1947,7 +1948,7 @@
       .chat-screen {
         width: 860px;
       }
-      .chat-bubble { max-width: 65%; }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 65%; }
       .chat-messages { padding: 28px 32px; }
       .chat-header { padding: 18px 36px; }
       .chat-input-bar { padding: 18px 36px; }
@@ -2068,7 +2069,8 @@
       .step-card { padding: 24px 14px; }
       .step-icon { font-size: 36px; }
       .step-title { font-size: 16px; }
-      .chat-bubble { max-width: 92%; font-size: 12.5px; }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 92%; }
+      .chat-bubble { font-size: 12.5px; }
       .chat-header { padding: 12px 12px; }
       .chat-header-title { font-size: 15px; }
       .chat-input-bar textarea { padding: 10px 12px; }
