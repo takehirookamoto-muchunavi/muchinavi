@@ -102,15 +102,55 @@
       animation: cardIn 0.35s ease-out;
     }
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateX(40px) scale(0.97); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
     @keyframes cardOut {
-      from { opacity: 1; transform: translateY(0) scale(1); }
-      to { opacity: 0; transform: translateY(-20px) scale(0.96); }
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to { opacity: 0; transform: translateX(-40px) scale(0.97); }
+    }
+    @keyframes cardInReverse {
+      from { opacity: 0; transform: translateX(-40px) scale(0.97); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
     .step-card.leaving {
-      animation: cardOut 0.3s ease forwards;
+      animation: cardOut 0.25s ease forwards;
+    }
+    .step-card.leaving-reverse {
+      animation: cardOut 0.25s ease forwards;
+    }
+    .step-card.entering-reverse {
+      animation: cardInReverse 0.35s ease-out;
+    }
+    /* 選択時のパルスアニメーション */
+    @keyframes selectPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    .choice-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+      animation: selectPulse 0.3s ease;
+    }
+    /* レスポンスメッセージのチャット風表示 */
+    .step-response {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: var(--accent-subtle);
+      padding: 10px 18px;
+      border-radius: 16px;
+      display: inline-block;
+    }
+    .step-response.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     /* ===== Step elements ===== */
@@ -134,24 +174,52 @@
       line-height: 1.7;
       margin-bottom: 28px;
     }
-    .step-response {
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
-      margin-top: 16px;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.2s ease;
-    }
-    .step-response.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* step-response styles moved to animation section above */
 
     /* ===== Progress bar ===== */
     .progress-container {
       margin-bottom: 32px;
       text-align: center;
+    }
+    .progress-bar-wrapper {
+      width: 100%;
+      height: 6px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #34c759);
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 20px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      border-radius: 3px;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .progress-percent {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .progress-remaining {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
     .progress-dots {
       display: flex;
@@ -307,14 +375,14 @@
     }
     .choice-card:hover {
       border-color: rgba(0,113,227,0.3);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,113,227,0.12);
     }
-    .choice-card.selected {
-      border-color: var(--accent);
-      background: var(--accent-subtle);
-      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+    .choice-card:active {
+      transform: scale(0.97);
+      transition-duration: 0.1s;
     }
+    /* choice-card.selected styles moved to animation section above */
     .choice-icon { font-size: 28px; margin-bottom: 8px; }
     .choice-label {
       font-size: 13px;
@@ -414,8 +482,6 @@
     .chat-screen {
       display: none;
       flex-direction: column;
-      height: 100dvh;
-      height: 100vh; /* fallback */
       max-width: 100%;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -493,12 +559,33 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .chat-message.user { justify-content: flex-end; }
+    .chat-message.user > div { max-width: 80%; }
     .chat-bubble {
-      max-width: 80%;
       padding: 14px 20px;
       font-size: 14px;
       line-height: 1.75;
       word-wrap: break-word;
+    }
+    .chat-message.assistant > div { max-width: 80%; }
+    .chat-message.assistant {
+      align-items: flex-start;
+    }
+    .chat-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .chat-avatar svg {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      fill: none;
     }
     .chat-message.assistant .chat-bubble {
       background: white;
@@ -518,6 +605,15 @@
     .chat-bubble ul, .chat-bubble ol { margin: 6px 0; padding-left: 20px; }
     .chat-bubble li { margin-bottom: 4px; line-height: 1.6; }
     .chat-bubble strong { font-weight: 600; }
+    .chat-timestamp {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .chat-message.user .chat-timestamp {
+      text-align: right;
+    }
 
     /* 個人チャット用の色分け */
     .chat-bubble.direct-user {
@@ -539,11 +635,11 @@
       border-top: 1px solid var(--border);
       background: white;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 10px;
     }
     .chat-input-bar textarea {
-      flex: 1;
+      width: 100%;
       padding: 12px 18px;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -579,6 +675,24 @@
     .chat-input-bar button:disabled {
       background: var(--text-light);
       cursor: not-allowed;
+    }
+    .chat-input-bar button svg {
+      flex-shrink: 0;
+    }
+    .input-hint {
+      font-size: 10px;
+      color: var(--text-light);
+      text-align: right;
+      position: absolute;
+      bottom: -16px;
+      right: 4px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .input-hint.show {
+      opacity: 1;
     }
 
     /* Progress Bar */
@@ -630,6 +744,11 @@
       background: #fff;
       border-color: #0071e3;
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+      animation: stepPulse 2s ease-in-out infinite;
+    }
+    @keyframes stepPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+      50% { box-shadow: 0 0 0 5px rgba(0,113,227,0.25); }
     }
     .progress-step.active::after {
       content: '';
@@ -655,16 +774,18 @@
       margin-bottom: 6px;
     }
     .progress-label {
-      font-size: 9px;
+      font-size: 10px;
       color: #aeaeb2;
       text-align: center;
       width: 18px;
       overflow: visible;
       white-space: nowrap;
+      transition: all 0.3s ease;
     }
     .progress-label.active {
       color: #0071e3;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 11px;
     }
     .progress-label.completed {
       color: #6e6e73;
@@ -677,13 +798,14 @@
       border-top: 1px solid rgba(0,0,0,0.04);
     }
     .progress-status-text {
-      font-size: 12px;
+      font-size: 13px;
       color: #1d1d1f;
       font-weight: 600;
     }
     .progress-status-count {
-      font-size: 11px;
+      font-size: 12px;
       color: #aeaeb2;
+      font-weight: 500;
     }
     .progress-next-action {
       margin-top: 8px;
@@ -977,13 +1099,35 @@
       justify-content: center;
       flex: 1;
       text-align: center;
-      padding: 40px 24px;
+      padding: 20px 24px 16px;
     }
-    .chat-welcome-icon { font-size: 48px; margin-bottom: 16px; }
+    .chat-welcome-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(0,113,227,0.25);
+    }
+    .chat-welcome-icon svg {
+      stroke: white;
+      fill: none;
+    }
     .chat-welcome h3 {
       font-size: 18px;
       font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+    .chat-welcome .welcome-sub {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
       margin-bottom: 8px;
+      letter-spacing: 0.02em;
     }
     .chat-welcome p {
       font-size: 13px;
@@ -992,48 +1136,137 @@
       max-width: 300px;
     }
     .chat-hints {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-top: 20px;
-      justify-content: center;
+      width: 100%;
+      max-width: 360px;
     }
     .chat-hint {
       font-size: 12px;
-      padding: 8px 14px;
-      background: var(--accent-subtle);
-      color: var(--accent);
-      border-radius: 980px;
+      padding: 10px 12px;
+      background: white;
+      color: #1d1d1f;
+      border: 1.5px solid rgba(0, 113, 227, 0.15);
+      border-radius: 12px;
       cursor: pointer;
-      border: none;
       font-family: inherit;
-      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      line-height: 1.4;
     }
     .chat-hint:hover {
       background: var(--accent);
       color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+      transform: translateY(-1px);
+    }
+    .chat-hint:active {
+      transform: scale(0.97);
+    }
+    .chat-hint .hint-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
     }
 
     .typing-indicator {
       display: flex;
-      gap: 4px;
+      align-items: center;
+      gap: 10px;
       padding: 12px 18px;
       background: white;
       border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
       border: 1px solid var(--border);
       width: fit-content;
     }
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
     .typing-dot {
-      width: 8px; height: 8px;
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--text-light);
+      background: var(--accent);
+      opacity: 0.4;
       animation: typingBounce 1.4s infinite;
     }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes typingBounce {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-6px); }
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+    .typing-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      animation: typingTextFade 2s ease-in-out infinite;
+    }
+    @keyframes typingTextFade {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== Error Message Bubble ===== */
+    .chat-bubble.error-bubble {
+      background: #fff5f5;
+      border: 1px solid rgba(255,59,48,0.2);
+      color: var(--text);
+      position: relative;
+    }
+    .error-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--danger);
+      margin-bottom: 6px;
+    }
+    .error-badge svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--danger);
+      fill: none;
+    }
+    .error-message-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .error-retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      padding: 6px 14px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .error-retry-btn:hover {
+      background: #e0342b;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(255,59,48,0.3);
+    }
+    .error-retry-btn svg {
+      width: 12px;
+      height: 12px;
+      stroke: white;
+      fill: none;
     }
 
     /* ===== Article Card ===== */
@@ -1398,6 +1631,201 @@
       width: 100%;
     }
 
+    /* ===== マイページタブ ===== */
+    .mypage-tabs {
+      display: flex;
+      background: #1d1d1f;
+      padding: 0 16px;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .mypage-tab {
+      flex: 1;
+      padding: 14px 16px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border-bottom: 3px solid transparent;
+      letter-spacing: 0.02em;
+    }
+    .mypage-tab.active {
+      color: white;
+      border-bottom-color: var(--accent);
+      background: rgba(0,113,227,0.08);
+    }
+    .mypage-tab:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ===== カルテ ===== */
+    .carte-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .carte-section {
+      margin-bottom: 20px;
+    }
+    .carte-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .carte-section-icon {
+      font-size: 18px;
+    }
+    .carte-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+    .carte-section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin-left: 12px;
+    }
+    .carte-summary-card,
+    .carte-stage-card,
+    .carte-advice-card,
+    .carte-agent-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .carte-summary-card:hover,
+    .carte-stage-card:hover,
+    .carte-advice-card:hover,
+    .carte-agent-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+    .carte-summary-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid rgba(0,113,227,0.1);
+    }
+    .carte-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .carte-summary-row:last-child {
+      border-bottom: none;
+    }
+    .carte-summary-label {
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .carte-summary-value {
+      color: var(--primary);
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+    }
+    .carte-stage-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+    }
+    .carte-stage-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .carte-stage-dot.done {
+      background: var(--success);
+      color: white;
+    }
+    .carte-stage-dot.current {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.15);
+    }
+    .carte-stage-dot.upcoming {
+      background: var(--border);
+      color: var(--text-light);
+    }
+    .carte-stage-info {
+      flex: 1;
+    }
+    .carte-stage-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .carte-stage-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .carte-advice-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .carte-advice-item:last-child {
+      border-bottom: none;
+    }
+    .carte-advice-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .carte-advice-title::before {
+      content: '💡';
+      font-size: 14px;
+    }
+    .carte-advice-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      padding-left: 22px;
+    }
+    .carte-action-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .carte-action-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
     .profile-section {
       background: white;
       border-radius: var(--radius);
@@ -1489,7 +1917,145 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ===== PWA Install Banner ===== */
+    .pwa-banner-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .pwa-banner {
+      background: white;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 24px calc(20px + env(safe-area-inset-bottom, 0px));
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .pwa-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .pwa-banner-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pwa-banner-icon svg { width: 22px; height: 22px; stroke: white; fill: none; }
+    .pwa-banner-title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .pwa-banner-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .pwa-banner-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none; border: none;
+      font-size: 22px; color: var(--text-light);
+      cursor: pointer; padding: 4px;
+    }
+    .pwa-browser-select {
+      display: flex; gap: 10px; margin: 16px 0;
+    }
+    .pwa-browser-btn {
+      flex: 1;
+      padding: 14px 12px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .pwa-browser-btn:hover, .pwa-browser-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+    }
+    .pwa-browser-btn .browser-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .pwa-browser-btn .browser-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .pwa-steps {
+      margin-top: 16px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .pwa-step {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .pwa-step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent);
+      color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pwa-step-text { font-size: 14px; line-height: 1.6; color: var(--text); padding-top: 2px; }
+    .pwa-step-text strong { color: var(--accent); }
+    .pwa-step-text .step-icon { display: inline-block; vertical-align: middle; margin: 0 2px; }
+    .pwa-banner-dismiss {
+      display: block; width: 100%; margin-top: 20px;
+      padding: 14px; border: none; border-radius: 14px;
+      background: var(--accent);
+      color: white; font-size: 15px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .pwa-banner-dismiss:hover { background: var(--accent-hover); }
+
     /* ===== Responsive ===== */
+    /* Tablet breakpoint */
+    @media (max-width: 768px) {
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 85%; }
+      .chat-header-actions { flex-wrap: wrap; }
+      .progress-label { font-size: 9px; }
+      .progress-label.active { font-size: 10px; }
+      .carte-body { padding: 16px 12px; }
+    }
+
+    /* ===== Tablet: moderate width ===== */
+    @media (min-width: 768px) {
+      .chat-screen {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 700px;
+        box-shadow: -1px 0 40px rgba(0,0,0,0.06), 1px 0 40px rgba(0,0,0,0.06);
+      }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 70%; }
+      .chat-header { padding: 16px 28px; }
+      .chat-input-bar { padding: 16px 28px; }
+      .progress-bar-container { padding: 14px 28px 10px; }
+    }
+    /* ===== PC: wide layout ===== */
+    @media (min-width: 1024px) {
+      .chat-screen {
+        width: 860px;
+      }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 65%; }
+      .chat-messages { padding: 28px 32px; }
+      .chat-header { padding: 18px 36px; }
+      .chat-input-bar { padding: 18px 36px; }
+      .progress-bar-container { padding: 14px 36px 10px; }
+    }
+    /* ===== Large PC: full comfortable width ===== */
+    @media (min-width: 1400px) {
+      .chat-screen {
+        width: 960px;
+      }
+      .chat-messages { padding: 32px 48px; }
+      .chat-header { padding: 20px 48px; }
+      .chat-input-bar { padding: 20px 48px; }
+      .progress-bar-container { padding: 14px 48px 10px; }
+    }
+
     @media (max-width: 560px) {
       /* Onboarding */
       .container { padding: 12px; }
@@ -1569,11 +2135,13 @@
 
       /* Welcome */
       .chat-welcome { padding: 24px 16px; }
-      .chat-welcome-icon { font-size: 36px; }
+      .chat-welcome-icon { width: 48px; height: 48px; border-radius: 14px; }
+      .chat-welcome-icon svg { width: 24px; height: 24px; }
       .chat-welcome h3 { font-size: 16px; }
+      .chat-welcome .welcome-sub { font-size: 11px; }
       .chat-welcome p { font-size: 12px; max-width: 260px; }
-      .chat-hints { gap: 6px; margin-top: 14px; }
-      .chat-hint { font-size: 11px; padding: 6px 10px; }
+      .chat-hints { gap: 6px; margin-top: 14px; max-width: 320px; }
+      .chat-hint { font-size: 11px; padding: 8px 10px; }
 
       /* Modal */
       .overlay-modal { padding: 16px; }
@@ -1592,7 +2160,8 @@
       .step-card { padding: 24px 14px; }
       .step-icon { font-size: 36px; }
       .step-title { font-size: 16px; }
-      .chat-bubble { max-width: 92%; font-size: 12.5px; }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 92%; }
+      .chat-bubble { font-size: 12.5px; }
       .chat-header { padding: 12px 12px; }
       .chat-header-title { font-size: 15px; }
       .chat-input-bar textarea { padding: 10px 12px; }
@@ -2067,8 +2636,13 @@
   <!-- ===== Onboarding ===== -->
   <div class="container" id="onboarding">
     <div class="progress-container" id="progress" style="display:none;">
-      <div class="progress-dots" id="progress-dots"></div>
-      <div class="progress-label" id="progress-label"></div>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+      </div>
+      <div class="progress-info">
+        <span class="progress-percent" id="progress-percent">0%</span>
+        <span class="progress-remaining" id="progress-remaining"></span>
+      </div>
     </div>
 
     <div class="step-card" id="step-card">
@@ -2207,13 +2781,17 @@
     <!-- AI Chat Room (existing) -->
     <div class="chat-messages" id="chat-messages" style="display: flex;">
       <div class="chat-welcome" id="chat-welcome">
-        <div class="chat-welcome-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="chat-welcome-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <h3>MuchiNaviに何でも聞いてください</h3>
+        <div class="welcome-sub">24時間対応 AIアシスタント</div>
         <p>住宅ローン、物件の選び方、スケジュール…<br>住まい探しのことなら何でもお気軽にどうぞ。</p>
         <div class="chat-hints">
-          <button class="chat-hint" onclick="sendHint('住宅ローンって何から始めればいいですか？')">住宅ローンの始め方</button>
-          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')">物件探しのコツ</button>
-          <button class="chat-hint" onclick="sendHint('購入までのスケジュール感を教えてください')">購入スケジュール</button>
+          <button class="chat-hint" onclick="sendHint('住宅ローンのシミュレーションをお願いします')"><span class="hint-icon">💰</span>ローンシミュレーション</button>
+          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')"><span class="hint-icon">🏠</span>物件探しのコツ</button>
+          <button class="chat-hint" onclick="sendHint('購入までの全体スケジュールを教えてください')"><span class="hint-icon">📅</span>購入の流れ</button>
+          <button class="chat-hint" onclick="sendHint('注文住宅と建売住宅の違いを教えてください')"><span class="hint-icon">🔑</span>注文 vs 建売</button>
+          <button class="chat-hint" onclick="sendHint('頭金はいくら必要ですか？')"><span class="hint-icon">💡</span>頭金の目安</button>
+          <button class="chat-hint" onclick="sendHint('住宅購入の諸費用について教えてください')"><span class="hint-icon">📋</span>諸費用の内訳</button>
         </div>
       </div>
     </div>
@@ -2229,8 +2807,11 @@
         <span>資料</span>
       </button>
       <input type="file" id="ai-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'ai')">
-      <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
-      <button onclick="sendMessage()" id="chat-send-btn">送信</button>
+      <div style="flex:1;position:relative;">
+        <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
+        <div class="input-hint" id="input-hint">Enter で送信 / Shift+Enter で改行</div>
+      </div>
+      <button onclick="sendMessage()" id="chat-send-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>送信</button>
     </div>
 
     <!-- Direct Chat Room (new) -->
@@ -2264,7 +2845,78 @@
       <button class="profile-back-btn" onclick="closeProfile()">← チャットに戻る</button>
       <div class="profile-header-title">マイページ</div>
     </div>
-    <div class="profile-body">
+    <!-- マイページ タブ切り替え -->
+    <div class="mypage-tabs">
+      <button class="mypage-tab" id="mypage-tab-profile" onclick="switchMypageTab('profile')">プロフィール</button>
+      <button class="mypage-tab active" id="mypage-tab-carte" onclick="switchMypageTab('carte')">あなたのカルテ</button>
+    </div>
+    <!-- カルテタブ -->
+    <div class="carte-body" id="carte-body">
+      <div class="carte-loading" id="carte-loading">
+        <div style="text-align:center; padding: 40px 20px; color: var(--text-secondary);">
+          <div style="font-size: 24px; margin-bottom: 12px;">📋</div>
+          カルテを読み込み中...
+        </div>
+      </div>
+      <div id="carte-content" style="display:none;">
+        <!-- 現状サマリー -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">🏠</span>
+            <span class="carte-section-title">あなたの住まい探し</span>
+          </div>
+          <div class="carte-summary-card" id="carte-summary">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 購入進捗 -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">📊</span>
+            <span class="carte-section-title">進捗ステータス</span>
+          </div>
+          <div class="carte-stage-card" id="carte-stage">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 検討ポイント・提案 -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">💡</span>
+            <span class="carte-section-title">検討ポイント</span>
+          </div>
+          <div class="carte-advice-card" id="carte-advice">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 担当エージェント -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">👤</span>
+            <span class="carte-section-title">担当エージェント</span>
+          </div>
+          <div class="carte-agent-card">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">岡</div>
+              <div>
+                <div style="font-weight: 700; font-size: 15px; color: var(--primary);">岡本 岳大</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">TERASS エージェント</div>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px;">
+              お客様ファーストで、住宅購入がずっと幸せにつながるようサポートします。気になることがあればいつでもご相談ください。
+            </p>
+            <button class="carte-action-btn" onclick="closeProfile(); switchChatRoom('direct');">
+              岡本に直接相談する →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-body" id="profile-body" style="display:none;">
       <div class="profile-section">
         <div class="profile-section-title">基本情報</div>
         <div class="profile-field">
@@ -2341,10 +2993,6 @@
         <div class="profile-field">
           <label>メールアドレス</label>
           <input type="email" id="prof-email" placeholder="example@mail.com">
-        </div>
-        <div class="profile-field">
-          <label>電話番号</label>
-          <input type="tel" id="prof-phone" placeholder="090-XXXX-XXXX">
         </div>
       </div>
 
@@ -2652,7 +3300,14 @@
       `;
 
       if (step.type === 'welcome') {
-        html += `<button class="btn-primary" onclick="nextStep()">${step.buttonText}</button>`;
+        html += `
+          <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px; opacity: 0.5; font-size: 12px; color: var(--text-secondary);">
+            <span>✓ 3分で完了</span>
+            <span>✓ 無料</span>
+            <span>✓ 24時間対応</span>
+          </div>
+        `;
+        html += `<button class="btn-primary" onclick="nextStep()" style="animation: cardIn 0.5s ease-out 0.2s both;">${step.buttonText}</button>`;
         html += `
           <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
             <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">すでにアカウントをお持ちの方</p>
@@ -2800,10 +3455,7 @@
               <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
-            <div>
-              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号（任意）</label>
-              <input class="input-field" type="tel" id="contact-phone" placeholder="090-xxxx-xxxx" style="text-align: left;">
-            </div>
+            <!-- 電話番号フィールドは削除済み -->
           </div>
           <div style="margin-top: 24px;">
             <button class="btn-primary" onclick="submitContact()">次へ →</button>
@@ -2849,7 +3501,7 @@
         card.innerHTML = html;
         card.style.animation = 'none';
         card.offsetHeight; // trigger reflow
-        card.style.animation = '';
+        card.style.animation = isGoingBack ? 'cardInReverse 0.35s ease-out' : '';
 
         // Focus input
         const input = document.getElementById('step-input');
@@ -2858,17 +3510,23 @@
     }
 
     function renderProgress(stepIdx) {
-      const dots = document.getElementById('progress-dots');
-      const label = document.getElementById('progress-label');
-      let html = '';
-      for (let i = 1; i < TOTAL_STEPS; i++) {
-        let cls = 'progress-dot';
-        if (i < stepIdx) cls += ' done';
-        else if (i === stepIdx) cls += ' active';
-        html += `<div class="${cls}"></div>`;
+      const totalQuestions = TOTAL_STEPS - 1; // ウェルカム画面を除く
+      const percent = Math.round((stepIdx / totalQuestions) * 100);
+      const remaining = totalQuestions - stepIdx;
+
+      const barFill = document.getElementById('progress-bar-fill');
+      const percentEl = document.getElementById('progress-percent');
+      const remainingEl = document.getElementById('progress-remaining');
+
+      if (barFill) barFill.style.width = percent + '%';
+      if (percentEl) percentEl.textContent = percent + '%';
+      if (remainingEl) {
+        if (remaining > 0) {
+          remainingEl.textContent = `あと ${remaining} 問`;
+        } else {
+          remainingEl.textContent = '最後のステップ！';
+        }
       }
-      dots.innerHTML = html;
-      label.textContent = `ステップ ${stepIdx} / ${TOTAL_STEPS - 1}`;
     }
 
     // ===== Step handlers =====
@@ -3027,11 +3685,14 @@
       }
     }
 
+    let isGoingBack = false;
     function prevStep() {
-      // Go back one step
+      // Go back one step with reverse animation
       if (currentStep > 0) {
+        isGoingBack = true;
         currentStep--;
         renderStep(currentStep);
+        isGoingBack = false;
       }
     }
 
@@ -3048,7 +3709,8 @@
 
     function submitContact() {
       const email = document.getElementById('contact-email').value.trim();
-      const phone = document.getElementById('contact-phone').value.trim();
+      const phoneEl = document.getElementById('contact-phone');
+      const phone = phoneEl ? phoneEl.value.trim() : '';
 
       if (!email || !email.includes('@')) {
         document.getElementById('contact-email').style.borderColor = 'var(--danger)';
@@ -3490,6 +4152,31 @@
         setTimeout(startTutorial, 800);
       } else {
         document.getElementById('chat-input').focus();
+        // チュートリアル後 or チュートリアル不要時にPWAバナー表示
+        setTimeout(() => { if (typeof showPwaBanner === 'function') showPwaBanner(); }, 1500);
+      }
+
+      // Input enhancement: Enter key + hint display + auto-resize
+      const chatInput = document.getElementById('chat-input');
+      const inputHint = document.getElementById('input-hint');
+      if (chatInput && !chatInput._enhancedInit) {
+        chatInput._enhancedInit = true;
+        chatInput.addEventListener('focus', function() {
+          if (inputHint) inputHint.classList.add('show');
+        });
+        chatInput.addEventListener('blur', function() {
+          if (inputHint) inputHint.classList.remove('show');
+        });
+        chatInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+        chatInput.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
       }
     }
 
@@ -3605,7 +4292,7 @@
       const fieldLabels = {
         name: 'お名前', birthYear: '生まれ年', prefecture: '都道府県',
         family: 'ご家族構成', householdIncome: '世帯年収', propertyType: '物件種別',
-        area: '希望エリア', budget: 'ご予算', email: 'メール', phone: '電話番号'
+        area: '希望エリア', budget: 'ご予算', email: 'メール'
       };
       const missingFields = Object.entries(fieldLabels)
         .filter(([k]) => !profile[k] || profile[k] === '' || profile[k] === '-' || profile[k] === '未入力')
@@ -3648,25 +4335,12 @@
 
       const action = nextActions[stage];
       if (action && action.custom_stage1) {
-        // Stage 1: show profile completion status
-        if (missingFields.length === 0) {
-          nextActionEl.innerHTML = `
-            <div class="next-label">情報入力完了</div>
-            <div class="next-text">プロフィール情報がすべて入力されています。次のステップへ進む準備ができました！</div>
-          `;
-        } else {
-          const pct = Math.round((filledCount / totalFields) * 100);
-          const missingList = missingFields.map(f => `<span style="display:inline-block;padding:2px 8px;background:rgba(255,59,48,0.08);color:#ff3b30;border-radius:10px;font-size:11px;margin:2px;">${f}</span>`).join(' ');
-          nextActionEl.innerHTML = `
-            <div class="next-label">Next Step — プロフィール入力 ${pct}%</div>
-            <div style="background:#e5e5ea;border-radius:4px;height:6px;margin:6px 0 8px;overflow:hidden;">
-              <div style="background:#0071e3;height:100%;width:${pct}%;border-radius:4px;transition:width 0.5s ease;"></div>
-            </div>
-            <div class="next-text">以下の項目を入力すると、より的確なアドバイスが受けられます。</div>
-            <div style="margin:6px 0 8px;">${missingList}</div>
-            <button class="next-btn" onclick="event.stopPropagation(); openProfile()">マイページで入力する</button>
-          `;
-        }
+        // Stage 1: 登録完了 → カルテを見るよう案内
+        nextActionEl.innerHTML = `
+          <div class="next-label">✅ 登録完了</div>
+          <div class="next-text">ご登録ありがとうございます！あなた専用のカルテが作成されました。現在の状況に合わせたアドバイスをご確認ください。</div>
+          <button class="next-btn" onclick="event.stopPropagation(); openProfile()">カルテを見る</button>
+        `;
       } else if (action && action.custom) {
         // Stage 2: booking flow — always show both options
         const bookingClicked = localStorage.getItem('muchinavi_booking_clicked');
@@ -4052,7 +4726,7 @@
       if (welcomeEl) welcomeEl.style.display = 'none';
 
       // Add user message
-      const msgObj = { role: 'user', content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : '') };
+      const msgObj = { role: 'user', content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : ''), timestamp: new Date().toISOString() };
       if (uploadedFile) msgObj.file = uploadedFile;
       chatMessages.push(msgObj);
       renderChatMessages();
@@ -4088,9 +4762,9 @@
         hideTyping();
 
         if (data.error) {
-          chatMessages.push({ role: 'assistant', content: data.error });
+          chatMessages.push({ role: 'assistant', content: data.error, timestamp: new Date().toISOString(), isError: true });
         } else {
-          chatMessages.push({ role: 'assistant', content: data.reply });
+          chatMessages.push({ role: 'assistant', content: data.reply, timestamp: new Date().toISOString() });
         }
         renderChatMessages();
       } catch (e) {
@@ -4099,7 +4773,7 @@
         const msg = e.name === 'AbortError'
           ? '回答の生成に時間がかかっています。もう一度お試しください。'
           : 'ネットワークエラーが発生しました。再度お試しください。';
-        chatMessages.push({ role: 'assistant', content: msg });
+        chatMessages.push({ role: 'assistant', content: msg, timestamp: new Date().toISOString(), isError: true });
         renderChatMessages();
       }
 
@@ -4276,7 +4950,7 @@
       let html = text
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/【(.+?)】/g, '<strong>【$1】</strong>')
+        .replace(/【([^\x00-\x7F]+?)】/g, '<strong>【$1】</strong>')
         .replace(/^[\-•]\s+(.+)$/gm, '<li>$1</li>')
         .replace(/^\d+[\.\)]\s+(.+)$/gm, '<li>$1</li>')
         .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
@@ -4347,6 +5021,25 @@
     document.addEventListener('DOMContentLoaded', function() {
       setupChatTextarea('chat-input', sendMessage);
       setupChatTextarea('direct-chat-input', sendDirectMessage);
+
+      // ===== iOS キーボード対応 =====
+      // visualViewport APIでキーボード表示時にチャット画面の高さを調整
+      if (window.visualViewport) {
+        function adjustForKeyboard() {
+          const chatScreen = document.getElementById('chat-screen');
+          if (!chatScreen || !chatScreen.classList.contains('active')) return;
+          const vv = window.visualViewport;
+          chatScreen.style.height = vv.height + 'px';
+          chatScreen.style.top = vv.offsetTop + 'px';
+          // キーボード表示時にメッセージ欄を最下部にスクロール
+          const msgs = document.getElementById('chat-messages');
+          if (msgs) {
+            requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+          }
+        }
+        window.visualViewport.addEventListener('resize', adjustForKeyboard);
+        window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+      }
     });
 
     function selectChatChoice(btn, text) {
@@ -4376,7 +5069,7 @@
       // Hide welcome (may not exist if session restored)
       const welcomeEl = document.getElementById('chat-welcome');
       if (welcomeEl) welcomeEl.style.display = 'none';
-      chatMessages.push({ role: 'user', content: text });
+      chatMessages.push({ role: 'user', content: text, timestamp: new Date().toISOString() });
       renderChatMessages();
       document.getElementById('chat-input').value = '';
       showTyping();
@@ -4400,9 +5093,9 @@
         const data = await res.json();
         hideTyping();
         if (data.error) {
-          chatMessages.push({ role: 'assistant', content: data.error });
+          chatMessages.push({ role: 'assistant', content: data.error, timestamp: new Date().toISOString() });
         } else {
-          chatMessages.push({ role: 'assistant', content: data.reply });
+          chatMessages.push({ role: 'assistant', content: data.reply, timestamp: new Date().toISOString() });
         }
         renderChatMessages();
       } catch (e) {
@@ -4410,7 +5103,7 @@
         const msg = e.name === 'AbortError'
           ? '回答の生成に時間がかかっています。もう一度お試しください。'
           : 'ネットワークエラーが発生しました。再度お試しください。';
-        chatMessages.push({ role: 'assistant', content: msg });
+        chatMessages.push({ role: 'assistant', content: msg, timestamp: new Date().toISOString() });
         renderChatMessages();
       }
 
@@ -4420,11 +5113,16 @@
 
     function renderChatMessages() {
       const container = document.getElementById('chat-messages');
+      const avatarSVG = '<div class="chat-avatar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+      const now = new Date();
+      const timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
       container.innerHTML = chatMessages.map((m, idx) => {
+        const msgTime = m.timestamp ? new Date(m.timestamp) : null;
+        const displayTime = msgTime ? msgTime.getHours() + ':' + String(msgTime.getMinutes()).padStart(2,'0') : '';
         if (m.role === 'user') {
           const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
           const fileHTML = m.file ? renderFileAttachment(m.file) : '';
-          return `<div class="chat-message user"><div class="chat-bubble" style="white-space:pre-wrap;">${fileHTML}${escaped}</div></div>`;
+          return '<div class="chat-message user"><div><div class="chat-bubble" style="white-space:pre-wrap;">' + fileHTML + escaped + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
         }
         // AI message - check if the NEXT message is a user picking a choice
         const nextMsg = chatMessages[idx + 1];
@@ -4436,14 +5134,22 @@
           // Disable all chips and highlight the selected one
           content = content.replace(/class="chat-choice-chip"/g, 'class="chat-choice-chip used" disabled');
           content = content.replace(
-            new RegExp(`class="chat-choice-chip used" disabled>` + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + `<`),
-            `class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">${selectedText}<`
+            new RegExp('class="chat-choice-chip used" disabled>' + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '<'),
+            'class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">' + selectedText + '<'
           );
           // Remove onclick from all chips in this message
           content = content.replace(/onclick="selectChatChoice\([^"]*\)"/g, '');
         }
 
-        return `<div class="chat-message assistant"><div class="chat-bubble">${content}</div></div>`;
+        // Error message special rendering
+        if (m.isError) {
+          const errorSVG = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+          const retrySVG = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+          const errorContent = '<div class="error-badge">' + errorSVG + ' エラー</div><div class="error-message-text">' + m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div><button class="error-retry-btn" onclick="retryLastMessage()">' + retrySVG + ' もう一度試す</button>';
+          return '<div class="chat-message assistant">' + avatarSVG + '<div><div class="chat-bubble error-bubble">' + errorContent + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
+        }
+
+        return '<div class="chat-message assistant">' + avatarSVG + '<div><div class="chat-bubble">' + content + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
       }).join('');
       container.scrollTop = container.scrollHeight;
     }
@@ -4453,13 +5159,8 @@
       const el = document.createElement('div');
       el.id = 'typing';
       el.className = 'chat-message assistant';
-      el.innerHTML = `
-        <div class="typing-indicator">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-        </div>
-      `;
+      const avatarSVG = '<div class="chat-avatar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+      el.innerHTML = avatarSVG + '<div class="typing-indicator"><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span class="typing-text">考え中...</span></div>';
       container.appendChild(el);
       container.scrollTop = container.scrollHeight;
     }
@@ -4467,6 +5168,24 @@
     function hideTyping() {
       const el = document.getElementById('typing');
       if (el) el.remove();
+    }
+
+    function retryLastMessage() {
+      // Remove the last error message
+      if (chatMessages.length > 0 && chatMessages[chatMessages.length - 1].isError) {
+        chatMessages.pop();
+      }
+      // Find the last user message and resend
+      const lastUserIdx = chatMessages.map(m => m.role).lastIndexOf('user');
+      if (lastUserIdx >= 0) {
+        const lastUserMsg = chatMessages[lastUserIdx].content;
+        // Remove user msg too, sendMessage will re-add it
+        chatMessages.splice(lastUserIdx, 1);
+        renderChatMessages();
+        document.getElementById('chat-input').value = lastUserMsg;
+        isSending = false;
+        sendMessage();
+      }
     }
 
     // ===== Init: Check for existing session =====
@@ -4615,6 +5334,164 @@
       document.getElementById('notification-modal').classList.remove('active');
     }
 
+    // ===== マイページ タブ切り替え =====
+    function switchMypageTab(tab) {
+      document.getElementById('mypage-tab-profile').classList.toggle('active', tab === 'profile');
+      document.getElementById('mypage-tab-carte').classList.toggle('active', tab === 'carte');
+      document.getElementById('profile-body').style.display = tab === 'profile' ? '' : 'none';
+      document.getElementById('carte-body').style.display = tab === 'carte' ? '' : 'none';
+      if (tab === 'carte') {
+        loadCarte();
+      }
+    }
+
+    // ===== カルテ機能 =====
+    async function loadCarte() {
+      const loading = document.getElementById('carte-loading');
+      const content = document.getElementById('carte-content');
+      loading.style.display = '';
+      content.style.display = 'none';
+
+      try {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        const res = await fetch(`/api/customer/profile/${token}`);
+        const data = await res.json();
+        if (data.success && data.profile) {
+          renderCarte(data.profile);
+          loading.style.display = 'none';
+          content.style.display = '';
+        }
+      } catch(e) {
+        console.error('カルテ読込エラー:', e);
+        loading.innerHTML = '<div style="text-align:center;padding:40px;color:var(--danger);">読み込みに失敗しました</div>';
+      }
+    }
+
+    function renderCarte(p) {
+      // 1. 現状サマリー
+      const summaryItems = [
+        { label: 'お名前', value: p.name || '-' },
+        { label: '年齢', value: p.birthYear ? `${new Date().getFullYear() - p.birthYear}歳` : '-' },
+        { label: 'お住まい', value: p.prefecture || '-' },
+        { label: 'ご家族構成', value: p.family || '-' },
+        { label: '世帯年収', value: p.householdIncome || '-' },
+        { label: '物件種別', value: p.propertyType || '-' },
+        { label: '希望エリア', value: p.area || '-' },
+        { label: 'ご予算', value: p.budget || '-' },
+      ];
+      document.getElementById('carte-summary').innerHTML = summaryItems
+        .map(item => `<div class="carte-summary-row"><span class="carte-summary-label">${item.label}</span><span class="carte-summary-value">${item.value}</span></div>`)
+        .join('');
+
+      // 2. 進捗ステータス
+      const stage = p.stage || 1;
+      const stages = [
+        { name: '登録', desc: '基本情報の登録が完了しました' },
+        { name: '情報入力', desc: 'プロフィール情報の確認・補完' },
+        { name: '面談予約', desc: 'オンライン面談の予約' },
+        { name: '相談中', desc: 'エージェントとの面談・ヒアリング' },
+        { name: 'ライフプラン', desc: '将来の資金計画・ライフプラン作成' },
+        { name: '物件探し・内見', desc: '条件に合う物件のご提案と見学' },
+        { name: '契約', desc: '購入手続き・必要書類の準備' },
+        { name: '引渡し', desc: '新生活の準備とアフターサポート' },
+      ];
+      document.getElementById('carte-stage').innerHTML = stages.map((s, i) => {
+        const stepNum = i + 1;
+        let dotClass = 'upcoming';
+        let dotContent = stepNum;
+        if (stepNum < stage) { dotClass = 'done'; dotContent = '✓'; }
+        else if (stepNum === stage) { dotClass = 'current'; }
+        return `<div class="carte-stage-step">
+          <div class="carte-stage-dot ${dotClass}">${dotContent}</div>
+          <div class="carte-stage-info">
+            <div class="carte-stage-name">${s.name}</div>
+            <div class="carte-stage-desc">${s.desc}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // 3. 検討ポイント（エージェントからのアドバイス + 自動生成）
+      let adviceHTML = '';
+
+      // エージェントからのカスタムアドバイスがあれば最優先表示
+      if (p.customerAdvice) {
+        adviceHTML += `
+          <div class="carte-advice-item" style="background: linear-gradient(135deg, rgba(0,113,227,0.04), rgba(88,86,214,0.04)); margin: -12px -12px 12px; padding: 16px; border-radius: 10px 10px 0 0; border-bottom: 2px solid var(--accent);">
+            <div class="carte-advice-title">👤 担当エージェントからのアドバイス</div>
+            <div class="carte-advice-text" style="white-space: pre-wrap;">${p.customerAdvice}</div>
+          </div>
+        `;
+      }
+
+      // 自動生成のアドバイス
+      const advices = generateAdvice(p);
+      adviceHTML += advices.map(a =>
+        `<div class="carte-advice-item">
+          <div class="carte-advice-title">${a.title}</div>
+          <div class="carte-advice-text">${a.text}</div>
+        </div>`
+      ).join('');
+
+      document.getElementById('carte-advice').innerHTML = adviceHTML;
+    }
+
+    function generateAdvice(p) {
+      const advices = [];
+
+      // 予算に基づくアドバイス
+      if (p.householdIncome && p.budget) {
+        advices.push({
+          title: '💰 資金計画について',
+          text: `世帯年収${p.householdIncome}で${p.budget}のご予算をお考えですね。住宅ローンの借入額や月々の返済額について、一度シミュレーションしてみましょう。AIチャットで「住宅ローンシミュレーション」と聞いてみてください。`
+        });
+      }
+
+      // 物件タイプに基づくアドバイス
+      if (p.propertyType) {
+        const typeAdvice = {
+          '中古戸建て': 'リフォーム費用や築年数による耐震性の確認がポイントです。インスペクション（建物検査）の活用もおすすめです。',
+          '中古マンション': '管理費・修繕積立金の確認、大規模修繕の履歴や今後の計画をチェックしましょう。',
+          '新築戸建て': '建売と注文住宅の違い、建築条件付き土地の仕組みなど、選択肢を広く検討できます。',
+          '注文住宅': '土地探しと建築会社選びが重要です。ハウスメーカー選びのポイントもお気軽にご相談ください。',
+        };
+        advices.push({
+          title: `🏠 ${p.propertyType}をお探しの方へ`,
+          text: typeAdvice[p.propertyType] || '物件探しのポイントをAIに聞いてみましょう。'
+        });
+      }
+
+      // エリアに基づくアドバイス
+      if (p.area && p.area !== '未定（一緒に探したい）') {
+        advices.push({
+          title: '📍 エリアについて',
+          text: `${p.area}エリアでお探しですね。通勤・通学のアクセスや、生活利便性、将来の資産価値なども考慮すると良いでしょう。`
+        });
+      } else {
+        advices.push({
+          title: '📍 エリア選びのヒント',
+          text: 'まだエリアが決まっていなくても大丈夫です。通勤時間・学区・生活環境など、優先順位を整理することから始めましょう。'
+        });
+      }
+
+      // 家族構成に基づくアドバイス
+      if (p.family && p.family.includes('子ども')) {
+        advices.push({
+          title: '👨‍👩‍👧 お子様がいらっしゃる方へ',
+          text: '学区情報、公園や病院へのアクセス、将来の部屋数なども考慮したいポイントです。お子様の成長に合わせた住まい選びをサポートします。'
+        });
+      }
+
+      // デフォルトのアドバイス
+      if (advices.length === 0) {
+        advices.push({
+          title: '✨ まずは気軽にご相談ください',
+          text: 'AIチャットで何でも質問できます。住宅購入の基礎知識から、具体的な物件相談まで、お気軽にどうぞ。'
+        });
+      }
+
+      return advices;
+    }
+
     function doLogout() {
       document.getElementById('settings-dropdown').classList.remove('show');
       localStorage.removeItem('muchinavi_token');
@@ -4731,9 +5608,9 @@
         document.getElementById('prof-area').value = p.area || '';
         document.getElementById('prof-budget').value = p.budget || '';
         document.getElementById('prof-email').value = p.email || '';
-        document.getElementById('prof-phone').value = p.phone || '';
-
         document.getElementById('profile-screen').classList.add('active');
+        // デフォルトでカルテタブを表示
+        switchMypageTab('carte');
       } catch (e) {
         console.error('Profile load error:', e);
       }
@@ -4762,7 +5639,6 @@
         area: document.getElementById('prof-area').value.trim(),
         budget: document.getElementById('prof-budget').value.trim(),
         email: document.getElementById('prof-email').value.trim(),
-        phone: document.getElementById('prof-phone').value.trim(),
       };
 
       try {
@@ -4977,5 +5853,174 @@
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
   </style>
+
+  <!-- PWA Install Guide Banner -->
+  <div id="pwa-banner-overlay" class="pwa-banner-overlay" style="display:none;">
+    <div class="pwa-banner" style="position:relative;">
+      <button class="pwa-banner-close" onclick="closePwaBanner()" aria-label="閉じる">&times;</button>
+      <div class="pwa-banner-header">
+        <div class="pwa-banner-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="pwa-banner-title">ホーム画面に追加</div>
+          <div class="pwa-banner-sub">アプリのようにすぐ使えます</div>
+        </div>
+      </div>
+
+      <!-- ブラウザ選択（OSによって自動で変わる） -->
+      <div id="pwa-browser-select" class="pwa-browser-select">
+        <!-- JSで動的に生成 -->
+      </div>
+
+      <!-- iPhone Safari 手順 -->
+      <div id="pwa-steps-iphone-safari" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">画面下部の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text">メニューをスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text">右上の<strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- iPhone Chrome 手順 -->
+      <div id="pwa-steps-iphone-chrome" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">アドレスバー右の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text">メニューをスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Android Chrome 手順 -->
+      <div id="pwa-steps-android-chrome" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">画面右上の<strong>メニュー（ ⋮ ）</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>をタップ<br><span style="font-size:12px;color:var(--text-light);">※「アプリをインストール」と表示される場合もあります</span></div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Android その他ブラウザ手順 -->
+      <div id="pwa-steps-android-other" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">ブラウザの<strong>メニュー（ ⋮ または ≡ ）</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>または<strong>「ページを追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <button class="pwa-banner-dismiss" onclick="closePwaBanner()">OK</button>
+    </div>
+  </div>
+
+  <script>
+  // ===== PWA Install Banner =====
+  function detectPwaDevice() {
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    const isCriOS = /CriOS/.test(ua); // Chrome on iOS
+    const isSafari = isIOS && !isCriOS && /Safari/.test(ua);
+    return { isIOS, isAndroid, isCriOS, isSafari };
+  }
+
+  function shouldShowPwaBanner() {
+    if (window.matchMedia('(display-mode: standalone)').matches) return false;
+    if (window.navigator.standalone === true) return false;
+    if (window.innerWidth >= 769) return false;
+    if (localStorage.getItem('pwa_banner_dismissed')) return false;
+    return true;
+  }
+
+  function showPwaBanner() {
+    if (!shouldShowPwaBanner()) return;
+    const { isIOS, isAndroid, isCriOS, isSafari } = detectPwaDevice();
+    const selectDiv = document.getElementById('pwa-browser-select');
+
+    if (isIOS) {
+      // iPhone: Safari と Chrome の選択肢
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-safari\', this)">' +
+          '<span class="browser-icon">🧭</span><span class="browser-name">Safari</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>';
+      // 現在使用中のブラウザを自動選択
+      if (isCriOS) {
+        showPwaSteps('iphone-chrome', selectDiv.querySelectorAll('.pwa-browser-btn')[1]);
+      } else {
+        showPwaSteps('iphone-safari', selectDiv.querySelectorAll('.pwa-browser-btn')[0]);
+      }
+    } else if (isAndroid) {
+      // Android: Chrome とその他の選択肢
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-other\', this)">' +
+          '<span class="browser-icon">🌐</span><span class="browser-name">その他</span>' +
+        '</button>';
+      // Android はほぼ Chrome なのでデフォルト選択
+      showPwaSteps('android-chrome', selectDiv.querySelectorAll('.pwa-browser-btn')[0]);
+    } else {
+      // その他（判別不能）: 全選択肢を表示
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-safari\', this)">' +
+          '<span class="browser-icon">🧭</span><span class="browser-name">Safari</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>';
+    }
+
+    document.getElementById('pwa-banner-overlay').style.display = 'flex';
+  }
+
+  function closePwaBanner() {
+    const overlay = document.getElementById('pwa-banner-overlay');
+    overlay.style.display = 'none';
+    localStorage.setItem('pwa_banner_dismissed', Date.now());
+  }
+
+  function showPwaSteps(stepsId, btnEl) {
+    // ボタンのアクティブ状態
+    document.querySelectorAll('.pwa-browser-btn').forEach(btn => btn.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    // 全手順を非表示
+    document.querySelectorAll('.pwa-steps').forEach(el => el.style.display = 'none');
+    // 選択された手順を表示
+    const target = document.getElementById('pwa-steps-' + stepsId);
+    if (target) target.style.display = 'flex';
+  }
+  </script>
 </body>
 </html>

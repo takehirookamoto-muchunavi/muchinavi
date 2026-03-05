@@ -961,6 +961,8 @@ app.get('/api/customer/profile/:token', (req, res) => {
   const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line'];
   fields.forEach(k => { profile[k] = record[k] || ''; });
   profile.stage = record.stage || 1;
+  // カルテ用: エージェントからのアドバイス（お客様向け公開メモ）
+  profile.customerAdvice = record.customerAdvice || '';
   res.json({ success: true, profile });
 });
 
@@ -1432,7 +1434,8 @@ app.post('/api/chat', async (req, res) => {
 `.trim();
 
     // Build compact article list (titles only, no URLs - URLs resolved server-side)
-    const articleListCompact = BLOG_ARTICLES.map(a => `${a.title}【${a.category}】`).join('、');
+    // カテゴリはカッコ内に入れ、AIが{{ARTICLE|タイトル}}で出力しやすい形式にする
+    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category})`).join('、');
 
     // ===== ハウスメーカー紹介・注文住宅 → 面談誘導プロンプト =====
     let housemaker_prompt = `\n【ハウスメーカー紹介・注文住宅に関する案内】
@@ -1676,8 +1679,10 @@ ${customerContext}
 {{CHOICES|選択肢1|選択肢2|選択肢3|選択肢4}}
 選択肢は3〜4個。具体的な質問や選択肢タップ後はそのまま回答。
 
-【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。フォーマット：
-{{ARTICLE|記事タイトル}}
+【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。
+フォーマット（厳守）：{{ARTICLE|記事タイトル}}
+※記事タイトルのみを入れること。カテゴリ名やカッコは含めないこと。
+例：{{ARTICLE|住宅ローンの基礎知識}}
 利用可能な記事: ${articleListCompact}
 
 【面談予約リンクのルール】
@@ -1757,12 +1762,20 @@ ${housemaker_prompt}`;
 
     // Resolve article titles to full URLs (AI only outputs title, server adds URL)
     reply = reply.replace(/\{\{ARTICLE\|(.+?)\}\}/g, (match, title) => {
-      const article = BLOG_ARTICLES.find(a => a.title === title || title.includes(a.title) || a.title.includes(title));
+      // AIがカテゴリ名を含めてしまった場合に除去（例：「記事タイトル【loan】」→「記事タイトル」）
+      const cleanTitle = title.replace(/【.+?】/g, '').replace(/\(.+?\)/g, '').replace(/「|」/g, '').trim();
+
+      // 完全一致 → 部分一致
+      const article = BLOG_ARTICLES.find(a =>
+        a.title === cleanTitle || a.title === title ||
+        cleanTitle.includes(a.title) || a.title.includes(cleanTitle) ||
+        title.includes(a.title) || a.title.includes(title)
+      );
       if (article) {
         return `{{ARTICLE|${article.title}|${article.url}}}`;
       }
       // Fuzzy match by keywords
-      const fuzzy = BLOG_ARTICLES.find(a => a.keywords.some(k => title.includes(k)));
+      const fuzzy = BLOG_ARTICLES.find(a => a.keywords.some(k => cleanTitle.includes(k) || title.includes(k)));
       if (fuzzy) {
         return `{{ARTICLE|${fuzzy.title}|${fuzzy.url}}}`;
       }
@@ -2305,7 +2318,7 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
   const updates = req.body;
 
   // Track old values for auto-tag update

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>MuchiNavi — あなたの住まい探しAIアシスタント</title>
   <meta name="description" content="AIがあなたにぴったりの住まい探しをサポート。住宅ローン・エリア選び・物件タイプの相談が24時間無料。不動産エージェント岡本岳大が提供するAIアシスタント。">
   <meta name="keywords" content="住宅購入,マイホーム,住宅ローン,不動産相談,AI,住まい探し,TERASS">
@@ -102,15 +102,55 @@
       animation: cardIn 0.35s ease-out;
     }
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateX(40px) scale(0.97); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
     @keyframes cardOut {
-      from { opacity: 1; transform: translateY(0) scale(1); }
-      to { opacity: 0; transform: translateY(-20px) scale(0.96); }
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to { opacity: 0; transform: translateX(-40px) scale(0.97); }
+    }
+    @keyframes cardInReverse {
+      from { opacity: 0; transform: translateX(-40px) scale(0.97); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
     }
     .step-card.leaving {
-      animation: cardOut 0.3s ease forwards;
+      animation: cardOut 0.25s ease forwards;
+    }
+    .step-card.leaving-reverse {
+      animation: cardOut 0.25s ease forwards;
+    }
+    .step-card.entering-reverse {
+      animation: cardInReverse 0.35s ease-out;
+    }
+    /* 選択時のパルスアニメーション */
+    @keyframes selectPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    .choice-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+      animation: selectPulse 0.3s ease;
+    }
+    /* レスポンスメッセージのチャット風表示 */
+    .step-response {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: var(--accent-subtle);
+      padding: 10px 18px;
+      border-radius: 16px;
+      display: inline-block;
+    }
+    .step-response.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     /* ===== Step elements ===== */
@@ -134,24 +174,52 @@
       line-height: 1.7;
       margin-bottom: 28px;
     }
-    .step-response {
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
-      margin-top: 16px;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.2s ease;
-    }
-    .step-response.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* step-response styles moved to animation section above */
 
     /* ===== Progress bar ===== */
     .progress-container {
       margin-bottom: 32px;
       text-align: center;
+    }
+    .progress-bar-wrapper {
+      width: 100%;
+      height: 6px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #34c759);
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 20px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      border-radius: 3px;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .progress-percent {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .progress-remaining {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
     .progress-dots {
       display: flex;
@@ -307,14 +375,14 @@
     }
     .choice-card:hover {
       border-color: rgba(0,113,227,0.3);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,113,227,0.12);
     }
-    .choice-card.selected {
-      border-color: var(--accent);
-      background: var(--accent-subtle);
-      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+    .choice-card:active {
+      transform: scale(0.97);
+      transition-duration: 0.1s;
     }
+    /* choice-card.selected styles moved to animation section above */
     .choice-icon { font-size: 28px; margin-bottom: 8px; }
     .choice-label {
       font-size: 13px;
@@ -414,12 +482,12 @@
     .chat-screen {
       display: none;
       flex-direction: column;
-      height: 100vh;
       max-width: 100%;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: var(--bg);
       z-index: 100;
+      overflow: hidden;
     }
     .chat-screen.active { display: flex; }
 
@@ -428,6 +496,32 @@
       text-align: center;
       background: #1d1d1f;
       color: white;
+      transition: all 0.3s ease;
+    }
+    .chat-header.compact {
+      padding: 8px 16px;
+    }
+    .chat-header.compact .chat-header-label,
+    .chat-header.compact .chat-header-sub {
+      display: none;
+    }
+    .chat-header.compact .chat-header-title {
+      font-size: 15px;
+    }
+    .chat-header.compact .chat-header-actions {
+      margin-top: 6px;
+      gap: 4px;
+    }
+    .chat-header.compact .chat-header-btn {
+      font-size: 10px;
+      padding: 5px 10px;
+    }
+    .chat-header.compact .chat-header-btn.settings-toggle {
+      padding: 5px 8px;
+    }
+    .chat-header.compact .chat-header-btn svg {
+      width: 11px;
+      height: 11px;
     }
     .chat-header-label {
       font-size: 10px;
@@ -465,12 +559,33 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .chat-message.user { justify-content: flex-end; }
+    .chat-message.user > div { max-width: 80%; }
     .chat-bubble {
-      max-width: 80%;
       padding: 14px 20px;
       font-size: 14px;
       line-height: 1.75;
       word-wrap: break-word;
+    }
+    .chat-message.assistant > div { max-width: 80%; }
+    .chat-message.assistant {
+      align-items: flex-start;
+    }
+    .chat-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .chat-avatar svg {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      fill: none;
     }
     .chat-message.assistant .chat-bubble {
       background: white;
@@ -490,6 +605,15 @@
     .chat-bubble ul, .chat-bubble ol { margin: 6px 0; padding-left: 20px; }
     .chat-bubble li { margin-bottom: 4px; line-height: 1.6; }
     .chat-bubble strong { font-weight: 600; }
+    .chat-timestamp {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .chat-message.user .chat-timestamp {
+      text-align: right;
+    }
 
     /* 個人チャット用の色分け */
     .chat-bubble.direct-user {
@@ -511,11 +635,11 @@
       border-top: 1px solid var(--border);
       background: white;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 10px;
     }
     .chat-input-bar textarea {
-      flex: 1;
+      width: 100%;
       padding: 12px 18px;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -551,6 +675,384 @@
     .chat-input-bar button:disabled {
       background: var(--text-light);
       cursor: not-allowed;
+    }
+    .chat-input-bar button svg {
+      flex-shrink: 0;
+    }
+    .input-hint {
+      font-size: 10px;
+      color: var(--text-light);
+      text-align: right;
+      position: absolute;
+      bottom: -16px;
+      right: 4px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .input-hint.show {
+      opacity: 1;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      background: #fff;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding: 14px 16px 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    .progress-bar-container.collapsed {
+      padding: 8px 16px;
+    }
+    .progress-bar-steps {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 8px;
+      min-width: 0;
+    }
+    .progress-bar-container.collapsed .progress-bar-steps {
+      margin-bottom: 0;
+    }
+    .progress-bar-container.collapsed .progress-bar-labels,
+    .progress-bar-container.collapsed .progress-bar-status {
+      display: none;
+    }
+    .progress-step {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e5e5ea;
+      border: 2px solid #e5e5ea;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-step.completed {
+      background: #0071e3;
+      border-color: #0071e3;
+    }
+    .progress-step.completed svg { stroke: #fff; }
+    .progress-step.active {
+      background: #fff;
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+      animation: stepPulse 2s ease-in-out infinite;
+    }
+    @keyframes stepPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+      50% { box-shadow: 0 0 0 5px rgba(0,113,227,0.25); }
+    }
+    .progress-step.active::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #0071e3;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .progress-line {
+      flex: 1;
+      height: 2px;
+      background: #e5e5ea;
+      margin: 0 -1px;
+      z-index: 1;
+    }
+    .progress-line.completed {
+      background: #0071e3;
+    }
+    .progress-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .progress-label {
+      font-size: 10px;
+      color: #aeaeb2;
+      text-align: center;
+      width: 18px;
+      overflow: visible;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+    .progress-label.active {
+      color: #0071e3;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .progress-label.completed {
+      color: #6e6e73;
+    }
+    .progress-bar-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 4px;
+      border-top: 1px solid rgba(0,0,0,0.04);
+    }
+    .progress-status-text {
+      font-size: 13px;
+      color: #1d1d1f;
+      font-weight: 600;
+    }
+    .progress-status-count {
+      font-size: 12px;
+      color: #aeaeb2;
+      font-weight: 500;
+    }
+    .progress-next-action {
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #f0f7ff, #e8f4f8);
+      border-radius: 10px;
+      border: 1px solid rgba(0,113,227,0.1);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #1d1d1f;
+    }
+    .progress-next-action .next-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0071e3;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .progress-next-action .next-text {
+      color: #333;
+    }
+    .progress-next-action .next-btn {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      background: #0071e3;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .progress-next-action .next-btn:hover {
+      background: #0077ed;
+    }
+    .progress-bar-container.collapsed .progress-next-action {
+      display: none;
+    }
+    .progress-bar-container.collapsed .progress-step {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Mobile card view - hidden on desktop */
+    .progress-mobile-card {
+      display: none;
+      padding: 12px 16px;
+    }
+    .progress-mobile-mini {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .progress-mobile-mini-dot {
+      width: 10px;
+      height: 10px;
+      background: #0071e3;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .progress-mobile-mini-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+    .progress-mobile-mini-count {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-left: auto;
+    }
+    .progress-card-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .progress-card-prev,
+    .progress-card-next {
+      font-size: 10px;
+      color: #aeaeb2;
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+    .progress-card-arrow {
+      color: #aeaeb2;
+      font-size: 10px;
+    }
+    .progress-card-current-label {
+      font-size: 10px;
+      color: #0071e3;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .progress-card-current {
+      background: linear-gradient(135deg, #f0f7ff, #e8f4f8);
+      border: 1px solid rgba(0,113,227,0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .progress-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+    }
+    .progress-card-count {
+      font-size: 12px;
+      color: #aeaeb2;
+    }
+    .progress-card-dots {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .progress-card-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #e5e5ea;
+    }
+    .progress-card-dot.completed { background: #0071e3; }
+    .progress-card-dot.active {
+      background: #0071e3;
+      width: 18px;
+      border-radius: 3px;
+    }
+    .progress-bar-container.collapsed .progress-step.active::after {
+      width: 5px;
+      height: 5px;
+    }
+
+    /* Feedback Card */
+    .feedback-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 8px 12px 12px;
+      animation: msgIn 0.4s ease;
+    }
+    .feedback-card-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+    }
+    .feedback-card-sub {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-bottom: 12px;
+    }
+    .feedback-stars {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .feedback-star {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid #e5e5ea;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 18px;
+    }
+    .feedback-star:hover {
+      border-color: #ffb800;
+      background: #fffbf0;
+    }
+    .feedback-star.selected {
+      border-color: #ffb800;
+      background: #fff8e6;
+    }
+    .feedback-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .feedback-tag {
+      padding: 5px 12px;
+      border-radius: 980px;
+      border: 1px solid #e5e5ea;
+      background: #fff;
+      font-size: 11px;
+      color: #6e6e73;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .feedback-tag.selected {
+      border-color: #0071e3;
+      background: #f0f7ff;
+      color: #0071e3;
+    }
+    .feedback-comment {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      min-height: 44px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      transition: border 0.2s;
+    }
+    .feedback-comment:focus { border-color: #0071e3; }
+    .feedback-comment::placeholder { color: #c7c7cc; }
+    .feedback-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 20px;
+      background: #0071e3;
+      color: #fff;
+      border: none;
+      border-radius: 980px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .feedback-submit:hover { background: #0077ed; }
+    .feedback-submit:disabled { background: #c7c7cc; cursor: not-allowed; }
+    .feedback-thanks {
+      text-align: center;
+      padding: 16px;
+      font-size: 14px;
+      color: #34c759;
+      font-weight: 600;
     }
 
     .chat-room-tabs {
@@ -597,13 +1099,35 @@
       justify-content: center;
       flex: 1;
       text-align: center;
-      padding: 40px 24px;
+      padding: 20px 24px 16px;
     }
-    .chat-welcome-icon { font-size: 48px; margin-bottom: 16px; }
+    .chat-welcome-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(0,113,227,0.25);
+    }
+    .chat-welcome-icon svg {
+      stroke: white;
+      fill: none;
+    }
     .chat-welcome h3 {
       font-size: 18px;
       font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+    .chat-welcome .welcome-sub {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
       margin-bottom: 8px;
+      letter-spacing: 0.02em;
     }
     .chat-welcome p {
       font-size: 13px;
@@ -612,48 +1136,137 @@
       max-width: 300px;
     }
     .chat-hints {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-top: 20px;
-      justify-content: center;
+      width: 100%;
+      max-width: 360px;
     }
     .chat-hint {
       font-size: 12px;
-      padding: 8px 14px;
-      background: var(--accent-subtle);
-      color: var(--accent);
-      border-radius: 980px;
+      padding: 10px 12px;
+      background: white;
+      color: #1d1d1f;
+      border: 1.5px solid rgba(0, 113, 227, 0.15);
+      border-radius: 12px;
       cursor: pointer;
-      border: none;
       font-family: inherit;
-      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      line-height: 1.4;
     }
     .chat-hint:hover {
       background: var(--accent);
       color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+      transform: translateY(-1px);
+    }
+    .chat-hint:active {
+      transform: scale(0.97);
+    }
+    .chat-hint .hint-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
     }
 
     .typing-indicator {
       display: flex;
-      gap: 4px;
+      align-items: center;
+      gap: 10px;
       padding: 12px 18px;
       background: white;
       border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
       border: 1px solid var(--border);
       width: fit-content;
     }
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
     .typing-dot {
-      width: 8px; height: 8px;
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--text-light);
+      background: var(--accent);
+      opacity: 0.4;
       animation: typingBounce 1.4s infinite;
     }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes typingBounce {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-6px); }
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+    .typing-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      animation: typingTextFade 2s ease-in-out infinite;
+    }
+    @keyframes typingTextFade {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== Error Message Bubble ===== */
+    .chat-bubble.error-bubble {
+      background: #fff5f5;
+      border: 1px solid rgba(255,59,48,0.2);
+      color: var(--text);
+      position: relative;
+    }
+    .error-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--danger);
+      margin-bottom: 6px;
+    }
+    .error-badge svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--danger);
+      fill: none;
+    }
+    .error-message-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .error-retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      padding: 6px 14px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .error-retry-btn:hover {
+      background: #e0342b;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(255,59,48,0.3);
+    }
+    .error-retry-btn svg {
+      width: 12px;
+      height: 12px;
+      stroke: white;
+      fill: none;
     }
 
     /* ===== Article Card ===== */
@@ -1018,6 +1631,201 @@
       width: 100%;
     }
 
+    /* ===== マイページタブ ===== */
+    .mypage-tabs {
+      display: flex;
+      background: #1d1d1f;
+      padding: 0 16px;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .mypage-tab {
+      flex: 1;
+      padding: 14px 16px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border-bottom: 3px solid transparent;
+      letter-spacing: 0.02em;
+    }
+    .mypage-tab.active {
+      color: white;
+      border-bottom-color: var(--accent);
+      background: rgba(0,113,227,0.08);
+    }
+    .mypage-tab:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ===== カルテ ===== */
+    .carte-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .carte-section {
+      margin-bottom: 20px;
+    }
+    .carte-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .carte-section-icon {
+      font-size: 18px;
+    }
+    .carte-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+    .carte-section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin-left: 12px;
+    }
+    .carte-summary-card,
+    .carte-stage-card,
+    .carte-advice-card,
+    .carte-agent-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .carte-summary-card:hover,
+    .carte-stage-card:hover,
+    .carte-advice-card:hover,
+    .carte-agent-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+    .carte-summary-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid rgba(0,113,227,0.1);
+    }
+    .carte-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .carte-summary-row:last-child {
+      border-bottom: none;
+    }
+    .carte-summary-label {
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .carte-summary-value {
+      color: var(--primary);
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+    }
+    .carte-stage-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+    }
+    .carte-stage-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .carte-stage-dot.done {
+      background: var(--success);
+      color: white;
+    }
+    .carte-stage-dot.current {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(0,113,227,0.15);
+    }
+    .carte-stage-dot.upcoming {
+      background: var(--border);
+      color: var(--text-light);
+    }
+    .carte-stage-info {
+      flex: 1;
+    }
+    .carte-stage-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .carte-stage-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .carte-advice-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .carte-advice-item:last-child {
+      border-bottom: none;
+    }
+    .carte-advice-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .carte-advice-title::before {
+      content: '💡';
+      font-size: 14px;
+    }
+    .carte-advice-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      padding-left: 22px;
+    }
+    .carte-action-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .carte-action-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
     .profile-section {
       background: white;
       border-radius: var(--radius);
@@ -1109,7 +1917,145 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ===== PWA Install Banner ===== */
+    .pwa-banner-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .pwa-banner {
+      background: white;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 24px calc(20px + env(safe-area-inset-bottom, 0px));
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .pwa-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .pwa-banner-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0071e3, #34c759);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pwa-banner-icon svg { width: 22px; height: 22px; stroke: white; fill: none; }
+    .pwa-banner-title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .pwa-banner-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .pwa-banner-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none; border: none;
+      font-size: 22px; color: var(--text-light);
+      cursor: pointer; padding: 4px;
+    }
+    .pwa-browser-select {
+      display: flex; gap: 10px; margin: 16px 0;
+    }
+    .pwa-browser-btn {
+      flex: 1;
+      padding: 14px 12px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .pwa-browser-btn:hover, .pwa-browser-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+    }
+    .pwa-browser-btn .browser-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .pwa-browser-btn .browser-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .pwa-steps {
+      margin-top: 16px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .pwa-step {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .pwa-step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent);
+      color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pwa-step-text { font-size: 14px; line-height: 1.6; color: var(--text); padding-top: 2px; }
+    .pwa-step-text strong { color: var(--accent); }
+    .pwa-step-text .step-icon { display: inline-block; vertical-align: middle; margin: 0 2px; }
+    .pwa-banner-dismiss {
+      display: block; width: 100%; margin-top: 20px;
+      padding: 14px; border: none; border-radius: 14px;
+      background: var(--accent);
+      color: white; font-size: 15px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .pwa-banner-dismiss:hover { background: var(--accent-hover); }
+
     /* ===== Responsive ===== */
+    /* Tablet breakpoint */
+    @media (max-width: 768px) {
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 85%; }
+      .chat-header-actions { flex-wrap: wrap; }
+      .progress-label { font-size: 9px; }
+      .progress-label.active { font-size: 10px; }
+      .carte-body { padding: 16px 12px; }
+    }
+
+    /* ===== Tablet: moderate width ===== */
+    @media (min-width: 768px) {
+      .chat-screen {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 700px;
+        box-shadow: -1px 0 40px rgba(0,0,0,0.06), 1px 0 40px rgba(0,0,0,0.06);
+      }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 70%; }
+      .chat-header { padding: 16px 28px; }
+      .chat-input-bar { padding: 16px 28px; }
+      .progress-bar-container { padding: 14px 28px 10px; }
+    }
+    /* ===== PC: wide layout ===== */
+    @media (min-width: 1024px) {
+      .chat-screen {
+        width: 860px;
+      }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 65%; }
+      .chat-messages { padding: 28px 32px; }
+      .chat-header { padding: 18px 36px; }
+      .chat-input-bar { padding: 18px 36px; }
+      .progress-bar-container { padding: 14px 36px 10px; }
+    }
+    /* ===== Large PC: full comfortable width ===== */
+    @media (min-width: 1400px) {
+      .chat-screen {
+        width: 960px;
+      }
+      .chat-messages { padding: 32px 48px; }
+      .chat-header { padding: 20px 48px; }
+      .chat-input-bar { padding: 20px 48px; }
+      .progress-bar-container { padding: 14px 48px 10px; }
+    }
+
     @media (max-width: 560px) {
       /* Onboarding */
       .container { padding: 12px; }
@@ -1137,6 +2083,17 @@
       .chat-header-actions { gap: 6px; margin-top: 10px; }
       .chat-header-btn { font-size: 12px; padding: 8px 14px; }
       .chat-header-btn.settings-toggle { padding: 8px 10px; }
+
+      /* Progress Bar - mobile card view */
+      .progress-bar-container { padding: 0; }
+      .progress-bar-container.collapsed { padding: 0; }
+      .progress-bar-scroll-wrapper { display: none; }
+      .progress-bar-status { display: none !important; }
+      .progress-bar-container .progress-mobile-card { display: block; }
+      .progress-bar-container .progress-mobile-mini { display: none; }
+      .progress-bar-container.collapsed .progress-mobile-card { display: none; }
+      .progress-bar-container.collapsed .progress-next-action { display: none; }
+      .progress-bar-container.collapsed .progress-mobile-mini { display: flex; }
 
       /* Chat Messages */
       .chat-messages { padding: 16px 10px; gap: 12px; }
@@ -1178,11 +2135,13 @@
 
       /* Welcome */
       .chat-welcome { padding: 24px 16px; }
-      .chat-welcome-icon { font-size: 36px; }
+      .chat-welcome-icon { width: 48px; height: 48px; border-radius: 14px; }
+      .chat-welcome-icon svg { width: 24px; height: 24px; }
       .chat-welcome h3 { font-size: 16px; }
+      .chat-welcome .welcome-sub { font-size: 11px; }
       .chat-welcome p { font-size: 12px; max-width: 260px; }
-      .chat-hints { gap: 6px; margin-top: 14px; }
-      .chat-hint { font-size: 11px; padding: 6px 10px; }
+      .chat-hints { gap: 6px; margin-top: 14px; max-width: 320px; }
+      .chat-hint { font-size: 11px; padding: 8px 10px; }
 
       /* Modal */
       .overlay-modal { padding: 16px; }
@@ -1201,7 +2160,8 @@
       .step-card { padding: 24px 14px; }
       .step-icon { font-size: 36px; }
       .step-title { font-size: 16px; }
-      .chat-bubble { max-width: 92%; font-size: 12.5px; }
+      .chat-message.user > div, .chat-message.assistant > div { max-width: 92%; }
+      .chat-bubble { font-size: 12.5px; }
       .chat-header { padding: 12px 12px; }
       .chat-header-title { font-size: 15px; }
       .chat-input-bar textarea { padding: 10px 12px; }
@@ -1218,6 +2178,187 @@
       .chat-header {
         padding-top: calc(14px + env(safe-area-inset-top));
       }
+      .chat-header.compact {
+        padding-top: calc(6px + env(safe-area-inset-top));
+      }
+    }
+
+    /* Ensure input bar is always visible */
+    .chat-input-bar {
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .chat-messages {
+      min-height: 0;
+    }
+
+    /* ===== File Upload ===== */
+    .file-attach-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 0 12px;
+      color: white;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 44px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    .file-attach-btn:hover, .file-attach-btn:active { background: var(--accent-hover); }
+    .file-attach-btn svg { width: 16px; height: 16px; flex-shrink: 0; stroke: white; }
+
+    .file-preview-bar {
+      display: none;
+      padding: 8px 16px 0;
+      background: white;
+      border-top: 1px solid var(--border);
+    }
+    .file-preview-bar.active { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .file-preview-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-light);
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 220px;
+    }
+    .file-preview-item img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .file-preview-item .file-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: #e8e0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .file-preview-info {
+      overflow: hidden;
+    }
+    .file-preview-name {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+    .file-preview-size {
+      font-size: 10px;
+      color: var(--text-light);
+    }
+    .file-preview-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 2px;
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .file-preview-remove:hover { color: #e53e3e; }
+
+    .file-upload-progress {
+      display: none;
+      padding: 8px 16px;
+      background: white;
+    }
+    .file-upload-progress.active { display: block; }
+    .file-upload-progress-bar {
+      height: 3px;
+      background: var(--bg-light);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .file-upload-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .file-upload-progress-text {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .file-limit-hint {
+      font-size: 10px;
+      color: var(--text-light);
+      padding: 0 16px 4px;
+      background: white;
+      display: none;
+    }
+    .file-limit-hint.active { display: block; }
+
+    /* File attachment in chat bubble */
+    .chat-file-attachment {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .chat-file-attachment:hover { background: rgba(0,0,0,0.08); }
+    .chat-file-attachment img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .chat-file-attachment .file-att-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: #e8e0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .chat-file-attachment .file-att-info {
+      overflow: hidden;
+    }
+    .chat-file-attachment .file-att-name {
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-file-attachment .file-att-size {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 2px;
     }
 
     /* ===== Back Button ===== */
@@ -1371,6 +2512,121 @@
       color: var(--text-secondary);
       text-decoration: none;
     }
+
+    /* ===== Tutorial ===== */
+    .tutorial-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+    }
+    .tutorial-overlay.active { display: flex; align-items: flex-end; justify-content: center; }
+
+    .tutorial-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9998;
+    }
+
+    .tutorial-highlight-ring {
+      position: relative;
+      z-index: 9999 !important;
+      animation: tutorialPulse 1.5s ease-in-out infinite;
+      border-radius: 12px;
+    }
+    @keyframes tutorialPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(106,90,205,0.5), 0 0 16px rgba(106,90,205,0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(106,90,205,0.3), 0 0 24px rgba(106,90,205,0.2); }
+    }
+
+    .tutorial-card {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10000;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+      animation: tutorialSlideUp 0.35s ease;
+    }
+    @keyframes tutorialSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .tutorial-step-indicator {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .tutorial-step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e5e5e7;
+      transition: all 0.3s;
+    }
+    .tutorial-step-dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
+    .tutorial-step-dot.done { background: #34c759; }
+
+    .tutorial-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .tutorial-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+    .tutorial-desc {
+      font-size: 14px;
+      color: #6e6e73;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .tutorial-target-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(106,90,205,0.1);
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tutorial-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tutorial-skip {
+      font-size: 13px;
+      color: #aeaeb2;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px 0;
+      font-family: inherit;
+    }
+    .tutorial-skip:hover { color: #8e8e93; }
+    .tutorial-next {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 980px;
+      padding: 12px 32px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .tutorial-next:hover { background: var(--accent-hover); }
   </style>
 </head>
 <body>
@@ -1380,8 +2636,13 @@
   <!-- ===== Onboarding ===== -->
   <div class="container" id="onboarding">
     <div class="progress-container" id="progress" style="display:none;">
-      <div class="progress-dots" id="progress-dots"></div>
-      <div class="progress-label" id="progress-label"></div>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+      </div>
+      <div class="progress-info">
+        <span class="progress-percent" id="progress-percent">0%</span>
+        <span class="progress-remaining" id="progress-remaining"></span>
+      </div>
     </div>
 
     <div class="step-card" id="step-card">
@@ -1397,7 +2658,7 @@
   <div class="login-screen" id="login-screen">
     <!-- 通常ログインフォーム -->
     <div class="login-card" id="login-form-card">
-      <div class="step-icon">🔑</div>
+      <div class="step-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
       <h2 class="step-title">ログイン</h2>
       <p class="step-subtitle">登録時のメールアドレスとパスワードを入力してください</p>
       <div style="text-align: left; display: flex; flex-direction: column; gap: 14px; margin-top: 24px;">
@@ -1425,7 +2686,7 @@
 
     <!-- パスワードリセットフォーム -->
     <div class="login-card" id="reset-form-card" style="display: none;">
-      <div class="step-icon">🔄</div>
+      <div class="step-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
       <h2 class="step-title">パスワード再設定</h2>
       <p class="step-subtitle">登録時のメールアドレスを入力してください。<br>確認後、新しいパスワードを設定できます。</p>
       <div style="text-align: left; display: flex; flex-direction: column; gap: 14px; margin-top: 24px;">
@@ -1469,13 +2730,17 @@
       <div class="chat-header-sub" id="chat-customer-name"></div>
       <div class="chat-header-actions">
         <a class="chat-header-btn booking" id="chat-booking-btn" href="#" target="_blank" rel="noopener">
-          📅 オンライン面談
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> オンライン面談
         </a>
         <button class="chat-header-btn profile" onclick="openProfile()">
-          👤 マイページ
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> マイページ
+        </button>
+        <button class="chat-header-btn notification-bell" onclick="openNotifications()" id="notification-bell" style="position:relative;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="notification-badge" style="display:none;position:absolute;top:-2px;right:-2px;background:#ff3b30;color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 4px;">0</span>
         </button>
         <div class="settings-wrapper">
-          <button class="chat-header-btn settings-toggle" onclick="toggleSettings(event)">⚙️</button>
+          <button class="chat-header-btn settings-toggle" onclick="toggleSettings(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
           <div class="settings-dropdown" id="settings-dropdown">
             <button class="settings-dropdown-item" onclick="doLogout()">ログアウト</button>
             <button class="settings-dropdown-item danger" onclick="showWithdrawModal()">退会する</button>
@@ -1484,14 +2749,31 @@
       </div>
     </div>
 
+    <!-- Progress Bar -->
+    <div class="progress-bar-container" id="progress-bar">
+      <div class="progress-mobile-mini" onclick="toggleProgressBar()" id="progress-mobile-mini"></div>
+      <div onclick="toggleProgressBar()" style="cursor:pointer;">
+        <div class="progress-mobile-card" id="progress-mobile-card"></div>
+        <div class="progress-bar-scroll-wrapper">
+          <div class="progress-bar-steps" id="progress-steps"></div>
+          <div class="progress-bar-labels" id="progress-labels"></div>
+        </div>
+        <div class="progress-bar-status">
+          <span class="progress-status-text" id="progress-status-text"></span>
+          <span class="progress-status-count" id="progress-status-count"></span>
+        </div>
+      </div>
+      <div class="progress-next-action" id="progress-next-action"></div>
+    </div>
+
     <!-- Chat room tab switcher -->
     <div class="chat-room-tabs">
       <button class="chat-room-tab active" id="tab-ai" onclick="switchChatRoom('ai')">
-        🤖 MuchiNavi
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> MuchiNavi
         <span class="tab-badge" id="badge-ai"></span>
       </button>
       <button class="chat-room-tab" id="tab-direct" onclick="switchChatRoom('direct')">
-        💬 エージェントに相談
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> エージェントに相談
         <span class="tab-badge" id="badge-direct"></span>
       </button>
     </div>
@@ -1499,30 +2781,59 @@
     <!-- AI Chat Room (existing) -->
     <div class="chat-messages" id="chat-messages" style="display: flex;">
       <div class="chat-welcome" id="chat-welcome">
-        <div class="chat-welcome-icon">🏠</div>
+        <div class="chat-welcome-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <h3>MuchiNaviに何でも聞いてください</h3>
+        <div class="welcome-sub">24時間対応 AIアシスタント</div>
         <p>住宅ローン、物件の選び方、スケジュール…<br>住まい探しのことなら何でもお気軽にどうぞ。</p>
         <div class="chat-hints">
-          <button class="chat-hint" onclick="sendHint('住宅ローンって何から始めればいいですか？')">住宅ローンの始め方</button>
-          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')">物件探しのコツ</button>
-          <button class="chat-hint" onclick="sendHint('購入までのスケジュール感を教えてください')">購入スケジュール</button>
+          <button class="chat-hint" onclick="sendHint('住宅ローンのシミュレーションをお願いします')"><span class="hint-icon">💰</span>ローンシミュレーション</button>
+          <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')"><span class="hint-icon">🏠</span>物件探しのコツ</button>
+          <button class="chat-hint" onclick="sendHint('購入までの全体スケジュールを教えてください')"><span class="hint-icon">📅</span>購入の流れ</button>
+          <button class="chat-hint" onclick="sendHint('注文住宅と建売住宅の違いを教えてください')"><span class="hint-icon">🔑</span>注文 vs 建売</button>
+          <button class="chat-hint" onclick="sendHint('頭金はいくら必要ですか？')"><span class="hint-icon">💡</span>頭金の目安</button>
+          <button class="chat-hint" onclick="sendHint('住宅購入の諸費用について教えてください')"><span class="hint-icon">📋</span>諸費用の内訳</button>
         </div>
       </div>
     </div>
+    <div class="file-preview-bar" id="ai-file-preview"></div>
+    <div class="file-limit-hint" id="ai-file-hint">対応形式: JPG, PNG, GIF, WEBP, PDF（最大10MB）</div>
+    <div class="file-upload-progress" id="ai-file-progress">
+      <div class="file-upload-progress-bar"><div class="file-upload-progress-fill" id="ai-progress-fill"></div></div>
+      <div class="file-upload-progress-text" id="ai-progress-text">アップロード中...</div>
+    </div>
     <div class="chat-input-bar" id="ai-chat-input-bar">
-      <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
-      <button onclick="sendMessage()" id="chat-send-btn">送信</button>
+      <button class="file-attach-btn" onclick="document.getElementById('ai-file-input').click()" title="ファイルを添付（JPG, PNG, PDF 最大10MB）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <span>資料</span>
+      </button>
+      <input type="file" id="ai-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'ai')">
+      <div style="flex:1;position:relative;">
+        <textarea id="chat-input" placeholder="MuchiNaviに質問…" rows="1"></textarea>
+        <div class="input-hint" id="input-hint">Enter で送信 / Shift+Enter で改行</div>
+      </div>
+      <button onclick="sendMessage()" id="chat-send-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>送信</button>
     </div>
 
     <!-- Direct Chat Room (new) -->
     <div class="chat-messages" id="direct-chat-messages" style="display: none;">
       <div class="chat-welcome" id="direct-chat-welcome">
-        <div class="chat-welcome-icon">💬</div>
+        <div class="chat-welcome-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <h3>担当エージェントに直接相談できます</h3>
         <p>AIではなく、担当エージェントに直接メッセージを送れます。<br>お返事までお時間をいただく場合があります。</p>
       </div>
     </div>
+    <div class="file-preview-bar" id="direct-file-preview"></div>
+    <div class="file-limit-hint" id="direct-file-hint">対応形式: JPG, PNG, GIF, WEBP, PDF（最大10MB）</div>
+    <div class="file-upload-progress" id="direct-file-progress">
+      <div class="file-upload-progress-bar"><div class="file-upload-progress-fill" id="direct-progress-fill"></div></div>
+      <div class="file-upload-progress-text" id="direct-progress-text">アップロード中...</div>
+    </div>
     <div class="chat-input-bar" id="direct-chat-input-bar" style="display: none;">
+      <button class="file-attach-btn" onclick="document.getElementById('direct-file-input').click()" title="ファイルを添付（JPG, PNG, PDF 最大10MB）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <span>資料</span>
+      </button>
+      <input type="file" id="direct-file-input" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" style="display:none" onchange="handleFileSelect(this, 'direct')">
       <textarea id="direct-chat-input" placeholder="エージェントにメッセージ…" rows="1"></textarea>
       <button onclick="sendDirectMessage()" id="direct-send-btn">送信</button>
     </div>
@@ -1534,7 +2845,78 @@
       <button class="profile-back-btn" onclick="closeProfile()">← チャットに戻る</button>
       <div class="profile-header-title">マイページ</div>
     </div>
-    <div class="profile-body">
+    <!-- マイページ タブ切り替え -->
+    <div class="mypage-tabs">
+      <button class="mypage-tab" id="mypage-tab-profile" onclick="switchMypageTab('profile')">プロフィール</button>
+      <button class="mypage-tab active" id="mypage-tab-carte" onclick="switchMypageTab('carte')">あなたのカルテ</button>
+    </div>
+    <!-- カルテタブ -->
+    <div class="carte-body" id="carte-body">
+      <div class="carte-loading" id="carte-loading">
+        <div style="text-align:center; padding: 40px 20px; color: var(--text-secondary);">
+          <div style="font-size: 24px; margin-bottom: 12px;">📋</div>
+          カルテを読み込み中...
+        </div>
+      </div>
+      <div id="carte-content" style="display:none;">
+        <!-- 現状サマリー -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">🏠</span>
+            <span class="carte-section-title">あなたの住まい探し</span>
+          </div>
+          <div class="carte-summary-card" id="carte-summary">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 購入進捗 -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">📊</span>
+            <span class="carte-section-title">進捗ステータス</span>
+          </div>
+          <div class="carte-stage-card" id="carte-stage">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 検討ポイント・提案 -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">💡</span>
+            <span class="carte-section-title">検討ポイント</span>
+          </div>
+          <div class="carte-advice-card" id="carte-advice">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- 担当エージェント -->
+        <div class="carte-section">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">👤</span>
+            <span class="carte-section-title">担当エージェント</span>
+          </div>
+          <div class="carte-agent-card">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">岡</div>
+              <div>
+                <div style="font-weight: 700; font-size: 15px; color: var(--primary);">岡本 岳大</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">TERASS エージェント</div>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px;">
+              お客様ファーストで、住宅購入がずっと幸せにつながるようサポートします。気になることがあればいつでもご相談ください。
+            </p>
+            <button class="carte-action-btn" onclick="closeProfile(); switchChatRoom('direct');">
+              岡本に直接相談する →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-body" id="profile-body" style="display:none;">
       <div class="profile-section">
         <div class="profile-section-title">基本情報</div>
         <div class="profile-field">
@@ -1557,6 +2939,12 @@
           <label>お住まいの都道府県</label>
           <select id="prof-prefecture">
             <option value="">選択してください</option>
+            <option value="北海道">北海道</option><option value="青森">青森</option><option value="岩手">岩手</option><option value="宮城">宮城</option><option value="秋田">秋田</option><option value="山形">山形</option><option value="福島">福島</option>
+            <option value="茨城">茨城</option><option value="栃木">栃木</option><option value="群馬">群馬</option><option value="埼玉">埼玉</option><option value="千葉">千葉</option><option value="東京">東京</option><option value="神奈川">神奈川</option>
+            <option value="新潟">新潟</option><option value="富山">富山</option><option value="石川">石川</option><option value="福井">福井</option><option value="山梨">山梨</option><option value="長野">長野</option><option value="岐阜">岐阜</option><option value="静岡">静岡</option><option value="愛知">愛知</option>
+            <option value="三重">三重</option><option value="滋賀">滋賀</option><option value="京都">京都</option><option value="大阪">大阪</option><option value="兵庫">兵庫</option><option value="奈良">奈良</option><option value="和歌山">和歌山</option>
+            <option value="鳥取">鳥取</option><option value="島根">島根</option><option value="岡山">岡山</option><option value="広島">広島</option><option value="山口">山口</option><option value="徳島">徳島</option><option value="香川">香川</option><option value="愛媛">愛媛</option><option value="高知">高知</option>
+            <option value="福岡">福岡</option><option value="佐賀">佐賀</option><option value="長崎">長崎</option><option value="熊本">熊本</option><option value="大分">大分</option><option value="宮崎">宮崎</option><option value="鹿児島">鹿児島</option><option value="沖縄">沖縄</option>
           </select>
         </div>
         <div class="profile-field">
@@ -1606,14 +2994,6 @@
           <label>メールアドレス</label>
           <input type="email" id="prof-email" placeholder="example@mail.com">
         </div>
-        <div class="profile-field">
-          <label>電話番号</label>
-          <input type="tel" id="prof-phone" placeholder="090-XXXX-XXXX">
-        </div>
-        <div class="profile-field">
-          <label>LINE ID</label>
-          <input type="text" id="prof-line" placeholder="LINE ID">
-        </div>
       </div>
 
       <button class="profile-save-btn" id="profile-save-btn" onclick="saveProfile()">変更を保存する</button>
@@ -1642,9 +3022,22 @@
   </div>
 
   <!-- ===== 退会確認モーダル ===== -->
+  <!-- ===== お知らせモーダル ===== -->
+  <div class="overlay-modal" id="notification-modal">
+    <div class="modal-inner" style="max-width: 400px; max-height: 80vh; padding: 0; overflow: hidden;">
+      <div style="padding: 20px 24px 16px; border-bottom: 1px solid #e5e5e7;">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1d1d1f;">お知らせ</h2>
+      </div>
+      <div id="notification-list" style="overflow-y: auto; max-height: 60vh; padding: 8px 0;"></div>
+      <div style="padding: 12px 24px; border-top: 1px solid #e5e5e7;">
+        <button class="modal-btn" onclick="closeNotifications()" style="width: 100%; background: #f5f5f7; color: #1d1d1f; border-radius: 10px; font-size: 14px;">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay-modal" id="withdraw-modal">
     <div class="modal-inner">
-      <div class="modal-inner-icon">😢</div>
+      <div class="modal-inner-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
       <h2 class="modal-inner-title">本当に退会しますか？</h2>
       <p class="modal-inner-text">退会すると、チャット履歴を含むすべてのデータが削除されます。この操作は取り消せません。</p>
       <div class="modal-btn-row">
@@ -1654,9 +3047,25 @@
     </div>
   </div>
 
+  <!-- ===== チュートリアル ===== -->
+  <div class="tutorial-overlay" id="tutorial-overlay">
+    <div class="tutorial-backdrop" onclick="endTutorial()"></div>
+    <div class="tutorial-card" id="tutorial-card">
+      <div class="tutorial-step-indicator" id="tutorial-dots"></div>
+      <div class="tutorial-icon" id="tutorial-icon"></div>
+      <div class="tutorial-target-label" id="tutorial-target-label"></div>
+      <div class="tutorial-title" id="tutorial-title"></div>
+      <div class="tutorial-desc" id="tutorial-desc"></div>
+      <div class="tutorial-actions">
+        <button class="tutorial-skip" onclick="endTutorial()">スキップ</button>
+        <button class="tutorial-next" id="tutorial-next-btn" onclick="nextTutorialStep()">次へ</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== ブロック画面 ===== -->
   <div class="blocked-screen" id="blocked-screen">
-    <div class="blocked-icon">🚫</div>
+    <div class="blocked-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
     <h2 class="blocked-title">ご利用いただけません</h2>
     <p class="blocked-text">このサービスは現在ご利用いただけません。<br>ご不明な点がございましたらお問い合わせください。</p>
   </div>
@@ -1689,15 +3098,15 @@
     const steps = [
       {
         type: 'welcome',
-        icon: '🏠',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
         title: 'MuchiNaviへようこそ',
         subtitle: 'AIがあなたの住まい探しをサポートします。\n簡単な質問に答えるだけで、あなた専用のアドバイザーが準備できます。',
-        buttonText: 'はじめる ✨',
+        buttonText: 'はじめる',
       },
       {
         type: 'text',
         key: 'name',
-        icon: '😊',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
         title: 'お名前を教えてください',
         subtitle: '※ 本名でのご記入をお願いします（今後のやり取りで正確にサポートするため）',
         placeholder: '例: 山田太郎',
@@ -1707,7 +3116,7 @@
       {
         type: 'birthdate',
         key: 'birthInfo',
-        icon: '🎂',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>',
         title: '{name}さんの生まれ年と\n生まれ月を教えてください',
         subtitle: 'ライフプランの作成に使用します',
         required: true,
@@ -1716,7 +3125,7 @@
       {
         type: 'prefecture',
         key: 'prefecture',
-        icon: '🗾',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
         title: '{name}さんが\n今お住まいの都道府県は？',
         subtitle: '',
         required: true,
@@ -1725,14 +3134,14 @@
       {
         type: 'choice',
         key: 'family',
-        icon: '👨‍👩‍👧‍👦',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
         title: '{name}さんは\n誰と一緒に住む予定ですか？',
         subtitle: '',
         choices: [
-          { icon: '🧑', label: 'おひとり', value: '単身' },
-          { icon: '👫', label: 'パートナーと', value: 'パートナーと二人' },
-          { icon: '👨‍👩‍👧', label: '家族で', value: '家族', hasSubQuestion: true },
-          { icon: '🤔', label: 'まだ決めてない', value: '未定' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', label: 'おひとり', value: '単身' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', label: 'パートナーと', value: 'パートナーと二人' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', label: '家族で', value: '家族', hasSubQuestion: true },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', label: 'まだ決めてない', value: '未定' },
         ],
         subQuestion: {
           label: 'お子様は何人ですか？',
@@ -1744,7 +3153,7 @@
       {
         type: 'choice',
         key: 'householdIncome',
-        icon: '💼',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
         title: '{name}さんの\n世帯年収を教えてください',
         subtitle: 'ローンの目安や資金計画に活用します',
         choices: [
@@ -1761,35 +3170,35 @@
       {
         type: 'choice',
         key: 'propertyType',
-        icon: '🏗️',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 6V2"/><path d="M18 6V2"/><path d="M10 14h4"/><path d="M12 12v4"/></svg>',
         title: 'どんな住まいをお考えですか？',
         subtitle: '今のイメージで大丈夫です',
         choices: [
-          { icon: '🏠', label: '中古戸建て', value: '中古戸建て' },
-          { icon: '🏢', label: '中古マンション', value: '中古マンション' },
-          { icon: '🏡', label: '新築戸建て', value: '新築戸建て' },
-          { icon: '🏗️', label: '注文住宅', value: '注文住宅' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', label: '中古戸建て', value: '中古戸建て' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg>', label: '中古マンション', value: '中古マンション' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>', label: '新築戸建て', value: '新築戸建て' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 6V2"/><path d="M18 6V2"/><path d="M10 14h4"/><path d="M12 12v4"/></svg>', label: '注文住宅', value: '注文住宅' },
         ],
         response: (val) => `${val}をお探しなんですね！`,
       },
       {
         type: 'choice',
         key: 'purpose',
-        icon: '🎯',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
         title: '今回はどんなきっかけで\nご登録いただきましたか？',
         subtitle: '一番近いものをお選びください',
         choices: [
-          { icon: '🔍', label: '住まい探し全般', value: '住まい探し全般' },
-          { icon: '📰', label: '記事が参考になった', value: '記事が参考になった' },
-          { icon: '🤝', label: 'ハウスメーカー紹介', value: 'ハウスメーカー紹介・割引を受けたい' },
-          { icon: '💬', label: 'とりあえず相談', value: 'とりあえず相談したい' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>', label: '住まい探し全般', value: '住まい探し全般' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>', label: '記事が参考になった', value: '記事が参考になった' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17a4 4 0 0 0 8 0"/><path d="M5 17a4 4 0 0 0 8 0"/><path d="M2 11l4-4 4 4"/><path d="M14 7l4-4 4 4"/></svg>', label: 'ハウスメーカー紹介', value: 'ハウスメーカー紹介・割引を受けたい' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', label: 'とりあえず相談', value: 'とりあえず相談したい' },
         ],
         response: (val) => `なるほど、承知しました！`,
       },
       {
         type: 'textarea',
         key: 'searchReason',
-        icon: '📝',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
         title: '{name}さんが住まいを探している\n理由を教えてください',
         subtitle: '詳しく書いていただくほど、的確なサポートができます',
         placeholder: '例: 子どもが小学校に上がるタイミングで、学区の良いエリアに引っ越したい',
@@ -1799,19 +3208,19 @@
       {
         type: 'text',
         key: 'area',
-        icon: '📍',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
         title: 'どのあたりに住みたいですか？',
         subtitle: 'まだ決まっていなくても大丈夫です',
         placeholder: '例: 世田谷区、横浜市',
         skipText: 'まだ決まっていない',
         skipValue: '未定（一緒に探したい）',
-        skipResponse: '大丈夫です！一緒に探しましょう 🔍',
+        skipResponse: '大丈夫です！一緒に探しましょう',
         response: (val) => `${val}エリアですね、素敵な場所ですね！`,
       },
       {
         type: 'slider',
         key: 'budget',
-        icon: '💰',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
         title: 'ご予算のイメージは？',
         subtitle: 'ざっくりで大丈夫です。あとから変更もできます。',
         min: 2000,
@@ -1824,13 +3233,13 @@
         },
         skipText: 'まだわからない',
         skipValue: '未定',
-        skipResponse: '全然OKです！これから一緒に考えましょう 💡',
+        skipResponse: '全然OKです！これから一緒に考えましょう',
         response: (val) => `了解です！ぴったりの物件を探しましょう`,
       },
       {
         type: 'textarea',
         key: 'freeComment',
-        icon: '💬',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
         title: '最後に、何か気になることや\nご要望があればお聞かせください',
         subtitle: '何でもOKです！空白のまま進むこともできます',
         placeholder: '例: 駅近がいい、ペット可の物件が希望、予算内で最大限の広さがほしい…など',
@@ -1843,7 +3252,7 @@
       {
         type: 'contact',
         key: 'contact',
-        icon: '📱',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
         title: '連絡先を教えてください',
         subtitle: '個人チャットの通知や、重要なご連絡に使用します。\n情報は厳重に管理しますのでご安心ください。',
         response: () => '次へ進みます！',
@@ -1851,7 +3260,7 @@
       {
         type: 'password',
         key: 'password',
-        icon: '🔒',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
         title: 'パスワードを設定してください',
         subtitle: '他の端末からもログインできるようになります',
         required: true,
@@ -1891,7 +3300,14 @@
       `;
 
       if (step.type === 'welcome') {
-        html += `<button class="btn-primary" onclick="nextStep()">${step.buttonText}</button>`;
+        html += `
+          <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px; opacity: 0.5; font-size: 12px; color: var(--text-secondary);">
+            <span>✓ 3分で完了</span>
+            <span>✓ 無料</span>
+            <span>✓ 24時間対応</span>
+          </div>
+        `;
+        html += `<button class="btn-primary" onclick="nextStep()" style="animation: cardIn 0.5s ease-out 0.2s both;">${step.buttonText}</button>`;
         html += `
           <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
             <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">すでにアカウントをお持ちの方</p>
@@ -2039,10 +3455,7 @@
               <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
-            <div>
-              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号（任意）</label>
-              <input class="input-field" type="tel" id="contact-phone" placeholder="090-xxxx-xxxx" style="text-align: left;">
-            </div>
+            <!-- 電話番号フィールドは削除済み -->
           </div>
           <div style="margin-top: 24px;">
             <button class="btn-primary" onclick="submitContact()">次へ →</button>
@@ -2072,7 +3485,7 @@
             </p>
           </div>
           <div style="margin-top: 24px;">
-            <button class="btn-primary" onclick="submitPassword()">登録する 🎉</button>
+            <button class="btn-primary" onclick="submitPassword()">登録する</button>
           </div>
           <div class="step-response" id="step-response"></div>
         `;
@@ -2088,7 +3501,7 @@
         card.innerHTML = html;
         card.style.animation = 'none';
         card.offsetHeight; // trigger reflow
-        card.style.animation = '';
+        card.style.animation = isGoingBack ? 'cardInReverse 0.35s ease-out' : '';
 
         // Focus input
         const input = document.getElementById('step-input');
@@ -2097,17 +3510,23 @@
     }
 
     function renderProgress(stepIdx) {
-      const dots = document.getElementById('progress-dots');
-      const label = document.getElementById('progress-label');
-      let html = '';
-      for (let i = 1; i < TOTAL_STEPS; i++) {
-        let cls = 'progress-dot';
-        if (i < stepIdx) cls += ' done';
-        else if (i === stepIdx) cls += ' active';
-        html += `<div class="${cls}"></div>`;
+      const totalQuestions = TOTAL_STEPS - 1; // ウェルカム画面を除く
+      const percent = Math.round((stepIdx / totalQuestions) * 100);
+      const remaining = totalQuestions - stepIdx;
+
+      const barFill = document.getElementById('progress-bar-fill');
+      const percentEl = document.getElementById('progress-percent');
+      const remainingEl = document.getElementById('progress-remaining');
+
+      if (barFill) barFill.style.width = percent + '%';
+      if (percentEl) percentEl.textContent = percent + '%';
+      if (remainingEl) {
+        if (remaining > 0) {
+          remainingEl.textContent = `あと ${remaining} 問`;
+        } else {
+          remainingEl.textContent = '最後のステップ！';
+        }
       }
-      dots.innerHTML = html;
-      label.textContent = `ステップ ${stepIdx} / ${TOTAL_STEPS - 1}`;
     }
 
     // ===== Step handlers =====
@@ -2266,11 +3685,14 @@
       }
     }
 
+    let isGoingBack = false;
     function prevStep() {
-      // Go back one step
+      // Go back one step with reverse animation
       if (currentStep > 0) {
+        isGoingBack = true;
         currentStep--;
         renderStep(currentStep);
+        isGoingBack = false;
       }
     }
 
@@ -2287,7 +3709,8 @@
 
     function submitContact() {
       const email = document.getElementById('contact-email').value.trim();
-      const phone = document.getElementById('contact-phone').value.trim();
+      const phoneEl = document.getElementById('contact-phone');
+      const phone = phoneEl ? phoneEl.value.trim() : '';
 
       if (!email || !email.includes('@')) {
         document.getElementById('contact-email').style.borderColor = 'var(--danger)';
@@ -2523,7 +3946,7 @@
             ${customerData.name}さん専用の<br>AIアシスタントが準備できました
           </p>
           <button class="btn-primary" onclick="startChat()" style="margin-top: 8px;">
-            MuchiNaviに相談する 💬
+            MuchiNaviに相談する
           </button>
           <p style="font-size: 11px; color: var(--text-light); margin-top: 16px;">
             岡本から直接ご連絡させていただきます
@@ -2558,6 +3981,150 @@
       }
     }
 
+    // ===== Tutorial =====
+    const TUTORIAL_STEPS = [
+      {
+        icon: '👋',
+        label: 'はじめに',
+        title: 'MuchiNaviへようこそ！',
+        desc: '住まい探しをAIがサポートします。\n30秒で主な使い方をご紹介します。',
+        target: null
+      },
+      {
+        icon: '💬',
+        label: 'AIチャット',
+        title: 'AIに何でも質問できます',
+        desc: '住宅ローン、物件の選び方、購入スケジュールなど、気軽に質問してみてください。画面下の入力欄から送信できます。',
+        target: '#chat-input'
+      },
+      {
+        icon: '📎',
+        label: '資料送信',
+        title: '資料を送れます',
+        desc: '入力欄の横にある「資料」ボタンから、画像やPDFを送信できます。物件の図面や資料の共有にどうぞ。（最大10MB）',
+        target: '.file-attach-btn'
+      },
+      {
+        icon: '👤',
+        label: 'エージェント相談',
+        title: '担当エージェントに直接相談',
+        desc: '画面上部のタブを切り替えると、AIではなく担当の岡本に直接メッセージを送れます。込み入った相談はこちらから。',
+        target: '#tab-direct'
+      },
+      {
+        icon: '📊',
+        label: '進捗確認',
+        title: '進捗がひと目でわかります',
+        desc: 'チャットの上にある進捗バーで、登録から引渡しまでの現在地がわかります。タップすると詳細を確認できます。',
+        target: '#progress-bar'
+      },
+      {
+        icon: '📅',
+        label: '面談予約',
+        title: 'オンライン面談を予約',
+        desc: '準備ができたら「オンライン面談」ボタンから予約できます。住まい探しの専門家に直接相談しましょう。',
+        target: '#chat-booking-btn'
+      },
+      {
+        icon: '🔔',
+        label: 'お知らせ / マイページ',
+        title: 'お知らせとマイページ',
+        desc: 'ベルのアイコンで新機能のお知らせを確認できます。「マイページ」からはご条件の変更やパスワード変更ができます。',
+        target: '#notification-bell'
+      },
+      {
+        icon: '🏠',
+        label: '準備完了',
+        title: 'さっそく始めましょう！',
+        desc: '何から聞けばいいか迷ったら、画面にあるヒントボタンを押すだけでOKです。あなたの住まい探しを全力でサポートします。',
+        target: null
+      }
+    ];
+
+    let tutorialStep = 0;
+    let highlightedEl = null;
+
+    function shouldShowTutorial() {
+      return !localStorage.getItem('muchinavi_tutorial_done');
+    }
+
+    function startTutorial() {
+      if (!shouldShowTutorial()) return;
+      tutorialStep = 0;
+
+      // ヘッダーを展開状態にする
+      const hdr = document.querySelector('.chat-header');
+      if (hdr) hdr.classList.remove('compact');
+
+      setTimeout(() => {
+        document.getElementById('tutorial-overlay').classList.add('active');
+        showTutorialStep(0);
+      }, 600);
+    }
+
+    function clearHighlight() {
+      if (highlightedEl) {
+        highlightedEl.classList.remove('tutorial-highlight-ring');
+        highlightedEl = null;
+      }
+    }
+
+    function showTutorialStep(stepIdx) {
+      const steps = TUTORIAL_STEPS;
+      if (stepIdx >= steps.length) { endTutorial(); return; }
+
+      const step = steps[stepIdx];
+      tutorialStep = stepIdx;
+
+      // 前のハイライトをクリア
+      clearHighlight();
+
+      // ターゲットをハイライト
+      if (step.target) {
+        const targetEl = document.querySelector(step.target);
+        if (targetEl) {
+          targetEl.classList.add('tutorial-highlight-ring');
+          highlightedEl = targetEl;
+        }
+      }
+
+      // ステップドット
+      const dotsEl = document.getElementById('tutorial-dots');
+      dotsEl.innerHTML = steps.map((_, i) => {
+        let cls = 'tutorial-step-dot';
+        if (i < stepIdx) cls += ' done';
+        if (i === stepIdx) cls += ' active';
+        return `<div class="${cls}"></div>`;
+      }).join('');
+
+      // コンテンツ
+      document.getElementById('tutorial-icon').textContent = step.icon;
+      document.getElementById('tutorial-target-label').textContent = step.label;
+      document.getElementById('tutorial-title').textContent = step.title;
+      document.getElementById('tutorial-desc').textContent = step.desc;
+
+      // ボタン
+      const nextBtn = document.getElementById('tutorial-next-btn');
+      nextBtn.textContent = (stepIdx === steps.length - 1) ? 'はじめる！' : '次へ';
+    }
+
+    function nextTutorialStep() {
+      tutorialStep++;
+      if (tutorialStep >= TUTORIAL_STEPS.length) {
+        endTutorial();
+      } else {
+        showTutorialStep(tutorialStep);
+      }
+    }
+
+    function endTutorial() {
+      clearHighlight();
+      document.getElementById('tutorial-overlay').classList.remove('active');
+      localStorage.setItem('muchinavi_tutorial_done', '1');
+      const input = document.getElementById('chat-input');
+      if (input) input.focus();
+    }
+
     // ===== Chat =====
     function startChat() {
       document.getElementById('onboarding').style.display = 'none';
@@ -2571,7 +4138,558 @@
         renderChatMessages();
       }
 
-      document.getElementById('chat-input').focus();
+      // Load and render progress bar
+      loadProgressBar();
+
+      // お知らせ読み込み
+      loadAnnouncements();
+
+      // ヘッダー自動縮小を有効化
+      setTimeout(setupCompactHeader, 100);
+
+      // 初回チュートリアル
+      if (shouldShowTutorial()) {
+        setTimeout(startTutorial, 800);
+      } else {
+        document.getElementById('chat-input').focus();
+        // チュートリアル後 or チュートリアル不要時にPWAバナー表示
+        setTimeout(() => { if (typeof showPwaBanner === 'function') showPwaBanner(); }, 1500);
+      }
+
+      // Input enhancement: Enter key + hint display + auto-resize
+      const chatInput = document.getElementById('chat-input');
+      const inputHint = document.getElementById('input-hint');
+      if (chatInput && !chatInput._enhancedInit) {
+        chatInput._enhancedInit = true;
+        chatInput.addEventListener('focus', function() {
+          if (inputHint) inputHint.classList.add('show');
+        });
+        chatInput.addEventListener('blur', function() {
+          if (inputHint) inputHint.classList.remove('show');
+        });
+        chatInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+        chatInput.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+      }
+    }
+
+    // ===== Progress Bar =====
+    const STAGE_LABELS = ['登録', '情報入力', '面談予約', '相談中', 'ライフプラン', '物件探し・内見', '契約', '引渡し'];
+    const STAGE_ICONS = [
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+    ];
+
+    async function loadProgressBar() {
+      // まず即座にデフォルト表示（フリーズ防止）
+      renderProgressBar(1, {});
+      try {
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        if (!token) return;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(`/api/customer/profile/${token}`, { signal: controller.signal });
+        clearTimeout(timeout);
+        const data = await res.json();
+        const stage = data.profile?.stage || 1;
+        const profile = data.profile || {};
+        renderProgressBar(stage, profile);
+      } catch(e) {
+        console.error('進捗バー読み込みエラー:', e);
+      }
+    }
+
+    function renderProgressBar(stage, profile) {
+      profile = profile || {};
+      const stepsEl = document.getElementById('progress-steps');
+      const labelsEl = document.getElementById('progress-labels');
+      const statusText = document.getElementById('progress-status-text');
+      const statusCount = document.getElementById('progress-status-count');
+
+      stepsEl.innerHTML = '';
+      labelsEl.innerHTML = '';
+
+      STAGE_LABELS.forEach((label, i) => {
+        const stepNum = i + 1;
+        const isCompleted = stepNum < stage;
+        const isActive = stepNum === stage;
+
+        // Step circle
+        const step = document.createElement('div');
+        step.className = 'progress-step' + (isCompleted ? ' completed' : '') + (isActive ? ' active' : '');
+        if (isCompleted) step.innerHTML = STAGE_ICONS[i];
+        stepsEl.appendChild(step);
+
+        // Connecting line (except after last step)
+        if (i < STAGE_LABELS.length - 1) {
+          const line = document.createElement('div');
+          line.className = 'progress-line' + (stepNum < stage ? ' completed' : '');
+          stepsEl.appendChild(line);
+        }
+
+        // Label
+        const labelEl = document.createElement('div');
+        labelEl.className = 'progress-label' + (isCompleted ? ' completed' : '') + (isActive ? ' active' : '');
+        labelEl.textContent = label;
+        labelsEl.appendChild(labelEl);
+      });
+
+      statusText.textContent = `現在: ${STAGE_LABELS[stage - 1]}`;
+      statusCount.textContent = `${stage} / ${STAGE_LABELS.length}`;
+
+      // Mobile card view
+      const mobileCard = document.getElementById('progress-mobile-card');
+      const mobileMini = document.getElementById('progress-mobile-mini');
+      if (mobileCard) {
+        const prevLabel = stage > 1 ? STAGE_LABELS[stage - 2] : '';
+        const nextLabel = stage < STAGE_LABELS.length ? STAGE_LABELS[stage] : '';
+        const navHtml = `<div class="progress-card-nav">
+          ${prevLabel ? `<span class="progress-card-prev">${prevLabel}</span><span class="progress-card-arrow">→</span>` : ''}
+          <span style="font-size:11px;font-weight:700;color:#0071e3;">現在地</span>
+          ${nextLabel ? `<span class="progress-card-arrow">→</span><span class="progress-card-next">${nextLabel}</span>` : ''}
+        </div>`;
+        const dotsHtml = STAGE_LABELS.map((_, i) => {
+          const num = i + 1;
+          if (num < stage) return '<span class="progress-card-dot completed"></span>';
+          if (num === stage) return '<span class="progress-card-dot active"></span>';
+          return '<span class="progress-card-dot"></span>';
+        }).join('');
+        mobileCard.innerHTML = `
+          ${navHtml}
+          <div class="progress-card-current">
+            <div class="progress-card-current-label">ステップ ${stage}</div>
+            <div class="progress-card-title">${STAGE_LABELS[stage - 1]}</div>
+            <div class="progress-card-count">${stage} / ${STAGE_LABELS.length} ステップ完了</div>
+          </div>
+          <div class="progress-card-dots">${dotsHtml}</div>
+        `;
+      }
+      if (mobileMini) {
+        mobileMini.innerHTML = `
+          <span class="progress-mobile-mini-dot"></span>
+          <span class="progress-mobile-mini-text">${STAGE_LABELS[stage - 1]}</span>
+          <span class="progress-mobile-mini-count">${stage}/${STAGE_LABELS.length}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aeaeb2" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        `;
+      }
+
+      // Next action guide
+      const nextActionEl = document.getElementById('progress-next-action');
+      // Check missing profile fields for stage 1
+      const fieldLabels = {
+        name: 'お名前', birthYear: '生まれ年', prefecture: '都道府県',
+        family: 'ご家族構成', householdIncome: '世帯年収', propertyType: '物件種別',
+        area: '希望エリア', budget: 'ご予算', email: 'メール'
+      };
+      const missingFields = Object.entries(fieldLabels)
+        .filter(([k]) => !profile[k] || profile[k] === '' || profile[k] === '-' || profile[k] === '未入力')
+        .map(([, v]) => v);
+      const filledCount = Object.keys(fieldLabels).length - missingFields.length;
+      const totalFields = Object.keys(fieldLabels).length;
+
+      const nextActions = {
+        1: {
+          custom_stage1: true
+        },
+        2: {
+          custom: true
+        },
+        3: {
+          text: '面談予約ありがとうございます！当日まで気になることがあれば、チャットでご相談ください。',
+          btn: null
+        },
+        4: {
+          text: '岡本とのオンライン相談が始まりました。住まいの希望やお悩みを何でもお話しください。',
+          btn: null
+        },
+        5: {
+          text: 'ライフプランを作成中です。将来の資金計画を一緒に考えて、無理のない住宅購入を実現しましょう。',
+          btn: null
+        },
+        6: {
+          text: '物件探し・内見を進めています。気になる物件があれば、岡本がプロの目線で同行・アドバイスします。',
+          btn: null
+        },
+        7: {
+          text: '契約手続きを進めています。必要書類やスケジュールなど、気になることがあれば聞いてください。',
+          btn: null
+        },
+        8: {
+          text: 'おめでとうございます！新しいお住まいでの生活をお楽しみください。何かあればいつでもご連絡ください。',
+          btn: null
+        }
+      };
+
+      const action = nextActions[stage];
+      if (action && action.custom_stage1) {
+        // Stage 1: 登録完了 → カルテを見るよう案内
+        nextActionEl.innerHTML = `
+          <div class="next-label">✅ 登録完了</div>
+          <div class="next-text">ご登録ありがとうございます！あなた専用のカルテが作成されました。現在の状況に合わせたアドバイスをご確認ください。</div>
+          <button class="next-btn" onclick="event.stopPropagation(); openProfile()">カルテを見る</button>
+        `;
+      } else if (action && action.custom) {
+        // Stage 2: booking flow — always show both options
+        const bookingClicked = localStorage.getItem('muchinavi_booking_clicked');
+        nextActionEl.innerHTML = `
+          <div class="next-label">Next Step — オンライン面談</div>
+          <div class="next-text">住まい探しの専門家に直接相談してみませんか？予約が完了したら「予約完了」ボタンを押してください。</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <button class="next-btn" onclick="event.stopPropagation(); openBookingAndTrack()" style="background:#0071e3;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              面談を予約する
+            </button>
+            <button class="next-btn" onclick="event.stopPropagation(); confirmBooking()" style="background:#34c759;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>
+              予約完了を報告
+            </button>
+          </div>
+        `;
+      } else if (action) {
+        nextActionEl.innerHTML = `
+          <div class="next-label">Next Step</div>
+          <div class="next-text">${action.text}</div>
+          ${action.btn ? `<button class="next-btn" onclick="event.stopPropagation(); ${action.action}">${action.btn}</button>` : ''}
+        `;
+      }
+    }
+
+    function openBookingAndTrack() {
+      localStorage.setItem('muchinavi_booking_clicked', 'true');
+      const bookingBtn = document.getElementById('chat-booking-btn');
+      if (bookingBtn && bookingBtn.href) {
+        window.open(bookingBtn.href, '_blank');
+      }
+    }
+
+    async function confirmBooking() {
+      if (!confirm('オンライン面談の予約は完了しましたか？')) return;
+      try {
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        if (!token) { console.error('トークンが見つかりません'); return; }
+        const res = await fetch(`/api/customer/advance-stage/${token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stage: 3 })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.removeItem('muchinavi_booking_clicked');
+          loadProgressBar();
+        } else {
+          console.error('ステージ更新失敗:', data);
+          alert('更新に失敗しました。もう一度お試しください。');
+        }
+      } catch(e) {
+        console.error('ステージ更新エラー:', e);
+        alert('通信エラーが発生しました。もう一度お試しください。');
+      }
+    }
+
+    // ===== Feedback System =====
+    const FEEDBACK_TAGS = [
+      '知りたいことがわかった',
+      '話しやすかった',
+      '新しい発見があった',
+      'もう少し詳しく聞きたかった',
+      '自分には合わなかった'
+    ];
+    let feedbackState = { rating: 0, tags: [], comment: '' };
+    let lastFeedbackMessageCount = parseInt(localStorage.getItem('muchinavi_fb_msg_count') || '0', 10);
+
+    function shouldShowFeedback(trigger) {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      const dismissed = localStorage.getItem('muchinavi_fb_dismissed_' + trigger);
+      if (dismissed) return false;
+      return true;
+    }
+
+    function checkConversationFeedback() {
+      // 10往復ごとにフィードバックを表示（ユーザーメッセージ数ベース）
+      const userMsgCount = chatMessages.filter(m => m.role === 'user').length;
+      if (userMsgCount > 0 && userMsgCount % 10 === 0 && userMsgCount !== lastFeedbackMessageCount) {
+        lastFeedbackMessageCount = userMsgCount;
+        localStorage.setItem('muchinavi_fb_msg_count', String(userMsgCount));
+        if (shouldShowFeedback('conv_' + userMsgCount)) {
+          showFeedbackInChat('conversation');
+        }
+      }
+    }
+
+    function showFeedbackInChat(trigger) {
+      feedbackState = { rating: 0, tags: [], comment: '' };
+      const msgContainer = document.getElementById('chat-messages');
+      const existing = msgContainer.querySelector('.feedback-card');
+      if (existing) return; // 既に表示中
+
+      const card = document.createElement('div');
+      card.className = 'feedback-card';
+      card.id = 'feedback-card-active';
+      card.innerHTML = `
+        <div class="feedback-card-header">MuchiNaviの使い心地はいかがですか？</div>
+        <div class="feedback-card-sub">1タップで完了。改善に役立てます。</div>
+        <div class="feedback-stars" id="feedback-stars">
+          ${[1,2,3,4,5].map(n => `<div class="feedback-star" data-rating="${n}" onclick="selectFeedbackRating(${n})">${n <= 0 ? '☆' : '★'}</div>`).join('')}
+        </div>
+        <div class="feedback-tags" id="feedback-tags" style="display:none;">
+          ${FEEDBACK_TAGS.map(t => `<div class="feedback-tag" onclick="toggleFeedbackTag(this, '${t}')">${t}</div>`).join('')}
+        </div>
+        <textarea class="feedback-comment" id="feedback-comment" placeholder="もしよければ、ご感想をお聞かせください（任意）" rows="2" style="display:none;"></textarea>
+        <button class="feedback-submit" id="feedback-submit" onclick="submitFeedback('${trigger}')" style="display:none;" disabled>送信する</button>
+      `;
+      msgContainer.appendChild(card);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
+    function selectFeedbackRating(n) {
+      feedbackState.rating = n;
+      document.querySelectorAll('#feedback-stars .feedback-star').forEach((el, i) => {
+        el.classList.toggle('selected', i < n);
+        el.textContent = '★';
+        el.style.color = i < n ? '#ffb800' : '#e5e5ea';
+      });
+      // 星を選んだらタグ・コメント・送信を表示
+      document.getElementById('feedback-tags').style.display = 'flex';
+      document.getElementById('feedback-comment').style.display = 'block';
+      const btn = document.getElementById('feedback-submit');
+      btn.style.display = 'inline-flex';
+      btn.disabled = false;
+    }
+
+    function toggleFeedbackTag(el, tag) {
+      el.classList.toggle('selected');
+      if (feedbackState.tags.includes(tag)) {
+        feedbackState.tags = feedbackState.tags.filter(t => t !== tag);
+      } else {
+        feedbackState.tags.push(tag);
+      }
+    }
+
+    async function submitFeedback(trigger) {
+      const comment = document.getElementById('feedback-comment')?.value || '';
+      feedbackState.comment = comment;
+      const btn = document.getElementById('feedback-submit');
+      btn.disabled = true;
+      btn.textContent = '送信中...';
+
+      try {
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        const res = await fetch(`/api/customer/feedback/${token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rating: feedbackState.rating,
+            tags: feedbackState.tags,
+            comment: feedbackState.comment,
+            trigger
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('muchinavi_fb_dismissed_' + trigger, '1');
+          const card = document.getElementById('feedback-card-active');
+          if (card) {
+            card.innerHTML = '<div class="feedback-thanks">ご意見ありがとうございます！<br><span style="font-size:12px;color:#aeaeb2;font-weight:400;">サービス改善に活用させていただきます。</span></div>';
+            setTimeout(() => { card.style.opacity = '0'; card.style.transition = 'opacity 0.5s'; setTimeout(() => card.remove(), 500); }, 3000);
+          }
+        }
+      } catch(e) {
+        console.error('フィードバック送信エラー:', e);
+        btn.textContent = '送信に失敗しました';
+      }
+    }
+
+    // ステージ変更時のフィードバック表示
+    function checkStageFeedback(oldStage, newStage) {
+      if (newStage > oldStage && newStage >= 3) {
+        if (shouldShowFeedback('stage_' + newStage)) {
+          setTimeout(() => showFeedbackInChat('stage_change'), 1500);
+        }
+      }
+    }
+
+    // ===== File Upload =====
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+    let pendingFiles = { ai: null, direct: null };
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function handleFileSelect(input, room) {
+      const file = input.files[0];
+      if (!file) return;
+
+      // Validate
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        alert('対応していないファイル形式です。\nJPG, PNG, GIF, WEBP, PDFのみ対応しています。');
+        input.value = '';
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        alert('ファイルサイズが大きすぎます。\n最大10MBまでアップロードできます。\n\n選択されたファイル: ' + formatFileSize(file.size));
+        input.value = '';
+        return;
+      }
+
+      pendingFiles[room] = file;
+      showFilePreview(file, room);
+      input.value = '';
+    }
+
+    function showFilePreview(file, room) {
+      const preview = document.getElementById(room + '-file-preview');
+      const hint = document.getElementById(room + '-file-hint');
+      const isImage = file.type.startsWith('image/');
+
+      let thumbHTML;
+      if (isImage) {
+        const url = URL.createObjectURL(file);
+        thumbHTML = `<img src="${url}" alt="preview">`;
+      } else {
+        thumbHTML = `<div class="file-icon">PDF</div>`;
+      }
+
+      preview.innerHTML = `
+        <div class="file-preview-item">
+          ${thumbHTML}
+          <div class="file-preview-info">
+            <div class="file-preview-name">${file.name}</div>
+            <div class="file-preview-size">${formatFileSize(file.size)}</div>
+          </div>
+          <button class="file-preview-remove" onclick="cancelFileUpload('${room}')">&times;</button>
+        </div>
+      `;
+      preview.classList.add('active');
+      hint.classList.remove('active');
+    }
+
+    function cancelFileUpload(room) {
+      pendingFiles[room] = null;
+      const preview = document.getElementById(room + '-file-preview');
+      preview.innerHTML = '';
+      preview.classList.remove('active');
+    }
+
+    function showFileHint(room) {
+      const hint = document.getElementById(room + '-file-hint');
+      hint.classList.add('active');
+      setTimeout(() => hint.classList.remove('active'), 4000);
+    }
+
+    async function uploadFile(file, room) {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return null;
+
+      const progressEl = document.getElementById(room + '-file-progress');
+      const fillEl = document.getElementById(room + '-progress-fill');
+      const textEl = document.getElementById(room + '-progress-text');
+      progressEl.classList.add('active');
+      fillEl.style.width = '0%';
+      textEl.textContent = 'アップロード中...';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Use XMLHttpRequest for progress tracking
+        return await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `/api/customer/upload/${token}`);
+
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              fillEl.style.width = pct + '%';
+              textEl.textContent = `アップロード中... ${pct}%`;
+            }
+          };
+
+          xhr.onload = () => {
+            progressEl.classList.remove('active');
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data.file);
+            } else {
+              let errMsg = 'アップロードに失敗しました';
+              try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch(e) {}
+              alert(errMsg);
+              resolve(null);
+            }
+          };
+
+          xhr.onerror = () => {
+            progressEl.classList.remove('active');
+            alert('ネットワークエラーが発生しました');
+            resolve(null);
+          };
+
+          xhr.send(formData);
+        });
+      } catch (e) {
+        progressEl.classList.remove('active');
+        console.error('Upload error:', e);
+        return null;
+      }
+    }
+
+    function renderFileAttachment(fileData) {
+      const isImage = fileData.mimetype && fileData.mimetype.startsWith('image/');
+      const thumb = isImage
+        ? `<img src="${fileData.url}" alt="${fileData.originalName}" loading="lazy">`
+        : `<div class="file-att-icon">PDF</div>`;
+
+      return `<a href="${fileData.url}" target="_blank" class="chat-file-attachment" title="タップしてダウンロード">
+        ${thumb}
+        <div class="file-att-info">
+          <div class="file-att-name">${fileData.originalName}</div>
+          <div class="file-att-size">${formatFileSize(fileData.size)}</div>
+        </div>
+      </a>`;
+    }
+
+    function toggleProgressBar() {
+      document.getElementById('progress-bar').classList.toggle('collapsed');
+    }
+
+    // ヘッダー自動縮小（startChatから呼び出し）
+    let headerListenerAttached = false;
+    function setupCompactHeader() {
+      if (headerListenerAttached) return;
+      headerListenerAttached = true;
+      try {
+        const msgEl = document.querySelector('.chat-messages');
+        const hdr = document.querySelector('.chat-header');
+        if (!msgEl || !hdr) return;
+        msgEl.addEventListener('scroll', function() {
+          if (msgEl.scrollTop > 30) {
+            hdr.classList.add('compact');
+          } else {
+            hdr.classList.remove('compact');
+          }
+        }, { passive: true });
+        hdr.addEventListener('click', function(e) {
+          if (e.target.closest('.chat-header-btn') || e.target.closest('.settings-wrapper')) return;
+          hdr.classList.toggle('compact');
+        });
+      } catch(e) { console.error('compact header error:', e); }
     }
 
     function sendHint(text) {
@@ -2585,17 +4703,32 @@
 
       const input = document.getElementById('chat-input');
       const text = input.value.trim();
-      if (!text) { console.log('[MuchiNavi] blocked: empty text'); return; }
+      const pendingFile = pendingFiles.ai;
+
+      if (!text && !pendingFile) { console.log('[MuchiNavi] blocked: empty text and no file'); return; }
 
       isSending = true;
-      console.log('[MuchiNavi] sending:', text);
+      console.log('[MuchiNavi] sending:', text, pendingFile ? '+ file' : '');
+
+      // Upload file first if present
+      let uploadedFile = null;
+      if (pendingFile) {
+        uploadedFile = await uploadFile(pendingFile, 'ai');
+        cancelFileUpload('ai');
+        if (!uploadedFile && !text) {
+          isSending = false;
+          return;
+        }
+      }
 
       // Hide welcome (may not exist if session restored)
       const welcomeEl = document.getElementById('chat-welcome');
       if (welcomeEl) welcomeEl.style.display = 'none';
 
       // Add user message
-      chatMessages.push({ role: 'user', content: text });
+      const msgObj = { role: 'user', content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : ''), timestamp: new Date().toISOString() };
+      if (uploadedFile) msgObj.file = uploadedFile;
+      chatMessages.push(msgObj);
       renderChatMessages();
       input.value = '';
       input.style.height = 'auto';
@@ -2629,9 +4762,9 @@
         hideTyping();
 
         if (data.error) {
-          chatMessages.push({ role: 'assistant', content: data.error });
+          chatMessages.push({ role: 'assistant', content: data.error, timestamp: new Date().toISOString(), isError: true });
         } else {
-          chatMessages.push({ role: 'assistant', content: data.reply });
+          chatMessages.push({ role: 'assistant', content: data.reply, timestamp: new Date().toISOString() });
         }
         renderChatMessages();
       } catch (e) {
@@ -2640,12 +4773,15 @@
         const msg = e.name === 'AbortError'
           ? '回答の生成に時間がかかっています。もう一度お試しください。'
           : 'ネットワークエラーが発生しました。再度お試しください。';
-        chatMessages.push({ role: 'assistant', content: msg });
+        chatMessages.push({ role: 'assistant', content: msg, timestamp: new Date().toISOString(), isError: true });
         renderChatMessages();
       }
 
       document.getElementById('chat-send-btn').disabled = false;
       isSending = false;
+
+      // フィードバック表示チェック
+      checkConversationFeedback();
     }
 
     function switchChatRoom(room) {
@@ -2688,9 +4824,11 @@
         const isUser = msg.role === 'user';
         const side = isUser ? 'user' : 'assistant';
         const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}) : '';
+        const fileHTML = msg.file ? renderFileAttachment(msg.file) : '';
         html += `<div class="chat-message ${side}">
           <div class="chat-bubble direct-${side}">
             ${isUser ? '' : '<div style="font-size:10px;font-weight:600;color:#34c759;margin-bottom:4px;">担当エージェント</div>'}
+            ${fileHTML}
             <div style="white-space:pre-wrap;">${msg.content}</div>
             ${time ? `<div style="font-size:10px;color:${isUser ? 'rgba(255,255,255,0.6)' : '#aeaeb2'};margin-top:4px;text-align:${isUser?'right':'left'}">${time}</div>` : ''}
           </div>
@@ -2707,9 +4845,24 @@
     async function sendDirectMessage() {
       const input = document.getElementById('direct-chat-input');
       const text = input.value.trim();
-      if (!text) return;
+      const pendingFile = pendingFiles.direct;
 
-      const msg = { role: 'user', content: text, timestamp: new Date().toISOString() };
+      if (!text && !pendingFile) return;
+
+      // Upload file first if present
+      let uploadedFile = null;
+      if (pendingFile) {
+        uploadedFile = await uploadFile(pendingFile, 'direct');
+        cancelFileUpload('direct');
+        if (!uploadedFile && !text) return;
+      }
+
+      const msg = {
+        role: 'user',
+        content: text || (uploadedFile ? uploadedFile.originalName + ' を送信しました' : ''),
+        timestamp: new Date().toISOString()
+      };
+      if (uploadedFile) msg.file = uploadedFile;
       directChatMessages.push(msg);
       renderDirectMessages();
       scrollDirectChat();
@@ -2797,7 +4950,7 @@
       let html = text
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/【(.+?)】/g, '<strong>【$1】</strong>')
+        .replace(/【([^\x00-\x7F]+?)】/g, '<strong>【$1】</strong>')
         .replace(/^[\-•]\s+(.+)$/gm, '<li>$1</li>')
         .replace(/^\d+[\.\)]\s+(.+)$/gm, '<li>$1</li>')
         .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
@@ -2808,19 +4961,19 @@
 
       // Replace article placeholders with cards (use <span> to avoid <p>/<div> nesting issues)
       articles.forEach((a, i) => {
-        const card = `</p><a class="article-card" href="${a.url}" target="_blank" rel="noopener"><span class="article-card-icon">📖</span><span class="article-card-content"><span class="article-card-label">おすすめ記事</span><span class="article-card-title">${a.title}</span></span><span class="article-card-arrow">→</span></a><p>`;
+        const card = `</p><a class="article-card" href="${a.url}" target="_blank" rel="noopener"><span class="article-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="article-card-content"><span class="article-card-label">おすすめ記事</span><span class="article-card-title">${a.title}</span></span><span class="article-card-arrow">→</span></a><p>`;
         html = html.replace(`__ARTICLE_${i}__`, card);
       });
 
       // Replace booking placeholder with card
       if (bookingURL) {
-        const card = `</p><a class="booking-card" href="${bookingURL}" target="_blank" rel="noopener"><span class="booking-card-icon">📅</span><span class="booking-card-content"><span class="booking-card-label">無料相談</span><span class="booking-card-title">岡本とオンライン面談</span><span class="booking-card-sub">ご都合のいい日時を選べます</span></span><span class="booking-card-arrow">→</span></a><p>`;
+        const card = `</p><a class="booking-card" href="${bookingURL}" target="_blank" rel="noopener"><span class="booking-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="booking-card-content"><span class="booking-card-label">無料相談</span><span class="booking-card-title">岡本とオンライン面談</span><span class="booking-card-sub">ご都合のいい日時を選べます</span></span><span class="booking-card-arrow">→</span></a><p>`;
         html = html.replace('__BOOKING__', card);
       }
 
       // Replace TERASS Picks placeholder with card
       if (terassPicksInfo) {
-        const card = `</p><div style="background: linear-gradient(135deg, #f0f7ff, #e8f4f8); border: 1px solid #b3d4fc; border-radius: 16px; padding: 20px; margin: 12px 0;"><div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><span style="font-size: 24px;">🏠</span><strong style="color: #0071e3; font-size: 15px;">TERASS Picks</strong></div><p style="font-size: 14px; line-height: 1.7; color: #333; margin: 0 0 12px 0;">${terassPicksInfo.desc}</p><p style="font-size: 13px; color: #666; margin: 0;"><span style="background: #0071e3; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 6px;">✨</span>${terassPicksInfo.cta}</p></div><p>`;
+        const card = `</p><div style="background: linear-gradient(135deg, #f0f7ff, #e8f4f8); border: 1px solid #b3d4fc; border-radius: 16px; padding: 20px; margin: 12px 0;"><div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><strong style="color: #0071e3; font-size: 15px;">TERASS Picks</strong></div><p style="font-size: 14px; line-height: 1.7; color: #333; margin: 0 0 12px 0;">${terassPicksInfo.desc}</p><p style="font-size: 13px; color: #666; margin: 0;">${terassPicksInfo.cta}</p></div><p>`;
         html = html.replace('__TERASS_PICKS__', card);
       }
 
@@ -2868,6 +5021,25 @@
     document.addEventListener('DOMContentLoaded', function() {
       setupChatTextarea('chat-input', sendMessage);
       setupChatTextarea('direct-chat-input', sendDirectMessage);
+
+      // ===== iOS キーボード対応 =====
+      // visualViewport APIでキーボード表示時にチャット画面の高さを調整
+      if (window.visualViewport) {
+        function adjustForKeyboard() {
+          const chatScreen = document.getElementById('chat-screen');
+          if (!chatScreen || !chatScreen.classList.contains('active')) return;
+          const vv = window.visualViewport;
+          chatScreen.style.height = vv.height + 'px';
+          chatScreen.style.top = vv.offsetTop + 'px';
+          // キーボード表示時にメッセージ欄を最下部にスクロール
+          const msgs = document.getElementById('chat-messages');
+          if (msgs) {
+            requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+          }
+        }
+        window.visualViewport.addEventListener('resize', adjustForKeyboard);
+        window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+      }
     });
 
     function selectChatChoice(btn, text) {
@@ -2897,7 +5069,7 @@
       // Hide welcome (may not exist if session restored)
       const welcomeEl = document.getElementById('chat-welcome');
       if (welcomeEl) welcomeEl.style.display = 'none';
-      chatMessages.push({ role: 'user', content: text });
+      chatMessages.push({ role: 'user', content: text, timestamp: new Date().toISOString() });
       renderChatMessages();
       document.getElementById('chat-input').value = '';
       showTyping();
@@ -2921,9 +5093,9 @@
         const data = await res.json();
         hideTyping();
         if (data.error) {
-          chatMessages.push({ role: 'assistant', content: data.error });
+          chatMessages.push({ role: 'assistant', content: data.error, timestamp: new Date().toISOString() });
         } else {
-          chatMessages.push({ role: 'assistant', content: data.reply });
+          chatMessages.push({ role: 'assistant', content: data.reply, timestamp: new Date().toISOString() });
         }
         renderChatMessages();
       } catch (e) {
@@ -2931,7 +5103,7 @@
         const msg = e.name === 'AbortError'
           ? '回答の生成に時間がかかっています。もう一度お試しください。'
           : 'ネットワークエラーが発生しました。再度お試しください。';
-        chatMessages.push({ role: 'assistant', content: msg });
+        chatMessages.push({ role: 'assistant', content: msg, timestamp: new Date().toISOString() });
         renderChatMessages();
       }
 
@@ -2941,10 +5113,16 @@
 
     function renderChatMessages() {
       const container = document.getElementById('chat-messages');
+      const avatarSVG = '<div class="chat-avatar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+      const now = new Date();
+      const timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
       container.innerHTML = chatMessages.map((m, idx) => {
+        const msgTime = m.timestamp ? new Date(m.timestamp) : null;
+        const displayTime = msgTime ? msgTime.getHours() + ':' + String(msgTime.getMinutes()).padStart(2,'0') : '';
         if (m.role === 'user') {
           const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          return `<div class="chat-message user"><div class="chat-bubble" style="white-space:pre-wrap;">${escaped}</div></div>`;
+          const fileHTML = m.file ? renderFileAttachment(m.file) : '';
+          return '<div class="chat-message user"><div><div class="chat-bubble" style="white-space:pre-wrap;">' + fileHTML + escaped + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
         }
         // AI message - check if the NEXT message is a user picking a choice
         const nextMsg = chatMessages[idx + 1];
@@ -2956,14 +5134,22 @@
           // Disable all chips and highlight the selected one
           content = content.replace(/class="chat-choice-chip"/g, 'class="chat-choice-chip used" disabled');
           content = content.replace(
-            new RegExp(`class="chat-choice-chip used" disabled>` + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + `<`),
-            `class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">${selectedText}<`
+            new RegExp('class="chat-choice-chip used" disabled>' + selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '<'),
+            'class="chat-choice-chip" style="background:var(--accent);color:white;border-color:var(--accent);pointer-events:none">' + selectedText + '<'
           );
           // Remove onclick from all chips in this message
           content = content.replace(/onclick="selectChatChoice\([^"]*\)"/g, '');
         }
 
-        return `<div class="chat-message assistant"><div class="chat-bubble">${content}</div></div>`;
+        // Error message special rendering
+        if (m.isError) {
+          const errorSVG = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+          const retrySVG = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+          const errorContent = '<div class="error-badge">' + errorSVG + ' エラー</div><div class="error-message-text">' + m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div><button class="error-retry-btn" onclick="retryLastMessage()">' + retrySVG + ' もう一度試す</button>';
+          return '<div class="chat-message assistant">' + avatarSVG + '<div><div class="chat-bubble error-bubble">' + errorContent + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
+        }
+
+        return '<div class="chat-message assistant">' + avatarSVG + '<div><div class="chat-bubble">' + content + '</div>' + (displayTime ? '<div class="chat-timestamp">' + displayTime + '</div>' : '') + '</div></div>';
       }).join('');
       container.scrollTop = container.scrollHeight;
     }
@@ -2973,13 +5159,8 @@
       const el = document.createElement('div');
       el.id = 'typing';
       el.className = 'chat-message assistant';
-      el.innerHTML = `
-        <div class="typing-indicator">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-        </div>
-      `;
+      const avatarSVG = '<div class="chat-avatar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+      el.innerHTML = avatarSVG + '<div class="typing-indicator"><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span class="typing-text">考え中...</span></div>';
       container.appendChild(el);
       container.scrollTop = container.scrollHeight;
     }
@@ -2987,6 +5168,24 @@
     function hideTyping() {
       const el = document.getElementById('typing');
       if (el) el.remove();
+    }
+
+    function retryLastMessage() {
+      // Remove the last error message
+      if (chatMessages.length > 0 && chatMessages[chatMessages.length - 1].isError) {
+        chatMessages.pop();
+      }
+      // Find the last user message and resend
+      const lastUserIdx = chatMessages.map(m => m.role).lastIndexOf('user');
+      if (lastUserIdx >= 0) {
+        const lastUserMsg = chatMessages[lastUserIdx].content;
+        // Remove user msg too, sendMessage will re-add it
+        chatMessages.splice(lastUserIdx, 1);
+        renderChatMessages();
+        document.getElementById('chat-input').value = lastUserMsg;
+        isSending = false;
+        sendMessage();
+      }
     }
 
     // ===== Init: Check for existing session =====
@@ -3055,6 +5254,244 @@
     });
 
     // ===== Logout =====
+    // ===== お知らせ通知 =====
+    let announcements = [];
+
+    async function loadAnnouncements() {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return;
+      try {
+        const res = await fetch(`/api/customer/announcements/${token}`);
+        const data = await res.json();
+        announcements = data.announcements || [];
+        updateNotificationBadge(data.unreadCount || 0);
+      } catch (e) {
+        console.error('Announcements load error:', e);
+      }
+    }
+
+    function updateNotificationBadge(count) {
+      const badge = document.getElementById('notification-badge');
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function openNotifications() {
+      const modal = document.getElementById('notification-modal');
+      const list = document.getElementById('notification-list');
+
+      if (announcements.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px 24px;color:#8e8e93;font-size:14px;">お知らせはありません</div>';
+      } else {
+        const typeIcons = {
+          update: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+          feature: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+          info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+        };
+        const typeLabels = { update: 'アップデート', feature: '新機能', info: 'お知らせ' };
+
+        list.innerHTML = announcements.map(a => {
+          const date = new Date(a.createdAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+          const icon = typeIcons[a.type] || typeIcons.info;
+          const label = typeLabels[a.type] || 'お知らせ';
+          const unreadDot = a.isRead ? '' : '<div style="width:8px;height:8px;border-radius:50%;background:#ff3b30;flex-shrink:0;"></div>';
+          return `<div style="padding: 14px 24px; border-bottom: 1px solid #f0f0f0; ${a.isRead ? 'opacity: 0.7;' : ''}">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              ${icon}
+              <span style="font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;">${label}</span>
+              <span style="font-size:11px;color:#aeaeb2;margin-left:auto;">${date}</span>
+              ${unreadDot}
+            </div>
+            <div style="font-weight:600;font-size:14px;color:#1d1d1f;margin-bottom:4px;">${a.title}</div>
+            <div style="font-size:13px;color:#6e6e73;line-height:1.5;">${a.content}</div>
+          </div>`;
+        }).join('');
+      }
+
+      modal.classList.add('active');
+
+      // Mark all as read
+      const unreadIds = announcements.filter(a => !a.isRead).map(a => a.id);
+      if (unreadIds.length > 0) {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        fetch(`/api/customer/announcements/${token}/read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: unreadIds })
+        }).then(() => {
+          announcements.forEach(a => a.isRead = true);
+          updateNotificationBadge(0);
+        }).catch(e => console.error('Mark read error:', e));
+      }
+    }
+
+    function closeNotifications() {
+      document.getElementById('notification-modal').classList.remove('active');
+    }
+
+    // ===== マイページ タブ切り替え =====
+    function switchMypageTab(tab) {
+      document.getElementById('mypage-tab-profile').classList.toggle('active', tab === 'profile');
+      document.getElementById('mypage-tab-carte').classList.toggle('active', tab === 'carte');
+      document.getElementById('profile-body').style.display = tab === 'profile' ? '' : 'none';
+      document.getElementById('carte-body').style.display = tab === 'carte' ? '' : 'none';
+      if (tab === 'carte') {
+        loadCarte();
+      }
+    }
+
+    // ===== カルテ機能 =====
+    async function loadCarte() {
+      const loading = document.getElementById('carte-loading');
+      const content = document.getElementById('carte-content');
+      loading.style.display = '';
+      content.style.display = 'none';
+
+      try {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        const res = await fetch(`/api/customer/profile/${token}`);
+        const data = await res.json();
+        if (data.success && data.profile) {
+          renderCarte(data.profile);
+          loading.style.display = 'none';
+          content.style.display = '';
+        }
+      } catch(e) {
+        console.error('カルテ読込エラー:', e);
+        loading.innerHTML = '<div style="text-align:center;padding:40px;color:var(--danger);">読み込みに失敗しました</div>';
+      }
+    }
+
+    function renderCarte(p) {
+      // 1. 現状サマリー
+      const summaryItems = [
+        { label: 'お名前', value: p.name || '-' },
+        { label: '年齢', value: p.birthYear ? `${new Date().getFullYear() - p.birthYear}歳` : '-' },
+        { label: 'お住まい', value: p.prefecture || '-' },
+        { label: 'ご家族構成', value: p.family || '-' },
+        { label: '世帯年収', value: p.householdIncome || '-' },
+        { label: '物件種別', value: p.propertyType || '-' },
+        { label: '希望エリア', value: p.area || '-' },
+        { label: 'ご予算', value: p.budget || '-' },
+      ];
+      document.getElementById('carte-summary').innerHTML = summaryItems
+        .map(item => `<div class="carte-summary-row"><span class="carte-summary-label">${item.label}</span><span class="carte-summary-value">${item.value}</span></div>`)
+        .join('');
+
+      // 2. 進捗ステータス
+      const stage = p.stage || 1;
+      const stages = [
+        { name: '登録', desc: '基本情報の登録が完了しました' },
+        { name: '情報入力', desc: 'プロフィール情報の確認・補完' },
+        { name: '面談予約', desc: 'オンライン面談の予約' },
+        { name: '相談中', desc: 'エージェントとの面談・ヒアリング' },
+        { name: 'ライフプラン', desc: '将来の資金計画・ライフプラン作成' },
+        { name: '物件探し・内見', desc: '条件に合う物件のご提案と見学' },
+        { name: '契約', desc: '購入手続き・必要書類の準備' },
+        { name: '引渡し', desc: '新生活の準備とアフターサポート' },
+      ];
+      document.getElementById('carte-stage').innerHTML = stages.map((s, i) => {
+        const stepNum = i + 1;
+        let dotClass = 'upcoming';
+        let dotContent = stepNum;
+        if (stepNum < stage) { dotClass = 'done'; dotContent = '✓'; }
+        else if (stepNum === stage) { dotClass = 'current'; }
+        return `<div class="carte-stage-step">
+          <div class="carte-stage-dot ${dotClass}">${dotContent}</div>
+          <div class="carte-stage-info">
+            <div class="carte-stage-name">${s.name}</div>
+            <div class="carte-stage-desc">${s.desc}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // 3. 検討ポイント（エージェントからのアドバイス + 自動生成）
+      let adviceHTML = '';
+
+      // エージェントからのカスタムアドバイスがあれば最優先表示
+      if (p.customerAdvice) {
+        adviceHTML += `
+          <div class="carte-advice-item" style="background: linear-gradient(135deg, rgba(0,113,227,0.04), rgba(88,86,214,0.04)); margin: -12px -12px 12px; padding: 16px; border-radius: 10px 10px 0 0; border-bottom: 2px solid var(--accent);">
+            <div class="carte-advice-title">👤 担当エージェントからのアドバイス</div>
+            <div class="carte-advice-text" style="white-space: pre-wrap;">${p.customerAdvice}</div>
+          </div>
+        `;
+      }
+
+      // 自動生成のアドバイス
+      const advices = generateAdvice(p);
+      adviceHTML += advices.map(a =>
+        `<div class="carte-advice-item">
+          <div class="carte-advice-title">${a.title}</div>
+          <div class="carte-advice-text">${a.text}</div>
+        </div>`
+      ).join('');
+
+      document.getElementById('carte-advice').innerHTML = adviceHTML;
+    }
+
+    function generateAdvice(p) {
+      const advices = [];
+
+      // 予算に基づくアドバイス
+      if (p.householdIncome && p.budget) {
+        advices.push({
+          title: '💰 資金計画について',
+          text: `世帯年収${p.householdIncome}で${p.budget}のご予算をお考えですね。住宅ローンの借入額や月々の返済額について、一度シミュレーションしてみましょう。AIチャットで「住宅ローンシミュレーション」と聞いてみてください。`
+        });
+      }
+
+      // 物件タイプに基づくアドバイス
+      if (p.propertyType) {
+        const typeAdvice = {
+          '中古戸建て': 'リフォーム費用や築年数による耐震性の確認がポイントです。インスペクション（建物検査）の活用もおすすめです。',
+          '中古マンション': '管理費・修繕積立金の確認、大規模修繕の履歴や今後の計画をチェックしましょう。',
+          '新築戸建て': '建売と注文住宅の違い、建築条件付き土地の仕組みなど、選択肢を広く検討できます。',
+          '注文住宅': '土地探しと建築会社選びが重要です。ハウスメーカー選びのポイントもお気軽にご相談ください。',
+        };
+        advices.push({
+          title: `🏠 ${p.propertyType}をお探しの方へ`,
+          text: typeAdvice[p.propertyType] || '物件探しのポイントをAIに聞いてみましょう。'
+        });
+      }
+
+      // エリアに基づくアドバイス
+      if (p.area && p.area !== '未定（一緒に探したい）') {
+        advices.push({
+          title: '📍 エリアについて',
+          text: `${p.area}エリアでお探しですね。通勤・通学のアクセスや、生活利便性、将来の資産価値なども考慮すると良いでしょう。`
+        });
+      } else {
+        advices.push({
+          title: '📍 エリア選びのヒント',
+          text: 'まだエリアが決まっていなくても大丈夫です。通勤時間・学区・生活環境など、優先順位を整理することから始めましょう。'
+        });
+      }
+
+      // 家族構成に基づくアドバイス
+      if (p.family && p.family.includes('子ども')) {
+        advices.push({
+          title: '👨‍👩‍👧 お子様がいらっしゃる方へ',
+          text: '学区情報、公園や病院へのアクセス、将来の部屋数なども考慮したいポイントです。お子様の成長に合わせた住まい選びをサポートします。'
+        });
+      }
+
+      // デフォルトのアドバイス
+      if (advices.length === 0) {
+        advices.push({
+          title: '✨ まずは気軽にご相談ください',
+          text: 'AIチャットで何でも質問できます。住宅購入の基礎知識から、具体的な物件相談まで、お気軽にどうぞ。'
+        });
+      }
+
+      return advices;
+    }
+
     function doLogout() {
       document.getElementById('settings-dropdown').classList.remove('show');
       localStorage.removeItem('muchinavi_token');
@@ -3102,7 +5539,7 @@
       document.getElementById('onboarding').style.display = '';
       const card = document.getElementById('step-card');
       card.innerHTML = `
-        <div class="step-icon">👋</div>
+        <div class="step-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><path d="M18 11V6a2 2 0 0 0-4 0v3"/><path d="M14 10V4a2 2 0 0 0-4 0v7"/><path d="M10 10.5V5a2 2 0 0 0-4 0v9"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></div>
         <h2 class="step-title">ご利用ありがとうございました</h2>
         <p class="step-subtitle">退会処理が完了しました。<br>またのご利用をお待ちしております。</p>
         <button class="btn-primary" onclick="location.href='/';" style="margin-top: 16px;">トップに戻る</button>
@@ -3171,10 +5608,9 @@
         document.getElementById('prof-area').value = p.area || '';
         document.getElementById('prof-budget').value = p.budget || '';
         document.getElementById('prof-email').value = p.email || '';
-        document.getElementById('prof-phone').value = p.phone || '';
-        document.getElementById('prof-line').value = p.line || '';
-
         document.getElementById('profile-screen').classList.add('active');
+        // デフォルトでカルテタブを表示
+        switchMypageTab('carte');
       } catch (e) {
         console.error('Profile load error:', e);
       }
@@ -3203,8 +5639,6 @@
         area: document.getElementById('prof-area').value.trim(),
         budget: document.getElementById('prof-budget').value.trim(),
         email: document.getElementById('prof-email').value.trim(),
-        phone: document.getElementById('prof-phone').value.trim(),
-        line: document.getElementById('prof-line').value.trim(),
       };
 
       try {
@@ -3216,11 +5650,13 @@
         const data = await res.json();
 
         if (data.success) {
-          showProfileToast('保存しました ✓', 'success');
+          showProfileToast('保存しました', 'success');
           // Update the chat header name display
           if (profileData.name) {
             document.getElementById('chat-customer-name').textContent = profileData.name + ' さん';
           }
+          // Refresh progress bar (stage may have changed)
+          loadProgressBar();
         } else {
           showProfileToast('保存に失敗しました', 'error');
         }
@@ -3258,7 +5694,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          showProfileToast('パスワードを変更しました ✓', 'success');
+          showProfileToast('パスワードを変更しました', 'success');
           document.getElementById('prof-new-password').value = '';
           document.getElementById('prof-new-password-confirm').value = '';
         } else {
@@ -3304,7 +5740,7 @@
           box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:360px;width:calc(100% - 40px);
           display:flex;align-items:center;gap:14px;font-family:-apple-system,sans-serif;
           animation:slideUpBanner 0.4s ease-out;">
-          <div style="font-size:32px;flex-shrink:0;">📱</div>
+          <div style="flex-shrink:0;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
           <div style="flex:1;">
             <div style="font-weight:600;font-size:14px;margin-bottom:4px;">ホーム画面に追加</div>
             <div style="font-size:12px;color:#aeaeb2;line-height:1.4;">アプリとして快適にご利用いただけます</div>
@@ -3356,7 +5792,7 @@
               box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:380px;width:calc(100% - 40px);
               font-family:-apple-system,sans-serif;animation:slideUpBanner 0.4s ease-out;">
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-                <span style="font-size:28px;">📱</span>
+                <span><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
                 <div>
                   <div style="font-weight:600;font-size:14px;">アプリとして使えます</div>
                   <div style="font-size:12px;color:#aeaeb2;margin-top:2px;">ホーム画面に追加して快適に</div>
@@ -3383,10 +5819,29 @@
     }
 
     // チャット画面表示後にiOS案内チェック
+    // モバイルビューポート高さ修正（100vhがアドレスバーを含む問題対策）
+    function fixMobileHeight() {
+      const cs = document.querySelector('.chat-screen');
+      if (cs && cs.classList.contains('active')) {
+        cs.style.height = window.innerHeight + 'px';
+      }
+    }
+    window.addEventListener('resize', fixMobileHeight);
+    // visualViewport API対応ブラウザ（キーボード表示時の高さ変化に対応）
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function() {
+        const cs = document.querySelector('.chat-screen');
+        if (cs && cs.classList.contains('active')) {
+          cs.style.height = window.visualViewport.height + 'px';
+        }
+      });
+    }
+
     const origStartChat = startChat;
     startChat = function() {
       origStartChat.apply(this, arguments);
       checkIOSInstallPrompt();
+      fixMobileHeight();
     };
 
     init();
@@ -3398,5 +5853,174 @@
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
   </style>
+
+  <!-- PWA Install Guide Banner -->
+  <div id="pwa-banner-overlay" class="pwa-banner-overlay" style="display:none;">
+    <div class="pwa-banner" style="position:relative;">
+      <button class="pwa-banner-close" onclick="closePwaBanner()" aria-label="閉じる">&times;</button>
+      <div class="pwa-banner-header">
+        <div class="pwa-banner-icon">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="pwa-banner-title">ホーム画面に追加</div>
+          <div class="pwa-banner-sub">アプリのようにすぐ使えます</div>
+        </div>
+      </div>
+
+      <!-- ブラウザ選択（OSによって自動で変わる） -->
+      <div id="pwa-browser-select" class="pwa-browser-select">
+        <!-- JSで動的に生成 -->
+      </div>
+
+      <!-- iPhone Safari 手順 -->
+      <div id="pwa-steps-iphone-safari" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">画面下部の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text">メニューをスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text">右上の<strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- iPhone Chrome 手順 -->
+      <div id="pwa-steps-iphone-chrome" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">アドレスバー右の<strong>共有ボタン <span class="step-icon">⬆</span></strong> をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text">メニューをスクロールして<strong>「ホーム画面に追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Android Chrome 手順 -->
+      <div id="pwa-steps-android-chrome" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">画面右上の<strong>メニュー（ ⋮ ）</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>をタップ<br><span style="font-size:12px;color:var(--text-light);">※「アプリをインストール」と表示される場合もあります</span></div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <!-- Android その他ブラウザ手順 -->
+      <div id="pwa-steps-android-other" class="pwa-steps" style="display:none;">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-text">ブラウザの<strong>メニュー（ ⋮ または ≡ ）</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-text"><strong>「ホーム画面に追加」</strong>または<strong>「ページを追加」</strong>をタップ</div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-text"><strong>「追加」</strong>をタップで完了！</div>
+        </div>
+      </div>
+
+      <button class="pwa-banner-dismiss" onclick="closePwaBanner()">OK</button>
+    </div>
+  </div>
+
+  <script>
+  // ===== PWA Install Banner =====
+  function detectPwaDevice() {
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    const isCriOS = /CriOS/.test(ua); // Chrome on iOS
+    const isSafari = isIOS && !isCriOS && /Safari/.test(ua);
+    return { isIOS, isAndroid, isCriOS, isSafari };
+  }
+
+  function shouldShowPwaBanner() {
+    if (window.matchMedia('(display-mode: standalone)').matches) return false;
+    if (window.navigator.standalone === true) return false;
+    if (window.innerWidth >= 769) return false;
+    if (localStorage.getItem('pwa_banner_dismissed')) return false;
+    return true;
+  }
+
+  function showPwaBanner() {
+    if (!shouldShowPwaBanner()) return;
+    const { isIOS, isAndroid, isCriOS, isSafari } = detectPwaDevice();
+    const selectDiv = document.getElementById('pwa-browser-select');
+
+    if (isIOS) {
+      // iPhone: Safari と Chrome の選択肢
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-safari\', this)">' +
+          '<span class="browser-icon">🧭</span><span class="browser-name">Safari</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>';
+      // 現在使用中のブラウザを自動選択
+      if (isCriOS) {
+        showPwaSteps('iphone-chrome', selectDiv.querySelectorAll('.pwa-browser-btn')[1]);
+      } else {
+        showPwaSteps('iphone-safari', selectDiv.querySelectorAll('.pwa-browser-btn')[0]);
+      }
+    } else if (isAndroid) {
+      // Android: Chrome とその他の選択肢
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-other\', this)">' +
+          '<span class="browser-icon">🌐</span><span class="browser-name">その他</span>' +
+        '</button>';
+      // Android はほぼ Chrome なのでデフォルト選択
+      showPwaSteps('android-chrome', selectDiv.querySelectorAll('.pwa-browser-btn')[0]);
+    } else {
+      // その他（判別不能）: 全選択肢を表示
+      selectDiv.innerHTML =
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'iphone-safari\', this)">' +
+          '<span class="browser-icon">🧭</span><span class="browser-name">Safari</span>' +
+        '</button>' +
+        '<button class="pwa-browser-btn" onclick="showPwaSteps(\'android-chrome\', this)">' +
+          '<span class="browser-icon">🔵</span><span class="browser-name">Chrome</span>' +
+        '</button>';
+    }
+
+    document.getElementById('pwa-banner-overlay').style.display = 'flex';
+  }
+
+  function closePwaBanner() {
+    const overlay = document.getElementById('pwa-banner-overlay');
+    overlay.style.display = 'none';
+    localStorage.setItem('pwa_banner_dismissed', Date.now());
+  }
+
+  function showPwaSteps(stepsId, btnEl) {
+    // ボタンのアクティブ状態
+    document.querySelectorAll('.pwa-browser-btn').forEach(btn => btn.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    // 全手順を非表示
+    document.querySelectorAll('.pwa-steps').forEach(el => el.style.display = 'none');
+    // 選択された手順を表示
+    const target = document.getElementById('pwa-steps-' + stepsId);
+    if (target) target.style.display = 'flex';
+  }
+  </script>
 </body>
 </html>

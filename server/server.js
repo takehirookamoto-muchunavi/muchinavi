@@ -6,8 +6,36 @@ const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const nodemailer = require('nodemailer');
 const compression = require('compression');
+const multer = require('multer');
 
 const app = express();
+
+// ===== ファイルアップロード設定 =====
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const name = crypto.randomBytes(12).toString('hex') + ext;
+      cb(null, name);
+    }
+  }),
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ALLOWED_TYPES.includes(file.mimetype) && ALLOWED_EXTENSIONS.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('対応していないファイル形式です。JPG, PNG, GIF, WEBP, PDFのみ対応しています。'));
+    }
+  }
+});
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
@@ -65,8 +93,11 @@ if (IS_PRODUCTION && !GEMINI_API_KEY) {
 function createTransporter() {
   if (!SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+    tls: { rejectUnauthorized: false },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
@@ -92,62 +123,150 @@ async function sendNotificationEmail({ to, subject, html }) {
   }
 }
 
-// ===== Blog Articles Database =====
-const BLOG_ARTICLES = [
-  // --- 住宅ローン ---
-  { category: 'loan', title: '住宅ローンの基本と選び方完全ガイド', url: 'https://muchinochi55.com/【2025年版】住宅ローンの基本と選び方完全ガイド/', keywords: ['住宅ローン', '選び方', '基本', '金利'] },
-  { category: 'loan', title: '固定金利と変動金利どちらがいいのか', url: 'https://muchinochi55.com/【住宅ローンの『きほん』の『き』】固定金利と/', keywords: ['固定金利', '変動金利', '金利タイプ'] },
-  { category: 'loan', title: '月々の返済額はいくらが理想？無理のない住宅ローン', url: 'https://muchinochi55.com/【完全解説】月々の返済額はいくらが理想？無理/', keywords: ['返済額', '月々', '無理のない'] },
-  { category: 'loan', title: '住宅ローン審査に通りやすくなるコツ5選', url: 'https://muchinochi55.com/住宅ローン審査に通りやすくなるコツ5選｜30代フ/', keywords: ['審査', '通りやすい', 'コツ'] },
-  { category: 'loan', title: '頭金ゼロでも家は買える？', url: 'https://muchinochi55.com/【賢く家を買う方法】頭金ゼロでも家は買える？/', keywords: ['頭金', 'ゼロ', '初期費用'] },
-  { category: 'loan', title: 'ペアローンと連帯債務の違い', url: 'https://muchinochi55.com/ペアローンと連帯債務の違いとは？夫婦で選ぶべ/', keywords: ['ペアローン', '連帯債務', '夫婦', '共働き'] },
-  { category: 'loan', title: 'フリーランスでも住宅ローンは組める！', url: 'https://muchinochi55.com/フリーランスでも住宅ローンは組める！審査通過/', keywords: ['フリーランス', '自営業', '審査'] },
-  { category: 'loan', title: '住宅ローン控除の落とし穴', url: 'https://muchinochi55.com/住宅ローン控除の落とし穴｜資金計画で見落とし/', keywords: ['住宅ローン控除', '減税', '税金'] },
-  { category: 'loan', title: '金利上昇リスクに備える住宅ローン対策', url: 'https://muchinochi55.com/金利上昇リスクに備える住宅ローン対策｜失敗し/', keywords: ['金利上昇', 'リスク', '対策'] },
-  { category: 'loan', title: '団信とは？住宅ローンの生命保険', url: 'https://muchinochi55.com/団信とは？住宅ローンの生命保険のメリット・注/', keywords: ['団信', '生命保険', '保障'] },
-  { category: 'loan', title: '転職中の住宅ローン返済', url: 'https://muchinochi55.com/【転職検討中の方必見！】住宅ローン返済中に転/', keywords: ['転職', 'ローン返済'] },
-  { category: 'loan', title: '住宅ローン破綻を防ぐ方法', url: 'https://muchinochi55.com/住宅ローン破綻なんて怖くない！不動産のプロが/', keywords: ['破綻', '返済不能', '防ぐ'] },
-  // --- ライフプラン ---
+// ===== Blog Articles Database (WordPress自動連携) =====
+const BLOG_WP_URL = 'https://muchinochi55.com';
+let BLOG_ARTICLES = []; // WordPress APIから自動取得（起動時＋定期更新）
+let blogArticlesLastFetch = null;
+const BLOG_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6時間ごとに更新
+
+// WordPressカテゴリIDとシステム内カテゴリのマッピング（初回取得時に自動構築）
+let wpCategoryMap = {};
+
+// WordPress REST APIから全記事を取得
+async function fetchBlogArticlesFromWP() {
+  try {
+    console.log('📰 WordPress記事を取得中...');
+
+    // 1) カテゴリ一覧を取得
+    const catRes = await fetch(`${BLOG_WP_URL}/wp-json/wp/v2/categories?per_page=100`);
+    if (!catRes.ok) throw new Error(`カテゴリ取得失敗: ${catRes.status}`);
+    const categories = await catRes.json();
+
+    // カテゴリ名 → システム内カテゴリ名のマッピング
+    const categoryNameMap = {
+      '住宅ローン': 'loan', 'ローン': 'loan', 'loan': 'loan',
+      'ライフプラン': 'lifeplan', 'lifeplan': 'lifeplan', '生活設計': 'lifeplan',
+      '家探し': 'hunting', '物件選び': 'hunting', '物件探し': 'hunting', 'hunting': 'hunting',
+      'ハウスメーカー': 'housemaker', '注文住宅': 'housemaker', 'housemaker': 'housemaker',
+      '大阪': 'area-osaka', 'エリア大阪': 'area-osaka',
+      '東京': 'area-tokyo', 'エリア東京': 'area-tokyo',
+      'マンション': 'mansion', 'mansion': 'mansion',
+      'エリア': 'area', '不動産基礎知識': 'basics', '税金': 'tax',
+    };
+    wpCategoryMap = {};
+    categories.forEach(cat => {
+      const catName = cat.name.trim();
+      // 完全一致 → 部分一致の順で検索
+      let mapped = categoryNameMap[catName];
+      if (!mapped) {
+        for (const [key, val] of Object.entries(categoryNameMap)) {
+          if (catName.includes(key) || key.includes(catName)) { mapped = val; break; }
+        }
+      }
+      wpCategoryMap[cat.id] = mapped || catName.toLowerCase().replace(/\s+/g, '-');
+    });
+
+    // 2) タグ一覧を取得（キーワードとして利用）
+    let allTags = {};
+    let tagPage = 1;
+    while (true) {
+      const tagRes = await fetch(`${BLOG_WP_URL}/wp-json/wp/v2/tags?per_page=100&page=${tagPage}`);
+      if (!tagRes.ok) break;
+      const tags = await tagRes.json();
+      if (tags.length === 0) break;
+      tags.forEach(t => { allTags[t.id] = t.name; });
+      tagPage++;
+      if (tags.length < 100) break;
+    }
+
+    // 3) 全記事をページネーションで取得
+    let allArticles = [];
+    let page = 1;
+    while (true) {
+      const postRes = await fetch(
+        `${BLOG_WP_URL}/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=id,title,link,categories,tags,status,date&status=publish&orderby=date&order=desc`
+      );
+      if (!postRes.ok) {
+        if (postRes.status === 400) break; // ページ超過
+        throw new Error(`記事取得失敗: ${postRes.status}`);
+      }
+      const posts = await postRes.json();
+      if (posts.length === 0) break;
+
+      posts.forEach(post => {
+        // タイトルからHTMLエンティティをデコード
+        const title = post.title.rendered
+          .replace(/&#8211;/g, '–').replace(/&#8212;/g, '—')
+          .replace(/&#8216;/g, "'").replace(/&#8217;/g, "'")
+          .replace(/&#8220;/g, '"').replace(/&#8221;/g, '"')
+          .replace(/&#038;/g, '&').replace(/&amp;/g, '&')
+          .replace(/<[^>]+>/g, '').trim();
+
+        // カテゴリ決定（最初のカテゴリを使用）
+        const catId = (post.categories && post.categories.length > 0) ? post.categories[0] : null;
+        const category = catId ? (wpCategoryMap[catId] || 'general') : 'general';
+
+        // タグからキーワードを抽出
+        const keywords = (post.tags || [])
+          .map(tagId => allTags[tagId])
+          .filter(Boolean);
+
+        // タイトルから追加キーワード抽出（日本語の主要名詞）
+        if (keywords.length === 0) {
+          const titleKeywords = title
+            .replace(/[【】「」『』（）\(\)\[\]｜|／\/、。！？!?…～〜]/g, ' ')
+            .split(/\s+/)
+            .filter(w => w.length >= 2 && w.length <= 15);
+          keywords.push(...titleKeywords.slice(0, 5));
+        }
+
+        const publishDate = post.date ? post.date.slice(0, 10) : ''; // YYYY-MM-DD
+        allArticles.push({ category, title, url: post.link, keywords, publishDate });
+      });
+
+      page++;
+      if (posts.length < 100) break;
+    }
+
+    if (allArticles.length > 0) {
+      // 新しい記事が先に来るようにソート
+      allArticles.sort((a, b) => (b.publishDate || '').localeCompare(a.publishDate || ''));
+      BLOG_ARTICLES = allArticles;
+      blogArticlesLastFetch = Date.now();
+      console.log(`✅ WordPress記事取得完了: ${allArticles.length}本（${Object.keys(wpCategoryMap).length}カテゴリ）`);
+      console.log(`📰 最新記事: ${allArticles[0]?.title} (${allArticles[0]?.publishDate})`);
+    } else {
+      console.warn('⚠️ WordPress記事が0件。フォールバック記事を維持します。');
+    }
+  } catch (err) {
+    console.error('❌ WordPress記事取得エラー:', err.message);
+    // 既存のキャッシュがあればそのまま使う。なければフォールバック。
+    if (BLOG_ARTICLES.length === 0) {
+      console.log('📦 フォールバック記事を使用します');
+      BLOG_ARTICLES = FALLBACK_ARTICLES;
+    }
+  }
+}
+
+// フォールバック記事（WordPress APIが使えない場合の最低限）
+const FALLBACK_ARTICLES = [
+  { category: 'loan', title: '住宅ローンの基本と選び方完全ガイド', url: 'https://muchinochi55.com/【2025年版】住宅ローンの基本と選び方完全ガイド/', keywords: ['住宅ローン', '選び方', '基本'] },
   { category: 'lifeplan', title: 'ライフプランを立てずに家を買うとどうなる？', url: 'https://muchinochi55.com/ライフプランを立てずに家を買うとどうなる？失/', keywords: ['ライフプラン', '失敗', '計画'] },
-  { category: 'lifeplan', title: '共働き世帯のライフプラン作成が未来を決める', url: 'https://muchinochi55.com/【どれくらい考えていますか？】共働き世帯こそ/', keywords: ['共働き', 'ライフプラン', '家計'] },
-  { category: 'lifeplan', title: '教育費と住宅ローンの賢い両立方法', url: 'https://muchinochi55.com/子供の進学を考えた家選び｜将来の教育費と住宅/', keywords: ['教育費', '子供', '進学', '両立'] },
-  { category: 'lifeplan', title: '家を買っても旅行・外食を楽しむ暮らし', url: 'https://muchinochi55.com/家を買っても「旅行・外食」を楽しむ暮らしにす/', keywords: ['旅行', '外食', '生活の質', '楽しむ'] },
-  { category: 'lifeplan', title: '老後の年金だけで大丈夫？', url: 'https://muchinochi55.com/【将来を見据えるのが重要！】老後の年金だけで/', keywords: ['老後', '年金', '将来'] },
-  { category: 'lifeplan', title: '家計診断で無理のない住宅購入', url: 'https://muchinochi55.com/【将来をしっかり考える】家計診断で「無理のな/', keywords: ['家計診断', '無理のない', '購入額'] },
-  { category: 'lifeplan', title: '賃貸vs購入どっちが得？30代ファミリー', url: 'https://muchinochi55.com/賃貸vs購入どっちが得？30代ファミリーの選び方完/', keywords: ['賃貸', '購入', '比較', '30代'] },
-  { category: 'lifeplan', title: '転職・独立を見据えた家選び', url: 'https://muchinochi55.com/将来の転職・独立を見据えた家選びとは｜ライフ/', keywords: ['転職', '独立', '将来'] },
-  // --- 家探し・物件選び ---
-  { category: 'hunting', title: '家を買う前に絶対やるべき準備', url: 'https://muchinochi55.com/【知らないと大損も？】家を買う前に絶対やるべ/', keywords: ['準備', '買う前', '始め方'] },
-  { category: 'hunting', title: '不動産購入の流れ7ステップ', url: 'https://muchinochi55.com/fudosan-purchase-flow-7steps/', keywords: ['購入の流れ', 'ステップ', '手順'] },
-  { category: 'hunting', title: '家を買うタイミングはいつがベスト？', url: 'https://muchinochi55.com/家を買うタイミングはいつがベスト？後悔しない/', keywords: ['タイミング', 'いつ', '時期'] },
-  { category: 'hunting', title: 'マイホーム購入でよくある不安と解消法', url: 'https://muchinochi55.com/【あなたはどうですか？】よくあるマイホーム購/', keywords: ['不安', '解消', 'よくある質問'] },
-  { category: 'hunting', title: '内見で確認すべき10のポイント', url: 'https://muchinochi55.com/【保存版】家を買う前の内見で必ず確認すべき10の/', keywords: ['内見', 'チェック', '確認'] },
-  { category: 'hunting', title: 'マイホームが決まらない理由と解決策', url: 'https://muchinochi55.com/myhome-kimaranai-riyuu-kaiketsu/', keywords: ['決まらない', '迷い', '解決'] },
   { category: 'hunting', title: '家探しで失敗しない3つのステップ', url: 'https://muchinochi55.com/家探し初心者必見！失敗しない3つのステップと成/', keywords: ['初心者', '失敗しない', 'ステップ'] },
-  { category: 'hunting', title: '条件だけで家を選ぶと後悔する理由', url: 'https://muchinochi55.com/条件だけで家を選ぶと後悔する理由｜理想の暮ら/', keywords: ['条件', '後悔', '理想'] },
-  { category: 'hunting', title: '新築vsリノベーション', url: 'https://muchinochi55.com/新築vsリノベーション｜後悔しない選び方と判断基/', keywords: ['新築', 'リノベーション', '中古', '比較'] },
-  { category: 'hunting', title: 'マンションと戸建てどっちが正解？', url: 'https://muchinochi55.com/マンションと戸建てどっちが正解？後悔しない選/', keywords: ['マンション', '戸建て', 'どっち'] },
-  { category: 'hunting', title: '勢いで家を買うは正解？', url: 'https://muchinochi55.com/【ちょっと待って！！】勢いで家を買うは正解？/', keywords: ['勢い', '即決', '慎重'] },
-  { category: 'hunting', title: '中古物件の購入前に知るべきこと', url: 'https://muchinochi55.com/【超・重要】中古物件って実際どう？購入前に知/', keywords: ['中古', '注意点', '購入前'] },
-  { category: 'hunting', title: '住宅展示場の賢い使い方', url: 'https://muchinochi55.com/住宅展示場って行く意味ある？後悔しないための5/', keywords: ['住宅展示場', '見学', 'ハウスメーカー'] },
-  // --- ハウスメーカー・注文住宅 ---
-  { category: 'housemaker', title: '注文住宅の予算オーバーを防ぐ方法', url: 'https://muchinochi55.com/chumon-jutaku-yosan-over/', keywords: ['注文住宅', '予算オーバー', 'コスト'] },
-  { category: 'housemaker', title: 'ハウスメーカー選びは営業担当で決まる', url: 'https://muchinochi55.com/注文住宅は営業担当で決まる｜後悔しないため/', keywords: ['ハウスメーカー', '営業担当', '選び方'] },
-  { category: 'housemaker', title: '土地と建築会社どちらを先に決める？', url: 'https://muchinochi55.com/custom-home-land-or-builder-first/', keywords: ['土地', '建築会社', '先に', '順番'] },
-  { category: 'housemaker', title: '住友林業vs積水ハウス比較', url: 'https://muchinochi55.com/sumitomoringyou-sekisuihouse-comparison/', keywords: ['住友林業', '積水ハウス', '比較'] },
-  { category: 'housemaker', title: '鉄骨vs木造の比較', url: 'https://muchinochi55.com/tetsukotsu-mokuzo-hikaku/', keywords: ['鉄骨', '木造', '構造', '比較'] },
-  // --- エリアガイド ---
-  { category: 'area-osaka', title: '大阪で子育てしやすい街ランキング', url: 'https://muchinochi55.com/大阪で子育てしやすい街ランキング【2025年版】～/', keywords: ['大阪', '子育て', 'ランキング'] },
-  { category: 'area-osaka', title: '北摂エリアの住みやすさランキング', url: 'https://muchinochi55.com/hokusetsu-livability-ranking/', keywords: ['北摂', '住みやすさ', '吹田', '豊中'] },
-  { category: 'area-osaka', title: '大阪転勤族の住む場所の選び方', url: 'https://muchinochi55.com/osaka-tenkin-sumubashoerabikata/', keywords: ['転勤', '大阪', '住む場所'] },
-  { category: 'area-osaka', title: '大阪で新築戸建てを買うなら', url: 'https://muchinochi55.com/大阪で新築戸建てを買うなら？プロが選ぶ失敗し/', keywords: ['大阪', '新築', '戸建て'] },
-  { category: 'area-tokyo', title: '東京23区で子育てにやさしい街ランキング', url: 'https://muchinochi55.com/東京23区で子育てにやさしい街ランキング2026年最/', keywords: ['東京', '23区', '子育て'] },
-  { category: 'area-tokyo', title: '世田谷・杉並・練馬で迷ったら', url: 'https://muchinochi55.com/「どこで子育てする？」世田谷・杉並・練馬で迷/', keywords: ['世田谷', '杉並', '練馬', '比較'] },
-  { category: 'area-tokyo', title: '23区か郊外かの選択', url: 'https://muchinochi55.com/「23区か？郊外か？」その選択が人生を左右する理/', keywords: ['23区', '郊外', '選択'] },
-  // --- マンション ---
-  { category: 'mansion', title: 'マンション購入時の管理費チェック', url: 'https://muchinochi55.com/【買う前に確認して！】マンション購入時の管理/', keywords: ['マンション', '管理費', '管理組合'] },
-  { category: 'mansion', title: 'マンション大規模修繕の注意点', url: 'https://muchinochi55.com/【どれくらい知っていますか？】マンション大規/', keywords: ['大規模修繕', 'マンション', '修繕積立金'] },
 ];
+
+// 定期的にWordPressから記事を更新
+function startBlogArticleSync() {
+  // 起動時に即取得
+  fetchBlogArticlesFromWP();
+  // 6時間ごとに再取得
+  setInterval(() => {
+    fetchBlogArticlesFromWP();
+  }, BLOG_CACHE_DURATION);
+}
+
+// 管理者用: 手動で記事を再取得するAPIエンドポイント
+// (後でapp.postに追加)
 
 // ===== Simple JSON Database =====
 const DATA_DIR = path.join(__dirname, 'data');
@@ -265,6 +384,14 @@ app.get('/sw.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sw.js'));
 });
 
+// アップロードファイル配信
+app.use('/uploads', express.static(UPLOAD_DIR, {
+  maxAge: '7d',
+  setHeaders: (res) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+}));
+
 // 静的ファイルにキャッシュ設定（HTML/CSS/JSを5分キャッシュ）
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '5m',
@@ -317,8 +444,11 @@ app.get('/api/test-email', async (req, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
+      tls: { rejectUnauthorized: false },
     });
 
     // SMTP接続を検証
@@ -363,27 +493,121 @@ app.post('/api/register', async (req, res) => {
   const passwordHash = customer.password ? hashPassword(customer.password) : null;
   delete customer.password; // Don't store plain password
 
+  // Auto-assign tags based on registration data
+  const autoTags = [];
+  const tagData = loadTags();
+
+  // Helper: ensure tag exists and add to autoTags
+  function ensureTagAndAdd(tagName, color, category) {
+    if (!tagName || tagName === '-' || tagName === '未入力') return;
+    const existing = tagData.tags.find(t => t.name === tagName);
+    if (!existing) {
+      tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: tagName, color: color, category: category || '' });
+    } else if (category && !existing.category) {
+      // Existing tag without category - add category
+      existing.category = category;
+    }
+    if (!autoTags.includes(tagName)) {
+      autoTags.push(tagName);
+    }
+  }
+
+  // Prefecture auto-tag (都道府県)
+  if (customer.prefecture) {
+    ensureTagAndAdd(customer.prefecture, '#5856d6', '都道府県');
+  }
+
+  // Property type auto-tag (物件種別)
+  if (customer.propertyType) {
+    ensureTagAndAdd(customer.propertyType, '#0071e3', '物件種別');
+  }
+
+  // Save tags if new ones were created
+  if (autoTags.length > 0) {
+    saveTags(tagData);
+    console.log('🏷️ 自動タグ付与:', autoTags.join(', '));
+  }
+
   // Save to DB
   const db = loadDB();
+  // Determine initial stage based on profile completeness
+  const profileFields = ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
+  const filled = profileFields.filter(f => customer[f] && customer[f] !== '' && customer[f] !== '-' && customer[f] !== '未入力').length;
+  const initialStage = (filled >= Math.ceil(profileFields.length * 0.7)) ? 2 : 1;
+
   db[token] = {
     ...customer,
     passwordHash,
     token,
     chatHistory: [],
     directChatHistory: [],
-    tags: [],
+    tags: autoTags,
+    stage: initialStage,
     createdAt: new Date().toISOString(),
   };
+  if (initialStage > 1) console.log(`📊 登録時ステージ自動判定: ${initialStage} (${filled}/${profileFields.length}項目入力済み)`);
   saveDB(db);
 
   console.log('📩 新規登録:', customer.name, customer.email, '→ トークン:', token);
+
+  // ===== Slack通知（メールとは独立して必ず送信） =====
+  try {
+    const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+    const slackMessage = {
+      text: `🏠 *新規登録* | ${customer.name}さん`,
+      blocks: [
+        {
+          type: 'header',
+          text: { type: 'plain_text', text: '🏠 新規お客様が登録しました', emoji: true }
+        },
+        {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `*お名前:*\n${customer.name || '-'}` },
+            { type: 'mrkdwn', text: `*メール:*\n${customer.email || '-'}` },
+            { type: 'mrkdwn', text: `*希望エリア:*\n${customer.area || '-'}` },
+            { type: 'mrkdwn', text: `*予算:*\n${customer.budget || '-'}` },
+            { type: 'mrkdwn', text: `*物件種別:*\n${customer.propertyType || '-'}` },
+            { type: 'mrkdwn', text: `*家族構成:*\n${customer.family || '-'}` },
+            { type: 'mrkdwn', text: `*世帯年収:*\n${customer.householdIncome || '-'}` },
+            { type: 'mrkdwn', text: `*登録目的:*\n${customer.purpose || '-'}` },
+          ]
+        },
+        ...(customer.searchReason ? [{
+          type: 'section',
+          text: { type: 'mrkdwn', text: `*探索理由:*\n${customer.searchReason}` }
+        }] : []),
+        ...(customer.freeComment ? [{
+          type: 'section',
+          text: { type: 'mrkdwn', text: `*コメント:*\n${customer.freeComment}` }
+        }] : []),
+        {
+          type: 'context',
+          elements: [
+            { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
+          ]
+        }
+      ]
+    };
+    await fetch(SLACK_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(slackMessage),
+    });
+    console.log('✅ Slack通知送信完了');
+  } catch (slackErr) {
+    console.error('⚠️ Slack通知エラー:', slackErr.message);
+  }
 
   // Send emails (non-blocking — registration always succeeds)
   try {
     if (SMTP_USER && SMTP_PASS) {
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
         auth: { user: SMTP_USER, pass: SMTP_PASS },
+        tls: { rejectUnauthorized: false },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000,
@@ -395,8 +619,8 @@ app.post('/api/register', async (req, res) => {
         console.log('✅ SMTP接続OK');
       } catch (smtpErr) {
         console.error('❌ SMTP認証エラー:', smtpErr.message);
-        console.error('💡 Gmailのアプリパスワードを再確認してください: https://myaccount.google.com/apppasswords');
-        return res.json({ success: true, token, emailError: 'SMTP認証に失敗しました。アプリパスワードを確認してください。' });
+        console.error('💡 SMTP設定を確認してください（ホスト: ' + SMTP_HOST + ', ユーザー: ' + SMTP_USER + '）');
+        return res.json({ success: true, token, emailError: 'SMTP認証に失敗しました。メール設定を確認してください。' });
       }
 
       // ===== 1) お客様への登録完了メール =====
@@ -405,14 +629,15 @@ app.post('/api/register', async (req, res) => {
         let recommendedArticles = [];
         try {
           if (GEMINI_API_KEY) {
-            const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】`).join('\n');
+            const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】(${a.publishDate || '不明'})`).join('\n');
             const customerProfile = `名前: ${customer.name}, 家族: ${customer.family || '未入力'}, 物件種別: ${customer.propertyType || '未入力'}, 目的: ${customer.purpose || '未入力'}, エリア: ${customer.area || '未入力'}, 予算: ${customer.budget || '未入力'}, 世帯年収: ${customer.householdIncome || '未入力'}, 探索理由: ${customer.searchReason || '未入力'}`;
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
-            const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。
+            const articleGenAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+            const model = articleGenAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
+            const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。関連性が同程度の場合は、公開日が新しい記事を優先してください。
 
 お客様プロフィール: ${customerProfile}
 
-記事一覧:
+記事一覧（番号: タイトル【カテゴリ】(公開日)）:
 ${articleList}
 
 JSON形式で記事のインデックス番号を3つ返してください: {"indices": [0, 1, 2]}`);
@@ -798,6 +1023,9 @@ app.get('/api/customer/profile/:token', (req, res) => {
   const profile = {};
   const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line'];
   fields.forEach(k => { profile[k] = record[k] || ''; });
+  profile.stage = record.stage || 1;
+  // カルテ用: エージェントからのアドバイス（お客様向け公開メモ）
+  profile.customerAdvice = record.customerAdvice || '';
   res.json({ success: true, profile });
 });
 
@@ -830,8 +1058,304 @@ app.put('/api/customer/profile/:token', (req, res) => {
     record.age = age;
   }
 
+  // Auto-stage: check if profile is 70%+ filled → stage 2
+  if (!record.stage || record.stage < 2) {
+    const profileFields = ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
+    const filled = profileFields.filter(f => record[f] && record[f] !== '' && record[f] !== '-' && record[f] !== '未入力').length;
+    if (filled >= Math.ceil(profileFields.length * 0.7)) {
+      record.stage = 2;
+    }
+  }
+
   saveDB(db);
   res.json({ success: true, message: '保存しました', changed });
+});
+
+// ===== 顧客ステージ更新（自動進行用）=====
+app.post('/api/customer/advance-stage/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  if (record.status === 'blocked' || record.status === 'withdrawn')
+    return res.status(403).json({ error: 'access denied' });
+
+  const { stage } = req.body;
+  const currentStage = record.stage || 1;
+
+  // Only allow advancing forward (not going back), max +1 step at a time from customer side
+  if (stage && stage > currentStage && stage <= currentStage + 1 && stage <= 3) {
+    record.stage = stage;
+    saveDB(db);
+    console.log(`📊 ステージ進行: ${record.name} → ${stage}`);
+    res.json({ success: true, stage: record.stage });
+  } else {
+    res.json({ success: false, message: 'ステージ変更できません', stage: currentStage });
+  }
+});
+
+// ===== ファイルアップロード（顧客側） =====
+app.post('/api/customer/upload/:token', (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'ファイルサイズが10MBを超えています' });
+      }
+      return res.status(400).json({ error: err.message || 'アップロードに失敗しました' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'ファイルが選択されていません' });
+
+    const db = loadDB();
+    const record = db[req.params.token];
+    if (!record) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: 'not found' });
+    }
+
+    // multerはlatin1でデコードするため、日本語ファイル名をUTF-8に変換
+    let originalName;
+    try {
+      originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+    } catch (e) {
+      originalName = req.file.originalname;
+    }
+
+    const fileInfo = {
+      id: 'file_' + Date.now(),
+      filename: req.file.filename,
+      originalName: originalName,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      url: '/uploads/' + req.file.filename,
+      sender: 'customer',
+      createdAt: new Date().toISOString()
+    };
+
+    if (!record.files) record.files = [];
+    record.files.push(fileInfo);
+    saveDB(db);
+
+    console.log(`📎 ファイル受信: ${record.name} → ${originalName} (${(req.file.size/1024).toFixed(1)}KB)`);
+    res.json({ success: true, file: fileInfo });
+  });
+});
+
+// ===== ファイルアップロード（管理者側） =====
+app.post('/api/admin/upload/:token', adminAuth, (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'ファイルサイズが10MBを超えています' });
+      }
+      return res.status(400).json({ error: err.message || 'アップロードに失敗しました' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'ファイルが選択されていません' });
+
+    const db = loadDB();
+    const record = db[req.params.token];
+    if (!record) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: 'not found' });
+    }
+
+    let originalName;
+    try {
+      originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+    } catch (e) {
+      originalName = req.file.originalname;
+    }
+
+    const fileInfo = {
+      id: 'file_' + Date.now(),
+      filename: req.file.filename,
+      originalName: originalName,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      url: '/uploads/' + req.file.filename,
+      sender: 'agent',
+      createdAt: new Date().toISOString()
+    };
+
+    if (!record.files) record.files = [];
+    record.files.push(fileInfo);
+    saveDB(db);
+
+    console.log(`📎 ファイル送信: → ${record.name} : ${originalName} (${(req.file.size/1024).toFixed(1)}KB)`);
+    res.json({ success: true, file: fileInfo });
+  });
+});
+
+// ===== ファイル一覧（顧客側） =====
+app.get('/api/customer/files/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  res.json({ files: record.files || [] });
+});
+
+// ===== ファイル一覧（管理者側） =====
+app.get('/api/admin/files/:token', adminAuth, (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  res.json({ files: record.files || [] });
+});
+
+// ===== フィードバック送信 =====
+app.post('/api/customer/feedback/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  if (record.status === 'blocked' || record.status === 'withdrawn')
+    return res.status(403).json({ error: 'access denied' });
+
+  const { rating, tags, comment, trigger } = req.body;
+  if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: '評価は1〜5で入力してください' });
+
+  if (!record.feedback) record.feedback = [];
+  record.feedback.push({
+    id: 'fb_' + Date.now(),
+    rating: parseInt(rating, 10),
+    tags: tags || [],
+    comment: comment || '',
+    trigger: trigger || 'manual', // 'stage_change' | 'conversation' | 'manual'
+    stage: record.stage || 1,
+    createdAt: new Date().toISOString()
+  });
+  saveDB(db);
+
+  console.log(`💬 フィードバック: ${record.name} ★${rating} ${tags?.join(',')||''} ${comment||''}`);
+
+  // 管理者にメール通知（低評価の場合）
+  if (parseInt(rating, 10) <= 2) {
+    sendNotificationEmail({
+      to: NOTIFY_EMAIL,
+      subject: `⚠️ 低評価フィードバック: ${record.name}さん (★${rating})`,
+      html: `<p><strong>${record.name}</strong>さんから低評価のフィードバックがありました。</p>
+        <p>評価: ★${rating}/5</p>
+        <p>選択項目: ${(tags||[]).join(', ') || 'なし'}</p>
+        <p>コメント: ${comment || 'なし'}</p>
+        <p>ステージ: ${record.stage || 1}</p>
+        <p>トリガー: ${trigger || '-'}</p>`
+    }).catch(e => console.error('フィードバック通知メール失敗:', e.message));
+  }
+
+  res.json({ success: true });
+});
+
+// ===== 管理API: フィードバック一覧 =====
+app.get('/api/admin/feedback', adminAuth, (req, res) => {
+  const db = loadDB();
+  const allFeedback = [];
+  Object.entries(db).forEach(([token, record]) => {
+    if (record.feedback && record.feedback.length > 0) {
+      record.feedback.forEach(fb => {
+        allFeedback.push({
+          ...fb,
+          customerName: record.name || '名前未設定',
+          customerToken: token
+        });
+      });
+    }
+  });
+  allFeedback.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // 統計
+  const ratings = allFeedback.map(f => f.rating);
+  const avg = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+  const distribution = [0, 0, 0, 0, 0];
+  ratings.forEach(r => { distribution[r - 1]++; });
+
+  res.json({
+    feedback: allFeedback,
+    stats: {
+      total: allFeedback.length,
+      average: parseFloat(avg),
+      distribution
+    }
+  });
+});
+
+// ===== お知らせ通知 =====
+const ANNOUNCEMENTS_FILE = path.join(__dirname, 'announcements.json');
+
+function loadAnnouncements() {
+  try {
+    if (fs.existsSync(ANNOUNCEMENTS_FILE)) {
+      return JSON.parse(fs.readFileSync(ANNOUNCEMENTS_FILE, 'utf-8'));
+    }
+  } catch (e) { console.error('Error loading announcements:', e); }
+  return [];
+}
+
+function saveAnnouncements(data) {
+  fs.writeFileSync(ANNOUNCEMENTS_FILE, JSON.stringify(data, null, 2));
+}
+
+// 管理者: お知らせ一覧取得
+app.get('/api/admin/announcements', adminAuth, (req, res) => {
+  res.json(loadAnnouncements());
+});
+
+// 管理者: お知らせ作成
+app.post('/api/admin/announcements', adminAuth, (req, res) => {
+  const { title, content, type } = req.body;
+  if (!title || !content) return res.status(400).json({ error: 'タイトルと内容は必須です' });
+
+  const announcements = loadAnnouncements();
+  const announcement = {
+    id: crypto.randomBytes(8).toString('hex'),
+    title: title.trim(),
+    content: content.trim(),
+    type: type || 'update', // update, feature, info
+    createdAt: new Date().toISOString()
+  };
+  announcements.unshift(announcement);
+  saveAnnouncements(announcements);
+  res.json(announcement);
+});
+
+// 管理者: お知らせ削除
+app.delete('/api/admin/announcements/:id', adminAuth, (req, res) => {
+  let announcements = loadAnnouncements();
+  announcements = announcements.filter(a => a.id !== req.params.id);
+  saveAnnouncements(announcements);
+  res.json({ success: true });
+});
+
+// 顧客: お知らせ取得（未読含む）
+app.get('/api/customer/announcements/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+
+  const announcements = loadAnnouncements();
+  const readIds = record.readAnnouncements || [];
+  const result = announcements.map(a => ({
+    ...a,
+    isRead: readIds.includes(a.id)
+  }));
+  const unreadCount = result.filter(a => !a.isRead).length;
+
+  res.json({ announcements: result, unreadCount });
+});
+
+// 顧客: お知らせ既読
+app.post('/api/customer/announcements/:token/read', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+
+  if (!record.readAnnouncements) record.readAnnouncements = [];
+  const { ids } = req.body;
+  if (ids && Array.isArray(ids)) {
+    ids.forEach(id => {
+      if (!record.readAnnouncements.includes(id)) {
+        record.readAnnouncements.push(id);
+      }
+    });
+    saveDB(db);
+  }
+  res.json({ success: true });
 });
 
 // ===== 顧客パスワード変更 =====
@@ -890,7 +1414,7 @@ app.post('/api/chat-history/:token', (req, res) => {
 });
 
 // ===== Save direct chat history (顧客側から送信) =====
-app.post('/api/direct-chat-history/:token', (req, res) => {
+app.post('/api/direct-chat-history/:token', async (req, res) => {
   const db = loadDB();
   const record = db[req.params.token];
   if (!record) {
@@ -928,6 +1452,44 @@ app.post('/api/direct-chat-history/:token', (req, res) => {
           </div>
         `,
       }).catch(e => console.error('通知メール送信エラー:', e.message));
+
+      // Slack通知
+      try {
+        const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+        await fetch(SLACK_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: `💬 ${customerName}さんからメッセージ`,
+            blocks: [
+              {
+                type: 'header',
+                text: { type: 'plain_text', text: '💬 個人チャット：新着メッセージ', emoji: true }
+              },
+              {
+                type: 'section',
+                fields: [
+                  { type: 'mrkdwn', text: `*送信者:*\n${customerName}さん` },
+                  { type: 'mrkdwn', text: `*メール:*\n${record.email || '-'}` },
+                ]
+              },
+              {
+                type: 'section',
+                text: { type: 'mrkdwn', text: `*メッセージ:*\n${msgPreview}` }
+              },
+              {
+                type: 'context',
+                elements: [
+                  { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
+                ]
+              }
+            ]
+          }),
+        });
+        console.log('✅ チャットSlack通知送信完了');
+      } catch (slackErr) {
+        console.error('⚠️ チャットSlack通知エラー:', slackErr.message);
+      }
     }
   }
 
@@ -972,8 +1534,8 @@ app.post('/api/chat', async (req, res) => {
 電話: ${customer.phone || '未入力'}
 `.trim();
 
-    // Build compact article list (titles only, no URLs - URLs resolved server-side)
-    const articleListCompact = BLOG_ARTICLES.map(a => `${a.title}【${a.category}】`).join('、');
+    // Build compact article list (全記事、新しい順)
+    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category}, ${a.publishDate || ''})`).join('\n');
 
     // ===== ハウスメーカー紹介・注文住宅 → 面談誘導プロンプト =====
     let housemaker_prompt = `\n【ハウスメーカー紹介・注文住宅に関する案内】
@@ -1119,24 +1681,61 @@ ${customerContext}
   ○ 「私がご紹介できます」「私の方でお調べします」
   × 「TERASSがご紹介します」「TERASSでは〜」「弊社では〜」
 
+【岡本の人物像・話し方】
+岡本は接客のプロフェッショナル。丁寧だが堅すぎず、お客様が「この人には本音を話せる」と感じる空気感を持つ。
+テンプレ的な相槌は使わず、お客様が言った内容に具体的に触れることで「ちゃんと聞いている」と伝わる返し方をする。
+お客様の希望や夢を安易に全肯定しない。不動産購入はお客様の人生を左右する決断であり、「いいですね！」と背中を押すだけでは無責任。
+お客様が気づいていないリスクや見落としがあれば、正直に伝える。ただし否定ではなく「一緒に考えましょう」というスタンスで。
+
 【会話ガイドライン】
-- 温かく誠実に、「です・ます」調で。不安に寄り添い、専門用語はわかりやすく。
+- 丁寧かつ自然な「です・ます」調。不安に寄り添い、専門用語はわかりやすく。
 - 回答は適度な長さで箇条書きも活用。
+- 文章は途中で切らず、必ず完結させること。「例えば、」「具体的には、」で文が終わるのは禁止。
+- 説明→問いかけ→選択肢 の順序を守り、各パートのつながりを自然にすること。
+
+【★重要★ メッセージの書き出しルール】
+■ 禁止する冒頭フレーズ（AI感・ロボット感が強いため）：
+「素敵ですね！」「なるほど！」「承知しました！」「ありがとうございます！」「いい質問ですね！」
+「おっしゃる通りですね！」「そうなんですね！」「かしこまりました！」「了解です！」
+→ これらの定型フレーズから始めることは一切禁止。
+
+■ 正しい書き出し方：
+お客様の直前の発言内容に具体的に触れてから回答に入ること。相手の言葉をオウム返しするのではなく、自分の言葉で受け止め直す。
+
+○ 良い例（お客様「子どもが小学校に上がるまでには引っ越したい」の場合）：
+「小学校の入学って、住まいを決める大きなタイミングですよね。学区のことも含めて、逆算して考えていきましょうか。」
+
+× 悪い例：
+「なるほど、お子様の入学に合わせたいんですね！」（オウム返し＋定型相槌）
+「素敵ですね！お子様のためにマイホームを考えていらっしゃるんですね！」（全肯定＋定型）
+
+■ イエスマンにならない例：
+お客様「駅近で庭付き一戸建て、3000万円台で探してます」の場合
+× 「いいですね！探してみましょう！」（全肯定＝無責任）
+× 「それは難しいと思います」（否定＝突き放し）
+○ 「駅近で庭付き、すごく理想的ですよね。ただ正直に申し上げると、その条件を3000万円台で全部満たすのはエリアによってはかなり厳しい場合もあります。○○さんの中で一番譲れないポイントってどこですか？そこから優先順位を整理していくと、いい物件に出会いやすくなりますよ。」
 
 【★最重要★ メッセージの締め方ルール】
-全てのメッセージは必ず「提案」で終わること。「何かあればお気軽にどうぞ」のような受け身の締めは禁止。
-お客様には悩みの言語化が得意な方もいれば苦手な方、面倒に感じる方もいる。
-だからこそ、お客様が「選ぶだけ・タップするだけ」で会話が続く構成にすること。
+基本的にはメッセージを「提案」で終わること。ただし、お客様が会話を終わらせたがっている場合は例外。
 
-■ 良い締め方の例：
+■ 会話を切り上げたいサインの例：
+- 「ありがとうございます」「わかりました」だけの短い返事
+- 「また聞きます」「また今度」「大丈夫です」
+- 質問に対して「特にないです」「大丈夫です」
+- 同じ話題が続いて反応が薄くなってきた
+- 絵文字やスタンプだけの返信
+
+→ このような場合は、質問や提案を追加せず「いつでもお気軽にどうぞ！」のような軽い締めでOK。
+→ お客様がまた話したくなった時に自然に戻って来られる空気感を大切にすること。
+→ しつこく質問を続けるのはストレスになるので絶対にNG。
+
+■ 会話が活発なときの良い締め方の例：
 - 「ちなみに、〇〇さんは△△という点は気になりますか？」（潜在ニーズの深掘り）
 - 「こちらの記事も参考になるかもしれません」（ブログ記事の提案）
-- 「ほかにも気になるテーマがあれば、以下から選んでみてください」（選択肢の提示）
+- 「ほかにも気になるテーマはありますか？」＋ 選択肢（{{CHOICES}}）で具体的に提示
 - 「〇〇さんの状況だと、□□についても知っておくと安心かもしれません。詳しくお伝えしましょうか？」（次のアクション提案）
 
-■ 禁止する締め方：
-- 「何かあればお気軽にどうぞ」「ご不明点があればいつでも」←受け身すぎ。会話が止まる。
-- 「参考になれば幸いです」←一方的。お客様の次のアクションがない。
+■ 禁止する締め方（会話が活発なとき）：
 - 情報を伝えて終わり（提案なし）←お客様が次に何をすればいいかわからない。
 
 【絶対にやってはいけないこと】
@@ -1177,14 +1776,60 @@ ${customerContext}
 3. お客様の状況に合わせた「次の提案」をする（記事紹介、深掘り質問、選択肢提示など）
 4. 会話を重ねて信頼関係が築けたタイミングで、面談提案を行う（下記ルール参照）
 
-【深掘り質問ルール】
-抽象的な質問（「〜について教えて」「何から始めれば」など）には、まず短く共感し選択肢を提示：
-{{CHOICES|選択肢1|選択肢2|選択肢3|選択肢4}}
-選択肢は3〜4個。具体的な質問や選択肢タップ後はそのまま回答。
+【★重要★ 選択肢の提示ルール】
+選択肢（{{CHOICES}}タグ）を使うときは、必ず以下のルールを守ること。
 
-【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。フォーマット：
-{{ARTICLE|記事タイトル}}
-利用可能な記事: ${articleListCompact}
+■ 選択肢を使うタイミング：
+- 抽象的な質問（「〜について教えて」「何から始めれば」など）を受けたとき
+- 説明の後に「お客様ならどうしたいか」を確認したいとき
+
+■ 選択肢の前の文章（最重要）：
+選択肢の直前には、必ず「完結した文章」で誘導すること。
+文末が「例えば、」「たとえば」「具体的には、」のように途中で切れるのは絶対禁止。
+お客様が「なぜこの選択肢が出てきたのか」を一瞬で理解できる、自然な問いかけ文で締めること。
+
+○ 良い例（選択肢の直前の文）：
+「〇〇さんは、どのあたりが気になりますか？」
+「〇〇さんの場合、どれに近いですか？」
+「気になるものがあればタップしてみてください。」
+「〇〇さんが一番知りたいのはどれですか？」
+
+× 悪い例（絶対禁止）：
+「例えば、」← 文が途中で切れている
+「たとえば以下のようなものがあります。」← 選択肢を"説明リスト"のように扱っている
+「具体的には、」← 文が途中で切れている
+
+■ フォーマット：
+{{CHOICES|選択肢1|選択肢2|選択肢3|選択肢4}}
+選択肢は3〜4個。各選択肢はお客様の気持ち・ニーズを代弁する短い文にする。
+
+■ 選択肢タップ後の対応：
+選択肢をタップした後は、その選択に対して具体的に回答する。再び抽象的な情報を繰り返さないこと。
+
+【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。
+フォーマット（厳守）：{{ARTICLE|記事タイトル}}
+※記事タイトルのみを「」なしで入れること。カテゴリ名・日付・カッコは絶対に含めないこと。
+例：{{ARTICLE|住宅ローンの基礎知識}}
+★重要：お客様の悩み・質問内容に最も関連性の高い記事を選ぶこと。関連性が同程度なら新しい記事を優先。
+利用可能な全記事（新しい順、タイトル, カテゴリ, 公開日）:
+${articleListCompact}
+
+【特別記事：優柔不断・堂々巡りへの処方箋】
+以下の兆候がお客様の会話から感じられる場合に限り、この記事を紹介すること：
+- 条件を全て叶えたいと言っているが決められない
+- 同じ悩みを繰り返し相談している（堂々巡り）
+- 「〇〇も気になるし、△△も捨てがたい」のように優柔不断な様子
+- 検討期間が長くなりすぎて前に進めていない様子
+- あれもこれもと条件が増え続けている
+
+★この記事を紹介する場合の必須ルール：
+1. いきなり記事を出さない。まずお客様の話を十分に聞き、共感すること
+2. 記事を紹介する直前に必ず以下のような前置きを入れること：
+「少し厳しい内容になるかもしれませんが、同じように悩まれた方の参考になった記事があります。〇〇さんにもヒントになるかもしれません。」
+3. 記事紹介後は「もし読んでみて感じたことがあれば、いつでも話してくださいね」とフォローすること
+4. 初回の会話や、まだ信頼関係が浅い段階では絶対に紹介しないこと。ある程度やり取りを重ねた後で紹介すること
+
+フォーマット：{{ARTICLE|「青い鳥」を探すのはもう終わりにしませんか？一生マイホームが決まらない本当の理由}}
 
 【面談予約リンクのルール】
 フォーマット：{{BOOKING|${TIMEREX_URL}}}
@@ -1263,12 +1908,20 @@ ${housemaker_prompt}`;
 
     // Resolve article titles to full URLs (AI only outputs title, server adds URL)
     reply = reply.replace(/\{\{ARTICLE\|(.+?)\}\}/g, (match, title) => {
-      const article = BLOG_ARTICLES.find(a => a.title === title || title.includes(a.title) || a.title.includes(title));
+      // AIがカテゴリ名を含めてしまった場合に除去（例：「記事タイトル【loan】」→「記事タイトル」）
+      const cleanTitle = title.replace(/【.+?】/g, '').replace(/\(.+?\)/g, '').replace(/「|」/g, '').trim();
+
+      // 完全一致 → 部分一致
+      const article = BLOG_ARTICLES.find(a =>
+        a.title === cleanTitle || a.title === title ||
+        cleanTitle.includes(a.title) || a.title.includes(cleanTitle) ||
+        title.includes(a.title) || a.title.includes(title)
+      );
       if (article) {
         return `{{ARTICLE|${article.title}|${article.url}}}`;
       }
       // Fuzzy match by keywords
-      const fuzzy = BLOG_ARTICLES.find(a => a.keywords.some(k => title.includes(k)));
+      const fuzzy = BLOG_ARTICLES.find(a => a.keywords.some(k => cleanTitle.includes(k) || title.includes(k)));
       if (fuzzy) {
         return `{{ARTICLE|${fuzzy.title}|${fuzzy.url}}}`;
       }
@@ -1325,6 +1978,7 @@ app.get('/api/admin/customers', adminAuth, (req, res) => {
     messageCount: (record.chatHistory || []).length,
     directChatCount: (record.directChatHistory || []).length,
     tags: record.tags || [],
+    stage: parseInt(record.stage, 10) || 1,
   }));
   res.json({ customers });
 });
@@ -1403,16 +2057,18 @@ app.post('/api/admin/direct-chat/:token', adminAuth, (req, res) => {
   const db = loadDB();
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'not found' });
-  const { message } = req.body;
-  if (!message || !message.trim()) return res.status(400).json({ error: 'empty message' });
+  const { message, file } = req.body;
+  if ((!message || !message.trim()) && !file) return res.status(400).json({ error: 'empty message' });
 
-  const trimmedMsg = message.trim();
+  const trimmedMsg = (message || '').trim();
   if (!record.directChatHistory) record.directChatHistory = [];
-  record.directChatHistory.push({
+  const msgObj = {
     role: 'agent',
     content: trimmedMsg,
     timestamp: new Date().toISOString()
-  });
+  };
+  if (file) msgObj.file = file;
+  record.directChatHistory.push(msgObj);
   saveDB(db);
 
   // お客様へメール通知（メールアドレスがある場合）
@@ -1482,7 +2138,7 @@ app.post('/api/admin/tags', adminAuth, (req, res) => {
   if (data.tags.some(t => t.name === name.trim())) {
     return res.status(400).json({ error: '同名のタグが既に存在します' });
   }
-  const tag = { id: `tag_${Date.now()}`, name: name.trim(), color: color || '#0071e3' };
+  const tag = { id: `tag_${Date.now()}`, name: name.trim(), color: color || '#0071e3', category: req.body.category || '' };
   data.tags.push(tag);
   saveTags(data);
   console.log(`🏷️ タグ作成: ${tag.name}`);
@@ -1808,9 +2464,49 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
   const updates = req.body;
-  updatable.forEach(key => { if (updates[key] !== undefined) record[key] = updates[key]; });
+
+  // Track old values for auto-tag update
+  const oldPrefecture = record.prefecture;
+  const oldPropertyType = record.propertyType;
+
+  updatable.forEach(key => {
+    if (updates[key] !== undefined) {
+      record[key] = (key === 'stage') ? parseInt(updates[key], 10) : updates[key];
+    }
+  });
+
+  // Auto-update tags if prefecture or propertyType changed
+  if ((updates.prefecture && updates.prefecture !== oldPrefecture) ||
+      (updates.propertyType && updates.propertyType !== oldPropertyType)) {
+    const tagData = loadTags();
+    if (!record.tags) record.tags = [];
+
+    function ensureAutoTag(newVal, oldVal, color, category) {
+      if (!newVal || newVal === '-' || newVal === '未入力') return;
+      // Remove old auto-tag if it changed
+      if (oldVal && oldVal !== newVal) {
+        record.tags = record.tags.filter(t => t !== oldVal);
+      }
+      // Ensure tag exists in tag master
+      const existingTag = tagData.tags.find(t => t.name === newVal);
+      if (!existingTag) {
+        tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: newVal, color: color, category: category || '' });
+      } else if (category && !existingTag.category) {
+        existingTag.category = category;
+      }
+      // Add tag to customer if not already present
+      if (!record.tags.includes(newVal)) {
+        record.tags.push(newVal);
+      }
+    }
+
+    if (updates.prefecture) ensureAutoTag(updates.prefecture, oldPrefecture, '#5856d6', '都道府県');
+    if (updates.propertyType) ensureAutoTag(updates.propertyType, oldPropertyType, '#0071e3', '物件種別');
+    saveTags(tagData);
+  }
+
   saveDB(db);
   res.json({ success: true, message: '保存しました' });
 });
@@ -2246,6 +2942,26 @@ process.on('unhandledRejection', (reason) => {
   console.error('[FATAL] Unhandled Rejection:', reason);
 });
 
+// ===== 管理者用: 記事を手動で再取得 =====
+app.post('/api/admin/refresh-articles', adminAuth, async (req, res) => {
+  try {
+    await fetchBlogArticlesFromWP();
+    res.json({ success: true, count: BLOG_ARTICLES.length, lastFetch: blogArticlesLastFetch });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 管理者用: 現在の記事一覧を確認
+app.get('/api/admin/articles', adminAuth, (req, res) => {
+  res.json({
+    count: BLOG_ARTICLES.length,
+    lastFetch: blogArticlesLastFetch,
+    categories: [...new Set(BLOG_ARTICLES.map(a => a.category))],
+    articles: BLOG_ARTICLES.map(a => ({ category: a.category, title: a.title }))
+  });
+});
+
 // ===== Start =====
 app.listen(PORT, () => {
   const url = IS_PRODUCTION ? APP_URL : `http://localhost:${PORT}`;
@@ -2258,4 +2974,7 @@ app.listen(PORT, () => {
 ║   SMTP:       ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(26)}║
 ╚══════════════════════════════════════════╝
   `);
+
+  // サーバー起動後にWordPress記事を自動取得開始
+  startBlogArticleSync();
 });
