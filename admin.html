@@ -494,6 +494,176 @@
             50% { opacity: 0.4; }
         }
 
+        /* 連絡状況ドット */
+        .contact-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .contact-dot.contact-green { background: #34c759; }
+        .contact-dot.contact-yellow { background: #ff9500; }
+        .contact-dot.contact-red { background: #ff3b30; animation: alertPulse 2s infinite; }
+        .contact-dot.contact-gray { background: #8e8e93; }
+
+        .contact-days {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ステージ滞留ドット */
+        .stagnant-dot {
+            width: 6px;
+            height: 6px;
+            background: #ff9500;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        /* ToDo期限切れ */
+        .todo-overdue {
+            background: rgba(255,59,48,0.08) !important;
+            border-left: 3px solid #ff3b30;
+        }
+        .tab-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: #ff3b30;
+            color: white;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        /* 要対応セクション */
+        .needs-attention-container {
+            background: rgba(255,59,48,0.08);
+            border: 1px solid rgba(255,59,48,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .needs-attention-title {
+            font-size: 15px;
+            color: #ff3b30;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+        .needs-attention-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,59,48,0.1);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .needs-attention-item:hover {
+            background: rgba(255,59,48,0.08);
+        }
+        .needs-attention-item:last-child {
+            border-bottom: none;
+        }
+        .needs-attention-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .needs-attention-detail {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* フィルターバー */
+        .sidebar-filter-bar {
+            display: flex;
+            gap: 4px;
+            padding: 4px 12px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { background: rgba(255,255,255,0.1); }
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* 折りたたみフォームセクション */
+        .form-section {
+            grid-column: 1 / -1;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .form-section-header {
+            padding: 12px 16px;
+            background: var(--bg);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .form-section-header:hover { background: #eee; }
+        .form-section-content {
+            padding: 16px;
+        }
+        .form-section.collapsed .form-section-content {
+            display: none;
+        }
+        .form-section-toggle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+
+        /* コピーボタン */
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .copy-btn:hover { background: var(--bg); }
+        .copy-btn:active { transform: scale(0.95); }
+
+        /* 優先度ラベル */
+        .priority-high-label {
+            color: #ff9500;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
         .customer-meta {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.7);
@@ -1848,6 +2018,7 @@
             <div class="sidebar-view-toggle">
                 <button class="active" onclick="setSidebarView('all')">全て</button>
                 <button onclick="setSidebarView('tag')">タグ別</button>
+                <button onclick="sortByPriority()" title="優先度が高い順に並べ替え">優先度順</button>
             </div>
             <div class="sidebar-search">
                 <input
@@ -1855,6 +2026,24 @@
                     id="customerSearch"
                     placeholder="検索..."
                 >
+            </div>
+            <div class="sidebar-filter-bar" id="filterBar">
+                <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全て</button>
+                <button class="filter-btn" data-filter="attention" onclick="setFilter('attention')">要対応</button>
+                <button class="filter-btn" data-filter="stage" onclick="setFilter('stage')">ステージ別</button>
+            </div>
+            <div id="stageFilterDropdown" style="display:none;padding:0 12px 8px;">
+                <select id="stageFilter" onchange="applyStageFilter()" style="width:100%;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;font-size:12px;">
+                    <option value="">全ステージ</option>
+                    <option value="1">1. 登録</option>
+                    <option value="2">2. 情報入力</option>
+                    <option value="3">3. 面談予約</option>
+                    <option value="4">4. 相談中</option>
+                    <option value="5">5. ライフプラン</option>
+                    <option value="6">6. 物件探し・内見</option>
+                    <option value="7">7. 契約</option>
+                    <option value="8">8. 引渡し</option>
+                </select>
             </div>
             <div id="stageAlertBanner" style="display:none;"></div>
             <div class="sidebar-customers" id="customerList"></div>
@@ -1873,6 +2062,7 @@
                 <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
                 <div class="empty-state-title">お客様を選択</div>
                 <div class="empty-state-text">左のリストからお客様を選択して管理を開始してください</div>
+                <div id="needsAttentionSection" style="width:100%;max-width:600px;"></div>
                 <div class="stats-grid" id="statsGrid"></div>
             </div>
 
@@ -2007,231 +2197,306 @@
 
                     <!-- Customer Info Tab -->
                     <div id="infoTab" class="tab-pane">
-                        <form id="customerInfoForm" class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">氏名 *</label>
-                                <input type="text" class="form-input" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">年齢</label>
-                                <input type="number" class="form-input" name="age">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">家族構成</label>
-                                <input type="text" class="form-input" name="family" placeholder="例: 夫婦、家族4人">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">現住所</label>
-                                <input type="text" class="form-input" name="currentHome">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">都道府県</label>
-                                <select class="form-select" name="prefecture">
-                                    <option value="">選択</option>
-                                    <option value="北海道">北海道</option>
-                                    <option value="青森県">青森県</option>
-                                    <option value="岩手県">岩手県</option>
-                                    <option value="宮城県">宮城県</option>
-                                    <option value="秋田県">秋田県</option>
-                                    <option value="山形県">山形県</option>
-                                    <option value="福島県">福島県</option>
-                                    <option value="茨城県">茨城県</option>
-                                    <option value="栃木県">栃木県</option>
-                                    <option value="群馬県">群馬県</option>
-                                    <option value="埼玉県">埼玉県</option>
-                                    <option value="千葉県">千葉県</option>
-                                    <option value="東京都">東京都</option>
-                                    <option value="神奈川県">神奈川県</option>
-                                    <option value="新潟県">新潟県</option>
-                                    <option value="富山県">富山県</option>
-                                    <option value="石川県">石川県</option>
-                                    <option value="福井県">福井県</option>
-                                    <option value="山梨県">山梨県</option>
-                                    <option value="長野県">長野県</option>
-                                    <option value="岐阜県">岐阜県</option>
-                                    <option value="静岡県">静岡県</option>
-                                    <option value="愛知県">愛知県</option>
-                                    <option value="三重県">三重県</option>
-                                    <option value="滋賀県">滋賀県</option>
-                                    <option value="京都府">京都府</option>
-                                    <option value="大阪府">大阪府</option>
-                                    <option value="兵庫県">兵庫県</option>
-                                    <option value="奈良県">奈良県</option>
-                                    <option value="和歌山県">和歌山県</option>
-                                    <option value="鳥取県">鳥取県</option>
-                                    <option value="島根県">島根県</option>
-                                    <option value="岡山県">岡山県</option>
-                                    <option value="広島県">広島県</option>
-                                    <option value="山口県">山口県</option>
-                                    <option value="徳島県">徳島県</option>
-                                    <option value="香川県">香川県</option>
-                                    <option value="愛媛県">愛媛県</option>
-                                    <option value="高知県">高知県</option>
-                                    <option value="福岡県">福岡県</option>
-                                    <option value="佐賀県">佐賀県</option>
-                                    <option value="長崎県">長崎県</option>
-                                    <option value="熊本県">熊本県</option>
-                                    <option value="大分県">大分県</option>
-                                    <option value="宮崎県">宮崎県</option>
-                                    <option value="鹿児島県">鹿児島県</option>
-                                    <option value="沖縄県">沖縄県</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">世帯年収</label>
-                                <select class="form-select" name="householdIncome">
-                                    <option value="">選択</option>
-                                    <option value="〜499万円">〜499万円</option>
-                                    <option value="500〜999万円">500〜999万円</option>
-                                    <option value="1,000〜1,499万円">1,000〜1,499万円</option>
-                                    <option value="1,500〜1,999万円">1,500〜1,999万円</option>
-                                    <option value="2,000〜2,499万円">2,000〜2,499万円</option>
-                                    <option value="2,500〜2,999万円">2,500〜2,999万円</option>
-                                    <option value="3,000万円〜">3,000万円〜</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">探索理由(管理用)</label>
-                                <input type="text" class="form-input" name="reason" placeholder="例: 子どもの進学">
-                            </div>
-                            <div class="form-group form-full-width">
-                                <label class="form-label">探索理由(登録時記入)</label>
-                                <textarea class="form-textarea" name="searchReason" placeholder="お客様が登録時に記入した探索理由"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">対象エリア</label>
-                                <input type="text" class="form-input" name="area">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">予算 (万円)</label>
-                                <input type="number" class="form-input" name="budget">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">物件種別</label>
-                                <select class="form-select" name="propertyType">
-                                    <option value="">選択</option>
-                                    <option value="中古戸建て">中古戸建て</option>
-                                    <option value="中古マンション">中古マンション</option>
-                                    <option value="新築戸建て">新築戸建て</option>
-                                    <option value="注文住宅">注文住宅</option>
-                                    <option value="新築マンション">新築マンション</option>
-                                    <option value="賃貸">賃貸</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">登録目的</label>
-                                <select class="form-select" name="purpose">
-                                    <option value="">選択</option>
-                                    <option value="住まい探し全般">住まい探し全般</option>
-                                    <option value="記事が参考になった">記事が参考になった</option>
-                                    <option value="ハウスメーカー紹介・割引を受けたい">ハウスメーカー紹介・割引</option>
-                                    <option value="とりあえず相談したい">とりあえず相談したい</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">希望面積 (㎡)</label>
-                                <input type="number" class="form-input" name="size">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">間取り</label>
-                                <input type="text" class="form-input" name="layout" placeholder="例: 3LDK">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">駅距離 (分)</label>
-                                <input type="number" class="form-input" name="stationDistance">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">職業</label>
-                                <input type="text" class="form-input" name="occupation">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">年収 (万円)</label>
-                                <input type="number" class="form-input" name="income">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">貯蓄 (万円)</label>
-                                <input type="number" class="form-input" name="savings">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">ローン状況</label>
-                                <input type="text" class="form-input" name="loanStatus" placeholder="例: 住宅ローン事前審査済み">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">購入動機</label>
-                                <input type="text" class="form-input" name="motivation">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">購入時期</label>
-                                <input type="text" class="form-input" name="timeline" placeholder="例: 3ヶ月以内">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">メールアドレス</label>
-                                <input type="email" class="form-input" name="email">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">電話番号</label>
-                                <input type="tel" class="form-input" name="phone">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">LINE ID</label>
-                                <input type="text" class="form-input" name="line">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">紹介元</label>
-                                <input type="text" class="form-input" name="referral">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">配偶者職業</label>
-                                <input type="text" class="form-input" name="spouseOccupation">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">配偶者年収 (万円)</label>
-                                <input type="number" class="form-input" name="spouseIncome">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">現在の家賃 (万円)</label>
-                                <input type="number" class="form-input" name="currentRent">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">ペット</label>
-                                <input type="text" class="form-input" name="pet" placeholder="例: 犬1匹">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">駐車場</label>
-                                <input type="text" class="form-input" name="parking" placeholder="例: 必須">
-                            </div>
-                            <div class="form-group form-full-width">
-                                <label class="form-label">フリーコメント(登録時記入)</label>
-                                <textarea class="form-textarea" name="freeComment" placeholder="お客様が登録時に記入したフリーコメント"></textarea>
-                            </div>
-                            <div class="form-group form-full-width">
-                                <label class="form-label">特別な要望</label>
-                                <textarea class="form-textarea" name="specialRequirements" placeholder="その他の要望があれば入力してください"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 進捗ステージ</label>
-                                <select class="form-input" name="stage">
-                                    <option value="1">1. 登録完了</option>
-                                    <option value="2">2. 情報入力</option>
-                                    <option value="3">3. 面談予約</option>
-                                    <option value="4">4. 相談中</option>
-                                    <option value="5">5. ライフプラン</option>
-                                    <option value="6">6. 物件探し・内見</option>
-                                    <option value="7">7. 契約手続き</option>
-                                    <option value="8">8. 引渡し完了</option>
-                                </select>
-                            </div>
-                            <div class="form-group form-full-width">
-                                <label class="form-label">メモ</label>
-                                <textarea class="form-textarea" name="memo" placeholder="内部用メモ"></textarea>
-                            </div>
-                            <div class="form-group form-full-width">
-                                <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> タグ</label>
-                                <div id="customerTagSelect" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px;">
-                                    <!-- JS生成 -->
+                        <form id="customerInfoForm">
+                            <!-- Section 1: 基本情報 (デフォルト展開) -->
+                            <div class="form-section">
+                                <div class="form-section-header" onclick="toggleFormSection(this)">
+                                    <span>基本情報</span>
+                                    <span class="form-section-toggle">▼</span>
                                 </div>
-                                <button type="button" class="btn" onclick="saveCustomerTags()" style="margin-top: 8px; font-size: 12px; padding: 6px 14px;">タグを保存</button>
+                                <div class="form-section-content">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">氏名 *</label>
+                                            <input type="text" class="form-input" name="name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">年齢</label>
+                                            <input type="number" class="form-input" name="age">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">メールアドレス</label>
+                                            <div style="display:flex;gap:4px;">
+                                                <input type="email" class="form-input" name="email" style="flex:1;">
+                                                <button type="button" class="copy-btn" onclick="copyField('email')" title="コピー">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">電話番号</label>
+                                            <div style="display:flex;gap:4px;">
+                                                <input type="tel" class="form-input" name="phone" style="flex:1;">
+                                                <button type="button" class="copy-btn" onclick="copyField('phone')" title="コピー">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">LINE ID</label>
+                                            <div style="display:flex;gap:4px;">
+                                                <input type="text" class="form-input" name="line" style="flex:1;">
+                                                <button type="button" class="copy-btn" onclick="copyField('line')" title="コピー">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Section 2: ご家族・お住まい -->
+                            <div class="form-section collapsed">
+                                <div class="form-section-header" onclick="toggleFormSection(this)">
+                                    <span>ご家族・お住まい</span>
+                                    <span class="form-section-toggle">▶</span>
+                                </div>
+                                <div class="form-section-content">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">家族構成</label>
+                                            <input type="text" class="form-input" name="family" placeholder="例: 夫婦、家族4人">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">現住所</label>
+                                            <input type="text" class="form-input" name="currentHome">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">都道府県</label>
+                                            <select class="form-select" name="prefecture">
+                                                <option value="">選択</option>
+                                                <option value="北海道">北海道</option>
+                                                <option value="青森県">青森県</option>
+                                                <option value="岩手県">岩手県</option>
+                                                <option value="宮城県">宮城県</option>
+                                                <option value="秋田県">秋田県</option>
+                                                <option value="山形県">山形県</option>
+                                                <option value="福島県">福島県</option>
+                                                <option value="茨城県">茨城県</option>
+                                                <option value="栃木県">栃木県</option>
+                                                <option value="群馬県">群馬県</option>
+                                                <option value="埼玉県">埼玉県</option>
+                                                <option value="千葉県">千葉県</option>
+                                                <option value="東京都">東京都</option>
+                                                <option value="神奈川県">神奈川県</option>
+                                                <option value="新潟県">新潟県</option>
+                                                <option value="富山県">富山県</option>
+                                                <option value="石川県">石川県</option>
+                                                <option value="福井県">福井県</option>
+                                                <option value="山梨県">山梨県</option>
+                                                <option value="長野県">長野県</option>
+                                                <option value="岐阜県">岐阜県</option>
+                                                <option value="静岡県">静岡県</option>
+                                                <option value="愛知県">愛知県</option>
+                                                <option value="三重県">三重県</option>
+                                                <option value="滋賀県">滋賀県</option>
+                                                <option value="京都府">京都府</option>
+                                                <option value="大阪府">大阪府</option>
+                                                <option value="兵庫県">兵庫県</option>
+                                                <option value="奈良県">奈良県</option>
+                                                <option value="和歌山県">和歌山県</option>
+                                                <option value="鳥取県">鳥取県</option>
+                                                <option value="島根県">島根県</option>
+                                                <option value="岡山県">岡山県</option>
+                                                <option value="広島県">広島県</option>
+                                                <option value="山口県">山口県</option>
+                                                <option value="徳島県">徳島県</option>
+                                                <option value="香川県">香川県</option>
+                                                <option value="愛媛県">愛媛県</option>
+                                                <option value="高知県">高知県</option>
+                                                <option value="福岡県">福岡県</option>
+                                                <option value="佐賀県">佐賀県</option>
+                                                <option value="長崎県">長崎県</option>
+                                                <option value="熊本県">熊本県</option>
+                                                <option value="大分県">大分県</option>
+                                                <option value="宮崎県">宮崎県</option>
+                                                <option value="鹿児島県">鹿児島県</option>
+                                                <option value="沖縄県">沖縄県</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">世帯年収</label>
+                                            <select class="form-select" name="householdIncome">
+                                                <option value="">選択</option>
+                                                <option value="〜499万円">〜499万円</option>
+                                                <option value="500〜999万円">500〜999万円</option>
+                                                <option value="1,000〜1,499万円">1,000〜1,499万円</option>
+                                                <option value="1,500〜1,999万円">1,500〜1,999万円</option>
+                                                <option value="2,000〜2,499万円">2,000〜2,499万円</option>
+                                                <option value="2,500〜2,999万円">2,500〜2,999万円</option>
+                                                <option value="3,000万円〜">3,000万円〜</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">ペット</label>
+                                            <input type="text" class="form-input" name="pet" placeholder="例: 犬1匹">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">駐車場</label>
+                                            <input type="text" class="form-input" name="parking" placeholder="例: 必須">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 3: お仕事・収入 -->
+                            <div class="form-section collapsed">
+                                <div class="form-section-header" onclick="toggleFormSection(this)">
+                                    <span>お仕事・収入</span>
+                                    <span class="form-section-toggle">▶</span>
+                                </div>
+                                <div class="form-section-content">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">職業</label>
+                                            <input type="text" class="form-input" name="occupation">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">年収 (万円)</label>
+                                            <input type="number" class="form-input" name="income">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">配偶者職業</label>
+                                            <input type="text" class="form-input" name="spouseOccupation">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">配偶者年収 (万円)</label>
+                                            <input type="number" class="form-input" name="spouseIncome">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">貯蓄 (万円)</label>
+                                            <input type="number" class="form-input" name="savings">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">ローン状況</label>
+                                            <input type="text" class="form-input" name="loanStatus" placeholder="例: 住宅ローン事前審査済み">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">現在の家賃 (万円)</label>
+                                            <input type="number" class="form-input" name="currentRent">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 4: 希望条件 -->
+                            <div class="form-section collapsed">
+                                <div class="form-section-header" onclick="toggleFormSection(this)">
+                                    <span>希望条件</span>
+                                    <span class="form-section-toggle">▶</span>
+                                </div>
+                                <div class="form-section-content">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">物件種別</label>
+                                            <select class="form-select" name="propertyType">
+                                                <option value="">選択</option>
+                                                <option value="中古戸建て">中古戸建て</option>
+                                                <option value="中古マンション">中古マンション</option>
+                                                <option value="新築戸建て">新築戸建て</option>
+                                                <option value="注文住宅">注文住宅</option>
+                                                <option value="新築マンション">新築マンション</option>
+                                                <option value="賃貸">賃貸</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">対象エリア</label>
+                                            <input type="text" class="form-input" name="area">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">予算 (万円)</label>
+                                            <input type="number" class="form-input" name="budget">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">登録目的</label>
+                                            <select class="form-select" name="purpose">
+                                                <option value="">選択</option>
+                                                <option value="住まい探し全般">住まい探し全般</option>
+                                                <option value="記事が参考になった">記事が参考になった</option>
+                                                <option value="ハウスメーカー紹介・割引を受けたい">ハウスメーカー紹介・割引</option>
+                                                <option value="とりあえず相談したい">とりあえず相談したい</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">希望面積 (㎡)</label>
+                                            <input type="number" class="form-input" name="size">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">間取り</label>
+                                            <input type="text" class="form-input" name="layout" placeholder="例: 3LDK">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">駅距離 (分)</label>
+                                            <input type="number" class="form-input" name="stationDistance">
+                                        </div>
+                                        <div class="form-group form-full-width">
+                                            <label class="form-label">特別な要望</label>
+                                            <textarea class="form-textarea" name="specialRequirements" placeholder="その他の要望があれば入力してください"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 5: その他 -->
+                            <div class="form-section collapsed">
+                                <div class="form-section-header" onclick="toggleFormSection(this)">
+                                    <span>その他</span>
+                                    <span class="form-section-toggle">▶</span>
+                                </div>
+                                <div class="form-section-content">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">探索理由(管理用)</label>
+                                            <input type="text" class="form-input" name="reason" placeholder="例: 子どもの進学">
+                                        </div>
+                                        <div class="form-group form-full-width">
+                                            <label class="form-label">探索理由(登録時記入)</label>
+                                            <textarea class="form-textarea" name="searchReason" placeholder="お客様が登録時に記入した探索理由"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">購入動機</label>
+                                            <input type="text" class="form-input" name="motivation">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">購入時期</label>
+                                            <input type="text" class="form-input" name="timeline" placeholder="例: 3ヶ月以内">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">紹介元</label>
+                                            <input type="text" class="form-input" name="referral">
+                                        </div>
+                                        <div class="form-group form-full-width">
+                                            <label class="form-label">フリーコメント(登録時記入)</label>
+                                            <textarea class="form-textarea" name="freeComment" placeholder="お客様が登録時に記入したフリーコメント"></textarea>
+                                        </div>
+                                        <div class="form-group form-full-width">
+                                            <label class="form-label">メモ</label>
+                                            <textarea class="form-textarea" name="memo" placeholder="内部用メモ"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 進捗ステージ</label>
+                                            <select class="form-input" name="stage">
+                                                <option value="1">1. 登録完了</option>
+                                                <option value="2">2. 情報入力</option>
+                                                <option value="3">3. 面談予約</option>
+                                                <option value="4">4. 相談中</option>
+                                                <option value="5">5. ライフプラン</option>
+                                                <option value="6">6. 物件探し・内見</option>
+                                                <option value="7">7. 契約手続き</option>
+                                                <option value="8">8. 引渡し完了</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-full-width">
+                                            <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> タグ</label>
+                                            <div id="customerTagSelect" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px;">
+                                                <!-- JS生成 -->
+                                            </div>
+                                            <button type="button" class="btn" onclick="saveCustomerTags()" style="margin-top: 8px; font-size: 12px; padding: 6px 14px;">タグを保存</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-actions">
                                 <button type="button" class="btn" id="cancelInfoBtn">キャンセル</button>
                                 <button type="submit" class="btn btn-primary">保存</button>
@@ -2523,6 +2788,45 @@
         let currentChecklist = [];
         let autoRefreshInterval = null;
         let lastUpdateTime = null;
+        let currentFilter = 'all';
+        let currentFormStage = null;
+
+        const STAGE_STAGNATION_THRESHOLDS = { 1:14, 2:14, 3:30, 4:30, 5:30, 6:45, 7:45 };
+
+        const STAGE_TODO_TEMPLATES = {
+            2: [
+                { text: 'お客様に電話で初回ご挨拶', priority: 'high', deadlineDays: 3 },
+                { text: 'ヒアリングシートの確認・整理', priority: 'medium', deadlineDays: 7 },
+            ],
+            3: [
+                { text: '面談日程の調整・確定', priority: 'high', deadlineDays: 2 },
+                { text: '面談資料の準備', priority: 'medium', deadlineDays: 5 },
+                { text: 'お客様の希望条件を再確認', priority: 'medium', deadlineDays: 3 },
+            ],
+            4: [
+                { text: '面談議事録の作成・共有', priority: 'high', deadlineDays: 1 },
+                { text: 'ライフプランの試算を開始', priority: 'medium', deadlineDays: 7 },
+                { text: 'ご要望に合う物件の事前リサーチ', priority: 'medium', deadlineDays: 5 },
+            ],
+            5: [
+                { text: 'ライフプラン結果の説明・共有', priority: 'high', deadlineDays: 3 },
+                { text: '住宅ローン事前審査のご案内', priority: 'medium', deadlineDays: 7 },
+            ],
+            6: [
+                { text: '候補物件リストの作成・送付', priority: 'high', deadlineDays: 3 },
+                { text: '内見スケジュールの調整', priority: 'high', deadlineDays: 5 },
+                { text: '内見後のフィードバック確認', priority: 'medium', deadlineDays: 1 },
+            ],
+            7: [
+                { text: '契約書類の準備・確認', priority: 'high', deadlineDays: 3 },
+                { text: '重要事項説明の日程調整', priority: 'high', deadlineDays: 5 },
+                { text: '住宅ローン本審査のサポート', priority: 'medium', deadlineDays: 7 },
+            ],
+            8: [
+                { text: '引渡し後のフォローアップ連絡', priority: 'medium', deadlineDays: 7 },
+                { text: 'アンケート・フィードバックのお願い', priority: 'low', deadlineDays: 14 },
+            ],
+        };
 
         // ======================== API UTILITIES ========================
         const api = {
@@ -2831,6 +3135,7 @@
             try {
                 const result = await api.getCustomers();
                 customers = result.customers || [];
+                customers.forEach(c => { c.priorityScore = calculatePriorityScore(c); });
                 // タグデータもグローバルに取得
                 try {
                     const tagResult = await api.getTags();
@@ -2863,17 +3168,41 @@
             const item = document.createElement('div');
             item.className = `customer-item ${customer.token === selectedToken ? 'active' : ''}`;
             item.setAttribute('data-token', customer.token);
+
             const tagBadges = (customer.tags && customer.tags.length > 0)
-                ? `<div class="customer-tags-row">${customer.tags.slice(0, 3).map(t => `<span class="customer-tag-badge">${t}</span>`).join('')}${customer.tags.length > 3 ? `<span class="customer-tag-badge tag-more">+${customer.tags.length - 3}</span>` : ''}</div>`
+                ? `<div class="customer-tags-row">${customer.tags.slice(0, 3).map(t => `<span class="customer-tag-badge">${t}</span>`).join('')}${customer.tags.length > 3 ? `<span class="customer-tag-badge" style="opacity:0.5;">+${customer.tags.length - 3}</span>` : ''}</div>`
                 : '';
+
             const stageLabels = ['登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
             const stageNum = customer.stage || 1;
             const stageBadge = `<span class="stage-badge stage-${stageNum}">${stageLabels[stageNum - 1]}</span>`;
-            const alertDot = (stageNum === 3) ? '<span class="stage-alert-dot" title="面談後ステージ未更新"></span>' : '';
+
+            // 連絡状況ドット
+            const days = customer.daysSinceContact;
+            const hasHistory = customer.hasContactHistory;
+            let contactDotClass = 'contact-gray';
+            let contactLabel = '連絡なし';
+            if (hasHistory && days !== null) {
+                if (days <= 14) { contactDotClass = 'contact-green'; contactLabel = `${days}日前`; }
+                else if (days <= 30) { contactDotClass = 'contact-yellow'; contactLabel = `${days}日前`; }
+                else { contactDotClass = 'contact-red'; contactLabel = `${days}日前`; }
+            } else if (days !== null) {
+                contactLabel = `登録${days}日前`;
+            }
+            const contactDot = `<span class="contact-dot ${contactDotClass}"></span>`;
+
+            // ステージ滞留チェック
+            const stageDate = new Date(customer.stageUpdatedAt || customer.createdAt);
+            const daysSinceStage = Math.floor((Date.now() - stageDate.getTime()) / (1000*60*60*24));
+            const threshold = STAGE_STAGNATION_THRESHOLDS[stageNum] || 999;
+            const isStagnant = customer.status === 'active' && stageNum !== 8 && daysSinceStage >= threshold;
+            const stagnantDot = isStagnant ? '<span class="stagnant-dot" title="ステージ滞留"></span>' : '';
+
             item.innerHTML = `
-                <div class="customer-name">${customer.name || '名前未設定'} ${stageBadge}${alertDot}</div>
+                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}</div>
                 <div class="customer-meta">
                     <span>${customer.area || '-'}</span>
+                    <span class="contact-days">最終: ${contactLabel}</span>
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
                         ${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}
                     </span>
@@ -2886,41 +3215,53 @@
 
         function renderCustomerList() {
             const list = document.getElementById('customerList');
-            list.innerHTML = '';
 
-            // 面談予約済み（stage=3）で未更新の顧客アラート
+            // ステージ滞留アラート（全ステージ対応）
             const alertBanner = document.getElementById('stageAlertBanner');
-            const stage3Customers = customers.filter(c => (c.stage || 1) === 3);
-            if (stage3Customers.length > 0) {
+            const stagnantCustomers = customers.filter(c => {
+                if (c.status !== 'active' || c.stage === 8) return false;
+                const thresh = STAGE_STAGNATION_THRESHOLDS[c.stage] || 999;
+                const stageDate = new Date(c.stageUpdatedAt || c.createdAt);
+                const daysSinceStage = Math.floor((Date.now() - stageDate.getTime()) / (1000*60*60*24));
+                return daysSinceStage >= thresh;
+            });
+
+            if (stagnantCustomers.length > 0) {
                 alertBanner.style.display = 'block';
-                alertBanner.innerHTML = `<div class="stage-alert-banner" onclick="filterStage3()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff453a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span><strong>${stage3Customers.length}名</strong>が面談予約済みでステージ未更新です</span>
+                alertBanner.innerHTML = `<div class="stage-alert-banner" onclick="filterStagnant()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span><strong>${stagnantCustomers.length}名</strong>がステージ滞留中です</span>
                 </div>`;
             } else {
                 alertBanner.style.display = 'none';
-                alertBanner.innerHTML = '';
             }
+
+            // フィルター適用
+            let filteredCustomers = [...customers];
+            if (currentFilter === 'attention') {
+                filteredCustomers = filteredCustomers.filter(c =>
+                    c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)
+                );
+            } else if (currentFilter === 'stage') {
+                const selectedStage = document.getElementById('stageFilter')?.value;
+                if (selectedStage) {
+                    filteredCustomers = filteredCustomers.filter(c => c.stage === parseInt(selectedStage));
+                }
+            }
+
+            list.innerHTML = '';
 
             if (sidebarView === 'tag') {
                 renderTagGroupedList(list);
             } else {
-                customers.forEach(customer => {
+                filteredCustomers.forEach(customer => {
                     list.appendChild(createCustomerItem(customer));
                 });
             }
         }
 
         function filterStage3() {
-            const searchInput = document.getElementById('customerSearch');
-            searchInput.value = '';
-            // 一時的にstage3の顧客だけ表示
-            const list = document.getElementById('customerList');
-            list.innerHTML = '';
-            const stage3 = customers.filter(c => (c.stage || 1) === 3);
-            stage3.forEach(customer => {
-                list.appendChild(createCustomerItem(customer));
-            });
+            setFilter('attention');
         }
 
         function renderTagGroupedList(list) {
@@ -3083,6 +3424,38 @@
                     <div class="stat-label">退会</div>
                 </div>
             `;
+
+            // 要対応セクション
+            const needsSection = document.getElementById('needsAttentionSection');
+            if (needsSection) {
+                const needsAttention = customers.filter(c =>
+                    (c.status === 'active' || !c.status) && (c.daysSinceContact >= 30 || c.overdueTodoCount > 0)
+                ).sort((a, b) => (b.daysSinceContact || 0) - (a.daysSinceContact || 0));
+
+                if (needsAttention.length > 0) {
+                    const stageLabels = ['登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
+                    needsSection.innerHTML = `
+                        <div class="needs-attention-container">
+                            <div class="needs-attention-title">⚠️ 要対応 (${needsAttention.length}名)</div>
+                            ${needsAttention.slice(0, 10).map(c => `
+                                <div class="needs-attention-item" onclick="selectCustomer('${c.token}')">
+                                    <div class="needs-attention-name">
+                                        ${c.name || '-'}
+                                        <span class="stage-badge stage-${c.stage}">${stageLabels[(c.stage || 1) - 1]}</span>
+                                    </div>
+                                    <div class="needs-attention-detail">
+                                        最終連絡: ${c.daysSinceContact || 0}日前
+                                        ${c.overdueTodoCount > 0 ? ` | ToDo期限切れ: ${c.overdueTodoCount}件` : ''}
+                                        ${c.area && c.area !== '-' ? ` | ${c.area}` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${needsAttention.length > 10 ? `<div style="text-align:center;padding:8px;color:var(--text-secondary);font-size:12px;">他${needsAttention.length - 10}名</div>` : ''}
+                        </div>`;
+                } else {
+                    needsSection.innerHTML = '';
+                }
+            }
         }
 
         // ======================== CUSTOMER SELECTION ========================
@@ -3337,6 +3710,9 @@
                 }
             });
 
+            // 現在のステージを記憶（ステージ変更検出用）
+            currentFormStage = parseInt(customer.stage) || 1;
+
             // タグ表示
             renderCustomerTagSelect(customer.tags || []);
         }
@@ -3385,6 +3761,15 @@
             try {
                 await api.updateCustomer(selectedToken, data);
                 showToast('保存しました', 'success');
+
+                // ステージ変更検出 → ToDoテンプレート提案
+                const newStage = parseInt(data.stage);
+                if (newStage && newStage !== currentFormStage && STAGE_TODO_TEMPLATES[newStage]) {
+                    currentFormStage = newStage;
+                    showStageTodoSuggestions(newStage, STAGE_TODO_TEMPLATES[newStage]);
+                } else {
+                    currentFormStage = newStage || currentFormStage;
+                }
             } catch (error) {
                 showToast('エラー: 保存に失敗しました', 'error');
             } finally {
@@ -3555,6 +3940,14 @@
                 const result = await api.getTodos(selectedToken);
                 const todos = result.todos || [];
                 renderTodosList(todos);
+
+                // ToDoタブに期限切れバッジ表示
+                const todoBtn = document.querySelector('[data-tab="todo"]');
+                if (todoBtn) {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const overdueCount = todos.filter(t => !t.done && t.deadline && t.deadline < todayStr).length;
+                    todoBtn.innerHTML = overdueCount > 0 ? `ToDo <span class="tab-badge">${overdueCount}</span>` : 'ToDo';
+                }
             } catch (error) {
                 showToast('エラー: ToDoの読み込みに失敗しました', 'error');
             }
@@ -3562,8 +3955,11 @@
 
         function renderTodosList(todos) {
             const list = document.getElementById('todosList');
-            list.innerHTML = todos.map(todo => `
-                <div class="todo-item">
+            const todayStr = new Date().toISOString().split('T')[0];
+            list.innerHTML = todos.map(todo => {
+                const isOverdue = !todo.done && todo.deadline && todo.deadline < todayStr;
+                return `
+                <div class="todo-item ${isOverdue ? 'todo-overdue' : ''}">
                     <input type="checkbox" ${todo.done ? 'checked' : ''} data-id="${todo.id}">
                     <div class="todo-content">
                         <div class="todo-text">${todo.text}</div>
@@ -3575,8 +3971,8 @@
                     <div class="todo-actions">
                         <button class="todo-delete" data-id="${todo.id}">削除</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             list.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 checkbox.addEventListener('change', async (e) => {
@@ -4704,6 +5100,127 @@
                 setTimeout(() => saved.style.display = 'none', 2000);
             } catch(e) {
                 showToast('提案の保存に失敗しました', 'error');
+            }
+        }
+
+        // ステージ変更時のToDoテンプレート提案
+        async function showStageTodoSuggestions(newStage, templates) {
+            const stageLabels = ['登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
+            const stageName = stageLabels[newStage - 1] || '';
+            const priorityLabels = { high: '高', medium: '中', low: '低' };
+
+            const todoListHtml = templates.map((t, i) => {
+                const deadlineDate = new Date();
+                deadlineDate.setDate(deadlineDate.getDate() + t.deadlineDays);
+                const deadlineStr = deadlineDate.toISOString().split('T')[0];
+                return `<label style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+                    <input type="checkbox" checked data-index="${i}" style="margin-top:3px;">
+                    <div style="flex:1;">
+                        <div style="font-size:13px;font-weight:500;">${t.text}</div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
+                            優先度: ${priorityLabels[t.priority] || '中'} | 期限: ${deadlineStr}
+                        </div>
+                    </div>
+                </label>`;
+            }).join('');
+
+            const modalContent = `
+                <div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary);">
+                    ステージが「${stageName}」に変更されました。以下のToDoを追加しますか？
+                </div>
+                <div id="stageTodoList">${todoListHtml}</div>
+            `;
+
+            showConfirmModal(
+                '推奨ToDo',
+                modalContent,
+                '選択したToDoを追加',
+                async () => {
+                    const checkboxes = document.querySelectorAll('#stageTodoList input[type="checkbox"]:checked');
+                    let addedCount = 0;
+                    for (const cb of checkboxes) {
+                        const idx = parseInt(cb.dataset.index);
+                        const t = templates[idx];
+                        const deadlineDate = new Date();
+                        deadlineDate.setDate(deadlineDate.getDate() + t.deadlineDays);
+                        try {
+                            await api.addTodo(selectedToken, {
+                                text: t.text,
+                                priority: t.priority,
+                                deadline: deadlineDate.toISOString().split('T')[0],
+                            });
+                            addedCount++;
+                        } catch(e) { console.error(e); }
+                    }
+                    if (addedCount > 0) {
+                        showToast(`${addedCount}件のToDoを追加しました`, 'success');
+                        const result = await api.getTodos(selectedToken);
+                        renderTodosList(result.todos || []);
+                    }
+                }
+            );
+        }
+
+        // フィルター機能
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.filter-btn[data-filter="${filter}"]`)?.classList.add('active');
+            document.getElementById('stageFilterDropdown').style.display = filter === 'stage' ? 'block' : 'none';
+            renderCustomerList();
+        }
+
+        function applyStageFilter() {
+            renderCustomerList();
+        }
+
+        function filterStagnant() {
+            setFilter('attention');
+        }
+
+        // 優先度スコア
+        function calculatePriorityScore(customer) {
+            let score = 0;
+            const budget = customer.budget || '';
+            if (budget.includes('億') || parseInt(budget) >= 8000) score += 3;
+            else if (parseInt(budget) >= 4000) score += 2;
+            else if (budget && budget !== '-') score += 1;
+            const stageScores = { 1:1, 2:2, 3:4, 4:5, 5:5, 6:4, 7:3, 8:0 };
+            score += stageScores[customer.stage] || 0;
+            const days = customer.daysSinceContact || 0;
+            if (days >= 30) score += 4;
+            else if (days >= 14) score += 2;
+            if (customer.overdueTodoCount > 0) score += 2;
+            return score;
+        }
+
+        function sortByPriority() {
+            customers.sort((a, b) => (b.priorityScore || 0) - (a.priorityScore || 0));
+            renderCustomerList();
+            showToast('優先度順に並び替えました', 'success');
+        }
+
+        // フォーム折りたたみ
+        function toggleFormSection(header) {
+            const section = header.closest('.form-section');
+            section.classList.toggle('collapsed');
+            const toggle = header.querySelector('.form-section-toggle');
+            toggle.textContent = section.classList.contains('collapsed') ? '▶' : '▼';
+        }
+
+        // コピー機能
+        function copyField(fieldName) {
+            const input = document.querySelector(`[name="${fieldName}"]`);
+            if (input && input.value && input.value !== '-') {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    showToast('コピーしました', 'success');
+                }).catch(() => {
+                    input.select();
+                    document.execCommand('copy');
+                    showToast('コピーしました', 'success');
+                });
+            } else {
+                showToast('コピーする値がありません', 'info');
             }
         }
     </script>

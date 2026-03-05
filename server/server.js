@@ -1963,23 +1963,67 @@ function adminAuth(req, res, next) {
 // ===== 管理API: お客様一覧 =====
 app.get('/api/admin/customers', adminAuth, (req, res) => {
   const db = loadDB();
-  const customers = Object.entries(db).map(([token, record]) => ({
-    token,
-    name: record.name || '-',
-    email: record.email || '-',
-    phone: record.phone || '-',
-    family: record.family || '-',
-    area: record.area || '-',
-    budget: record.budget || '-',
-    status: record.status || 'active',
-    createdAt: record.createdAt || null,
-    blockedAt: record.blockedAt || null,
-    withdrawnAt: record.withdrawnAt || null,
-    messageCount: (record.chatHistory || []).length,
-    directChatCount: (record.directChatHistory || []).length,
-    tags: record.tags || [],
-    stage: parseInt(record.stage, 10) || 1,
-  }));
+  const now = Date.now();
+  const customers = Object.entries(db).map(([token, record]) => {
+    // 最終連絡日の計算
+    const interactions = record.interactions || [];
+    const directChat = record.directChatHistory || [];
+    let lastContactDate = null;
+
+    // interactions は unshift で追加（先頭が最新）
+    if (interactions.length > 0 && interactions[0].date) {
+      lastContactDate = interactions[0].date;
+    }
+
+    // directChatHistory のエージェントメッセージ（時系列順、末尾が最新）
+    const agentMessages = directChat.filter(m => m.role === 'agent');
+    if (agentMessages.length > 0) {
+      const lastAgentDate = agentMessages[agentMessages.length - 1].timestamp;
+      if (!lastContactDate || new Date(lastAgentDate) > new Date(lastContactDate)) {
+        lastContactDate = lastAgentDate;
+      }
+    }
+
+    const hasContactHistory = interactions.length > 0 || agentMessages.length > 0;
+    if (!lastContactDate) {
+      lastContactDate = record.createdAt || null;
+    }
+
+    let daysSinceContact = null;
+    if (lastContactDate) {
+      daysSinceContact = Math.floor((now - new Date(lastContactDate).getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    // ToDo期限切れ計算
+    const todos = record.todos || [];
+    const todayStr = new Date().toISOString().split('T')[0];
+    const overdueTodoCount = todos.filter(t => !t.done && t.deadline && t.deadline < todayStr).length;
+    const pendingTodoCount = todos.filter(t => !t.done).length;
+
+    return {
+      token,
+      name: record.name || '-',
+      email: record.email || '-',
+      phone: record.phone || '-',
+      family: record.family || '-',
+      area: record.area || '-',
+      budget: record.budget || '-',
+      status: record.status || 'active',
+      createdAt: record.createdAt || null,
+      blockedAt: record.blockedAt || null,
+      withdrawnAt: record.withdrawnAt || null,
+      messageCount: (record.chatHistory || []).length,
+      directChatCount: (record.directChatHistory || []).length,
+      tags: record.tags || [],
+      stage: parseInt(record.stage, 10) || 1,
+      lastContactDate,
+      daysSinceContact,
+      hasContactHistory,
+      stageUpdatedAt: record.stageUpdatedAt || record.createdAt || null,
+      overdueTodoCount,
+      pendingTodoCount,
+    };
+  });
   res.json({ customers });
 });
 
@@ -2470,12 +2514,21 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   // Track old values for auto-tag update
   const oldPrefecture = record.prefecture;
   const oldPropertyType = record.propertyType;
+  const oldStage = parseInt(record.stage, 10) || 1;
 
   updatable.forEach(key => {
     if (updates[key] !== undefined) {
       record[key] = (key === 'stage') ? parseInt(updates[key], 10) : updates[key];
     }
   });
+
+  // Track stage change for stageUpdatedAt
+  if (updates.stage !== undefined) {
+    const newStage = parseInt(updates.stage, 10);
+    if (newStage !== oldStage) {
+      record.stageUpdatedAt = new Date().toISOString();
+    }
+  }
 
   // Auto-update tags if prefecture or propertyType changed
   if ((updates.prefecture && updates.prefecture !== oldPrefecture) ||
