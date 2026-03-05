@@ -30,6 +30,14 @@
             --border: #e5e5e7;
             --glass-light: rgba(255, 255, 255, 0.96);
             --glass-blur: 0px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
         }
 
         body {
@@ -175,8 +183,8 @@
             color: white;
             border: none;
             border-radius: 8px;
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             cursor: pointer;
             font-size: 18px;
             display: flex;
@@ -198,9 +206,9 @@
         /* カテゴリヘッダー（大分類） */
         .tag-category-header {
             padding: 10px 12px 6px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.65);
             text-transform: uppercase;
             letter-spacing: 1px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -247,7 +255,7 @@
             padding: 8px 12px;
             font-size: 12px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.7);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: flex;
@@ -309,7 +317,7 @@
             border: none;
             border-radius: 6px;
             background: transparent;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -341,8 +349,8 @@
         }
 
         .last-updated-time {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
             display: block;
             margin-top: 4px;
         }
@@ -430,12 +438,12 @@
             gap: 6px;
         }
         .stage-badge {
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 600;
-            padding: 1px 6px;
+            padding: 2px 7px;
             border-radius: 8px;
             background: rgba(255,255,255,0.12);
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.7);
             white-space: nowrap;
         }
         .stage-badge.stage-1 { background: rgba(88,86,214,0.25); color: #a5a4e3; }
@@ -711,6 +719,29 @@
             backdrop-filter: blur(var(--glass-blur));
             border-bottom: 1px solid var(--border);
             overflow-x: auto;
+            position: relative;
+        }
+
+        .tab-nav-wrapper {
+            position: relative;
+        }
+
+        .tab-nav-wrapper::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to left, var(--glass-light), transparent);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tab-nav-wrapper.has-scroll::after {
+            opacity: 1;
         }
 
         .tab-btn {
@@ -1576,23 +1607,34 @@
         @media (max-width: 768px) {
             .admin-container {
                 flex-direction: column;
+                position: relative;
             }
 
             .admin-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
                 width: 100%;
                 min-width: 100%;
-                height: auto;
-                max-height: 200px;
+                max-height: 100vh;
+                z-index: 90;
+                transition: transform 0.3s ease, opacity 0.3s ease;
             }
 
             .admin-sidebar.collapsed {
-                max-height: 0;
+                transform: translateY(-100%);
+                opacity: 0;
+                pointer-events: none;
                 min-width: 0;
             }
 
             .sidebar-toggle-btn {
-                position: static;
-                margin: 8px;
+                position: fixed;
+                top: 8px;
+                left: 8px;
+                z-index: 100;
             }
 
             .admin-sidebar:not(.collapsed) ~ .admin-main .sidebar-toggle-btn {
@@ -1600,7 +1642,9 @@
             }
 
             .sidebar-customers {
-                max-height: 100px;
+                flex: 1;
+                max-height: none;
+                overflow-y: auto;
             }
 
             .form-grid {
@@ -1622,6 +1666,11 @@
             .tab-nav {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .tab-nav::-webkit-scrollbar {
+                display: none;
             }
 
             .tab-btn {
@@ -1654,49 +1703,112 @@
             }
 
             .tab-btn {
-                font-size: 12px;
-                padding: 8px 14px;
+                font-size: 13px;
+                padding: 10px 16px;
                 white-space: nowrap;
+                min-height: 44px;
             }
 
             .info-card {
                 padding: 12px;
             }
 
-            .info-label { font-size: 11px; }
+            .info-label { font-size: 12px; }
             .info-value { font-size: 14px; }
 
             .checklist-phase-title { font-size: 14px; }
 
             .chat-container {
-                height: calc(100vh - 380px);
-                min-height: 300px;
+                flex: 1;
+                min-height: 250px;
             }
 
             .chat-input-container { padding: 8px; }
             .chat-input { font-size: 14px; }
-            .chat-send { padding: 8px 14px; font-size: 13px; }
+            .chat-send { padding: 8px 14px; font-size: 13px; min-height: 44px; }
         }
 
         @media (max-width: 480px) {
             .admin-sidebar {
-                max-height: 160px;
+                max-height: 100vh;
             }
 
             .sidebar-header { padding: 12px; font-size: 16px; }
             .sidebar-search { padding: 8px; }
-            .customer-item { padding: 8px; font-size: 13px; }
+            .customer-item { padding: 10px; font-size: 13px; min-height: 44px; }
 
             .login-card { padding: 32px 20px; }
             .login-title { font-size: 22px; }
             .login-form input { font-size: 16px; }
 
-            .tab-nav { padding: 0 8px; gap: 4px; }
-            .tab-btn { font-size: 11px; padding: 6px 10px; }
+            .tab-nav { padding: 4px 8px; gap: 4px; }
+            .tab-btn { font-size: 13px; padding: 10px 14px; min-height: 44px; }
 
             .message-bubble { max-width: 92%; font-size: 13px; }
 
-            .btn { font-size: 13px; padding: 8px 14px; }
+            .btn { font-size: 13px; padding: 10px 14px; min-height: 44px; }
+        }
+
+        /* ======================== LOADING STATES ======================== */
+        .btn.loading {
+            position: relative;
+            pointer-events: none;
+            color: transparent !important;
+        }
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: btnSpin 0.6s linear infinite;
+        }
+        .btn:not(.btn-primary):not(.btn-danger):not(.btn-success).loading::after {
+            border-color: rgba(0,0,0,0.15);
+            border-top-color: var(--accent);
+        }
+        @keyframes btnSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f2 25%, #e8e8ea 50%, #f0f0f2 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+            min-height: 40px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ======================== FOCUS STATES ======================== */
+        .tab-btn:focus-visible,
+        .btn:focus-visible,
+        .customer-item:focus-visible,
+        .chat-send:focus-visible,
+        .agent-quick-btn:focus-visible,
+        .sidebar-toggle-btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* ======================== SR ONLY ======================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
         }
     </style>
 </head>
@@ -1862,6 +1974,7 @@
                 </div>
 
                 <!-- Tab Navigation -->
+                <div class="tab-nav-wrapper" id="tabNavWrapper">
                 <div class="tab-nav" id="tabNav">
                     <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
                     <button class="tab-btn" data-tab="info">お客様情報</button>
@@ -1872,15 +1985,22 @@
                     <button class="tab-btn" data-tab="agentChat">エージェント相談室</button>
                     <button class="tab-btn" data-tab="feedback">フィードバック</button>
                 </div>
+                </div>
 
                 <!-- Tab Content -->
                 <div class="tab-content">
                     <!-- Dashboard Tab -->
                     <div id="dashboardTab" class="tab-pane active">
                         <div class="dashboard-grid" id="dashboardGrid"></div>
-                        <h3 style="margin-bottom: 16px;">最近のやり取り</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3>最近のやり取り</h3>
+                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=interactions]').click()">全て見る</button>
+                        </div>
                         <div id="recentInteractions"></div>
-                        <h3 style="margin-top: 32px; margin-bottom: 16px;">直近のToDo</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
+                            <h3>直近のToDo</h3>
+                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=todo]').click()">全て見る</button>
+                        </div>
                         <div id="recentTodos"></div>
                     </div>
 
@@ -2494,13 +2614,28 @@
             }, 3000);
         }
 
+        // ======================== LOADING HELPER ========================
+        function setButtonLoading(btn, loading) {
+            if (!btn) return;
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
         // ======================== MODAL ========================
         let modalCallback = null;
 
-        function showConfirmModal(title, message, okText, callback) {
+        function showConfirmModal(title, message, okText, callback, dangerMode = false) {
             document.getElementById('confirmTitle').textContent = title;
             document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('confirmOk').textContent = okText;
+            const okBtn = document.getElementById('confirmOk');
+            okBtn.textContent = okText;
+            okBtn.className = dangerMode ? 'btn btn-danger' : 'btn btn-primary';
             document.getElementById('confirmModal').classList.add('show');
             modalCallback = callback;
         }
@@ -2903,6 +3038,14 @@
             selectedToken = token;
             renderCustomerList();
 
+            // モバイルではサイドバーを自動的に閉じる
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('adminSidebar');
+                if (sidebar && !sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.add('collapsed');
+                }
+            }
+
             try {
                 const result = await api.getCustomer(token);
                 const customer = result.customer;
@@ -2953,7 +3096,7 @@
                 } catch (error) {
                     showToast('エラー: ブロックに失敗しました', 'error');
                 }
-            });
+            }, true);
         }
 
         async function unblockCustomer() {
@@ -2982,10 +3125,25 @@
                 } catch (error) {
                     showToast('エラー: 削除に失敗しました', 'error');
                 }
-            });
+            }, true);
         });
 
         // ======================== TAB NAVIGATION ========================
+        // Scroll indicator for tab nav
+        const tabNav = document.getElementById('tabNav');
+        const tabNavWrapper = document.getElementById('tabNavWrapper');
+        function checkTabScroll() {
+            if (!tabNav || !tabNavWrapper) return;
+            const hasScroll = tabNav.scrollWidth > tabNav.clientWidth;
+            const atEnd = tabNav.scrollLeft + tabNav.clientWidth >= tabNav.scrollWidth - 8;
+            tabNavWrapper.classList.toggle('has-scroll', hasScroll && !atEnd);
+        }
+        if (tabNav) {
+            tabNav.addEventListener('scroll', checkTabScroll);
+            window.addEventListener('resize', checkTabScroll);
+            setTimeout(checkTabScroll, 500);
+        }
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -3033,6 +3191,9 @@
                 });
             }
 
+            const stageNames = ['', '反響対応', '面談準備', '初回商談', 'ヒアリング', '物件案内', 'プレゼン', '購入手順', '契約'];
+            const registeredDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
+
             grid.innerHTML = `
                 <div class="info-card">
                     <div class="info-label">氏名</div>
@@ -3051,6 +3212,14 @@
                     <div class="info-value">${customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-'}</div>
                 </div>
                 <div class="info-card">
+                    <div class="info-label">ステージ</div>
+                    <div class="info-value">${customer.stage ? stageNames[customer.stage] || 'ステージ' + customer.stage : '-'}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">登録日</div>
+                    <div class="info-value" style="font-size: 18px;">${registeredDate}</div>
+                </div>
+                <div class="info-card">
                     <div class="info-label">ステータス</div>
                     <div class="info-value">${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}</div>
                 </div>
@@ -3067,7 +3236,7 @@
             try {
                 const result = await api.getInteractions(selectedToken);
                 const interactions = result.interactions || [];
-                const recentInteractions = interactions.slice(0, 3).reverse();
+                const recentInteractions = interactions.slice(0, 5).reverse();
                 const interactionsHtml = recentInteractions.map(i => `
                     <div class="interaction-item" style="margin-bottom: 8px; padding: 12px; background: var(--glass-light); border-radius: 8px;">
                         <div class="interaction-date">${new Date(i.date).toLocaleString('ja-JP')}</div>
@@ -3083,7 +3252,7 @@
             try {
                 const result = await api.getTodos(selectedToken);
                 const todos = result.todos || [];
-                const recentTodos = todos.slice(0, 3);
+                const recentTodos = todos.slice(0, 5);
                 const todosHtml = recentTodos.map(t => `
                     <div class="todo-item" style="margin-bottom: 8px;">
                         <input type="checkbox" ${t.done ? 'checked' : ''} disabled style="cursor: not-allowed;">
@@ -3156,11 +3325,15 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
 
+            const submitBtn = form.querySelector('button[type="submit"]');
+            setButtonLoading(submitBtn, true);
             try {
                 await api.updateCustomer(selectedToken, data);
                 showToast('保存しました', 'success');
             } catch (error) {
                 showToast('エラー: 保存に失敗しました', 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         });
 
@@ -3304,6 +3477,8 @@
                 return;
             }
 
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(submitBtn, true);
             try {
                 await api.addInteraction(selectedToken, { method, content, date: date || new Date().toISOString() });
                 showToast('追加しました', 'success');
@@ -3314,6 +3489,8 @@
                 renderInteractionsList(interactions);
             } catch (error) {
                 showToast('エラー: 追加に失敗しました', 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         });
 
@@ -3386,6 +3563,8 @@
                 return;
             }
 
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(submitBtn, true);
             try {
                 await api.addTodo(selectedToken, { text, priority, deadline: deadline || null });
                 showToast('追加しました', 'success');
@@ -3397,12 +3576,14 @@
                 renderTodosList(todos);
             } catch (error) {
                 showToast('エラー: 追加に失敗しました', 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         });
 
         document.getElementById('aiSuggestBtn').addEventListener('click', async () => {
             const btn = document.getElementById('aiSuggestBtn');
-            btn.disabled = true;
+            setButtonLoading(btn, true);
 
             try {
                 const result = await api.suggestTodos(selectedToken);
@@ -3411,7 +3592,7 @@
             } catch (error) {
                 showToast('エラー: AI提案の取得に失敗しました', 'error');
             } finally {
-                btn.disabled = false;
+                setButtonLoading(btn, false);
             }
         });
 
@@ -3546,17 +3727,16 @@
         }
 
         async function extractInfoFromChat() {
+            const extractBtn = document.getElementById('extractInfoBtn');
             try {
-                document.getElementById('extractInfoBtn').disabled = true;
-                document.getElementById('extractInfoBtn').textContent = '抽出中...';
+                setButtonLoading(extractBtn, true);
 
                 const result = await api.extractFromChat(selectedToken);
                 currentExtractedInfo = result.extracted || {};
 
                 if (Object.keys(currentExtractedInfo).length === 0) {
                     showToast('チャット履歴から新しい情報を抽出できませんでした', 'info');
-                    document.getElementById('extractInfoBtn').disabled = false;
-                    document.getElementById('extractInfoBtn').textContent = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> チャットから情報を自動抽出';
+                    setButtonLoading(extractBtn, false);
                     return;
                 }
 
@@ -3566,8 +3746,7 @@
             } catch (error) {
                 showToast('情報抽出に失敗しました: ' + error.message, 'error');
             } finally {
-                document.getElementById('extractInfoBtn').disabled = false;
-                document.getElementById('extractInfoBtn').textContent = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> チャットから情報を自動抽出';
+                setButtonLoading(extractBtn, false);
             }
         }
 
@@ -4031,14 +4210,15 @@
         }
 
         async function deleteAnnouncement(id) {
-            if (!confirm('このお知らせを削除しますか？')) return;
-            try {
-                await api.call('DELETE', `/announcements/${id}`);
-                showToast('削除しました', 'success');
-                await loadAnnouncementsList();
-            } catch (e) {
-                showToast('削除に失敗しました', 'error');
-            }
+            showConfirmModal('お知らせの削除', 'このお知らせを削除しますか？', '削除', async () => {
+                try {
+                    await api.call('DELETE', `/announcements/${id}`);
+                    showToast('削除しました', 'success');
+                    await loadAnnouncementsList();
+                } catch (e) {
+                    showToast('削除に失敗しました', 'error');
+                }
+            }, true);
         }
 
         // ======================== BROADCAST (一斉配信) ========================
@@ -4153,7 +4333,8 @@
                     `対象: ${filterLabel}\n${preview.matchCount}人のお客様にメッセージを配信します。\n\nメッセージ:\n「${message.slice(0, 100)}${message.length > 100 ? '...' : ''}」`,
                     '配信する',
                     async () => {
-                        document.getElementById('sendBroadcastBtn').disabled = true;
+                        const sendBtn = document.getElementById('sendBroadcastBtn');
+                        setButtonLoading(sendBtn, true);
                         try {
                             const result = await api.sendBroadcast(message, filterType, tags);
                             showToast(`${result.sentCount}人のお客様にメッセージを配信しました`, 'success');
@@ -4163,7 +4344,7 @@
                         } catch (e) {
                             showToast('配信に失敗しました: ' + (e.message || ''), 'error');
                         } finally {
-                            document.getElementById('sendBroadcastBtn').disabled = false;
+                            setButtonLoading(sendBtn, false);
                         }
                     }
                 );
@@ -4260,7 +4441,7 @@
                 } catch (e) {
                     showToast('削除に失敗しました', 'error');
                 }
-            });
+            }, true);
         }
 
         // ======================== MESSAGE FORMATTING ========================
