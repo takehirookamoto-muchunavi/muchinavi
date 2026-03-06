@@ -34,25 +34,25 @@ cd ~/muchinavi && git pull && pm2 restart all
 | A | Builder（開発） | 機能実装・バグ修正 | `agents/builder_orchestrator.md` |
 | B | Analyst（解析） | 議事録・データ解析 | `agents/analyst.md` |
 | C | Devil（否定・開発版） | コード・機能の徹底批判 | `agents/devil.md` |
-| D | Content（コンテンツ） | MuchiNavi応答文・FAQ | CLAUDE.md |
+| D | Content（コンテンツ） | MuchiNavi応答品質改善 | `agents/content_agent.md` |
 | E | Orchestrator（統括） | タスク振り分け・最終統合 | `agents/builder_orchestrator.md` |
 
-### ブログ戦略チーム (Agents F-I)
-| ID | 名前 | 役割 | ファイル |
-|----|------|------|---------|
-| F | データ解析 | GSC・GA4データ解析 | `agents/blog_strategy.md` |
-| G | 戦略立案 | 3-6ヶ月の集客戦略設計 | `agents/blog_strategy.md` |
-| H | 収支予測 | シナリオ別収益予測 | `agents/blog_strategy.md` |
-| I | Devil（否定・戦略版） | 戦略の穴を全指摘 | `agents/blog_strategy.md` |
+### ブログ戦略チーム (Agents F-I) → 詳細: `agents/blog_strategy.md`
+| ID | 名前 | 役割 |
+|----|------|------|
+| F | データ解析 | GSC・GA4データ解析・ファネル分析 |
+| G | 戦略立案 | 3-6ヶ月の記事公開計画・CVR改善・KPI設定 |
+| H | 収支予測 | 楽観/標準/悲観3シナリオの収益予測・ROI算出 |
+| I | Devil（否定・戦略版） | データ信頼性・予測妥当性・撤退基準の検証 |
 
-### 記事作成チーム (Agents J-N)
-| ID | 名前 | 役割 | ファイル |
-|----|------|------|---------|
-| J | 記事設計 | 構成設計・KW設定・重複チェック | `agents/content_writing_v2.md` |
-| K | 第1次修正 | SWELL最適化・コンプラ確認 | `agents/content_writing_v2.md` |
-| L | 第2次修正 | ペルソナ・トレンド・VoC・AEO注入 | `agents/content_writing_v2.md` |
-| M | CTA最適化 | MuchiNavi誘導文3パターン生成 | `agents/content_writing_v2.md` |
-| N | Devil（否定・記事版） | 「読み逃げ読者」視点で批判 | `agents/content_writing_v2.md` |
+### 記事作成チーム (Agents J-N) → 詳細: `agents/content_writing_v2.md`
+| ID | 名前 | 役割 |
+|----|------|------|
+| J | 記事設計 | 構成設計・KW設定・既存記事重複チェック |
+| K | 第1次修正 | 読みやすさ・表/箇条書き強化・LINE誘導 |
+| L | 第2次修正 | DRM戦略・損失回避CTA・コンプライアンス |
+| M | CTA最適化 | 3パターンCTA生成・3箇所配置 |
+| N | Devil（否定・記事版） | 「読み逃げ読者」視点で徹底批判 |
 
 ### 鉄則
 - **否定エージェント（C/I/N）は絶対に省略しない** — 「致命的問題なし」が出るまで修正
@@ -67,10 +67,10 @@ cd ~/muchinavi && git pull && pm2 restart all
 |---------|------|---------------|
 | `/morning` | 朝ブリーフィング | 毎朝 or 「おはよう」 |
 | `/weekly` | 週次レビュー | 毎週月曜日 |
-| `/minutes` | 議事録解析 | 面談後すぐ |
-| `/blog` | ブログ記事自動作成（選定→生成→修正→レビュー→WP入稿） | 記事制作着手前 |
-| `/article` | → `/blog` に統合 | — |
-| `/strategy` | 月次ブログ戦略レビュー（F→G→H→I） | 月1回 |
+| `/minutes` | 議事録解析 → MuchiNavi自動更新 | 面談後すぐ |
+| `/blog` | ブログ記事自動作成（9ステップ・各ステップ確認付き） | 記事制作着手前 |
+| `/note` | note記事作成（1,200〜2,000文字・共感ベース） | note投稿時 |
+| `/strategy` | 月次ブログ戦略レビュー（F→G→H→I・前月比較付き） | 月1回 |
 | `/devil` | 否定レビュー | 何か作ったら必ず |
 
 ---
@@ -107,9 +107,10 @@ muchinavi/
 ├── index.html                    ← ルートのコピー（server/public/index.htmlと常に同期）
 ├── admin.html                    ← 管理画面コピー（server/public/admin.htmlと常に同期）
 ├── agents/
-│   ├── analyst.md                ← Agent B: 議事録解析プロンプト
-│   ├── devil.md                  ← Agent C: 否定エージェント（開発版）
 │   ├── builder_orchestrator.md   ← Agent A・E: 開発・統括プロンプト
+│   ├── analyst.md                ← Agent B: 議事録解析・週次集約
+│   ├── devil.md                  ← Agent C: 否定エージェント（開発版）
+│   ├── content_agent.md          ← Agent D: MuchiNavi応答品質改善
 │   ├── blog_strategy.md          ← Agent F-I: ブログ戦略チーム
 │   └── content_writing_v2.md     ← Agent J-N: 記事作成チーム
 ├── minutes/                      ← 面談議事録（YYYY-MM-DD_イニシャル.md）
