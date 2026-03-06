@@ -82,40 +82,38 @@ muchinavi/
 
 ---
 
-## 「おはよう」ブリーフィング機能
+## 「おはよう」全体会議機能
 
 ### トリガー
-ユーザーが「おはよう」「おはようございます」等の朝の挨拶をした場合、または `/morning` コマンドを実行した場合、**自動的に朝ブリーフィングを実行する**。
+ユーザーが「おはよう」「おはようございます」等の朝の挨拶をした場合、または `/morning` コマンドを実行した場合、**自動的に朝の全体会議を実行する**。
 
-### 実行手順
-1. `GET https://muchinavi.com/api/admin/briefing` を呼び出す（ヘッダー: `X-Admin-Pass`）
-2. レスポンスを以下のフォーマットで整理して表示:
+### 実行内容
+**3フェーズ構成**で全部署の状況を統合的に把握する。詳細は `muchinavi-agents/.claude/commands/morning.md` を参照。
 
-```
-おはようございます、岡本さん！
-{date}（{dayOfWeek}）| アクティブ顧客: {stats.totalActive}名
-
-━━━ 今日の予定 ━━━
-{todayEvents を時系列で表示。なければ「予定なし」}
-
-━━━ 要対応 ━━━
-🔴 期限切れ: {urgent.overdue の件数と内容}
-🟡 今日期限: {urgent.today の件数と内容}
-📋 今週中: {urgent.week の件数}
-
-━━━ フォローアップ推奨 ━━━
-{urgent.followUp を連絡空き日数順で表示}
-
-━━━ 取引進捗 ━━━
-{processSummary をパイプライン形式で表示}
-
-何から取り掛かりますか？
-```
-
-3. ユーザーの指示に応じて各APIを呼び出し、業務を実行
+1. **フェーズ1: MuchiNaviブリーフィング** — `GET /api/admin/briefing` でAPIデータ取得
+2. **フェーズ2: 各部署状況確認** — `reports/`, `blog/drafts/`, `blog/ready/`, `minutes/` + Google Drive基盤資料を全読み込み
+3. **フェーズ3: 全体会議フォーマットで出力** — 今日の予定 → 要対応 → フォローアップ → 取引進捗 → 6部署レポート → 基盤資料ダイジェスト → TOP3アクション
 
 ### 管理者パスワード
 初回呼び出し時にパスワードを聞き、以降のセッションではメモリに保持する。
+
+---
+
+## 基盤資料（全エージェント必須参照・絶対条件）
+
+Google Driveの以下のドキュメントは岡本さんの事業基盤。エージェント実行時は必ず参照すること。
+- フォルダ: https://drive.google.com/drive/folders/1VcY6GCiz4OamZ-Iy6A13uw0v1XtD1tru
+- テキスト取得: `curl -sL "https://docs.google.com/document/d/{ID}/export?format=txt"`
+- 主要ドキュメントID:
+  - ブログ集客戦略: `1ViPWcvssigN18qE-0Qk6oy830mGws9OPVbo5Pgo1Exw`
+  - 記事作成・リライト戦略: `1DFTrFJ5ov5J4qKbD2cW3eZP03fkg3W52EEXMUkctuqk`
+  - CVR最大化コピーライティング: `1jvkw7GlTHHb_GSZLvBFfOGOa-5obA4nteHNudHr4NHE`
+  - LP登録誘導戦略: `1GZJQ3GixtztqTlq7JJNF-aMbIwn7m94jpSzSZ0Q0GMY`
+  - Claudeへの指示文: `1Qey9Ox-QwaamiUrmzWveq1Vc-FlmrEde1JIbW7uPRxo`
+  - アイキャッチ画像生成: `1F6eSHiE4xFUjvadZyYLdOq53PJKNdpweDNGvPizDaxw`
+- スプレッドシート:
+  - HM特集記事: `16O1WUQ0aSgMv2kmlIi6xhXfbsE3UDfJYst_9Zt4U7LE`
+  - エリア特化型記事案: `1HV1TletICVvbFPehbxX2o1iD1TW-622ZZnj8jRF4K3U`
 
 ---
 
