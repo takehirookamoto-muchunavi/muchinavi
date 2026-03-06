@@ -66,6 +66,7 @@ muchinavi/
 | 「フォローすべき顧客」「追客」 | Agent O (Follow-up) | `agents/followup.md` | 優先度判定 → メッセージ |
 | 「市場動向」「金利」「競合」 | Agent P (Market Intel) | `agents/market_intelligence.md` | 市場レポート |
 | 「レビュー依頼」「紹介」「引渡し後」 | Agent Q (CS) | `agents/customer_success.md` | CSフォロー |
+| 「マーケティング」「集客戦略」「何をすべき」 | Agent R→S チェーン | `agents/marketing.md` | 全データ分析 → 提案 → 否定レビュー |
 | 「バグ」「機能追加」「コード修正」 | Agent A (Builder) | `agents/builder_orchestrator.md` | このリポジトリで直接対応 |
 | 複数タスク同時 | Agent E (Orchestrator) | `agents/builder_orchestrator.md` | 振り分け |
 
@@ -73,7 +74,7 @@ muchinavi/
 1. ユーザーの発言からキーワード・意図を読み取り、上表に照合
 2. 該当ファイルを **絶対パス** `/Users/okamototakehiro/MuchiNavi/muchinavi-agents/{参照ファイル}` で読み込む
 3. チェーン実行時は前工程の出力を次工程に自動で渡す
-4. 否定エージェント自動起動: コード完成→Agent C、戦略完成→Agent I、記事完成→Agent N
+4. 否定エージェント自動起動: コード完成→Agent C、戦略完成→Agent I、記事完成→Agent N、マーケティング提案→Agent S
 5. 開発系（バグ・機能追加）はこのリポジトリで直接対応（muchinavi-agents への案内は不要）
 6. 曖昧な場合はユーザーに確認
 
