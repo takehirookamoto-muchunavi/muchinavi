@@ -68,9 +68,35 @@ cd ~/muchinavi && git pull && pm2 restart all
 | `/morning` | 朝ブリーフィング | 毎朝 or 「おはよう」 |
 | `/weekly` | 週次レビュー | 毎週月曜日 |
 | `/minutes` | 議事録解析 | 面談後すぐ |
-| `/article` | 記事作成フロー（J→K→L→M→N） | 記事制作着手前 |
+| `/blog` | ブログ記事自動作成（選定→生成→修正→レビュー→WP入稿） | 記事制作着手前 |
+| `/article` | → `/blog` に統合 | — |
 | `/strategy` | 月次ブログ戦略レビュー（F→G→H→I） | 月1回 |
 | `/devil` | 否定レビュー | 何か作ったら必ず |
+
+---
+
+## ブログ自動化（むちのちブログ: muchinochi55.com）
+
+### 記事候補スプレッドシート
+- **HM特集記事**: `https://docs.google.com/spreadsheets/d/16O1WUQ0aSgMv2kmlIi6xhXfbsE3UDfJYst_9Zt4U7LE/edit`
+- **エリア特化型**: `https://docs.google.com/spreadsheets/d/1HV1TletICVvbFPehbxX2o1iD1TW-622ZZnj8jRF4K3U/edit`
+
+### 外部リソース
+- **Notion（プロンプト管理）**: `https://www.notion.so/1f95cb8e9c2780e68919d544de0f37a3`
+- **Google Drive（戦略ドキュメント）**: `https://drive.google.com/drive/folders/1VcY6GCiz4OamZ-Iy6A13uw0v1XtD1tru`
+
+### WordPress REST API
+- **サイト**: muchinochi55.com
+- **REST API**: `https://muchinochi55.com/wp-json/wp/v2/`
+- 既存記事取得: `GET /wp-json/wp/v2/posts?per_page=100`
+- カテゴリ一覧: `GET /wp-json/wp/v2/categories`
+- タグ一覧: `GET /wp-json/wp/v2/tags`
+- 投稿作成（認証必要）: `POST /wp-json/wp/v2/posts`
+
+### `/blog` コマンドのフロー
+```
+記事選定（SS×WP照合）→ 設計（J）→ 生成（Prompt①）→ 修正1（Prompt②）→ 修正2（Prompt③）→ CTA（M）→ レビュー（N）→ SEO → WP入稿
+```
 
 ---
 
