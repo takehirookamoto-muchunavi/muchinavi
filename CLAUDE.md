@@ -53,7 +53,7 @@ muchinavi/
 
 | ユーザーの発言パターン | 起動エージェント | 参照ファイル（muchinavi-agents/） | 動作 |
 |----------------------|----------------|--------------------------------|------|
-| 「おはよう」等の朝の挨拶 | ブリーフィング | `.claude/commands/morning.md` | API呼出し → ブリーフィング表示 |
+| 「おはよう」等の朝の挨拶 | 全体会議 | `.claude/commands/morning.md` | API + 全部署レポート + TOP3 |
 | 「ブログ書きたい」「記事作って」 | J→K→L→M→N チェーン | `.claude/commands/blog.md` | 9ステップフロー |
 | 「noteを書きたい」「note記事」 | note作成 | `.claude/commands/note.md` | note記事フロー |
 | 「議事録」「面談メモ」 | Agent B (Analyst) | `agents/analyst.md` | 議事録解析 → API更新 |
