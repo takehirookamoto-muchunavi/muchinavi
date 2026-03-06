@@ -1,0 +1,272 @@
+# MuchiNavi プロジェクト引き継ぎ情報
+
+## プロジェクト概要
+**MuchiNavi（ムチナビ）** — AI不動産相談アプリ
+住宅購入を検討するお客様向けのAIチャットボット。Gemini 2.0 Flash を使用。
+
+### 3つの柱
+1. **MuchiNavi本体（AIチャットシステム）** — 住宅購入検討者の「わからない」を24時間解決。ブログ → 登録 → 面談 → 契約の集客導線の核。
+2. **むちのちブログ（WordPress: muchinochi55.com）** — SEO/AEOコンテンツでMuchiNavi登録へ誘導
+3. **オンライン面談（Timely予約 → Googleミート）** — MuchiNaviで温まったリードを成約につなげる最終接点
+
+### 集客導線
+ブログ記事（SEO/AEO）→ MuchiNavi登録（14ステップフォーム）→ オンライン面談予約 → 物件提案・成約
+
+### 技術スタック
+- **フロントエンド**: シングルページHTML（index.html / admin.html、CSS/JS全てインライン）
+- **バックエンド**: Node.js + Express（server/server.js）、Gemini 2.0 Flash API
+- **サーバー**: AWS Lightsail、Apache リバースプロキシ、PM2
+- **ドメイン**: muchinavi.com
+- **GitHub**: https://github.com/takehirookamoto-muchunavi/muchinavi
+
+### デプロイ方法
+```bash
+cd ~/muchinavi && git pull && pm2 restart all
+```
+
+---
+
+## AIエージェントチーム（全13エージェント）
+
+### MuchiNavi開発チーム (Agents A-E)
+| ID | 名前 | 役割 | ファイル |
+|----|------|------|---------|
+| A | Builder（開発） | 機能実装・バグ修正 | `agents/builder_orchestrator.md` |
+| B | Analyst（解析） | 議事録・データ解析 | `agents/analyst.md` |
+| C | Devil（否定・開発版） | コード・機能の徹底批判 | `agents/devil.md` |
+| D | Content（コンテンツ） | MuchiNavi応答文・FAQ | CLAUDE.md |
+| E | Orchestrator（統括） | タスク振り分け・最終統合 | `agents/builder_orchestrator.md` |
+
+### ブログ戦略チーム (Agents F-I)
+| ID | 名前 | 役割 | ファイル |
+|----|------|------|---------|
+| F | データ解析 | GSC・GA4データ解析 | `agents/blog_strategy.md` |
+| G | 戦略立案 | 3-6ヶ月の集客戦略設計 | `agents/blog_strategy.md` |
+| H | 収支予測 | シナリオ別収益予測 | `agents/blog_strategy.md` |
+| I | Devil（否定・戦略版） | 戦略の穴を全指摘 | `agents/blog_strategy.md` |
+
+### 記事作成チーム (Agents J-N)
+| ID | 名前 | 役割 | ファイル |
+|----|------|------|---------|
+| J | 記事設計 | 構成設計・KW設定・重複チェック | `agents/content_writing_v2.md` |
+| K | 第1次修正 | SWELL最適化・コンプラ確認 | `agents/content_writing_v2.md` |
+| L | 第2次修正 | ペルソナ・トレンド・VoC・AEO注入 | `agents/content_writing_v2.md` |
+| M | CTA最適化 | MuchiNavi誘導文3パターン生成 | `agents/content_writing_v2.md` |
+| N | Devil（否定・記事版） | 「読み逃げ読者」視点で批判 | `agents/content_writing_v2.md` |
+
+### 鉄則
+- **否定エージェント（C/I/N）は絶対に省略しない** — 「致命的問題なし」が出るまで修正
+- **本番環境反映前は必ず岡本さんの承認を取る**
+- **本番のWordPress記事をClaude Code経由で直接編集しない**
+
+---
+
+## スラッシュコマンド一覧
+
+| コマンド | 説明 | 起動タイミング |
+|---------|------|---------------|
+| `/morning` | 朝ブリーフィング | 毎朝 or 「おはよう」 |
+| `/weekly` | 週次レビュー | 毎週月曜日 |
+| `/minutes` | 議事録解析 | 面談後すぐ |
+| `/article` | 記事作成フロー（J→K→L→M→N） | 記事制作着手前 |
+| `/strategy` | 月次ブログ戦略レビュー（F→G→H→I） | 月1回 |
+| `/devil` | 否定レビュー | 何か作ったら必ず |
+
+---
+
+## 重要ファイル構成
+```
+muchinavi/
+├── CLAUDE.md                     ← プロジェクト憲法（このファイル）
+├── index.html                    ← ルートのコピー（server/public/index.htmlと常に同期）
+├── admin.html                    ← 管理画面コピー（server/public/admin.htmlと常に同期）
+├── agents/
+│   ├── analyst.md                ← Agent B: 議事録解析プロンプト
+│   ├── devil.md                  ← Agent C: 否定エージェント（開発版）
+│   ├── builder_orchestrator.md   ← Agent A・E: 開発・統括プロンプト
+│   ├── blog_strategy.md          ← Agent F-I: ブログ戦略チーム
+│   └── content_writing_v2.md     ← Agent J-N: 記事作成チーム
+├── minutes/                      ← 面談議事録（YYYY-MM-DD_イニシャル.md）
+├── reports/                      ← 戦略レポート（strategy_YYYYMM.md）
+├── blog/
+│   ├── drafts/                   ← 記事草稿（設計書・v1・v2）
+│   ├── ready/                    ← 入稿準備完了の最終版
+│   └── published/                ← WordPress公開済み
+├── logs/                         ← MuchiNavi動作ログ
+├── server/
+│   ├── server.js                 ← バックエンド（全API + Geminiプロンプト）
+│   ├── data/
+│   │   ├── customers.json        ← 顧客DB
+│   │   ├── tags.json             ← タグマスター
+│   │   ├── broadcasts.json       ← 配信履歴
+│   │   ├── events.json           ← カレンダーイベント
+│   │   ├── processes.json        ← 取引進捗
+│   │   └── settings.json         ← 管理者パスワード
+│   └── public/
+│       ├── index.html            ← メインアプリ
+│       ├── admin.html            ← 管理画面
+│       ├── manifest.json         ← PWA設定
+│       └── sw.js                 ← Service Worker
+```
+
+---
+
+## 「おはよう」ブリーフィング機能
+
+### トリガー
+ユーザーが「おはよう」「おはようございます」等の朝の挨拶をした場合、または `/morning` コマンドを実行した場合、**自動的に朝ブリーフィングを実行する**。
+
+### 実行手順
+1. `GET https://muchinavi.com/api/admin/briefing` を呼び出す（ヘッダー: `X-Admin-Pass`）
+2. レスポンスを以下のフォーマットで整理して表示:
+
+```
+おはようございます、岡本さん！
+{date}（{dayOfWeek}）| アクティブ顧客: {stats.totalActive}名
+
+━━━ 今日の予定 ━━━
+{todayEvents を時系列で表示。なければ「予定なし」}
+
+━━━ 要対応 ━━━
+🔴 期限切れ: {urgent.overdue の件数と内容}
+🟡 今日期限: {urgent.today の件数と内容}
+📋 今週中: {urgent.week の件数}
+
+━━━ フォローアップ推奨 ━━━
+{urgent.followUp を連絡空き日数順で表示}
+
+━━━ 取引進捗 ━━━
+{processSummary をパイプライン形式で表示}
+
+何から取り掛かりますか？
+```
+
+3. ユーザーの指示に応じて各APIを呼び出し、業務を実行
+
+### 管理者パスワード
+初回呼び出し時にパスワードを聞き、以降のセッションではメモリに保持する。
+
+---
+
+## 管理画面 API リファレンス
+
+**Base URL**: `https://muchinavi.com`
+**認証**: 全APIに `X-Admin-Pass: {password}` ヘッダー必須
+
+### 顧客管理
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/customers` | 全顧客一覧（lastContactDate, daysSinceContact, overdueTodoCount 含む） |
+| GET | `/api/admin/customer/:token` | 顧客詳細 → `{ customer: {...} }` |
+| PUT | `/api/admin/customer/:token` | 顧客情報更新（name, stage, memo, email 等） |
+| DELETE | `/api/admin/customer/:token` | 顧客削除 |
+
+### ToDo管理
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/todos/:token` | 顧客のToDo一覧 |
+| POST | `/api/admin/todos/:token` | ToDo追加 `{ text, priority, deadline }` |
+| PUT | `/api/admin/todo/:token/:id` | ToDo更新 `{ done, text, priority, deadline }` |
+| DELETE | `/api/admin/todo/:token/:id` | ToDo削除 |
+
+### 連絡履歴
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/interactions/:token` | やり取り履歴 |
+| POST | `/api/admin/interactions/:token` | 記録追加 `{ method, date, content }` |
+| DELETE | `/api/admin/interaction/:token/:id` | 記録削除 |
+
+### ダイレクトチャット（顧客へのメッセージ）
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/direct-chat/:token` | チャット履歴取得 |
+| POST | `/api/admin/direct-chat/:token` | メッセージ送信 `{ message }` → 顧客にメール通知も送信 |
+
+### 一斉配信
+| Method | Path | 説明 |
+|--------|------|------|
+| POST | `/api/admin/broadcasts/preview` | 対象人数プレビュー `{ filterType, filterTags }` |
+| POST | `/api/admin/broadcasts/send` | 配信実行 `{ message, filterType, filterTags }` |
+
+### カレンダー / イベント
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/events` | イベント一覧（`?from=&to=&customerToken=` で絞込可） |
+| POST | `/api/admin/events` | イベント作成 `{ type, title, customerToken, date, startTime, endTime, location, notes }` |
+| PUT | `/api/admin/event/:id` | イベント更新 |
+| DELETE | `/api/admin/event/:id` | イベント削除 |
+
+**イベント種別（type）**: `viewing`(内見), `meeting`(面談), `online_meeting`(オンライン面談), `contract`(契約), `settlement`(決済), `jusetsu_prep`(重説準備), `jusetsu`(重説実施), `terass_application`(TERASS申請), `loan_review`(ローン), `follow_up`(フォロー), `general`(その他)
+
+### 取引進捗（プロセス）
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/processes` | プロセス一覧（`?status=active&customerToken=` で絞込可） |
+| POST | `/api/admin/processes` | プロセス作成 `{ customerToken, propertyName, propertyPrice }` |
+| PUT | `/api/admin/process/:id/step/:key` | ステップ更新 `{ status, deadline, notes }` |
+| DELETE | `/api/admin/process/:id` | プロセス削除 |
+| GET | `/api/admin/process-template` | ステップテンプレート取得 |
+
+**ステップキー**: `application`(申込) → `jusetsu_prep`(重説準備) → `terass_application`(TERASS申請) → `jusetsu`(重説実施) → `contract`(契約) → `loan_review`(ローン本審査) → `settlement`(決済・引渡し)
+
+**ステップstatus**: `pending`, `in_progress`, `completed`, `blocked`
+
+### 朝ブリーフィング
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/briefing` | 集約ブリーフィングデータ |
+
+### AI機能
+| Method | Path | 説明 |
+|--------|------|------|
+| POST | `/api/admin/suggest-todos/:token` | AI ToDo提案 |
+| POST | `/api/admin/chat-agent/:token` | AIエージェント相談 `{ message }` |
+| POST | `/api/admin/extract-from-chat/:token` | チャットから顧客情報抽出 |
+
+### タグ / チェックリスト
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/admin/tags` | タグ一覧 |
+| POST | `/api/admin/tags` | タグ作成 `{ name, color, category }` |
+| GET | `/api/admin/checklist/:token` | チェックリスト取得 |
+| PUT | `/api/admin/checklist/:token` | チェックリスト更新 |
+
+---
+
+## Claudeが対応できる業務コマンド例
+
+| ユーザーの指示例 | 実行するAPI |
+|---|---|
+| 「田中さんにフォローメール送って」 | `POST /api/admin/direct-chat/:token` |
+| 「田中さんのステージを相談中に変更」 | `PUT /api/admin/customer/:token` |
+| 「明日10時に鈴木さんの内見を登録」 | `POST /api/admin/events` |
+| 「佐藤さんの取引を開始して」 | `POST /api/admin/processes` |
+| 「鈴木さんの重説準備を完了にして」 | `PUT /api/admin/process/:id/step/jusetsu_prep` |
+| 「今週の予定を見せて」 | `GET /api/admin/events?from=&to=` |
+| 「連絡が2週間以上空いてる顧客は？」 | `GET /api/admin/briefing` → followUp |
+| 「全員にお知らせ配信して」 | `POST /api/admin/broadcasts/send` |
+| 「山田さんのToDoに面談準備を追加」 | `POST /api/admin/todos/:token` |
+
+---
+
+## ユーザー情報
+- 岡本岳大さん（むちのち / TERASS所属の不動産エージェント・大阪）
+- 「本当の意味でのお客様ファースト」を大切にしている
+- お客様が住宅購入でずっと幸せでいられることを重視
+- ブログ「むちのち」: muchinochi55.com
+
+## 顧客ステージ
+1. 登録 → 2. 情報入力 → 3. 面談予約 → 4. 相談中 → 5. ライフプラン → 6. 物件探し・内見 → 7. 契約 → 8. 引渡し
+
+## 重要ルール
+1. CLAUDE.md は必ずプロジェクトのルートに置く
+2. 否定エージェント（C/I/N）は絶対に省略しない
+3. 本番環境への反映前は必ず岡本さんの承認を取る
+4. 収支予測の数字は月1回・実績値で検証する
+5. GSC・GA4データは毎月 reports/ に保存する
+6. MuchiNaviのAPIキー・パスワードをチャットに貼り付けない
+
+## Geminiシステムプロンプト内の重要タグ
+- `{{CHOICES|選択肢1|選択肢2|選択肢3}}` — 選択肢ボタンの出力形式
+- `{{PROGRESS|ステップ名}}` — 進捗バーの更新
+- 顧客名は `〇〇さん` で呼びかけ
