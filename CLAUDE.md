@@ -4,18 +4,11 @@
 **MuchiNavi（ムチナビ）** — AI不動産相談アプリ
 住宅購入を検討するお客様向けのAIチャットボット。Gemini 2.0 Flash を使用。
 
-### 3つの柱
-1. **MuchiNavi本体（AIチャットシステム）** — 住宅購入検討者の「わからない」を24時間解決。ブログ → 登録 → 面談 → 契約の集客導線の核。
-2. **むちのちブログ（WordPress: muchinochi55.com）** — SEO/AEOコンテンツでMuchiNavi登録へ誘導
-3. **オンライン面談（Timely予約 → Googleミート）** — MuchiNaviで温まったリードを成約につなげる最終接点
-
-### 集客導線
-ブログ記事（SEO/AEO）→ MuchiNavi登録（14ステップフォーム）→ オンライン面談予約 → 物件提案・成約
-
 ### 技術スタック
-- **フロントエンド**: シングルページHTML（index.html / admin.html、CSS/JS全てインライン）
+- **フロントエンド**: シングルページHTML（index.html 約5900行、CSS/JS全てインライン）
+- **管理画面**: admin.html（HTML/CSS/JS全部入り）
 - **バックエンド**: Node.js + Express（server/server.js）、Gemini 2.0 Flash API
-- **サーバー**: AWS Lightsail、Apache リバースプロキシ、PM2
+- **サーバー**: AWS Lightsail (54.168.221.28)、Apache リバースプロキシ、PM2
 - **ドメイン**: muchinavi.com
 - **GitHub**: https://github.com/takehirookamoto-muchunavi/muchinavi
 
@@ -24,117 +17,31 @@
 cd ~/muchinavi && git pull && pm2 restart all
 ```
 
----
-
-## AIエージェントチーム（全13エージェント）
-
-### MuchiNavi開発チーム (Agents A-E)
-| ID | 名前 | 役割 | ファイル |
-|----|------|------|---------|
-| A | Builder（開発） | 機能実装・バグ修正 | `agents/builder_orchestrator.md` |
-| B | Analyst（解析） | 議事録・データ解析 | `agents/analyst.md` |
-| C | Devil（否定・開発版） | コード・機能の徹底批判 | `agents/devil.md` |
-| D | Content（コンテンツ） | MuchiNavi応答品質改善 | `agents/content_agent.md` |
-| E | Orchestrator（統括） | タスク振り分け・最終統合 | `agents/builder_orchestrator.md` |
-
-### ブログ戦略チーム (Agents F-I) → 詳細: `agents/blog_strategy.md`
-| ID | 名前 | 役割 |
-|----|------|------|
-| F | データ解析 | GSC・GA4データ解析・ファネル分析 |
-| G | 戦略立案 | 3-6ヶ月の記事公開計画・CVR改善・KPI設定 |
-| H | 収支予測 | 楽観/標準/悲観3シナリオの収益予測・ROI算出 |
-| I | Devil（否定・戦略版） | データ信頼性・予測妥当性・撤退基準の検証 |
-
-### 記事作成チーム (Agents J-N) → 詳細: `agents/content_writing_v2.md`
-| ID | 名前 | 役割 |
-|----|------|------|
-| J | 記事設計 | 構成設計・KW設定・既存記事重複チェック |
-| K | 第1次修正 | 読みやすさ・表/箇条書き強化・LINE誘導 |
-| L | 第2次修正 | DRM戦略・損失回避CTA・コンプライアンス |
-| M | CTA最適化 | 3パターンCTA生成・3箇所配置 |
-| N | Devil（否定・記事版） | 「読み逃げ読者」視点で徹底批判 |
-
-### 鉄則
-- **否定エージェント（C/I/N）は絶対に省略しない** — 「致命的問題なし」が出るまで修正
-- **本番環境反映前は必ず岡本さんの承認を取る**
-- **本番のWordPress記事をClaude Code経由で直接編集しない**
-
----
-
-## スラッシュコマンド一覧
-
-| コマンド | 説明 | 起動タイミング |
-|---------|------|---------------|
-| `/morning` | 朝ブリーフィング | 毎朝 or 「おはよう」 |
-| `/weekly` | 週次レビュー | 毎週月曜日 |
-| `/minutes` | 議事録解析 → MuchiNavi自動更新 | 面談後すぐ |
-| `/blog` | ブログ記事自動作成（9ステップ・各ステップ確認付き） | 記事制作着手前 |
-| `/note` | note記事作成（1,200〜2,000文字・共感ベース） | note投稿時 |
-| `/strategy` | 月次ブログ戦略レビュー（F→G→H→I・前月比較付き） | 月1回 |
-| `/devil` | 否定レビュー | 何か作ったら必ず |
-
----
-
-## ブログ自動化（むちのちブログ: muchinochi55.com）
-
-### 記事候補スプレッドシート
-- **HM特集記事**: `https://docs.google.com/spreadsheets/d/16O1WUQ0aSgMv2kmlIi6xhXfbsE3UDfJYst_9Zt4U7LE/edit`
-- **エリア特化型**: `https://docs.google.com/spreadsheets/d/1HV1TletICVvbFPehbxX2o1iD1TW-622ZZnj8jRF4K3U/edit`
-
-### 外部リソース
-- **Notion（プロンプト管理）**: `https://www.notion.so/1f95cb8e9c2780e68919d544de0f37a3`
-- **Google Drive（戦略ドキュメント）**: `https://drive.google.com/drive/folders/1VcY6GCiz4OamZ-Iy6A13uw0v1XtD1tru`
-
-### WordPress REST API
-- **サイト**: muchinochi55.com
-- **REST API**: `https://muchinochi55.com/wp-json/wp/v2/`
-- 既存記事取得: `GET /wp-json/wp/v2/posts?per_page=100`
-- カテゴリ一覧: `GET /wp-json/wp/v2/categories`
-- タグ一覧: `GET /wp-json/wp/v2/tags`
-- 投稿作成（認証必要）: `POST /wp-json/wp/v2/posts`
-
-### `/blog` コマンドのフロー
-```
-記事選定（SS×WP照合）→ 設計（J）→ 生成（Prompt①）→ 修正1（Prompt②）→ 修正2（Prompt③）→ CTA（M）→ レビュー（N）→ SEO → WP入稿
-```
-
----
-
 ## 重要ファイル構成
 ```
 muchinavi/
-├── CLAUDE.md                     ← プロジェクト憲法（このファイル）
 ├── index.html                    ← ルートのコピー（server/public/index.htmlと常に同期）
 ├── admin.html                    ← 管理画面コピー（server/public/admin.htmlと常に同期）
-├── agents/
-│   ├── builder_orchestrator.md   ← Agent A・E: 開発・統括プロンプト
-│   ├── analyst.md                ← Agent B: 議事録解析・週次集約
-│   ├── devil.md                  ← Agent C: 否定エージェント（開発版）
-│   ├── content_agent.md          ← Agent D: MuchiNavi応答品質改善
-│   ├── blog_strategy.md          ← Agent F-I: ブログ戦略チーム
-│   └── content_writing_v2.md     ← Agent J-N: 記事作成チーム
-├── minutes/                      ← 面談議事録（YYYY-MM-DD_イニシャル.md）
-├── reports/                      ← 戦略レポート（strategy_YYYYMM.md）
-├── blog/
-│   ├── drafts/                   ← 記事草稿（設計書・v1・v2）
-│   ├── ready/                    ← 入稿準備完了の最終版
-│   └── published/                ← WordPress公開済み
-├── logs/                         ← MuchiNavi動作ログ
+├── CLAUDE.md                     ← このファイル
 ├── server/
-│   ├── server.js                 ← バックエンド（全API + Geminiプロンプト）
+│   ├── server.js                 ← バックエンド（全API + Geminiシステムプロンプト）
 │   ├── data/
-│   │   ├── customers.json        ← 顧客DB
+│   │   ├── customers.json        ← 顧客DB（メイン）
 │   │   ├── tags.json             ← タグマスター
 │   │   ├── broadcasts.json       ← 配信履歴
 │   │   ├── events.json           ← カレンダーイベント
 │   │   ├── processes.json        ← 取引進捗
 │   │   └── settings.json         ← 管理者パスワード
 │   └── public/
-│       ├── index.html            ← メインアプリ
+│       ├── index.html            ← メインアプリ（HTML/CSS/JS全部入り）
 │       ├── admin.html            ← 管理画面
 │       ├── manifest.json         ← PWA設定
 │       └── sw.js                 ← Service Worker
 ```
+
+### 関連リポジトリ
+- **AIエージェントチーム**: `/Users/okamototakehiro/MuchiNavi/muchinavi-agents`
+  - ブログ戦略・記事作成・議事録解析等のAIワークフローはそちらで管理
 
 ---
 
@@ -277,21 +184,12 @@ muchinavi/
 ---
 
 ## ユーザー情報
-- 岡本岳大さん（むちのち / TERASS所属の不動産エージェント・大阪）
+- 岡本岳大さん（TERASS所属の不動産エージェント）
 - 「本当の意味でのお客様ファースト」を大切にしている
 - お客様が住宅購入でずっと幸せでいられることを重視
-- ブログ「むちのち」: muchinochi55.com
 
 ## 顧客ステージ
 1. 登録 → 2. 情報入力 → 3. 面談予約 → 4. 相談中 → 5. ライフプラン → 6. 物件探し・内見 → 7. 契約 → 8. 引渡し
-
-## 重要ルール
-1. CLAUDE.md は必ずプロジェクトのルートに置く
-2. 否定エージェント（C/I/N）は絶対に省略しない
-3. 本番環境への反映前は必ず岡本さんの承認を取る
-4. 収支予測の数字は月1回・実績値で検証する
-5. GSC・GA4データは毎月 reports/ に保存する
-6. MuchiNaviのAPIキー・パスワードをチャットに貼り付けない
 
 ## Geminiシステムプロンプト内の重要タグ
 - `{{CHOICES|選択肢1|選択肢2|選択肢3}}` — 選択肢ボタンの出力形式
