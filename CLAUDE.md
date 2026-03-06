@@ -76,7 +76,7 @@ muchinavi/
 2. 該当ファイルを **絶対パス** `/Users/okamototakehiro/MuchiNavi/muchinavi-agents/{参照ファイル}` で読み込む
 3. チェーン実行時は前工程の出力を次工程に自動で渡す
 4. 否定エージェント自動起動: コード完成→Agent C、戦略完成→Agent I、記事完成→Agent N、マーケティング提案→Agent S
-5. 監査役（Agent T）: 戦略・マーケ等の重要成果物は、Devil通過後に Agent T の最終GO/NO-GO判定を経る
+5. **監査役（Agent T）常時自動起動**: 全チェーンにおいてDevil通過後に必ず Agent T を自動起動し、GO/NO-GO判定を経てから岡本さんに提示する（省略厳禁）
 6. 開発系（バグ・機能追加）はこのリポジトリで直接対応（muchinavi-agents への案内は不要）
 7. 曖昧な場合はユーザーに確認
 
