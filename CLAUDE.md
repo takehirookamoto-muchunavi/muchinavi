@@ -41,7 +41,41 @@ muchinavi/
 
 ### 関連リポジトリ
 - **AIエージェントチーム**: `/Users/okamototakehiro/MuchiNavi/muchinavi-agents`
-  - ブログ戦略・記事作成・議事録解析等のAIワークフローはそちらで管理
+
+---
+
+## 自動ルーティング（最重要）
+
+ユーザーの発言を解析し、適切なエージェントに自動接続する。
+**エージェントファイルのベースパス**: `/Users/okamototakehiro/MuchiNavi/muchinavi-agents`
+
+### ルーティングテーブル
+
+| ユーザーの発言パターン | 起動エージェント | 参照ファイル（muchinavi-agents/） | 動作 |
+|----------------------|----------------|--------------------------------|------|
+| 「おはよう」等の朝の挨拶 | ブリーフィング | `.claude/commands/morning.md` | API呼出し → ブリーフィング表示 |
+| 「ブログ書きたい」「記事作って」 | J→K→L→M→N チェーン | `.claude/commands/blog.md` | 9ステップフロー |
+| 「noteを書きたい」「note記事」 | note作成 | `.claude/commands/note.md` | note記事フロー |
+| 「議事録」「面談メモ」 | Agent B (Analyst) | `agents/analyst.md` | 議事録解析 → API更新 |
+| 「戦略」「PV分析」「ブログの数字」 | F→G→H→I チェーン | `agents/blog_strategy.md` | 戦略レビュー |
+| 「収支予測」「売上シミュレーション」 | Agent H (収支予測) | `agents/blog_strategy.md` | 収支計算 → 検証 |
+| 「レビューして」「チェックして」 | Agent C/I/N (Devil) | `agents/devil.md` | 否定レビュー |
+| 「今週の振り返り」 | 週次レビュー | `.claude/commands/weekly.md` | 週次集計 |
+| 顧客名 + 操作 | 直接API実行 | このファイルのAPIリファレンス | MuchiNavi API |
+| 「MuchiNaviの応答改善」 | Agent D (Content) | `agents/content_agent.md` | 応答品質改善 |
+| 「フォローすべき顧客」「追客」 | Agent O (Follow-up) | `agents/followup.md` | 優先度判定 → メッセージ |
+| 「市場動向」「金利」「競合」 | Agent P (Market Intel) | `agents/market_intelligence.md` | 市場レポート |
+| 「レビュー依頼」「紹介」「引渡し後」 | Agent Q (CS) | `agents/customer_success.md` | CSフォロー |
+| 「バグ」「機能追加」「コード修正」 | Agent A (Builder) | `agents/builder_orchestrator.md` | このリポジトリで直接対応 |
+| 複数タスク同時 | Agent E (Orchestrator) | `agents/builder_orchestrator.md` | 振り分け |
+
+### ルーティングルール
+1. ユーザーの発言からキーワード・意図を読み取り、上表に照合
+2. 該当ファイルを **絶対パス** `/Users/okamototakehiro/MuchiNavi/muchinavi-agents/{参照ファイル}` で読み込む
+3. チェーン実行時は前工程の出力を次工程に自動で渡す
+4. 否定エージェント自動起動: コード完成→Agent C、戦略完成→Agent I、記事完成→Agent N
+5. 開発系（バグ・機能追加）はこのリポジトリで直接対応（muchinavi-agents への案内は不要）
+6. 曖昧な場合はユーザーに確認
 
 ---
 
