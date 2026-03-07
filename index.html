@@ -26,6 +26,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MuchiNavi">
   <meta name="mobile-web-app-capable" content="yes">
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VWS2PHHS4X"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-VWS2PHHS4X');
+  </script>
   <style>
     /* パフォーマンス: 低速端末でアニメーション無効化 */
     @media (prefers-reduced-motion: reduce) {
@@ -3536,6 +3544,16 @@
         customerData[step.key] = value;
       }
 
+      // GA4: フォームステップ完了イベント
+      if (typeof gtag === 'function') {
+        gtag('event', 'form_step_complete', {
+          step_number: currentStep,
+          step_key: step.key || 'welcome',
+          step_title: step.title || '',
+          total_steps: TOTAL_STEPS
+        });
+      }
+
       // Show response if exists
       if (step.response && value !== undefined) {
         showResponse(step.response(value));
@@ -3571,6 +3589,18 @@
     function skipStep() {
       const step = steps[currentStep];
       customerData[step.key] = step.skipValue;
+
+      // GA4: フォームステップスキップイベント
+      if (typeof gtag === 'function') {
+        gtag('event', 'form_step_complete', {
+          step_number: currentStep,
+          step_key: step.key || 'unknown',
+          step_title: step.title || '',
+          total_steps: TOTAL_STEPS,
+          skipped: true
+        });
+      }
+
       showResponse(step.skipResponse);
       setTimeout(() => {
         currentStep++;
@@ -3955,6 +3985,16 @@
         card.style.animation = 'none';
         card.offsetHeight;
         card.style.animation = '';
+
+        // GA4: 登録完了イベント
+        if (typeof gtag === 'function') {
+          gtag('event', 'registration_complete', {
+            method: 'muchinavi_form',
+            prefecture: customerData.prefecture || '',
+            property_type: customerData.propertyType || '',
+            household_income: customerData.householdIncome || ''
+          });
+        }
 
         // Send notification to agent
         notifyAgent();
