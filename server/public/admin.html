@@ -1980,6 +1980,218 @@
             clip: rect(0, 0, 0, 0);
             border: 0;
         }
+        /* ===== TERASS Offer ===== */
+        .sidebar-terass {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .sidebar-terass:hover { background: rgba(255,255,255,0.1); }
+        .sidebar-terass.active { background: rgba(255, 149, 0, 0.2); }
+        .terass-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .terass-badge {
+            margin-left: auto;
+            background: #ff9500;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .terass-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px 16px;
+        }
+        .terass-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .terass-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 0 32px 24px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: #86868b;
+            margin-top: 4px;
+        }
+        .terass-pipeline { padding: 0 32px; }
+        .pipeline-section { margin-bottom: 24px; }
+        .pipeline-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+        .pipeline-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .offer-card {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid;
+            transition: var(--transition-fast);
+        }
+        .offer-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        .offer-card.status-pending { border-left-color: #007aff; }
+        .offer-card.status-contacted { border-left-color: #ff9500; }
+        .offer-card.status-responded { border-left-color: #ff6b00; }
+        .offer-card.status-approved { border-left-color: #34c759; }
+        .offer-card.status-rejected { border-left-color: #ff3b30; }
+        .offer-card.status-expired { border-left-color: #8e8e93; }
+        .offer-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .offer-card-nickname {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .offer-card-status {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .offer-card-info {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #86868b;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .offer-card-meta {
+            font-size: 12px;
+            color: #aeaeb2;
+            margin-bottom: 12px;
+        }
+        .offer-card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .offer-card-actions button {
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-family: inherit;
+        }
+        .offer-card-actions button:hover { background: var(--bg); }
+        .offer-card-actions .btn-approve {
+            background: #34c759;
+            color: #fff;
+            border-color: #34c759;
+        }
+        .offer-card-actions .btn-approve:hover { background: #2db84d; }
+        .pipeline-section.collapsed .pipeline-cards { display: none; }
+        .pipeline-section.collapsed .toggle-icon { transform: rotate(0deg); }
+        .pipeline-section .toggle-icon {
+            transform: rotate(90deg);
+            transition: var(--transition-fast);
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        .terass-detail-section {
+            background: #f9f9fb;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .terass-detail-section h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .terass-detail-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 6px 12px;
+            font-size: 14px;
+        }
+        .terass-detail-grid dt { color: #86868b; }
+        .terass-detail-grid dd { color: var(--primary); font-weight: 500; margin: 0; }
+        .terass-note-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .terass-note-item:last-child { border-bottom: none; }
+        .terass-note-time { color: #86868b; font-size: 12px; margin-bottom: 2px; }
+        .terass-note-content { color: var(--primary); }
+        .terass-note-type {
+            display: inline-block;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        .terass-note-type.auto { background: #e8f4fd; color: #007aff; }
+        .terass-note-type.manual { background: #f0f9f0; color: #34c759; }
+        .terass-note-type.status_change { background: #fff3e0; color: #ff9500; }
+        .btn-primary-sm {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-family: inherit;
+        }
+        .btn-primary-sm:hover { filter: brightness(1.1); }
+        @media (max-width: 768px) {
+            .terass-stats {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 0 16px 16px;
+            }
+            .terass-header { padding: 16px; }
+            .terass-pipeline { padding: 0 16px; }
+            .offer-card-info { flex-direction: column; gap: 4px; }
+        }
     </style>
 </head>
 <body>
@@ -2047,6 +2259,13 @@
             </div>
             <div id="stageAlertBanner" style="display:none;"></div>
             <div class="sidebar-customers" id="customerList"></div>
+            <div class="sidebar-terass" id="terassOfferMenu" onclick="openTerassOfferView()">
+                <div class="terass-menu-item">
+                    <span class="terass-icon">🟠</span>
+                    <span class="terass-label">TERASS Offer</span>
+                    <span class="terass-badge" id="terassOfferBadge" style="display:none;">0</span>
+                </div>
+            </div>
             <div class="sidebar-footer">
                 <button class="btn btn-primary" onclick="openBroadcastView()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg> 一斉配信</button>
                 <button class="btn" onclick="openAnnouncementsModal()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px; background: #f5f5f7; border: 1px solid var(--border); color: var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> お知らせ管理</button>
@@ -2705,6 +2924,96 @@
 
                 </div>
             </div>
+
+            <!-- TERASS Offer View -->
+            <div id="terassOfferView" style="display:none; flex-direction:column; flex:1; overflow-y:auto;">
+                <div class="terass-header">
+                    <h2>TERASS Offer 管理</h2>
+                    <button class="btn-primary-sm" onclick="openNewTerassOffer()">+ 新規登録</button>
+                </div>
+                <div class="terass-stats" id="terassStats"></div>
+                <div class="terass-pipeline">
+                    <div class="pipeline-section" id="terassActive">
+                        <h3>📨 対応中</h3>
+                        <div class="pipeline-cards" id="terassActiveCards"></div>
+                    </div>
+                    <div class="pipeline-section" id="terassApproved">
+                        <h3>✅ 承認済み → 通常管理へ移行</h3>
+                        <div class="pipeline-cards" id="terassApprovedCards"></div>
+                    </div>
+                    <div class="pipeline-section collapsed" id="terassInactive">
+                        <h3 onclick="toggleTerassInactive()" style="cursor:pointer;">
+                            ❌ 不成立 <span id="terassInactiveCount">(0件)</span>
+                            <span class="toggle-icon">▶</span>
+                        </h3>
+                        <div class="pipeline-cards" id="terassInactiveCards"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TERASS Offer Detail Modal -->
+    <div id="terassDetailModal" class="modal-overlay">
+        <div class="modal" style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2 class="modal-title" id="terassDetailTitle" style="margin:0;"></h2>
+                <button onclick="closeTerassDetail()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#86868b;">✕</button>
+            </div>
+            <div id="terassDetailContent" style="flex:1;overflow-y:auto;"></div>
+            <div style="display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                <button class="btn" onclick="closeTerassDetail()" style="flex:1;">閉じる</button>
+                <button class="btn btn-primary" id="terassDetailApproveBtn" onclick="approveFromDetail()" style="flex:1;">承認済みにする</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TERASS Offer New Registration Modal -->
+    <div id="terassNewModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <h2 class="modal-title" style="margin-bottom:16px;">TERASS Offer 新規登録</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">TERASS表示名 <span style="color:#ff3b30;">*</span></label>
+                    <input type="text" id="terassNewName" placeholder="例: ユーザー3847" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">ニックネーム</label>
+                    <input type="text" id="terassNewNickname" placeholder="例: 北摂_子育て_3500万" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">エリア</label>
+                    <input type="text" id="terassNewArea" placeholder="例: 北摂（豊中・吹田）" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">予算</label>
+                    <input type="text" id="terassNewBudget" placeholder="例: 3000〜4000万円" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">物件種別</label>
+                    <select id="terassNewPropertyType" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;background:#fff;">
+                        <option value="">選択してください</option>
+                        <option value="戸建て">戸建て</option>
+                        <option value="マンション">マンション</option>
+                        <option value="土地">土地</option>
+                        <option value="二世帯">二世帯</option>
+                        <option value="未定">未定</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">家族構成</label>
+                    <input type="text" id="terassNewFamily" placeholder="例: 夫婦+子2人" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;color:var(--text-secondary);">メモ</label>
+                    <textarea id="terassNewMemo" rows="3" placeholder="TERASS Offerのコメント等" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;font-family:inherit;resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+                <button class="btn" onclick="closeTerassNewModal()" style="flex:1;">キャンセル</button>
+                <button class="btn btn-primary" onclick="submitNewTerassOffer()" style="flex:1;">登録</button>
+            </div>
         </div>
     </div>
 
@@ -3088,9 +3397,11 @@
                         selectCustomer(currentSelectedToken);
                     }
                     updateLastUpdatedTime();
+                    updateTerassOfferBadge();
                 });
             }, 30000);
             updateLastUpdatedTime();
+            updateTerassOfferBadge();
         }
 
         function updateLastUpdatedTime() {
@@ -3238,6 +3549,10 @@
 
             // フィルター適用
             let filteredCustomers = [...customers];
+            // TERASS Offer対応中を除外（approvedは通常リストに表示）
+            filteredCustomers = filteredCustomers.filter(c =>
+                c.source !== 'terass_offer' || c.offerStatus === 'approved'
+            );
             if (currentFilter === 'attention') {
                 filteredCustomers = filteredCustomers.filter(c =>
                     c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)
@@ -3460,6 +3775,7 @@
 
         // ======================== CUSTOMER SELECTION ========================
         async function selectCustomer(token) {
+            closeTerassOfferView();
             selectedToken = token;
             renderCustomerList();
 
@@ -4676,6 +4992,8 @@
         function openBroadcastView() {
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('customerView').style.display = 'none';
+            document.getElementById('terassOfferView').style.display = 'none';
+            document.getElementById('terassOfferMenu').classList.remove('active');
             document.getElementById('broadcastView').style.display = 'flex';
             // 顧客一覧のactive解除
             document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
@@ -5221,6 +5539,306 @@
                 });
             } else {
                 showToast('コピーする値がありません', 'info');
+            }
+        }
+
+        // ======================== TERASS OFFER 管理 ========================
+
+        let terassDetailToken = null;
+
+        function openTerassOfferView() {
+            document.getElementById('customerView').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('terassOfferView').style.display = 'flex';
+            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('terassOfferMenu').classList.add('active');
+            loadTerassOfferData();
+        }
+
+        function closeTerassOfferView() {
+            document.getElementById('terassOfferView').style.display = 'none';
+            document.getElementById('terassOfferMenu').classList.remove('active');
+        }
+
+        async function loadTerassOfferData() {
+            try {
+                const [customersRes, statsRes] = await Promise.all([
+                    api.call('GET', '/terass-offer/customers'),
+                    api.call('GET', '/terass-offer/stats')
+                ]);
+                renderTerassStats(statsRes);
+                renderTerassPipeline(customersRes.customers);
+            } catch (e) {
+                showToast('TERASS Offerデータの取得に失敗しました', 'error');
+            }
+        }
+
+        function renderTerassStats(stats) {
+            const container = document.getElementById('terassStats');
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total}</div>
+                    <div class="stat-label">合計</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.active}</div>
+                    <div class="stat-label">対応中</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.byStatus ? stats.byStatus.approved : 0}</div>
+                    <div class="stat-label">承認済み</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: var(--success)">${stats.approvalRate || '-'}</div>
+                    <div class="stat-label">承認率</div>
+                </div>
+            `;
+        }
+
+        function renderTerassPipeline(customers) {
+            const active = customers.filter(c => ['pending', 'contacted', 'responded'].includes(c.offerStatus));
+            const approved = customers.filter(c => c.offerStatus === 'approved');
+            const inactive = customers.filter(c => ['rejected', 'expired'].includes(c.offerStatus));
+
+            document.getElementById('terassActiveCards').innerHTML =
+                active.length > 0
+                    ? active.map(c => renderOfferCard(c, 'active')).join('')
+                    : '<p style="color:#86868b;padding:12px;">対応中の顧客はいません</p>';
+
+            document.getElementById('terassApprovedCards').innerHTML =
+                approved.length > 0
+                    ? approved.map(c => renderOfferCard(c, 'approved')).join('')
+                    : '<p style="color:#86868b;padding:12px;">承認済みの顧客はいません</p>';
+
+            document.getElementById('terassInactiveCards').innerHTML =
+                inactive.map(c => renderOfferCard(c, 'inactive')).join('');
+            document.getElementById('terassInactiveCount').textContent = `(${inactive.length}件)`;
+        }
+
+        function renderOfferCard(customer, section) {
+            const statusLabels = { pending: '新規', contacted: 'メッセージ送信済', responded: '返信あり', approved: '承認済み', rejected: '不成立', expired: '期限切れ' };
+            const statusColors = { pending: '#007aff', contacted: '#ff9500', responded: '#ff6b00', approved: '#34c759', rejected: '#ff3b30', expired: '#8e8e93' };
+            const status = customer.offerStatus || 'pending';
+            const daysAgo = Math.floor((Date.now() - new Date(customer.createdAt).getTime()) / 86400000);
+
+            let actions = '';
+            if (section === 'active') {
+                actions = `
+                    <button onclick="event.stopPropagation(); openTerassDetail('${customer.token}')">詳細</button>
+                    <button class="btn-approve" onclick="event.stopPropagation(); approveTerassOffer('${customer.token}')">承認済みにする</button>
+                `;
+            } else if (section === 'approved') {
+                actions = `<button onclick="event.stopPropagation(); selectCustomer('${customer.token}'); closeTerassOfferView();">顧客詳細を開く</button>`;
+            } else {
+                actions = `<button onclick="event.stopPropagation(); openTerassDetail('${customer.token}')">詳細</button>`;
+            }
+
+            return `
+                <div class="offer-card status-${status}" onclick="openTerassDetail('${customer.token}')">
+                    <div class="offer-card-header">
+                        <span class="offer-card-nickname">${escapeHtml(customer.nickname || customer.name)}</span>
+                        <span class="offer-card-status" style="background:${statusColors[status]}20;color:${statusColors[status]}">
+                            ${statusLabels[status]}
+                        </span>
+                    </div>
+                    <div class="offer-card-info">
+                        <span>TERASS名: ${escapeHtml(customer.name)}</span>
+                        ${customer.area ? `<span>エリア: ${escapeHtml(customer.area)}</span>` : ''}
+                        ${customer.budget ? `<span>予算: ${escapeHtml(customer.budget)}</span>` : ''}
+                        ${customer.propertyType ? `<span>${escapeHtml(customer.propertyType)}</span>` : ''}
+                    </div>
+                    <div class="offer-card-meta">
+                        登録: ${new Date(customer.createdAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'})}
+                        （${daysAgo}日前）
+                        ${customer.lastInteractionAt ? ` / 最終対応: ${new Date(customer.lastInteractionAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'})}` : ''}
+                    </div>
+                    <div class="offer-card-actions">${actions}</div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        async function approveTerassOffer(token) {
+            showConfirmModal('承認確認', 'この顧客を「承認済み」にして通常管理に移行しますか？', '承認する', async () => {
+                try {
+                    await api.call('PUT', `/terass-offer/${token}/status`, {
+                        offerStatus: 'approved',
+                        note: '通常顧客管理に移行'
+                    });
+                    showToast('承認済みに変更しました', 'success');
+                    loadTerassOfferData();
+                    updateTerassOfferBadge();
+                    loadDashboard();
+                } catch (e) {
+                    showToast('ステータス変更に失敗しました', 'error');
+                }
+            });
+        }
+
+        async function openTerassDetail(token) {
+            terassDetailToken = token;
+            try {
+                const [customerRes, notesRes] = await Promise.all([
+                    api.call('GET', `/customer/${token}`),
+                    api.call('GET', `/terass-offer/${token}/notes`)
+                ]);
+                renderTerassDetailModal(customerRes.customer, notesRes.notes);
+            } catch (e) {
+                showToast('詳細の取得に失敗しました', 'error');
+            }
+        }
+
+        function renderTerassDetailModal(customer, notes) {
+            const statusLabels = { pending: '新規', contacted: 'メッセージ送信済', responded: '返信あり', approved: '承認済み', rejected: '不成立', expired: '期限切れ' };
+            document.getElementById('terassDetailTitle').textContent = customer.nickname || customer.name;
+
+            const isActive = ['pending', 'contacted', 'responded'].includes(customer.offerStatus);
+            document.getElementById('terassDetailApproveBtn').style.display = isActive ? 'block' : 'none';
+
+            let notesHtml = '';
+            if (notes && notes.length > 0) {
+                notesHtml = notes.map(n => `
+                    <div class="terass-note-item">
+                        <div class="terass-note-time">
+                            ${new Date(n.createdAt).toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+                            <span class="terass-note-type ${n.type}">${n.type === 'auto' ? '自動' : n.type === 'status_change' ? 'ステータス変更' : '手動'}</span>
+                        </div>
+                        <div class="terass-note-content">${escapeHtml(n.content)}</div>
+                    </div>
+                `).join('');
+            } else {
+                notesHtml = '<p style="color:#86868b;font-size:13px;">対応履歴はありません</p>';
+            }
+
+            document.getElementById('terassDetailContent').innerHTML = `
+                <div class="terass-detail-section">
+                    <h4>基本情報</h4>
+                    <dl class="terass-detail-grid">
+                        <dt>TERASS名</dt><dd>${escapeHtml(customer.name)}</dd>
+                        <dt>ニックネーム</dt><dd>${escapeHtml(customer.nickname || '-')}</dd>
+                        <dt>登録日</dt><dd>${new Date(customer.createdAt).toLocaleDateString('ja-JP')}</dd>
+                        <dt>ステータス</dt><dd>${statusLabels[customer.offerStatus] || '-'}</dd>
+                        ${customer.transitionedAt ? `<dt>移行日</dt><dd>${new Date(customer.transitionedAt).toLocaleDateString('ja-JP')}</dd>` : ''}
+                    </dl>
+                </div>
+                <div class="terass-detail-section">
+                    <h4>顧客情報</h4>
+                    <dl class="terass-detail-grid">
+                        <dt>エリア</dt><dd>${escapeHtml(customer.area || '-')}</dd>
+                        <dt>予算</dt><dd>${escapeHtml(customer.budget || '-')}</dd>
+                        <dt>家族構成</dt><dd>${escapeHtml(customer.family || '-')}</dd>
+                        <dt>物件種別</dt><dd>${escapeHtml(customer.propertyType || '-')}</dd>
+                        <dt>時期</dt><dd>${escapeHtml(customer.timeline || '-')}</dd>
+                    </dl>
+                </div>
+                ${customer.freeComment ? `
+                <div class="terass-detail-section">
+                    <h4>TERASS Offerコメント原文</h4>
+                    <p style="font-size:14px;color:var(--primary);white-space:pre-wrap;">${escapeHtml(customer.freeComment)}</p>
+                </div>
+                ` : ''}
+                ${customer.memo ? `
+                <div class="terass-detail-section">
+                    <h4>Agent U分析メモ</h4>
+                    <p style="font-size:14px;color:var(--primary);white-space:pre-wrap;">${escapeHtml(customer.memo)}</p>
+                </div>
+                ` : ''}
+                <div class="terass-detail-section">
+                    <h4>対応履歴</h4>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                        <input type="text" id="terassNewNote" placeholder="メモを追加..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;">
+                        <button class="btn-primary-sm" onclick="addTerassNote()">追加</button>
+                    </div>
+                    ${notesHtml}
+                </div>
+            `;
+
+            document.getElementById('terassDetailModal').classList.add('show');
+        }
+
+        function closeTerassDetail() {
+            document.getElementById('terassDetailModal').classList.remove('show');
+            terassDetailToken = null;
+        }
+
+        async function approveFromDetail() {
+            if (!terassDetailToken) return;
+            approveTerassOffer(terassDetailToken);
+            closeTerassDetail();
+        }
+
+        async function addTerassNote() {
+            if (!terassDetailToken) return;
+            const input = document.getElementById('terassNewNote');
+            const content = input.value.trim();
+            if (!content) return;
+            try {
+                await api.call('POST', `/terass-offer/${terassDetailToken}/notes`, { content, type: 'manual' });
+                input.value = '';
+                openTerassDetail(terassDetailToken);
+                showToast('メモを追加しました', 'success');
+            } catch (e) {
+                showToast('メモの追加に失敗しました', 'error');
+            }
+        }
+
+        function toggleTerassInactive() {
+            document.getElementById('terassInactive').classList.toggle('collapsed');
+        }
+
+        async function updateTerassOfferBadge() {
+            try {
+                const stats = await api.call('GET', '/terass-offer/stats');
+                const badge = document.getElementById('terassOfferBadge');
+                badge.textContent = stats.active;
+                badge.style.display = stats.active > 0 ? 'inline' : 'none';
+            } catch (e) { /* silent */ }
+        }
+
+        function openNewTerassOffer() {
+            document.getElementById('terassNewName').value = '';
+            document.getElementById('terassNewNickname').value = '';
+            document.getElementById('terassNewArea').value = '';
+            document.getElementById('terassNewBudget').value = '';
+            document.getElementById('terassNewPropertyType').value = '';
+            document.getElementById('terassNewFamily').value = '';
+            document.getElementById('terassNewMemo').value = '';
+            document.getElementById('terassNewModal').classList.add('show');
+        }
+
+        function closeTerassNewModal() {
+            document.getElementById('terassNewModal').classList.remove('show');
+        }
+
+        async function submitNewTerassOffer() {
+            const name = document.getElementById('terassNewName').value.trim();
+            if (!name) {
+                showToast('TERASS表示名は必須です', 'error');
+                return;
+            }
+            try {
+                await api.call('POST', '/customers', {
+                    name,
+                    nickname: document.getElementById('terassNewNickname').value.trim(),
+                    source: 'terass_offer',
+                    area: document.getElementById('terassNewArea').value.trim(),
+                    budget: document.getElementById('terassNewBudget').value.trim(),
+                    propertyType: document.getElementById('terassNewPropertyType').value,
+                    family: document.getElementById('terassNewFamily').value.trim(),
+                    memo: document.getElementById('terassNewMemo').value.trim()
+                });
+                closeTerassNewModal();
+                showToast('TERASS Offer顧客を登録しました', 'success');
+                loadTerassOfferData();
+                updateTerassOfferBadge();
+                loadDashboard();
+            } catch (e) {
+                showToast('登録に失敗しました', 'error');
             }
         }
     </script>
