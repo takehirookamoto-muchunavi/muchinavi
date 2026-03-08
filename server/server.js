@@ -2038,6 +2038,9 @@ app.get('/api/admin/customers', adminAuth, (req, res) => {
     return {
       token,
       name: record.name || '-',
+      nickname: record.nickname || '',
+      source: record.source || 'muchinavi',
+      offerStatus: record.offerStatus || '',
       email: record.email || '-',
       phone: record.phone || '-',
       family: record.family || '-',
@@ -2086,6 +2089,155 @@ app.post('/api/admin/unblock/:token', adminAuth, (req, res) => {
   saveDB(db);
   console.log(`✅ ブロック解除: ${record.name} (${req.params.token.substring(0, 8)}...)`);
   res.json({ success: true, message: `${record.name}さんのブロックを解除しました` });
+});
+
+// ===== 管理API: 顧客手動登録（TERASS Offer等の外部チャネル用） =====
+app.post('/api/admin/customers', adminAuth, (req, res) => {
+  const { name } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+
+  const token = generateToken();
+  const db = loadDB();
+
+  // 自動タグ付与
+  const initialTags = Array.isArray(req.body.tags) ? [...req.body.tags] : [];
+
+  if (req.body.prefecture) {
+    const prefTag = req.body.prefecture;
+    const tagData = loadTags();
+    if (!tagData.tags.find(t => t.name === prefTag)) {
+      tagData.tags.push({
+        id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: prefTag,
+        color: '#5856d6',
+        category: '都道府県'
+      });
+      saveTags(tagData);
+    }
+    if (!initialTags.includes(prefTag)) initialTags.push(prefTag);
+  }
+
+  if (req.body.propertyType) {
+    const ptTag = req.body.propertyType;
+    const tagData = loadTags();
+    if (!tagData.tags.find(t => t.name === ptTag)) {
+      tagData.tags.push({
+        id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: ptTag,
+        color: '#0071e3',
+        category: '物件種別'
+      });
+      saveTags(tagData);
+    }
+    if (!initialTags.includes(ptTag)) initialTags.push(ptTag);
+  }
+
+  // source タグの自動追加
+  const source = req.body.source || 'admin';
+  if (source !== 'muchinavi' && !initialTags.includes(source)) {
+    initialTags.push(source);
+    const tagData = loadTags();
+    if (!tagData.tags.find(t => t.name === source)) {
+      tagData.tags.push({
+        id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: source,
+        color: '#ff9500',
+        category: '登録元'
+      });
+      saveTags(tagData);
+    }
+  }
+
+  // 顧客レコード作成
+  const now = new Date().toISOString();
+  const customer = {
+    token,
+    name: name.trim(),
+    nickname: req.body.nickname || '',
+    source: source,
+    offerStatus: source === 'terass_offer' ? 'pending' : '',
+    offerStatusUpdatedAt: source === 'terass_offer' ? now : '',
+    offerNotes: source === 'terass_offer' ? [{ id: 'note_' + Date.now(), content: '仮登録完了', type: 'auto', createdAt: now }] : [],
+    transitionedAt: '',
+    stage: req.body.stage || 1,
+    stageUpdatedAt: now,
+    createdAt: now,
+    status: 'active',
+    tags: initialTags,
+
+    // オプショナルフィールド
+    area: req.body.area || '',
+    budget: req.body.budget || '',
+    family: req.body.family || '',
+    propertyType: req.body.propertyType || '',
+    timeline: req.body.timeline || '',
+    freeComment: req.body.freeComment || '',
+    memo: req.body.memo || '',
+    agentMemo: req.body.agentMemo || '',
+    prefecture: req.body.prefecture || '',
+    email: req.body.email || '',
+    phone: req.body.phone || '',
+    line: req.body.line || '',
+    birthYear: req.body.birthYear || '',
+    birthMonth: req.body.birthMonth || '',
+    age: req.body.age || '',
+    householdIncome: req.body.householdIncome || '',
+    currentHome: req.body.currentHome || '',
+    reason: req.body.reason || '',
+    searchReason: req.body.searchReason || '',
+    purpose: req.body.purpose || '',
+    size: req.body.size || '',
+    layout: req.body.layout || '',
+    stationDistance: req.body.stationDistance || '',
+    occupation: req.body.occupation || '',
+    income: req.body.income || '',
+    savings: req.body.savings || '',
+    loanStatus: req.body.loanStatus || '',
+    motivation: req.body.motivation || '',
+    spouseOccupation: req.body.spouseOccupation || '',
+    spouseIncome: req.body.spouseIncome || '',
+    currentRent: req.body.currentRent || '',
+    pet: req.body.pet || '',
+    parking: req.body.parking || '',
+    specialRequirements: req.body.specialRequirements || '',
+    referral: req.body.referral || '',
+    customerAdvice: req.body.customerAdvice || '',
+
+    // 初期化
+    chatHistory: [],
+    directChatHistory: [],
+    agentChatHistory: [],
+    interactions: [],
+    todos: [],
+    checklist: [],
+    passwordHash: ''  // 手動登録のためパスワードなし
+  };
+
+  db[token] = customer;
+  saveDB(db);
+
+  console.log(`📋 手動登録: ${customer.name} (${customer.nickname || 'ニックネームなし'}) [${source}]`);
+
+  res.status(201).json({
+    success: true,
+    customer: {
+      token: customer.token,
+      name: customer.name,
+      nickname: customer.nickname,
+      source: customer.source,
+      offerStatus: customer.offerStatus,
+      stage: customer.stage,
+      area: customer.area,
+      budget: customer.budget,
+      family: customer.family,
+      propertyType: customer.propertyType,
+      tags: customer.tags,
+      createdAt: customer.createdAt
+    }
+  });
 });
 
 // ===== 管理API: 削除 =====
@@ -2543,7 +2695,7 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
+  const updatable = ['name','nickname','source','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
   const updates = req.body;
 
   // Track old values for auto-tag update
@@ -3188,6 +3340,179 @@ app.delete('/api/admin/process/:id', adminAuth, (req, res) => {
 });
 
 // ========================================================
+// ===== TERASS Offer パイプライン管理 API =====
+// ========================================================
+
+// TERASS Offer顧客一覧
+app.get('/api/admin/terass-offer/customers', adminAuth, (req, res) => {
+  const db = loadDB();
+  const customers = Object.entries(db)
+    .filter(([, record]) => record.source === 'terass_offer')
+    .map(([token, record]) => {
+      const interactions = record.interactions || [];
+      const lastInteraction = interactions.length > 0 ? interactions[0] : null;
+      return {
+        token,
+        name: record.name || '',
+        nickname: record.nickname || '',
+        source: record.source || '',
+        offerStatus: record.offerStatus || 'pending',
+        offerStatusUpdatedAt: record.offerStatusUpdatedAt || '',
+        area: record.area || '',
+        budget: record.budget || '',
+        family: record.family || '',
+        propertyType: record.propertyType || '',
+        timeline: record.timeline || '',
+        stage: parseInt(record.stage, 10) || 1,
+        createdAt: record.createdAt || '',
+        tags: record.tags || [],
+        interactionCount: interactions.length,
+        lastInteractionAt: lastInteraction ? (lastInteraction.date || lastInteraction.createdAt || '') : '',
+        freeComment: record.freeComment || '',
+        memo: record.memo || '',
+        transitionedAt: record.transitionedAt || ''
+      };
+    })
+    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+  res.json({ customers });
+});
+
+// TERASS Offer統計
+app.get('/api/admin/terass-offer/stats', adminAuth, (req, res) => {
+  const db = loadDB();
+  const terassCustomers = Object.values(db).filter(r => r.source === 'terass_offer');
+
+  const byStatus = { pending: 0, contacted: 0, responded: 0, approved: 0, rejected: 0, expired: 0 };
+  terassCustomers.forEach(r => {
+    const status = r.offerStatus || 'pending';
+    if (byStatus[status] !== undefined) byStatus[status]++;
+  });
+
+  const active = byStatus.pending + byStatus.contacted + byStatus.responded;
+  const decided = byStatus.approved + byStatus.rejected;
+  const approvalRate = decided > 0 ? Math.round((byStatus.approved / decided) * 100) + '%' : '-';
+
+  // 平均承認日数
+  let totalDays = 0;
+  let approvedCount = 0;
+  terassCustomers.filter(r => r.offerStatus === 'approved' && r.transitionedAt && r.createdAt).forEach(r => {
+    const days = (new Date(r.transitionedAt) - new Date(r.createdAt)) / 86400000;
+    totalDays += days;
+    approvedCount++;
+  });
+  const avgDaysToApproval = approvedCount > 0 ? Math.round(totalDays / approvedCount * 10) / 10 : null;
+
+  res.json({
+    total: terassCustomers.length,
+    byStatus,
+    active,
+    approvalRate,
+    avgDaysToApproval
+  });
+});
+
+// TERASS Offerステータス更新
+app.put('/api/admin/terass-offer/:token/status', adminAuth, (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
+
+  const { offerStatus, note, stage } = req.body;
+  if (!offerStatus) return res.status(400).json({ error: 'offerStatus is required' });
+
+  const validStatuses = ['pending', 'contacted', 'responded', 'approved', 'rejected', 'expired'];
+  if (!validStatuses.includes(offerStatus)) {
+    return res.status(400).json({ error: `Invalid offerStatus. Must be one of: ${validStatuses.join(', ')}` });
+  }
+
+  const now = new Date().toISOString();
+  const oldStatus = record.offerStatus || 'pending';
+  record.offerStatus = offerStatus;
+  record.offerStatusUpdatedAt = now;
+
+  // 対応メモに自動記録
+  if (!record.offerNotes) record.offerNotes = [];
+  record.offerNotes.push({
+    id: 'note_' + Date.now(),
+    content: note || `ステータス変更: ${oldStatus} → ${offerStatus}`,
+    type: 'status_change',
+    createdAt: now
+  });
+
+  // approved 時の特別処理
+  if (offerStatus === 'approved') {
+    record.transitionedAt = now;
+    if (stage) record.stage = parseInt(stage, 10);
+    else if ((parseInt(record.stage, 10) || 1) < 3) record.stage = 3;
+    record.stageUpdatedAt = now;
+
+    // terass_approved タグ追加
+    if (!record.tags) record.tags = [];
+    if (!record.tags.includes('terass_approved')) {
+      record.tags.push('terass_approved');
+      const tagData = loadTags();
+      if (!tagData.tags.find(t => t.name === 'terass_approved')) {
+        tagData.tags.push({
+          id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          name: 'terass_approved',
+          color: '#34c759',
+          category: '登録元'
+        });
+        saveTags(tagData);
+      }
+    }
+  }
+
+  saveDB(db);
+  console.log(`🟠 TERASS Offer: ${record.nickname || record.name} ${oldStatus} → ${offerStatus}`);
+
+  res.json({
+    success: true,
+    customer: {
+      token: req.params.token,
+      offerStatus: record.offerStatus,
+      offerStatusUpdatedAt: record.offerStatusUpdatedAt,
+      transitionedAt: record.transitionedAt || '',
+      stage: record.stage
+    }
+  });
+});
+
+// TERASS Offer対応メモ追加
+app.post('/api/admin/terass-offer/:token/notes', adminAuth, (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
+
+  const { content, type } = req.body;
+  if (!content) return res.status(400).json({ error: 'content is required' });
+
+  if (!record.offerNotes) record.offerNotes = [];
+
+  const note = {
+    id: 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    content,
+    type: type || 'manual',
+    createdAt: new Date().toISOString()
+  };
+
+  record.offerNotes.push(note);
+  saveDB(db);
+
+  res.json({ success: true, note });
+});
+
+// TERASS Offer対応メモ取得
+app.get('/api/admin/terass-offer/:token/notes', adminAuth, (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
+
+  res.json({ notes: record.offerNotes || [] });
+});
+
+// ========================================================
 // ===== 朝ブリーフィング API =====
 // ========================================================
 
@@ -3329,6 +3654,20 @@ app.get('/api/admin/briefing', adminAuth, (req, res) => {
   urgent.week.sort(sortByUrgency);
   urgent.followUp.sort((a, b) => (b.daysSinceContact || 999) - (a.daysSinceContact || 999));
 
+  // --- TERASS Offer サマリー ---
+  const terassCustomers = Object.entries(db)
+    .filter(([, r]) => r.source === 'terass_offer')
+    .map(([token, r]) => ({ token, nickname: r.nickname || r.name, offerStatus: r.offerStatus || 'pending', createdAt: r.createdAt, daysSinceCreated: r.createdAt ? Math.floor((today - new Date(r.createdAt)) / 86400000) : 0 }));
+
+  const terassActive = terassCustomers.filter(c => ['pending', 'contacted', 'responded'].includes(c.offerStatus));
+  const terassNeedsFollowUp = terassCustomers
+    .filter(c => c.offerStatus === 'contacted' && c.daysSinceCreated >= 3)
+    .sort((a, b) => b.daysSinceCreated - a.daysSinceCreated);
+
+  const terassApproved = terassCustomers.filter(c => c.offerStatus === 'approved').length;
+  const terassRejected = terassCustomers.filter(c => c.offerStatus === 'rejected').length;
+  const terassDecided = terassApproved + terassRejected;
+
   res.json({
     date: todayStr,
     dayOfWeek: ['日','月','火','水','木','金','土'][today.getDay()],
@@ -3337,7 +3676,17 @@ app.get('/api/admin/briefing', adminAuth, (req, res) => {
     weekEvents: weekEvents.map(attachCustomerName),
     urgent,
     processSummary,
-    activeProcessCount: activeProcesses.length
+    activeProcessCount: activeProcesses.length,
+    terassOffer: {
+      total: terassCustomers.length,
+      active: terassActive.length,
+      pending: terassCustomers.filter(c => c.offerStatus === 'pending').length,
+      contacted: terassCustomers.filter(c => c.offerStatus === 'contacted').length,
+      responded: terassCustomers.filter(c => c.offerStatus === 'responded').length,
+      approved: terassApproved,
+      approvalRate: terassDecided > 0 ? Math.round((terassApproved / terassDecided) * 100) + '%' : '-',
+      needsFollowUp: terassNeedsFollowUp
+    }
   });
 });
 
