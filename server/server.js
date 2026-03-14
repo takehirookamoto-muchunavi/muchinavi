@@ -78,7 +78,6 @@ const SMTP_PORT = parseInt(process.env.SMTP_PORT || '465');
 const SMTP_USER = process.env.SMTP_USER || '';
 const SMTP_PASS = process.env.SMTP_PASS || '';
 const TIMEREX_URL = process.env.TIMEREX_URL || 'https://timerex.net/s/takehiro.okamoto_294e/32359692';
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || '';
 const APP_URL = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
 let ADMIN_PASS = process.env.ADMIN_PASS || (IS_PRODUCTION ? '' : 'muchinavi2026');
 if (IS_PRODUCTION && !ADMIN_PASS) {
@@ -122,112 +121,6 @@ async function sendNotificationEmail({ to, subject, html }) {
   } catch (e) {
     console.error(`❌ メール送信失敗: ${to}`, e.message);
   }
-}
-
-// ===== Perplexity API リサーチ機能 =====
-const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
-
-async function perplexityResearch(query, options = {}) {
-  if (!PERPLEXITY_API_KEY) {
-    throw new Error('PERPLEXITY_API_KEY が設定されていません。環境変数を確認してください。');
-  }
-
-  const {
-    model = 'sonar',
-    systemPrompt = '不動産・住宅購入に精通した日本語リサーチャーとして回答してください。情報源を明記し、最新のデータを優先してください。',
-    maxTokens = 4000,
-    temperature = 0.2,
-    searchRecency = null, // 'month', 'week', 'day', 'hour'
-  } = options;
-
-  const body = {
-    model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: query },
-    ],
-    max_tokens: maxTokens,
-    temperature,
-  };
-  if (searchRecency) {
-    body.search_recency_filter = searchRecency;
-  }
-
-  const res = await fetch(PERPLEXITY_API_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Perplexity API エラー (${res.status}): ${errText}`);
-  }
-
-  const data = await res.json();
-  const answer = data.choices?.[0]?.message?.content || '';
-  const citations = data.citations || [];
-  return { answer, citations, model: data.model, usage: data.usage };
-}
-
-// 記事作成用の多段リサーチ（テーマ → 競合分析 → 最新データ）
-async function articleResearch(topic, options = {}) {
-  const {
-    includeCompetitorAnalysis = true,
-    includeLatestData = true,
-    targetKeywords = [],
-  } = options;
-
-  const results = { topic, timestamp: new Date().toISOString(), phases: [] };
-
-  // フェーズ1: テーマの深掘りリサーチ
-  const keywordHint = targetKeywords.length > 0
-    ? `\n対象キーワード: ${targetKeywords.join(', ')}`
-    : '';
-  const phase1 = await perplexityResearch(
-    `以下のテーマについて、読者が住宅購入を検討する際に本当に役立つ情報を徹底的に調査してください。\n\nテーマ: ${topic}${keywordHint}\n\n以下を含めてください：\n1. テーマの基礎知識と最新動向\n2. 具体的な数字・統計データ（出典付き）\n3. よくある誤解や注意点\n4. 専門家の見解やアドバイス\n5. 読者が行動に移せる具体的なステップ`,
-    { maxTokens: 4000, searchRecency: 'month' }
-  );
-  results.phases.push({
-    name: 'テーマ深掘りリサーチ',
-    answer: phase1.answer,
-    citations: phase1.citations,
-  });
-
-  // フェーズ2: 競合記事分析
-  if (includeCompetitorAnalysis) {
-    const phase2 = await perplexityResearch(
-      `「${topic}」というテーマで上位表示されている記事を分析してください。\n\n1. 上位記事がカバーしている主要トピック\n2. 上位記事に共通する構成パターン\n3. 上位記事に不足している情報や視点\n4. 差別化できるポイント（岡本岳大のような実務経験豊富な不動産エージェントならではの視点）`,
-      { maxTokens: 3000 }
-    );
-    results.phases.push({
-      name: '競合記事分析',
-      answer: phase2.answer,
-      citations: phase2.citations,
-    });
-  }
-
-  // フェーズ3: 最新データ・統計の収集
-  if (includeLatestData) {
-    const phase3 = await perplexityResearch(
-      `「${topic}」に関連する最新の統計データ、法改正、市場動向を調査してください。\n\n1. 直近の統計データ（国土交通省、住宅金融支援機構、不動産経済研究所など公的機関のデータ優先）\n2. 最近の法改正や制度変更\n3. 金利動向や市場トレンド\n4. 2024-2025年の注目トピック`,
-      { maxTokens: 3000, searchRecency: 'month' }
-    );
-    results.phases.push({
-      name: '最新データ・統計',
-      answer: phase3.answer,
-      citations: phase3.citations,
-    });
-  }
-
-  // 全ソースを統合
-  results.allCitations = results.phases.flatMap(p => p.citations || []);
-  results.allCitations = [...new Set(results.allCitations)];
-
-  return results;
 }
 
 // ===== Blog Articles Database (WordPress自動連携) =====
@@ -3310,69 +3203,6 @@ app.get('/api/admin/articles', adminAuth, (req, res) => {
 });
 
 // ========================================================
-// ===== Perplexity リサーチ API =====
-// ========================================================
-
-// 汎用リサーチ: 任意のクエリでPerplexity検索
-app.post('/api/admin/perplexity/research', adminAuth, async (req, res) => {
-  try {
-    const { query, model, systemPrompt, maxTokens, temperature, searchRecency } = req.body;
-    if (!query) return res.status(400).json({ error: 'query は必須です' });
-    const result = await perplexityResearch(query, { model, systemPrompt, maxTokens, temperature, searchRecency });
-    res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('Perplexity research error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 記事作成用リサーチ: テーマを渡すと多段リサーチを実行
-app.post('/api/admin/perplexity/article-research', adminAuth, async (req, res) => {
-  try {
-    const { topic, targetKeywords, includeCompetitorAnalysis, includeLatestData } = req.body;
-    if (!topic) return res.status(400).json({ error: 'topic は必須です' });
-    const result = await articleResearch(topic, {
-      targetKeywords: targetKeywords || [],
-      includeCompetitorAnalysis: includeCompetitorAnalysis !== false,
-      includeLatestData: includeLatestData !== false,
-    });
-    res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('Article research error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ファクトチェック: 記事の内容を検証
-app.post('/api/admin/perplexity/fact-check', adminAuth, async (req, res) => {
-  try {
-    const { content, topic } = req.body;
-    if (!content) return res.status(400).json({ error: 'content は必須です' });
-    const topicHint = topic ? `\n記事テーマ: ${topic}` : '';
-    const result = await perplexityResearch(
-      `以下の記事内容のファクトチェックを行ってください。${topicHint}\n\n記事内容:\n${content}\n\n以下の観点で検証してください：\n1. 数字・統計データの正確性（出典と照合）\n2. 法律・制度に関する記述の正確性\n3. 古い情報や変更された内容がないか\n4. 誤解を招く表現がないか\n5. 補足すべき重要な情報\n\n問題のある箇所は【要修正】、補足推奨は【補足推奨】とマークしてください。`,
-      {
-        systemPrompt: '不動産・住宅購入の専門ファクトチェッカーとして、正確性を厳密に検証してください。情報源を必ず明記してください。',
-        maxTokens: 4000,
-        searchRecency: 'month',
-      }
-    );
-    res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('Fact-check error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Perplexity API ステータス確認
-app.get('/api/admin/perplexity/status', adminAuth, (req, res) => {
-  res.json({
-    configured: !!PERPLEXITY_API_KEY,
-    apiKeySet: PERPLEXITY_API_KEY ? '✅ 設定済み' : '❌ 未設定',
-  });
-});
-
-// ========================================================
 // ===== イベント（カレンダー）管理 API =====
 // ========================================================
 
@@ -3874,7 +3704,6 @@ app.listen(PORT, () => {
 ║   ${url.padEnd(38)}║
 ║   ENV:  ${NODE_ENV.padEnd(33)}║
 ║   Gemini API: ${(GEMINI_API_KEY ? '✅ 設定済み' : '❌ 未設定').padEnd(26)}║
-║   Perplexity: ${(PERPLEXITY_API_KEY ? '✅ 設定済み' : '⚠️ 未設定').padEnd(26)}║
 ║   SMTP:       ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(26)}║
 ╚══════════════════════════════════════════╝
   `);
