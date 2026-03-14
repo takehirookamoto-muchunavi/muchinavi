@@ -89,6 +89,111 @@ if (IS_PRODUCTION && !GEMINI_API_KEY) {
   process.exit(1);
 }
 
+// ===== Perplexity API設定（リアルタイム検索） =====
+const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || '';
+const PERPLEXITY_CACHE = new Map(); // キャッシュ（キー: クエリ, 値: {data, timestamp}）
+const PERPLEXITY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間
+
+/**
+ * 顧客の質問が最新情報を必要とするか判定する
+ * @param {string} message - 顧客のメッセージ
+ * @returns {string|null} - 検索クエリ（不要ならnull）
+ */
+function detectRealtimeInfoNeed(message) {
+  const patterns = [
+    { keywords: ['金利', '利率', '利息', '変動金利', '固定金利', 'フラット35'], query: '2026年 住宅ローン金利 変動 固定 最新 相場' },
+    { keywords: ['住宅ローン控除', 'ローン控除', '控除額', '税金が戻る', '還付'], query: '2026年 住宅ローン控除 条件 控除額 最新 変更点' },
+    { keywords: ['相場', '価格', 'いくら', '坪単価', 'マンション価格', '戸建て価格'], query: null }, // エリア付きで動的生成
+    { keywords: ['補助金', '給付金', '助成金', '支援金', '子育て支援'], query: '2026年 住宅購入 補助金 給付金 子育て世帯 支援 最新' },
+    { keywords: ['省エネ', 'ZEH', 'ゼッチ', '断熱', '省エネ住宅'], query: '2026年 省エネ住宅 ZEH 補助金 認定基準 最新' },
+    { keywords: ['審査', '審査基準', '通りやすい', '落ちる', '審査に通る'], query: '2026年 住宅ローン 審査基準 年収倍率 通りやすい銀行 最新' },
+    { keywords: ['頭金', '諸費用', '初期費用', '手付金'], query: '2026年 住宅購入 頭金 諸費用 相場 目安' },
+    { keywords: ['日銀', '利上げ', '金融政策', '政策金利'], query: '2026年 日銀 金融政策 利上げ 住宅ローン影響 最新' },
+  ];
+
+  const msg = message.toLowerCase();
+
+  for (const p of patterns) {
+    if (p.keywords.some(k => msg.includes(k))) {
+      if (p.query) return p.query;
+      // 相場系: エリア名を含める
+      const areaMatch = msg.match(/(大阪|東京|名古屋|横浜|神戸|京都|北摂|吹田|豊中|箕面|尼崎|西宮|芦屋|梅田|難波|天王寺)/);
+      const area = areaMatch ? areaMatch[1] : '大阪';
+      return `2026年 ${area} 不動産 マンション 価格 相場 最新`;
+    }
+  }
+
+  return null; // 最新情報不要
+}
+
+/**
+ * Perplexity APIで最新情報を検索する（キャッシュ付き）
+ * @param {string} query - 検索クエリ
+ * @returns {Promise<string|null>} - 検索結果テキスト（エラー時null）
+ */
+async function searchPerplexity(query) {
+  if (!PERPLEXITY_API_KEY) return null;
+
+  // キャッシュチェック
+  const cached = PERPLEXITY_CACHE.get(query);
+  if (cached && (Date.now() - cached.timestamp) < PERPLEXITY_CACHE_TTL) {
+    console.log(`📦 Perplexity キャッシュヒット: "${query.substring(0, 30)}..."`);
+    return cached.data;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8秒タイムアウト
+
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: [
+          { role: 'system', content: '不動産・住宅購入に関する最新情報を正確に提供してください。日本語で、数値データを含めて簡潔に回答してください。300文字以内で要点のみ。' },
+          { role: 'user', content: query },
+        ],
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      console.error(`❌ Perplexity API エラー: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || null;
+    const citations = data.citations || [];
+    const cost = data.usage?.cost?.total_cost || 0;
+
+    console.log(`🔍 Perplexity 検索完了: "${query.substring(0, 30)}..." (コスト: $${cost.toFixed(4)}, 出典: ${citations.length}件)`);
+
+    // 出典URLを追加
+    const result = content ? `${content}\n\n【情報ソース】${citations.slice(0, 3).join(', ')}` : null;
+
+    // キャッシュ保存
+    if (result) {
+      PERPLEXITY_CACHE.set(query, { data: result, timestamp: Date.now() });
+    }
+
+    return result;
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      console.error('⏰ Perplexity API タイムアウト (8秒)');
+    } else {
+      console.error('❌ Perplexity API エラー:', e.message);
+    }
+    return null; // フォールバック: Geminiだけで回答
+  }
+}
+
 // ===== メール送信ヘルパー =====
 function createTransporter() {
   if (!SMTP_USER || !SMTP_PASS) return null;
@@ -1741,12 +1846,22 @@ ${housemaker_prompt}`;
     const chat = model.startChat({ history: geminiHistory });
     const lastMessage = messages[messages.length - 1].content;
 
+    // Perplexity APIで最新情報を補完（必要な場合のみ）
+    let enrichedMessage = lastMessage;
+    const perplexityQuery = detectRealtimeInfoNeed(lastMessage);
+    if (perplexityQuery) {
+      const latestInfo = await searchPerplexity(perplexityQuery);
+      if (latestInfo) {
+        enrichedMessage = `${lastMessage}\n\n【参考: Perplexity APIが取得した最新情報（2026年時点）】\n${latestInfo}\n\n上記の最新情報を参考にしつつ、むちのちとして自然な回答を生成してください。金利・税制の数値を引用する場合は「2026年X月時点の情報です。最新は必ずご確認ください」と添えてください。`;
+      }
+    }
+
     // Add timeout to Gemini API call (25 seconds)
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('TIMEOUT')), 25000)
     );
     const result = await Promise.race([
-      chat.sendMessage(lastMessage),
+      chat.sendMessage(enrichedMessage),
       timeoutPromise,
     ]);
     let reply = result.response.text();
@@ -2824,8 +2939,9 @@ app.listen(PORT, () => {
 ║   🏠 MuchiNavi Web Server               ║
 ║   ${url.padEnd(38)}║
 ║   ENV:  ${NODE_ENV.padEnd(33)}║
-║   Gemini API: ${(GEMINI_API_KEY ? '✅ 設定済み' : '❌ 未設定').padEnd(26)}║
-║   SMTP:       ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(26)}║
+║   Gemini API:     ${(GEMINI_API_KEY ? '✅ 設定済み' : '❌ 未設定').padEnd(22)}║
+║   Perplexity API: ${(PERPLEXITY_API_KEY ? '✅ 設定済み' : '⚠️ 未設定').padEnd(22)}║
+║   SMTP:           ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(22)}║
 ╚══════════════════════════════════════════╝
   `);
 
