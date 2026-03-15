@@ -1866,14 +1866,13 @@ ${housemaker_prompt}`;
     ]);
     let reply = result.response.text();
 
-    // Filter out non-Japanese characters
-    reply = reply.replace(/[\u0980-\u09FF]/g, '');
-    reply = reply.replace(/[\u0400-\u04FF]/g, '');
-    reply = reply.replace(/[\u0600-\u06FF]/g, '');
-    reply = reply.replace(/[\u0E00-\u0E7F]/g, '');
-    reply = reply.replace(/[\u0900-\u097F]/g, '');
-    reply = reply.replace(/[\u1100-\u11FF\uAC00-\uD7AF]/g, '');
-    reply = reply.replace(/\n{3,}/g, '\n\n').trim();
+    // Filter out non-Japanese characters (Bengali, Cyrillic, Arabic, Thai, Devanagari, Korean)
+    // Combined into single regex for efficiency, then clean up whitespace artifacts
+    reply = reply.replace(/[\u0400-\u04FF\u0600-\u06FF\u0900-\u09FF\u0E00-\u0E7F\u1100-\u11FF\uAC00-\uD7AF]/g, '');
+    // Clean up whitespace artifacts left by character removal
+    reply = reply.replace(/[ \t]{2,}/g, ' ');        // collapse multiple spaces
+    reply = reply.replace(/^ +| +$/gm, '');           // trim each line
+    reply = reply.replace(/\n{3,}/g, '\n\n').trim();  // collapse multiple newlines
 
     // Resolve article titles to full URLs (AI only outputs title, server adds URL)
     reply = reply.replace(/\{\{ARTICLE\|(.+?)\}\}/g, (match, title) => {

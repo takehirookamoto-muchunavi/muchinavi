@@ -4958,6 +4958,11 @@
     function formatContent(text) {
       if (!text) return '';
 
+      // Clean up whitespace artifacts from character filtering (fixes garbled text gaps)
+      text = text.replace(/[\u0400-\u04FF\u0600-\u06FF\u0900-\u09FF\u0E00-\u0E7F\u1100-\u11FF\uAC00-\uD7AF]/g, '');
+      text = text.replace(/[ \t]{2,}/g, ' ');
+      text = text.replace(/^ +| +$/gm, '');
+
       // Extract article tags before HTML escaping
       const articles = [];
       text = text.replace(/\{\{ARTICLE\|(.+?)\|(.+?)\}\}/g, (_, title, url) => {
