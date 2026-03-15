@@ -1848,9 +1848,7 @@ ${housemaker_prompt}`;
 
     // Perplexity APIで最新情報を補完（必要な場合のみ）
     let enrichedMessage = lastMessage;
-    console.log(`🔎 Perplexity判定: lastMessage="${lastMessage.substring(0, 50)}..." APIKEY=${PERPLEXITY_API_KEY ? 'SET' : 'UNSET'}`);
     const perplexityQuery = detectRealtimeInfoNeed(lastMessage);
-    console.log(`🔎 Perplexity判定結果: query=${perplexityQuery || 'null(不要)'}`);
     if (perplexityQuery) {
       const latestInfo = await searchPerplexity(perplexityQuery);
       if (latestInfo) {
