@@ -89,15 +89,117 @@ if (IS_PRODUCTION && !GEMINI_API_KEY) {
   process.exit(1);
 }
 
+// ===== Perplexity API設定（リアルタイム検索） =====
+const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || '';
+const PERPLEXITY_CACHE = new Map(); // キャッシュ（キー: クエリ, 値: {data, timestamp}）
+const PERPLEXITY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間
+
+/**
+ * 顧客の質問が最新情報を必要とするか判定する
+ * @param {string} message - 顧客のメッセージ
+ * @returns {string|null} - 検索クエリ（不要ならnull）
+ */
+function detectRealtimeInfoNeed(message) {
+  const patterns = [
+    { keywords: ['金利', '利率', '利息', '変動金利', '固定金利', 'フラット35'], query: '2026年3月 住宅ローン 変動金利 主要銀行別 適用金利 auじぶん銀行 住信SBI PayPay銀行 三菱UFJ フラット35' },
+    { keywords: ['住宅ローン控除', 'ローン控除', '控除額', '税金が戻る', '還付'], query: '2026年 住宅ローン控除 条件 控除額 最新 変更点' },
+    { keywords: ['相場', '価格', 'いくら', '坪単価', 'マンション価格', '戸建て価格'], query: null }, // エリア付きで動的生成
+    { keywords: ['補助金', '給付金', '助成金', '支援金', '子育て支援'], query: '2026年 住宅購入 補助金 給付金 子育て世帯 支援 最新' },
+    { keywords: ['省エネ', 'ZEH', 'ゼッチ', '断熱', '省エネ住宅'], query: '2026年 省エネ住宅 ZEH 補助金 認定基準 最新' },
+    { keywords: ['審査', '審査基準', '通りやすい', '落ちる', '審査に通る'], query: '2026年 住宅ローン 審査基準 年収倍率 通りやすい銀行 最新' },
+    { keywords: ['頭金', '諸費用', '初期費用', '手付金'], query: '2026年 住宅購入 頭金 諸費用 相場 目安' },
+    { keywords: ['日銀', '利上げ', '金融政策', '政策金利'], query: '2026年 日銀 金融政策 利上げ 住宅ローン影響 最新' },
+  ];
+
+  const msg = message.toLowerCase();
+
+  for (const p of patterns) {
+    if (p.keywords.some(k => msg.includes(k))) {
+      if (p.query) return p.query;
+      // 相場系: エリア名を含める
+      const areaMatch = msg.match(/(大阪|東京|名古屋|横浜|神戸|京都|北摂|吹田|豊中|箕面|尼崎|西宮|芦屋|梅田|難波|天王寺)/);
+      const area = areaMatch ? areaMatch[1] : '大阪';
+      return `2026年 ${area} 不動産 マンション 価格 相場 最新`;
+    }
+  }
+
+  return null; // 最新情報不要
+}
+
+/**
+ * Perplexity APIで最新情報を検索する（キャッシュ付き）
+ * @param {string} query - 検索クエリ
+ * @returns {Promise<string|null>} - 検索結果テキスト（エラー時null）
+ */
+async function searchPerplexity(query) {
+  if (!PERPLEXITY_API_KEY) return null;
+
+  // キャッシュチェック
+  const cached = PERPLEXITY_CACHE.get(query);
+  if (cached && (Date.now() - cached.timestamp) < PERPLEXITY_CACHE_TTL) {
+    console.log(`📦 Perplexity キャッシュヒット: "${query.substring(0, 30)}..."`);
+    return cached.data;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8秒タイムアウト
+
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: [
+          { role: 'system', content: '不動産・住宅購入に関する最新の事実データを提供してください。必ず具体的な数値（金利なら銀行名と%、価格なら平均額と㎡単価）を含めてください。曖昧な範囲（例:「0.3%〜1%程度」）ではなく、主要銀行ごとの実際の適用金利を記載してください。日本語で500文字以内。' },
+          { role: 'user', content: query },
+        ],
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      console.error(`❌ Perplexity API エラー: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || null;
+    const citations = data.citations || [];
+    const cost = data.usage?.cost?.total_cost || 0;
+
+    console.log(`🔍 Perplexity 検索完了: "${query.substring(0, 30)}..." (コスト: $${cost.toFixed(4)}, 出典: ${citations.length}件)`);
+
+    // 出典URLを追加
+    const result = content ? `${content}\n\n【情報ソース】${citations.slice(0, 3).join(', ')}` : null;
+
+    // キャッシュ保存
+    if (result) {
+      PERPLEXITY_CACHE.set(query, { data: result, timestamp: Date.now() });
+    }
+
+    return result;
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      console.error('⏰ Perplexity API タイムアウト (8秒)');
+    } else {
+      console.error('❌ Perplexity API エラー:', e.message);
+    }
+    return null; // フォールバック: Geminiだけで回答
+  }
+}
+
 // ===== メール送信ヘルパー =====
 function createTransporter() {
   if (!SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_PORT === 465,
+    service: 'gmail',
     auth: { user: SMTP_USER, pass: SMTP_PASS },
-    tls: { rejectUnauthorized: false },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
@@ -184,7 +286,7 @@ async function fetchBlogArticlesFromWP() {
     let page = 1;
     while (true) {
       const postRes = await fetch(
-        `${BLOG_WP_URL}/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=id,title,link,categories,tags,status,date&status=publish&orderby=date&order=desc`
+        `${BLOG_WP_URL}/wp-json/wp/v2/posts?per_page=100&page=${page}&_fields=id,title,link,categories,tags,status&status=publish`
       );
       if (!postRes.ok) {
         if (postRes.status === 400) break; // ページ超過
@@ -220,8 +322,7 @@ async function fetchBlogArticlesFromWP() {
           keywords.push(...titleKeywords.slice(0, 5));
         }
 
-        const publishDate = post.date ? post.date.slice(0, 10) : ''; // YYYY-MM-DD
-        allArticles.push({ category, title, url: post.link, keywords, publishDate });
+        allArticles.push({ category, title, url: post.link, keywords });
       });
 
       page++;
@@ -229,12 +330,9 @@ async function fetchBlogArticlesFromWP() {
     }
 
     if (allArticles.length > 0) {
-      // 新しい記事が先に来るようにソート
-      allArticles.sort((a, b) => (b.publishDate || '').localeCompare(a.publishDate || ''));
       BLOG_ARTICLES = allArticles;
       blogArticlesLastFetch = Date.now();
       console.log(`✅ WordPress記事取得完了: ${allArticles.length}本（${Object.keys(wpCategoryMap).length}カテゴリ）`);
-      console.log(`📰 最新記事: ${allArticles[0]?.title} (${allArticles[0]?.publishDate})`);
     } else {
       console.warn('⚠️ WordPress記事が0件。フォールバック記事を維持します。');
     }
@@ -312,41 +410,6 @@ function loadBroadcasts() {
 function saveBroadcasts(data) {
   fs.writeFileSync(BROADCASTS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
-
-// ===== Events Database =====
-const EVENTS_FILE = path.join(DATA_DIR, 'events.json');
-function loadEvents() {
-  try {
-    if (fs.existsSync(EVENTS_FILE)) return JSON.parse(fs.readFileSync(EVENTS_FILE, 'utf-8'));
-  } catch (e) { console.error('イベントDB読み込みエラー:', e.message); }
-  return { events: [] };
-}
-function saveEvents(data) {
-  fs.writeFileSync(EVENTS_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-// ===== Processes Database =====
-const PROCESSES_FILE = path.join(DATA_DIR, 'processes.json');
-function loadProcesses() {
-  try {
-    if (fs.existsSync(PROCESSES_FILE)) return JSON.parse(fs.readFileSync(PROCESSES_FILE, 'utf-8'));
-  } catch (e) { console.error('プロセスDB読み込みエラー:', e.message); }
-  return { processes: [] };
-}
-function saveProcesses(data) {
-  fs.writeFileSync(PROCESSES_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-// ===== 取引プロセステンプレート =====
-const PROCESS_STEP_TEMPLATE = {
-  application: { label: '申込', docs: ['買付証明書'], agentTasks: ['物件の最終確認', '買付価格の相談', '売主側への提出'] },
-  jusetsu_prep: { label: '重説準備', docs: ['物件概要書','登記簿謄本','建物図面','管理規約','重要事項説明書(下書き)'], agentTasks: ['物件調査','法令制限確認','重説書面作成'] },
-  terass_application: { label: 'TERASS申請', docs: ['TERASS社内申請書','重要事項説明書'], agentTasks: ['申請書提出','社内承認待ち'] },
-  jusetsu: { label: '重説実施', docs: ['重要事項説明書(最終版)'], agentTasks: ['お客様への説明実施','質疑応答','署名捺印'] },
-  contract: { label: '契約', docs: ['売買契約書','手付金受領証'], agentTasks: ['契約書確認','特約条項確認','署名捺印立会い','手付金授受'] },
-  loan_review: { label: 'ローン本審査', docs: ['ローン申込書','源泉徴収票','住民票','印鑑証明'], agentTasks: ['金融機関への申込','審査進捗フォロー','条件交渉'] },
-  settlement: { label: '決済・引渡し', docs: ['残金','登記費用','鍵'], agentTasks: ['残金決済立会い','鍵引渡し確認','登記手続き確認','引越しフォロー'] }
-};
 
 // ===== Tag Filtering Helper =====
 function filterCustomersByTags(customers, filterType, filterTags) {
@@ -479,11 +542,8 @@ app.get('/api/test-email', async (req, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_PORT === 465,
+      service: 'gmail',
       auth: { user: SMTP_USER, pass: SMTP_PASS },
-      tls: { rejectUnauthorized: false },
     });
 
     // SMTP接続を検証
@@ -585,64 +645,12 @@ app.post('/api/register', async (req, res) => {
 
   console.log('📩 新規登録:', customer.name, customer.email, '→ トークン:', token);
 
-  // ===== Slack通知（メールとは独立して必ず送信） =====
-  try {
-    const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
-    const slackMessage = {
-      text: `🏠 *新規登録* | ${customer.name}さん`,
-      blocks: [
-        {
-          type: 'header',
-          text: { type: 'plain_text', text: '🏠 新規お客様が登録しました', emoji: true }
-        },
-        {
-          type: 'section',
-          fields: [
-            { type: 'mrkdwn', text: `*お名前:*\n${customer.name || '-'}` },
-            { type: 'mrkdwn', text: `*メール:*\n${customer.email || '-'}` },
-            { type: 'mrkdwn', text: `*希望エリア:*\n${customer.area || '-'}` },
-            { type: 'mrkdwn', text: `*予算:*\n${customer.budget || '-'}` },
-            { type: 'mrkdwn', text: `*物件種別:*\n${customer.propertyType || '-'}` },
-            { type: 'mrkdwn', text: `*家族構成:*\n${customer.family || '-'}` },
-            { type: 'mrkdwn', text: `*世帯年収:*\n${customer.householdIncome || '-'}` },
-            { type: 'mrkdwn', text: `*登録目的:*\n${customer.purpose || '-'}` },
-          ]
-        },
-        ...(customer.searchReason ? [{
-          type: 'section',
-          text: { type: 'mrkdwn', text: `*探索理由:*\n${customer.searchReason}` }
-        }] : []),
-        ...(customer.freeComment ? [{
-          type: 'section',
-          text: { type: 'mrkdwn', text: `*コメント:*\n${customer.freeComment}` }
-        }] : []),
-        {
-          type: 'context',
-          elements: [
-            { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
-          ]
-        }
-      ]
-    };
-    await fetch(SLACK_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(slackMessage),
-    });
-    console.log('✅ Slack通知送信完了');
-  } catch (slackErr) {
-    console.error('⚠️ Slack通知エラー:', slackErr.message);
-  }
-
   // Send emails (non-blocking — registration always succeeds)
   try {
     if (SMTP_USER && SMTP_PASS) {
       const transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: SMTP_PORT,
-        secure: SMTP_PORT === 465,
+        service: 'gmail',
         auth: { user: SMTP_USER, pass: SMTP_PASS },
-        tls: { rejectUnauthorized: false },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000,
@@ -654,8 +662,8 @@ app.post('/api/register', async (req, res) => {
         console.log('✅ SMTP接続OK');
       } catch (smtpErr) {
         console.error('❌ SMTP認証エラー:', smtpErr.message);
-        console.error('💡 SMTP設定を確認してください（ホスト: ' + SMTP_HOST + ', ユーザー: ' + SMTP_USER + '）');
-        return res.json({ success: true, token, emailError: 'SMTP認証に失敗しました。メール設定を確認してください。' });
+        console.error('💡 Gmailのアプリパスワードを再確認してください: https://myaccount.google.com/apppasswords');
+        return res.json({ success: true, token, emailError: 'SMTP認証に失敗しました。アプリパスワードを確認してください。' });
       }
 
       // ===== 1) お客様への登録完了メール =====
@@ -664,15 +672,14 @@ app.post('/api/register', async (req, res) => {
         let recommendedArticles = [];
         try {
           if (GEMINI_API_KEY) {
-            const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】(${a.publishDate || '不明'})`).join('\n');
+            const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】`).join('\n');
             const customerProfile = `名前: ${customer.name}, 家族: ${customer.family || '未入力'}, 物件種別: ${customer.propertyType || '未入力'}, 目的: ${customer.purpose || '未入力'}, エリア: ${customer.area || '未入力'}, 予算: ${customer.budget || '未入力'}, 世帯年収: ${customer.householdIncome || '未入力'}, 探索理由: ${customer.searchReason || '未入力'}`;
-            const articleGenAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-            const model = articleGenAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
-            const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。関連性が同程度の場合は、公開日が新しい記事を優先してください。
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
+            const result = await model.generateContent(`以下のお客様プロフィールに基づき、最も今読むべき・役立つ記事を3つ選んでください。お客様の状況、悩み、目的に寄り添った選定をしてください。
 
 お客様プロフィール: ${customerProfile}
 
-記事一覧（番号: タイトル【カテゴリ】(公開日)）:
+記事一覧:
 ${articleList}
 
 JSON形式で記事のインデックス番号を3つ返してください: {"indices": [0, 1, 2]}`);
@@ -1449,7 +1456,7 @@ app.post('/api/chat-history/:token', (req, res) => {
 });
 
 // ===== Save direct chat history (顧客側から送信) =====
-app.post('/api/direct-chat-history/:token', async (req, res) => {
+app.post('/api/direct-chat-history/:token', (req, res) => {
   const db = loadDB();
   const record = db[req.params.token];
   if (!record) {
@@ -1487,44 +1494,6 @@ app.post('/api/direct-chat-history/:token', async (req, res) => {
           </div>
         `,
       }).catch(e => console.error('通知メール送信エラー:', e.message));
-
-      // Slack通知
-      try {
-        const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
-        await fetch(SLACK_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: `💬 ${customerName}さんからメッセージ`,
-            blocks: [
-              {
-                type: 'header',
-                text: { type: 'plain_text', text: '💬 個人チャット：新着メッセージ', emoji: true }
-              },
-              {
-                type: 'section',
-                fields: [
-                  { type: 'mrkdwn', text: `*送信者:*\n${customerName}さん` },
-                  { type: 'mrkdwn', text: `*メール:*\n${record.email || '-'}` },
-                ]
-              },
-              {
-                type: 'section',
-                text: { type: 'mrkdwn', text: `*メッセージ:*\n${msgPreview}` }
-              },
-              {
-                type: 'context',
-                elements: [
-                  { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
-                ]
-              }
-            ]
-          }),
-        });
-        console.log('✅ チャットSlack通知送信完了');
-      } catch (slackErr) {
-        console.error('⚠️ チャットSlack通知エラー:', slackErr.message);
-      }
     }
   }
 
@@ -1569,8 +1538,9 @@ app.post('/api/chat', async (req, res) => {
 電話: ${customer.phone || '未入力'}
 `.trim();
 
-    // Build compact article list (全記事、新しい順)
-    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category}, ${a.publishDate || ''})`).join('\n');
+    // Build compact article list (titles only, no URLs - URLs resolved server-side)
+    // カテゴリはカッコ内に入れ、AIが{{ARTICLE|タイトル}}で出力しやすい形式にする
+    const articleListCompact = BLOG_ARTICLES.map(a => `「${a.title}」(${a.category})`).join('、');
 
     // ===== ハウスメーカー紹介・注文住宅 → 面談誘導プロンプト =====
     let housemaker_prompt = `\n【ハウスメーカー紹介・注文住宅に関する案内】
@@ -1725,8 +1695,6 @@ ${customerContext}
 【会話ガイドライン】
 - 丁寧かつ自然な「です・ます」調。不安に寄り添い、専門用語はわかりやすく。
 - 回答は適度な長さで箇条書きも活用。
-- 文章は途中で切らず、必ず完結させること。「例えば、」「具体的には、」で文が終わるのは禁止。
-- 説明→問いかけ→選択肢 の順序を守り、各パートのつながりを自然にすること。
 
 【★重要★ メッセージの書き出しルール】
 ■ 禁止する冒頭フレーズ（AI感・ロボット感が強いため）：
@@ -1767,7 +1735,7 @@ ${customerContext}
 ■ 会話が活発なときの良い締め方の例：
 - 「ちなみに、〇〇さんは△△という点は気になりますか？」（潜在ニーズの深掘り）
 - 「こちらの記事も参考になるかもしれません」（ブログ記事の提案）
-- 「ほかにも気になるテーマはありますか？」＋ 選択肢（{{CHOICES}}）で具体的に提示
+- 「ほかにも気になるテーマがあれば、以下から選んでみてください」（選択肢の提示）
 - 「〇〇さんの状況だと、□□についても知っておくと安心かもしれません。詳しくお伝えしましょうか？」（次のアクション提案）
 
 ■ 禁止する締め方（会話が活発なとき）：
@@ -1811,60 +1779,16 @@ ${customerContext}
 3. お客様の状況に合わせた「次の提案」をする（記事紹介、深掘り質問、選択肢提示など）
 4. 会話を重ねて信頼関係が築けたタイミングで、面談提案を行う（下記ルール参照）
 
-【★重要★ 選択肢の提示ルール】
-選択肢（{{CHOICES}}タグ）を使うときは、必ず以下のルールを守ること。
-
-■ 選択肢を使うタイミング：
-- 抽象的な質問（「〜について教えて」「何から始めれば」など）を受けたとき
-- 説明の後に「お客様ならどうしたいか」を確認したいとき
-
-■ 選択肢の前の文章（最重要）：
-選択肢の直前には、必ず「完結した文章」で誘導すること。
-文末が「例えば、」「たとえば」「具体的には、」のように途中で切れるのは絶対禁止。
-お客様が「なぜこの選択肢が出てきたのか」を一瞬で理解できる、自然な問いかけ文で締めること。
-
-○ 良い例（選択肢の直前の文）：
-「〇〇さんは、どのあたりが気になりますか？」
-「〇〇さんの場合、どれに近いですか？」
-「気になるものがあればタップしてみてください。」
-「〇〇さんが一番知りたいのはどれですか？」
-
-× 悪い例（絶対禁止）：
-「例えば、」← 文が途中で切れている
-「たとえば以下のようなものがあります。」← 選択肢を"説明リスト"のように扱っている
-「具体的には、」← 文が途中で切れている
-
-■ フォーマット：
+【深掘り質問ルール】
+抽象的な質問（「〜について教えて」「何から始めれば」など）には、まず短く共感し選択肢を提示：
 {{CHOICES|選択肢1|選択肢2|選択肢3|選択肢4}}
-選択肢は3〜4個。各選択肢はお客様の気持ち・ニーズを代弁する短い文にする。
-
-■ 選択肢タップ後の対応：
-選択肢をタップした後は、その選択に対して具体的に回答する。再び抽象的な情報を繰り返さないこと。
+選択肢は3〜4個。具体的な質問や選択肢タップ後はそのまま回答。
 
 【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。
 フォーマット（厳守）：{{ARTICLE|記事タイトル}}
-※記事タイトルのみを「」なしで入れること。カテゴリ名・日付・カッコは絶対に含めないこと。
+※記事タイトルのみを入れること。カテゴリ名やカッコは含めないこと。
 例：{{ARTICLE|住宅ローンの基礎知識}}
-★重要：お客様の悩み・質問内容に最も関連性の高い記事を選ぶこと。関連性が同程度なら新しい記事を優先。
-利用可能な全記事（新しい順、タイトル, カテゴリ, 公開日）:
-${articleListCompact}
-
-【特別記事：優柔不断・堂々巡りへの処方箋】
-以下の兆候がお客様の会話から感じられる場合に限り、この記事を紹介すること：
-- 条件を全て叶えたいと言っているが決められない
-- 同じ悩みを繰り返し相談している（堂々巡り）
-- 「〇〇も気になるし、△△も捨てがたい」のように優柔不断な様子
-- 検討期間が長くなりすぎて前に進めていない様子
-- あれもこれもと条件が増え続けている
-
-★この記事を紹介する場合の必須ルール：
-1. いきなり記事を出さない。まずお客様の話を十分に聞き、共感すること
-2. 記事を紹介する直前に必ず以下のような前置きを入れること：
-「少し厳しい内容になるかもしれませんが、同じように悩まれた方の参考になった記事があります。〇〇さんにもヒントになるかもしれません。」
-3. 記事紹介後は「もし読んでみて感じたことがあれば、いつでも話してくださいね」とフォローすること
-4. 初回の会話や、まだ信頼関係が浅い段階では絶対に紹介しないこと。ある程度やり取りを重ねた後で紹介すること
-
-フォーマット：{{ARTICLE|「青い鳥」を探すのはもう終わりにしませんか？一生マイホームが決まらない本当の理由}}
+利用可能な記事: ${articleListCompact}
 
 【面談予約リンクのルール】
 フォーマット：{{BOOKING|${TIMEREX_URL}}}
@@ -1922,12 +1846,24 @@ ${housemaker_prompt}`;
     const chat = model.startChat({ history: geminiHistory });
     const lastMessage = messages[messages.length - 1].content;
 
+    // Perplexity APIで最新情報を補完（必要な場合のみ）
+    let enrichedMessage = lastMessage;
+    console.log(`🔎 Perplexity判定: lastMessage="${lastMessage.substring(0, 50)}..." APIKEY=${PERPLEXITY_API_KEY ? 'SET' : 'UNSET'}`);
+    const perplexityQuery = detectRealtimeInfoNeed(lastMessage);
+    console.log(`🔎 Perplexity判定結果: query=${perplexityQuery || 'null(不要)'}`);
+    if (perplexityQuery) {
+      const latestInfo = await searchPerplexity(perplexityQuery);
+      if (latestInfo) {
+        enrichedMessage = `${lastMessage}\n\n【最新ファクトデータ（Perplexity API取得・2026年時点）— 以下の数値が正です】\n${latestInfo}\n\n【重要指示】\n- 金利・価格・税制などの数値は、上記ファクトデータの数値をそのまま使用してください\n- あなた自身の学習データの数値は古い可能性があるため、絶対に使用しないでください\n- 上記データに記載のない数値は「具体的な数値は岡本にお聞きください」と案内してください\n- 数値を引用する際は末尾に「（2026年3月時点の情報です。最新は金融機関にご確認ください）」と添えてください\n- むちのちとして自然で親しみやすい口調で回答してください`;
+      }
+    }
+
     // Add timeout to Gemini API call (25 seconds)
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('TIMEOUT')), 25000)
     );
     const result = await Promise.race([
-      chat.sendMessage(lastMessage),
+      chat.sendMessage(enrichedMessage),
       timeoutPromise,
     ]);
     let reply = result.response.text();
@@ -1998,70 +1934,23 @@ function adminAuth(req, res, next) {
 // ===== 管理API: お客様一覧 =====
 app.get('/api/admin/customers', adminAuth, (req, res) => {
   const db = loadDB();
-  const now = Date.now();
-  const customers = Object.entries(db).map(([token, record]) => {
-    // 最終連絡日の計算
-    const interactions = record.interactions || [];
-    const directChat = record.directChatHistory || [];
-    let lastContactDate = null;
-
-    // interactions は unshift で追加（先頭が最新）
-    if (interactions.length > 0 && interactions[0].date) {
-      lastContactDate = interactions[0].date;
-    }
-
-    // directChatHistory のエージェントメッセージ（時系列順、末尾が最新）
-    const agentMessages = directChat.filter(m => m.role === 'agent');
-    if (agentMessages.length > 0) {
-      const lastAgentDate = agentMessages[agentMessages.length - 1].timestamp;
-      if (!lastContactDate || new Date(lastAgentDate) > new Date(lastContactDate)) {
-        lastContactDate = lastAgentDate;
-      }
-    }
-
-    const hasContactHistory = interactions.length > 0 || agentMessages.length > 0;
-    if (!lastContactDate) {
-      lastContactDate = record.createdAt || null;
-    }
-
-    let daysSinceContact = null;
-    if (lastContactDate) {
-      daysSinceContact = Math.floor((now - new Date(lastContactDate).getTime()) / (1000 * 60 * 60 * 24));
-    }
-
-    // ToDo期限切れ計算
-    const todos = record.todos || [];
-    const todayStr = new Date().toISOString().split('T')[0];
-    const overdueTodoCount = todos.filter(t => !t.done && t.deadline && t.deadline < todayStr).length;
-    const pendingTodoCount = todos.filter(t => !t.done).length;
-
-    return {
-      token,
-      name: record.name || '-',
-      nickname: record.nickname || '',
-      source: record.source || 'muchinavi',
-      offerStatus: record.offerStatus || '',
-      email: record.email || '-',
-      phone: record.phone || '-',
-      family: record.family || '-',
-      area: record.area || '-',
-      budget: record.budget || '-',
-      status: record.status || 'active',
-      createdAt: record.createdAt || null,
-      blockedAt: record.blockedAt || null,
-      withdrawnAt: record.withdrawnAt || null,
-      messageCount: (record.chatHistory || []).length,
-      directChatCount: (record.directChatHistory || []).length,
-      tags: record.tags || [],
-      stage: parseInt(record.stage, 10) || 1,
-      lastContactDate,
-      daysSinceContact,
-      hasContactHistory,
-      stageUpdatedAt: record.stageUpdatedAt || record.createdAt || null,
-      overdueTodoCount,
-      pendingTodoCount,
-    };
-  });
+  const customers = Object.entries(db).map(([token, record]) => ({
+    token,
+    name: record.name || '-',
+    email: record.email || '-',
+    phone: record.phone || '-',
+    family: record.family || '-',
+    area: record.area || '-',
+    budget: record.budget || '-',
+    status: record.status || 'active',
+    createdAt: record.createdAt || null,
+    blockedAt: record.blockedAt || null,
+    withdrawnAt: record.withdrawnAt || null,
+    messageCount: (record.chatHistory || []).length,
+    directChatCount: (record.directChatHistory || []).length,
+    tags: record.tags || [],
+    stage: parseInt(record.stage, 10) || 1,
+  }));
   res.json({ customers });
 });
 
@@ -2089,155 +1978,6 @@ app.post('/api/admin/unblock/:token', adminAuth, (req, res) => {
   saveDB(db);
   console.log(`✅ ブロック解除: ${record.name} (${req.params.token.substring(0, 8)}...)`);
   res.json({ success: true, message: `${record.name}さんのブロックを解除しました` });
-});
-
-// ===== 管理API: 顧客手動登録（TERASS Offer等の外部チャネル用） =====
-app.post('/api/admin/customers', adminAuth, (req, res) => {
-  const { name } = req.body;
-
-  if (!name || !name.trim()) {
-    return res.status(400).json({ error: 'name is required' });
-  }
-
-  const token = generateToken();
-  const db = loadDB();
-
-  // 自動タグ付与
-  const initialTags = Array.isArray(req.body.tags) ? [...req.body.tags] : [];
-
-  if (req.body.prefecture) {
-    const prefTag = req.body.prefecture;
-    const tagData = loadTags();
-    if (!tagData.tags.find(t => t.name === prefTag)) {
-      tagData.tags.push({
-        id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-        name: prefTag,
-        color: '#5856d6',
-        category: '都道府県'
-      });
-      saveTags(tagData);
-    }
-    if (!initialTags.includes(prefTag)) initialTags.push(prefTag);
-  }
-
-  if (req.body.propertyType) {
-    const ptTag = req.body.propertyType;
-    const tagData = loadTags();
-    if (!tagData.tags.find(t => t.name === ptTag)) {
-      tagData.tags.push({
-        id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-        name: ptTag,
-        color: '#0071e3',
-        category: '物件種別'
-      });
-      saveTags(tagData);
-    }
-    if (!initialTags.includes(ptTag)) initialTags.push(ptTag);
-  }
-
-  // source タグの自動追加
-  const source = req.body.source || 'admin';
-  if (source !== 'muchinavi' && !initialTags.includes(source)) {
-    initialTags.push(source);
-    const tagData = loadTags();
-    if (!tagData.tags.find(t => t.name === source)) {
-      tagData.tags.push({
-        id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-        name: source,
-        color: '#ff9500',
-        category: '登録元'
-      });
-      saveTags(tagData);
-    }
-  }
-
-  // 顧客レコード作成
-  const now = new Date().toISOString();
-  const customer = {
-    token,
-    name: name.trim(),
-    nickname: req.body.nickname || '',
-    source: source,
-    offerStatus: source === 'terass_offer' ? 'pending' : '',
-    offerStatusUpdatedAt: source === 'terass_offer' ? now : '',
-    offerNotes: source === 'terass_offer' ? [{ id: 'note_' + Date.now(), content: '仮登録完了', type: 'auto', createdAt: now }] : [],
-    transitionedAt: '',
-    stage: req.body.stage || 1,
-    stageUpdatedAt: now,
-    createdAt: now,
-    status: 'active',
-    tags: initialTags,
-
-    // オプショナルフィールド
-    area: req.body.area || '',
-    budget: req.body.budget || '',
-    family: req.body.family || '',
-    propertyType: req.body.propertyType || '',
-    timeline: req.body.timeline || '',
-    freeComment: req.body.freeComment || '',
-    memo: req.body.memo || '',
-    agentMemo: req.body.agentMemo || '',
-    prefecture: req.body.prefecture || '',
-    email: req.body.email || '',
-    phone: req.body.phone || '',
-    line: req.body.line || '',
-    birthYear: req.body.birthYear || '',
-    birthMonth: req.body.birthMonth || '',
-    age: req.body.age || '',
-    householdIncome: req.body.householdIncome || '',
-    currentHome: req.body.currentHome || '',
-    reason: req.body.reason || '',
-    searchReason: req.body.searchReason || '',
-    purpose: req.body.purpose || '',
-    size: req.body.size || '',
-    layout: req.body.layout || '',
-    stationDistance: req.body.stationDistance || '',
-    occupation: req.body.occupation || '',
-    income: req.body.income || '',
-    savings: req.body.savings || '',
-    loanStatus: req.body.loanStatus || '',
-    motivation: req.body.motivation || '',
-    spouseOccupation: req.body.spouseOccupation || '',
-    spouseIncome: req.body.spouseIncome || '',
-    currentRent: req.body.currentRent || '',
-    pet: req.body.pet || '',
-    parking: req.body.parking || '',
-    specialRequirements: req.body.specialRequirements || '',
-    referral: req.body.referral || '',
-    customerAdvice: req.body.customerAdvice || '',
-
-    // 初期化
-    chatHistory: [],
-    directChatHistory: [],
-    agentChatHistory: [],
-    interactions: [],
-    todos: [],
-    checklist: [],
-    passwordHash: ''  // 手動登録のためパスワードなし
-  };
-
-  db[token] = customer;
-  saveDB(db);
-
-  console.log(`📋 手動登録: ${customer.name} (${customer.nickname || 'ニックネームなし'}) [${source}]`);
-
-  res.status(201).json({
-    success: true,
-    customer: {
-      token: customer.token,
-      name: customer.name,
-      nickname: customer.nickname,
-      source: customer.source,
-      offerStatus: customer.offerStatus,
-      stage: customer.stage,
-      area: customer.area,
-      budget: customer.budget,
-      family: customer.family,
-      propertyType: customer.propertyType,
-      tags: customer.tags,
-      createdAt: customer.createdAt
-    }
-  });
 });
 
 // ===== 管理API: 削除 =====
@@ -2695,27 +2435,18 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','nickname','source','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
   const updates = req.body;
 
   // Track old values for auto-tag update
   const oldPrefecture = record.prefecture;
   const oldPropertyType = record.propertyType;
-  const oldStage = parseInt(record.stage, 10) || 1;
 
   updatable.forEach(key => {
     if (updates[key] !== undefined) {
       record[key] = (key === 'stage') ? parseInt(updates[key], 10) : updates[key];
     }
   });
-
-  // Track stage change for stageUpdatedAt
-  if (updates.stage !== undefined) {
-    const newStage = parseInt(updates.stage, 10);
-    if (newStage !== oldStage) {
-      record.stageUpdatedAt = new Date().toISOString();
-    }
-  }
 
   // Auto-update tags if prefecture or propertyType changed
   if ((updates.prefecture && updates.prefecture !== oldPrefecture) ||
@@ -3202,499 +2933,6 @@ app.get('/api/admin/articles', adminAuth, (req, res) => {
   });
 });
 
-// ========================================================
-// ===== イベント（カレンダー）管理 API =====
-// ========================================================
-
-// イベント一覧取得
-app.get('/api/admin/events', adminAuth, (req, res) => {
-  const data = loadEvents();
-  let events = data.events || [];
-  const { from, to, customerToken } = req.query;
-  if (from) events = events.filter(e => e.date >= from);
-  if (to) events = events.filter(e => e.date <= to);
-  if (customerToken) events = events.filter(e => e.customerToken === customerToken);
-  events.sort((a, b) => {
-    if (a.date !== b.date) return a.date.localeCompare(b.date);
-    return (a.startTime || '').localeCompare(b.startTime || '');
-  });
-  res.json({ events });
-});
-
-// イベント作成
-app.post('/api/admin/events', adminAuth, (req, res) => {
-  const { type, title, customerToken, date, startTime, endTime, location, notes } = req.body;
-  if (!title || !date) return res.status(400).json({ error: 'title と date は必須です' });
-  const data = loadEvents();
-  const event = {
-    id: 'evt_' + crypto.randomBytes(8).toString('hex'),
-    type: type || 'general',
-    title,
-    customerToken: customerToken || null,
-    date,
-    startTime: startTime || null,
-    endTime: endTime || null,
-    location: location || '',
-    notes: notes || '',
-    status: 'scheduled',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  data.events.push(event);
-  saveEvents(data);
-  res.json({ event });
-});
-
-// イベント更新
-app.put('/api/admin/event/:id', adminAuth, (req, res) => {
-  const data = loadEvents();
-  const idx = data.events.findIndex(e => e.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'イベントが見つかりません' });
-  const allowed = ['type','title','customerToken','date','startTime','endTime','location','notes','status'];
-  allowed.forEach(key => {
-    if (req.body[key] !== undefined) data.events[idx][key] = req.body[key];
-  });
-  data.events[idx].updatedAt = new Date().toISOString();
-  saveEvents(data);
-  res.json({ event: data.events[idx] });
-});
-
-// イベント削除
-app.delete('/api/admin/event/:id', adminAuth, (req, res) => {
-  const data = loadEvents();
-  const idx = data.events.findIndex(e => e.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'イベントが見つかりません' });
-  data.events.splice(idx, 1);
-  saveEvents(data);
-  res.json({ success: true });
-});
-
-// ========================================================
-// ===== 取引進捗（プロセス）管理 API =====
-// ========================================================
-
-// プロセス一覧取得
-app.get('/api/admin/processes', adminAuth, (req, res) => {
-  const data = loadProcesses();
-  let processes = data.processes || [];
-  const { status, customerToken } = req.query;
-  if (status) processes = processes.filter(p => p.status === status);
-  if (customerToken) processes = processes.filter(p => p.customerToken === customerToken);
-  res.json({ processes, stepTemplate: PROCESS_STEP_TEMPLATE });
-});
-
-// プロセス作成
-app.post('/api/admin/processes', adminAuth, (req, res) => {
-  const { customerToken, propertyName, propertyPrice } = req.body;
-  if (!customerToken) return res.status(400).json({ error: 'customerToken は必須です' });
-  const data = loadProcesses();
-  const steps = {};
-  Object.keys(PROCESS_STEP_TEMPLATE).forEach(key => {
-    steps[key] = { status: 'pending', deadline: null, completedAt: null, notes: '' };
-  });
-  const proc = {
-    id: 'proc_' + crypto.randomBytes(8).toString('hex'),
-    customerToken,
-    propertyName: propertyName || '',
-    propertyPrice: propertyPrice || '',
-    status: 'active',
-    steps,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  data.processes.push(proc);
-  saveProcesses(data);
-  res.json({ process: proc });
-});
-
-// プロセスのステップ更新
-app.put('/api/admin/process/:id/step/:key', adminAuth, (req, res) => {
-  const data = loadProcesses();
-  const proc = data.processes.find(p => p.id === req.params.id);
-  if (!proc) return res.status(404).json({ error: 'プロセスが見つかりません' });
-  const stepKey = req.params.key;
-  if (!proc.steps[stepKey]) return res.status(400).json({ error: '無効なステップです' });
-  const { status, deadline, notes } = req.body;
-  if (status) {
-    proc.steps[stepKey].status = status;
-    if (status === 'completed') proc.steps[stepKey].completedAt = new Date().toISOString();
-  }
-  if (deadline !== undefined) proc.steps[stepKey].deadline = deadline;
-  if (notes !== undefined) proc.steps[stepKey].notes = notes;
-  proc.updatedAt = new Date().toISOString();
-  // 全ステップ完了チェック
-  const allDone = Object.values(proc.steps).every(s => s.status === 'completed');
-  if (allDone) proc.status = 'completed';
-  saveProcesses(data);
-  res.json({ process: proc });
-});
-
-// プロセス削除
-app.delete('/api/admin/process/:id', adminAuth, (req, res) => {
-  const data = loadProcesses();
-  const idx = data.processes.findIndex(p => p.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'プロセスが見つかりません' });
-  data.processes.splice(idx, 1);
-  saveProcesses(data);
-  res.json({ success: true });
-});
-
-// ========================================================
-// ===== TERASS Offer パイプライン管理 API =====
-// ========================================================
-
-// TERASS Offer顧客一覧
-app.get('/api/admin/terass-offer/customers', adminAuth, (req, res) => {
-  const db = loadDB();
-  const customers = Object.entries(db)
-    .filter(([, record]) => record.source === 'terass_offer')
-    .map(([token, record]) => {
-      const interactions = record.interactions || [];
-      const lastInteraction = interactions.length > 0 ? interactions[0] : null;
-      return {
-        token,
-        name: record.name || '',
-        nickname: record.nickname || '',
-        source: record.source || '',
-        offerStatus: record.offerStatus || 'pending',
-        offerStatusUpdatedAt: record.offerStatusUpdatedAt || '',
-        area: record.area || '',
-        budget: record.budget || '',
-        family: record.family || '',
-        propertyType: record.propertyType || '',
-        timeline: record.timeline || '',
-        stage: parseInt(record.stage, 10) || 1,
-        createdAt: record.createdAt || '',
-        tags: record.tags || [],
-        interactionCount: interactions.length,
-        lastInteractionAt: lastInteraction ? (lastInteraction.date || lastInteraction.createdAt || '') : '',
-        freeComment: record.freeComment || '',
-        memo: record.memo || '',
-        transitionedAt: record.transitionedAt || ''
-      };
-    })
-    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-
-  res.json({ customers });
-});
-
-// TERASS Offer統計
-app.get('/api/admin/terass-offer/stats', adminAuth, (req, res) => {
-  const db = loadDB();
-  const terassCustomers = Object.values(db).filter(r => r.source === 'terass_offer');
-
-  const byStatus = { pending: 0, contacted: 0, responded: 0, approved: 0, rejected: 0, expired: 0 };
-  terassCustomers.forEach(r => {
-    const status = r.offerStatus || 'pending';
-    if (byStatus[status] !== undefined) byStatus[status]++;
-  });
-
-  const active = byStatus.pending + byStatus.contacted + byStatus.responded;
-  const decided = byStatus.approved + byStatus.rejected;
-  const approvalRate = decided > 0 ? Math.round((byStatus.approved / decided) * 100) + '%' : '-';
-
-  // 平均承認日数
-  let totalDays = 0;
-  let approvedCount = 0;
-  terassCustomers.filter(r => r.offerStatus === 'approved' && r.transitionedAt && r.createdAt).forEach(r => {
-    const days = (new Date(r.transitionedAt) - new Date(r.createdAt)) / 86400000;
-    totalDays += days;
-    approvedCount++;
-  });
-  const avgDaysToApproval = approvedCount > 0 ? Math.round(totalDays / approvedCount * 10) / 10 : null;
-
-  res.json({
-    total: terassCustomers.length,
-    byStatus,
-    active,
-    approvalRate,
-    avgDaysToApproval
-  });
-});
-
-// TERASS Offerステータス更新
-app.put('/api/admin/terass-offer/:token/status', adminAuth, (req, res) => {
-  const db = loadDB();
-  const record = db[req.params.token];
-  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
-
-  const { offerStatus, note, stage } = req.body;
-  if (!offerStatus) return res.status(400).json({ error: 'offerStatus is required' });
-
-  const validStatuses = ['pending', 'contacted', 'responded', 'approved', 'rejected', 'expired'];
-  if (!validStatuses.includes(offerStatus)) {
-    return res.status(400).json({ error: `Invalid offerStatus. Must be one of: ${validStatuses.join(', ')}` });
-  }
-
-  const now = new Date().toISOString();
-  const oldStatus = record.offerStatus || 'pending';
-  record.offerStatus = offerStatus;
-  record.offerStatusUpdatedAt = now;
-
-  // 対応メモに自動記録
-  if (!record.offerNotes) record.offerNotes = [];
-  record.offerNotes.push({
-    id: 'note_' + Date.now(),
-    content: note || `ステータス変更: ${oldStatus} → ${offerStatus}`,
-    type: 'status_change',
-    createdAt: now
-  });
-
-  // approved 時の特別処理
-  if (offerStatus === 'approved') {
-    record.transitionedAt = now;
-    if (stage) record.stage = parseInt(stage, 10);
-    else if ((parseInt(record.stage, 10) || 1) < 3) record.stage = 3;
-    record.stageUpdatedAt = now;
-
-    // terass_approved タグ追加
-    if (!record.tags) record.tags = [];
-    if (!record.tags.includes('terass_approved')) {
-      record.tags.push('terass_approved');
-      const tagData = loadTags();
-      if (!tagData.tags.find(t => t.name === 'terass_approved')) {
-        tagData.tags.push({
-          id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-          name: 'terass_approved',
-          color: '#34c759',
-          category: '登録元'
-        });
-        saveTags(tagData);
-      }
-    }
-  }
-
-  saveDB(db);
-  console.log(`🟠 TERASS Offer: ${record.nickname || record.name} ${oldStatus} → ${offerStatus}`);
-
-  res.json({
-    success: true,
-    customer: {
-      token: req.params.token,
-      offerStatus: record.offerStatus,
-      offerStatusUpdatedAt: record.offerStatusUpdatedAt,
-      transitionedAt: record.transitionedAt || '',
-      stage: record.stage
-    }
-  });
-});
-
-// TERASS Offer対応メモ追加
-app.post('/api/admin/terass-offer/:token/notes', adminAuth, (req, res) => {
-  const db = loadDB();
-  const record = db[req.params.token];
-  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
-
-  const { content, type } = req.body;
-  if (!content) return res.status(400).json({ error: 'content is required' });
-
-  if (!record.offerNotes) record.offerNotes = [];
-
-  const note = {
-    id: 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-    content,
-    type: type || 'manual',
-    createdAt: new Date().toISOString()
-  };
-
-  record.offerNotes.push(note);
-  saveDB(db);
-
-  res.json({ success: true, note });
-});
-
-// TERASS Offer対応メモ取得
-app.get('/api/admin/terass-offer/:token/notes', adminAuth, (req, res) => {
-  const db = loadDB();
-  const record = db[req.params.token];
-  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
-
-  res.json({ notes: record.offerNotes || [] });
-});
-
-// ========================================================
-// ===== 朝ブリーフィング API =====
-// ========================================================
-
-app.get('/api/admin/briefing', adminAuth, (req, res) => {
-  const db = loadDB();
-  const eventsData = loadEvents();
-  const processesData = loadProcesses();
-  const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
-  const weekLater = new Date(today.getTime() + 7 * 86400000).toISOString().split('T')[0];
-
-  const stageLabels = ['','登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
-  const STAGNATION = { 1:14, 2:14, 3:30, 4:30, 5:30, 6:45, 7:45 };
-
-  // --- 顧客集計 ---
-  const customers = [];
-  let activeCount = 0;
-  Object.entries(db).forEach(([token, record]) => {
-    if (record.status === 'blocked' || record.status === 'withdrawn') return;
-    activeCount++;
-    // 最終連絡日計算
-    let lastContactDate = null;
-    if (record.interactions && record.interactions.length > 0) {
-      lastContactDate = record.interactions[0].date;
-    }
-    if (record.directChatHistory) {
-      const agentMsgs = record.directChatHistory.filter(m => m.role === 'agent');
-      if (agentMsgs.length > 0) {
-        const lastAgent = agentMsgs[agentMsgs.length - 1].timestamp;
-        if (!lastContactDate || lastAgent > lastContactDate) lastContactDate = lastAgent;
-      }
-    }
-    const daysSinceContact = lastContactDate ? Math.floor((today - new Date(lastContactDate)) / 86400000) : null;
-
-    // ToDo集計
-    const todos = (record.todos || []).filter(t => !t.done);
-    const overdueTodos = todos.filter(t => t.deadline && t.deadline < todayStr);
-    const todayTodos = todos.filter(t => t.deadline === todayStr);
-    const weekTodos = todos.filter(t => t.deadline && t.deadline > todayStr && t.deadline <= weekLater);
-
-    // ステージ滞留
-    const stage = parseInt(record.stage) || 1;
-    let stagnantDays = null;
-    if (record.stageUpdatedAt && STAGNATION[stage]) {
-      stagnantDays = Math.floor((today - new Date(record.stageUpdatedAt)) / 86400000);
-    }
-
-    customers.push({
-      token, name: record.name || '(名前なし)', stage, stageLabel: stageLabels[stage] || '',
-      email: record.email, phone: record.phone, line: record.line,
-      budget: record.budget, area: record.area, propertyType: record.propertyType,
-      lastContactDate, daysSinceContact,
-      overdueTodos, todayTodos, weekTodos, allTodos: todos,
-      stagnantDays, stagnationThreshold: STAGNATION[stage] || null,
-      isStagnant: stagnantDays !== null && STAGNATION[stage] && stagnantDays >= STAGNATION[stage],
-      memo: record.memo, agentMemo: record.agentMemo
-    });
-  });
-
-  // --- 今日のイベント ---
-  const todayEvents = (eventsData.events || [])
-    .filter(e => e.date === todayStr && e.status === 'scheduled')
-    .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-  // 今週のイベント
-  const weekEvents = (eventsData.events || [])
-    .filter(e => e.date > todayStr && e.date <= weekLater && e.status === 'scheduled')
-    .sort((a, b) => a.date.localeCompare(b.date) || (a.startTime || '').localeCompare(b.startTime || ''));
-
-  // イベントに顧客名を付与
-  const attachCustomerName = (evt) => {
-    if (evt.customerToken) {
-      const c = db[evt.customerToken];
-      return { ...evt, customerName: c ? c.name : '(不明)' };
-    }
-    return { ...evt, customerName: null };
-  };
-
-  // --- 取引進捗サマリー ---
-  const activeProcesses = (processesData.processes || []).filter(p => p.status === 'active');
-  const processSummary = {};
-  Object.keys(PROCESS_STEP_TEMPLATE).forEach(key => {
-    processSummary[key] = { label: PROCESS_STEP_TEMPLATE[key].label, customers: [] };
-  });
-  activeProcesses.forEach(proc => {
-    const c = db[proc.customerToken];
-    const cName = c ? c.name : '(不明)';
-    // 現在のステップ = 最初の未完了ステップ
-    for (const [key, step] of Object.entries(proc.steps)) {
-      if (step.status !== 'completed') {
-        processSummary[key].customers.push({
-          processId: proc.id, customerToken: proc.customerToken, customerName: cName,
-          propertyName: proc.propertyName, deadline: step.deadline, status: step.status
-        });
-        break;
-      }
-    }
-  });
-
-  // プロセスの期限切れ/今日期限
-  const processDeadlines = { overdue: [], today: [], week: [] };
-  activeProcesses.forEach(proc => {
-    const c = db[proc.customerToken];
-    const cName = c ? c.name : '(不明)';
-    Object.entries(proc.steps).forEach(([key, step]) => {
-      if (step.status === 'completed' || !step.deadline) return;
-      const item = { processId: proc.id, customerToken: proc.customerToken, customerName: cName,
-        propertyName: proc.propertyName, stepLabel: PROCESS_STEP_TEMPLATE[key].label, deadline: step.deadline };
-      if (step.deadline < todayStr) processDeadlines.overdue.push(item);
-      else if (step.deadline === todayStr) processDeadlines.today.push(item);
-      else if (step.deadline <= weekLater) processDeadlines.week.push(item);
-    });
-  });
-
-  // --- 要対応アクション集約 ---
-  const urgent = { overdue: [], today: [], week: [], followUp: [] };
-
-  customers.forEach(c => {
-    c.overdueTodos.forEach(t => urgent.overdue.push({ type: 'todo', customerName: c.name, customerToken: c.token, text: t.text, deadline: t.deadline, priority: t.priority }));
-    c.todayTodos.forEach(t => urgent.today.push({ type: 'todo', customerName: c.name, customerToken: c.token, text: t.text, deadline: t.deadline, priority: t.priority }));
-    c.weekTodos.forEach(t => urgent.week.push({ type: 'todo', customerName: c.name, customerToken: c.token, text: t.text, deadline: t.deadline, priority: t.priority }));
-    if (c.daysSinceContact !== null && c.daysSinceContact >= 14) {
-      urgent.followUp.push({ customerName: c.name, customerToken: c.token, daysSinceContact: c.daysSinceContact, stage: c.stage, stageLabel: c.stageLabel, isStagnant: c.isStagnant });
-    }
-    if (c.daysSinceContact === null && c.stage <= 3) {
-      urgent.followUp.push({ customerName: c.name, customerToken: c.token, daysSinceContact: null, stage: c.stage, stageLabel: c.stageLabel, noContact: true });
-    }
-  });
-
-  // プロセス期限もurgentに統合
-  processDeadlines.overdue.forEach(p => urgent.overdue.push({ type: 'process', ...p }));
-  processDeadlines.today.forEach(p => urgent.today.push({ type: 'process', ...p }));
-  processDeadlines.week.forEach(p => urgent.week.push({ type: 'process', ...p }));
-
-  // ソート: priority high > medium > low, 期限が近い順
-  const priorityOrder = { high: 3, medium: 2, low: 1 };
-  const sortByUrgency = (a, b) => (priorityOrder[b.priority] || 2) - (priorityOrder[a.priority] || 2) || (a.deadline || '').localeCompare(b.deadline || '');
-  urgent.overdue.sort(sortByUrgency);
-  urgent.today.sort(sortByUrgency);
-  urgent.week.sort(sortByUrgency);
-  urgent.followUp.sort((a, b) => (b.daysSinceContact || 999) - (a.daysSinceContact || 999));
-
-  // --- TERASS Offer サマリー ---
-  const terassCustomers = Object.entries(db)
-    .filter(([, r]) => r.source === 'terass_offer')
-    .map(([token, r]) => ({ token, nickname: r.nickname || r.name, offerStatus: r.offerStatus || 'pending', createdAt: r.createdAt, daysSinceCreated: r.createdAt ? Math.floor((today - new Date(r.createdAt)) / 86400000) : 0 }));
-
-  const terassActive = terassCustomers.filter(c => ['pending', 'contacted', 'responded'].includes(c.offerStatus));
-  const terassNeedsFollowUp = terassCustomers
-    .filter(c => c.offerStatus === 'contacted' && c.daysSinceCreated >= 3)
-    .sort((a, b) => b.daysSinceCreated - a.daysSinceCreated);
-
-  const terassApproved = terassCustomers.filter(c => c.offerStatus === 'approved').length;
-  const terassRejected = terassCustomers.filter(c => c.offerStatus === 'rejected').length;
-  const terassDecided = terassApproved + terassRejected;
-
-  res.json({
-    date: todayStr,
-    dayOfWeek: ['日','月','火','水','木','金','土'][today.getDay()],
-    stats: { totalActive: activeCount, totalCustomers: Object.keys(db).length },
-    todayEvents: todayEvents.map(attachCustomerName),
-    weekEvents: weekEvents.map(attachCustomerName),
-    urgent,
-    processSummary,
-    activeProcessCount: activeProcesses.length,
-    terassOffer: {
-      total: terassCustomers.length,
-      active: terassActive.length,
-      pending: terassCustomers.filter(c => c.offerStatus === 'pending').length,
-      contacted: terassCustomers.filter(c => c.offerStatus === 'contacted').length,
-      responded: terassCustomers.filter(c => c.offerStatus === 'responded').length,
-      approved: terassApproved,
-      approvalRate: terassDecided > 0 ? Math.round((terassApproved / terassDecided) * 100) + '%' : '-',
-      needsFollowUp: terassNeedsFollowUp
-    }
-  });
-});
-
-// プロセステンプレート取得
-app.get('/api/admin/process-template', adminAuth, (req, res) => {
-  res.json({ template: PROCESS_STEP_TEMPLATE });
-});
-
 // ===== Start =====
 app.listen(PORT, () => {
   const url = IS_PRODUCTION ? APP_URL : `http://localhost:${PORT}`;
@@ -3703,8 +2941,9 @@ app.listen(PORT, () => {
 ║   🏠 MuchiNavi Web Server               ║
 ║   ${url.padEnd(38)}║
 ║   ENV:  ${NODE_ENV.padEnd(33)}║
-║   Gemini API: ${(GEMINI_API_KEY ? '✅ 設定済み' : '❌ 未設定').padEnd(26)}║
-║   SMTP:       ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(26)}║
+║   Gemini API:     ${(GEMINI_API_KEY ? '✅ 設定済み' : '❌ 未設定').padEnd(22)}║
+║   Perplexity API: ${(PERPLEXITY_API_KEY ? '✅ 設定済み' : '⚠️ 未設定').padEnd(22)}║
+║   SMTP:           ${(SMTP_USER ? '✅ 設定済み' : '⚠️ 未設定').padEnd(22)}║
 ╚══════════════════════════════════════════╝
   `);
 
