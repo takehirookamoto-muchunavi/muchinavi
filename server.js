@@ -101,7 +101,7 @@ const PERPLEXITY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間
  */
 function detectRealtimeInfoNeed(message) {
   const patterns = [
-    { keywords: ['金利', '利率', '利息', '変動金利', '固定金利', 'フラット35'], query: '2026年 住宅ローン金利 変動 固定 最新 相場' },
+    { keywords: ['金利', '利率', '利息', '変動金利', '固定金利', 'フラット35'], query: '2026年3月 住宅ローン 変動金利 主要銀行別 適用金利 auじぶん銀行 住信SBI PayPay銀行 三菱UFJ フラット35' },
     { keywords: ['住宅ローン控除', 'ローン控除', '控除額', '税金が戻る', '還付'], query: '2026年 住宅ローン控除 条件 控除額 最新 変更点' },
     { keywords: ['相場', '価格', 'いくら', '坪単価', 'マンション価格', '戸建て価格'], query: null }, // エリア付きで動的生成
     { keywords: ['補助金', '給付金', '助成金', '支援金', '子育て支援'], query: '2026年 住宅購入 補助金 給付金 子育て世帯 支援 最新' },
@@ -154,7 +154,7 @@ async function searchPerplexity(query) {
       body: JSON.stringify({
         model: 'sonar',
         messages: [
-          { role: 'system', content: '不動産・住宅購入に関する最新情報を正確に提供してください。日本語で、数値データを含めて簡潔に回答してください。300文字以内で要点のみ。' },
+          { role: 'system', content: '不動産・住宅購入に関する最新の事実データを提供してください。必ず具体的な数値（金利なら銀行名と%、価格なら平均額と㎡単価）を含めてください。曖昧な範囲（例:「0.3%〜1%程度」）ではなく、主要銀行ごとの実際の適用金利を記載してください。日本語で500文字以内。' },
           { role: 'user', content: query },
         ],
       }),
@@ -1852,7 +1852,7 @@ ${housemaker_prompt}`;
     if (perplexityQuery) {
       const latestInfo = await searchPerplexity(perplexityQuery);
       if (latestInfo) {
-        enrichedMessage = `${lastMessage}\n\n【参考: Perplexity APIが取得した最新情報（2026年時点）】\n${latestInfo}\n\n上記の最新情報を参考にしつつ、むちのちとして自然な回答を生成してください。金利・税制の数値を引用する場合は「2026年X月時点の情報です。最新は必ずご確認ください」と添えてください。`;
+        enrichedMessage = `${lastMessage}\n\n【最新ファクトデータ（Perplexity API取得・2026年時点）— 以下の数値が正です】\n${latestInfo}\n\n【重要指示】\n- 金利・価格・税制などの数値は、上記ファクトデータの数値をそのまま使用してください\n- あなた自身の学習データの数値は古い可能性があるため、絶対に使用しないでください\n- 上記データに記載のない数値は「具体的な数値は岡本にお聞きください」と案内してください\n- 数値を引用する際は末尾に「（2026年3月時点の情報です。最新は金融機関にご確認ください）」と添えてください\n- むちのちとして自然で親しみやすい口調で回答してください`;
       }
     }
 
