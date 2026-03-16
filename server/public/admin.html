@@ -3493,11 +3493,11 @@
             const hasHistory = customer.hasContactHistory;
             let contactDotClass = 'contact-gray';
             let contactLabel = '連絡なし';
-            if (hasHistory && days !== null) {
+            if (hasHistory && days != null) {
                 if (days <= 14) { contactDotClass = 'contact-green'; contactLabel = `${days}日前`; }
                 else if (days <= 30) { contactDotClass = 'contact-yellow'; contactLabel = `${days}日前`; }
                 else { contactDotClass = 'contact-red'; contactLabel = `${days}日前`; }
-            } else if (days !== null) {
+            } else if (days != null) {
                 contactLabel = `登録${days}日前`;
             }
             const contactDot = `<span class="contact-dot ${contactDotClass}"></span>`;
