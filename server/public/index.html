@@ -3092,6 +3092,40 @@
     let directChatMessages = [];
     const TOTAL_STEPS = 14; // 0=welcome, 1=name, 2=birthdate, 3=prefecture, 4=family, 5=householdIncome, 6=propertyType, 7=purpose, 8=searchReason, 9=area, 10=budget, 11=freeComment, 12=contact, 13=password
 
+    // ===== フォーム途中保存（localStorage） =====
+    function saveFormProgress() {
+      try {
+        localStorage.setItem('muchinavi_form_progress', JSON.stringify({
+          customerData: customerData,
+          currentStep: currentStep,
+          savedAt: Date.now()
+        }));
+      } catch (e) {
+        console.warn('フォーム進捗の保存に失敗:', e);
+      }
+    }
+
+    function loadFormProgress() {
+      try {
+        const saved = localStorage.getItem('muchinavi_form_progress');
+        if (!saved) return null;
+        const data = JSON.parse(saved);
+        // 7日以上前のデータは破棄
+        if (Date.now() - data.savedAt > 7 * 24 * 60 * 60 * 1000) {
+          localStorage.removeItem('muchinavi_form_progress');
+          return null;
+        }
+        return data;
+      } catch (e) {
+        localStorage.removeItem('muchinavi_form_progress');
+        return null;
+      }
+    }
+
+    function clearFormProgress() {
+      localStorage.removeItem('muchinavi_form_progress');
+    }
+
     // Prefecture data organized by region
     const prefecturesByRegion = {
       '北海道・東北': ['北海道', '青森', '岩手', '宮城', '秋田', '山形', '福島'],
@@ -3554,6 +3588,9 @@
         });
       }
 
+      // フォーム途中保存
+      saveFormProgress();
+
       // Show response if exists
       if (step.response && value !== undefined) {
         showResponse(step.response(value));
@@ -3600,6 +3637,9 @@
           skipped: true
         });
       }
+
+      // フォーム途中保存
+      saveFormProgress();
 
       showResponse(step.skipResponse);
       setTimeout(() => {
@@ -3995,6 +4035,9 @@
             household_income: customerData.householdIncome || ''
           });
         }
+
+        // フォーム途中保存データをクリア（登録完了）
+        clearFormProgress();
 
         // Send notification to agent
         notifyAgent();
@@ -5283,8 +5326,16 @@
         }
       }
 
-      // No session found — show onboarding
-      renderStep(0);
+      // No session found — check for saved form progress
+      const savedProgress = loadFormProgress();
+      if (savedProgress && savedProgress.currentStep > 0) {
+        // 途中データを復元
+        Object.assign(customerData, savedProgress.customerData);
+        currentStep = savedProgress.currentStep;
+        renderStep(currentStep);
+      } else {
+        renderStep(0);
+      }
     }
 
     // ===== Settings menu =====
@@ -5540,6 +5591,7 @@
     function doLogout() {
       document.getElementById('settings-dropdown').classList.remove('show');
       localStorage.removeItem('muchinavi_token');
+      clearFormProgress();
       sessionToken = null;
       chatMessages = [];
       directChatMessages = [];
