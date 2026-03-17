@@ -411,6 +411,45 @@ function saveBroadcasts(data) {
   fs.writeFileSync(BROADCASTS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+// ===== HM Partners Database =====
+const HM_PARTNERS_FILE = path.join(DATA_DIR, 'hm_partners.json');
+function loadHMPartners() {
+  try {
+    if (fs.existsSync(HM_PARTNERS_FILE)) return JSON.parse(fs.readFileSync(HM_PARTNERS_FILE, 'utf-8'));
+  } catch (e) { console.error('HMパートナーDB読み込みエラー:', e.message); }
+  return { partners: [] };
+}
+function saveHMPartners(data) {
+  fs.writeFileSync(HM_PARTNERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+/**
+ * referralCode からHMパートナーと営業マンを検索
+ * @param {string} refCode - referralCode（例: "sekisui_namba"）
+ * @returns {{ partner: object, contact: object|null } | null}
+ */
+function findHMPartnerByRefCode(refCode) {
+  if (!refCode) return null;
+  const data = loadHMPartners();
+  for (const partner of data.partners) {
+    if (!partner.active) continue;
+    if (partner.referralCode === refCode) {
+      // referralCode はパートナー単位。contacts の中から展示場を特定
+      const contact = partner.contacts && partner.contacts.length > 0 ? partner.contacts[0] : null;
+      return { partner, contact };
+    }
+    // contacts 個別の referralCode もチェック（営業マン個別QRコード対応）
+    if (partner.contacts) {
+      for (const c of partner.contacts) {
+        if (c.referralCode === refCode) {
+          return { partner, contact: c };
+        }
+      }
+    }
+  }
+  return null;
+}
+
 // ===== Tag Filtering Helper =====
 function filterCustomersByTags(customers, filterType, filterTags) {
   // customers: array of [token, record]
@@ -623,6 +662,35 @@ app.post('/api/register', async (req, res) => {
     console.log('🏷️ 自動タグ付与:', autoTags.join(', '));
   }
 
+  // ===== HM専用モード: refパラメータ処理 =====
+  const refCode = customer.ref || null;
+  delete customer.ref; // refはcustomerデータには保存しない
+  let hmFields = {};
+  if (refCode) {
+    const hmMatch = findHMPartnerByRefCode(refCode);
+    if (hmMatch) {
+      hmFields = {
+        hmMode: true,
+        hmPartnerId: hmMatch.partner.id,
+        hmPartnerName: hmMatch.partner.name,
+        hmReferredAt: new Date().toISOString().split('T')[0],
+      };
+      if (hmMatch.contact) {
+        hmFields.hmContactId = hmMatch.contact.id;
+        hmFields.hmContactName = hmMatch.contact.name;
+        hmFields.hmContactEmail = hmMatch.contact.email || '';
+        hmFields.hmContactPhone = hmMatch.contact.phone || '';
+      }
+      // HM紹介タグを自動付与
+      ensureTagAndAdd('HM紹介', '#ff9500', 'ソース');
+      ensureTagAndAdd(hmMatch.partner.name, '#ff3b30', 'HMパートナー');
+      saveTags(tagData);
+      console.log(`🏭 HM専用モード適用: ${hmMatch.partner.name} (ref: ${refCode})`);
+    } else {
+      console.log(`⚠️ 無効なrefコード: ${refCode}`);
+    }
+  }
+
   // Save to DB
   const db = loadDB();
   // Determine initial stage based on profile completeness
@@ -632,6 +700,7 @@ app.post('/api/register', async (req, res) => {
 
   db[token] = {
     ...customer,
+    ...hmFields,
     passwordHash,
     token,
     chatHistory: [],
@@ -1833,6 +1902,54 @@ ${missingInfoPrompt}
 ${terass_picks_prompt}
 ${housemaker_prompt}`;
 
+    // ===== HM専用モード: 紹介元HMを優先するプロンプト注入 =====
+    if (token) {
+      const db2 = loadDB();
+      const customerRecord = db2[token];
+      if (customerRecord && customerRecord.hmMode && customerRecord.hmPartnerId) {
+        const hmData = loadHMPartners();
+        const hmPartner = hmData.partners.find(p => p.id === customerRecord.hmPartnerId);
+        if (hmPartner) {
+          const hmName = hmPartner.name;
+          const strengths = (hmPartner.autoInfo?.strengths || []).join('、') || '情報なし';
+          const productLines = (hmPartner.autoInfo?.productLines || []).join('、') || '情報なし';
+          const priceRange = hmPartner.autoInfo?.priceRange || '情報なし';
+          const structure = (hmPartner.autoInfo?.structure || []).join('、') || '情報なし';
+          const manualNotes = hmPartner.manualNotes || 'なし';
+
+          systemPrompt += `\n\n【HM専用モード — ${hmName}】
+
+このお客様は ${hmName} からの紹介です。以下のルールに従ってください。
+
+■ 基本姿勢
+・${hmName} の住宅を第一選択として案内する
+・土地探しのサポートに注力する（注文住宅前提）
+・${hmName} で建てることを前提とした提案を行う
+
+■ ${hmName} の情報
+・強み: ${strengths}
+・商品ライン: ${productLines}
+・坪単価帯: ${priceRange}
+・構造: ${structure}
+
+■ 岡本さんからの補足
+${manualNotes}
+
+■ 他社HMについて聞かれた場合
+・事実ベースで簡潔に回答してOK（嘘をつかない・隠さない）
+・ただし比較表の作成、他社の推奨、他社への誘導はしない
+・${hmName} の該当する強みを自然に添える
+・「より詳しい比較をされたい場合は、岡本にご相談ください」と面談を提案する
+
+■ 禁止事項
+・他社HMを積極的に推奨する発言
+・「○○ハウスの方が良い」等の断定的な他社推奨
+・紹介元HMを否定する発言（弱点を聞かれた場合は事実+強みでバランス）
+・比較表・ランキング形式での複数HM比較`;
+        }
+      }
+    }
+
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       systemInstruction: systemPrompt,
@@ -1947,6 +2064,9 @@ app.get('/api/admin/customers', adminAuth, (req, res) => {
     directChatCount: (record.directChatHistory || []).length,
     tags: record.tags || [],
     stage: parseInt(record.stage, 10) || 1,
+    hmMode: record.hmMode || false,
+    hmPartnerId: record.hmPartnerId || null,
+    hmPartnerName: record.hmPartnerName || null,
   }));
   res.json({ customers });
 });
@@ -2432,7 +2552,7 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice','hmMode','hmPartnerId','hmPartnerName','hmReferredAt','hmContactId','hmContactName','hmContactEmail','hmContactPhone'];
   const updates = req.body;
 
   // Track old values for auto-tag update
@@ -2879,6 +2999,403 @@ app.post('/api/admin/apply-extracted-info/:token', adminAuth, (req, res) => {
 // ===== チェックリストテンプレート取得API =====
 app.get('/api/admin/checklist-template', adminAuth, (req, res) => {
   res.json({ template: CHECKLIST_TEMPLATE });
+});
+
+// ===== HMパートナー管理API =====
+
+// HMパートナー一覧
+app.get('/api/admin/hm-partners', adminAuth, (req, res) => {
+  const data = loadHMPartners();
+  res.json(data);
+});
+
+// HMパートナー追加
+app.post('/api/admin/hm-partners', adminAuth, (req, res) => {
+  const { id, name, autoInfo, manualNotes, contacts, referralCode } = req.body;
+  if (!id || !name) return res.status(400).json({ error: 'id と name は必須です' });
+
+  const data = loadHMPartners();
+  if (data.partners.find(p => p.id === id)) {
+    return res.status(409).json({ error: `ID "${id}" は既に存在します` });
+  }
+
+  const newPartner = {
+    id,
+    name,
+    autoInfo: autoInfo || { strengths: [], productLines: [], priceRange: '', structure: [], lastUpdated: new Date().toISOString().split('T')[0] },
+    manualNotes: manualNotes || '',
+    contacts: contacts || [],
+    referralCode: referralCode || id,
+    referralUrl: `${APP_URL}/?ref=${referralCode || id}`,
+    active: true,
+    createdAt: new Date().toISOString(),
+  };
+
+  data.partners.push(newPartner);
+  saveHMPartners(data);
+  console.log(`🏭 HMパートナー追加: ${name} (${id})`);
+  res.json({ success: true, partner: newPartner });
+});
+
+// HMパートナー更新
+app.put('/api/admin/hm-partner/:id', adminAuth, (req, res) => {
+  const data = loadHMPartners();
+  const partner = data.partners.find(p => p.id === req.params.id);
+  if (!partner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  const updatable = ['name', 'autoInfo', 'manualNotes', 'referralCode', 'active'];
+  updatable.forEach(key => {
+    if (req.body[key] !== undefined) partner[key] = req.body[key];
+  });
+  if (req.body.referralCode) {
+    partner.referralUrl = `${APP_URL}/?ref=${req.body.referralCode}`;
+  }
+
+  saveHMPartners(data);
+  res.json({ success: true, partner });
+});
+
+// HMパートナー削除
+app.delete('/api/admin/hm-partner/:id', adminAuth, (req, res) => {
+  const data = loadHMPartners();
+  const idx = data.partners.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  const removed = data.partners.splice(idx, 1)[0];
+  saveHMPartners(data);
+  console.log(`🏭 HMパートナー削除: ${removed.name} (${removed.id})`);
+  res.json({ success: true, message: `${removed.name} を削除しました` });
+});
+
+// 営業マン追加
+app.post('/api/admin/hm-partner/:id/contacts', adminAuth, (req, res) => {
+  const data = loadHMPartners();
+  const partner = data.partners.find(p => p.id === req.params.id);
+  if (!partner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  const { name, exhibitionHall, phone, email, tags, notes, referralCode } = req.body;
+  if (!name) return res.status(400).json({ error: '営業マン名は必須です' });
+
+  const contactId = `${req.params.id}_${Date.now().toString(36)}`;
+  const contact = {
+    id: req.body.id || contactId,
+    name,
+    exhibitionHall: exhibitionHall || '',
+    phone: phone || '',
+    email: email || '',
+    tags: tags || [],
+    notes: notes || '',
+    referralCode: referralCode || '',
+  };
+
+  if (!partner.contacts) partner.contacts = [];
+  partner.contacts.push(contact);
+  saveHMPartners(data);
+  console.log(`🏭 営業マン追加: ${partner.name} - ${name}`);
+  res.json({ success: true, contact });
+});
+
+// 営業マン更新
+app.put('/api/admin/hm-partner/:id/contact/:contactId', adminAuth, (req, res) => {
+  const data = loadHMPartners();
+  const partner = data.partners.find(p => p.id === req.params.id);
+  if (!partner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  const contact = (partner.contacts || []).find(c => c.id === req.params.contactId);
+  if (!contact) return res.status(404).json({ error: '営業マンが見つかりません' });
+
+  const updatable = ['name', 'exhibitionHall', 'phone', 'email', 'tags', 'notes', 'referralCode'];
+  updatable.forEach(key => {
+    if (req.body[key] !== undefined) contact[key] = req.body[key];
+  });
+
+  saveHMPartners(data);
+  res.json({ success: true, contact });
+});
+
+// 営業マン削除
+app.delete('/api/admin/hm-partner/:id/contact/:contactId', adminAuth, (req, res) => {
+  const data = loadHMPartners();
+  const partner = data.partners.find(p => p.id === req.params.id);
+  if (!partner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  const idx = (partner.contacts || []).findIndex(c => c.id === req.params.contactId);
+  if (idx === -1) return res.status(404).json({ error: '営業マンが見つかりません' });
+
+  const removed = partner.contacts.splice(idx, 1)[0];
+  saveHMPartners(data);
+  console.log(`🏭 営業マン削除: ${partner.name} - ${removed.name}`);
+  res.json({ success: true, message: `${removed.name} を削除しました` });
+});
+
+// HMパートナー情報をPerplexityで再取得
+app.post('/api/admin/hm-partner/:id/refresh', adminAuth, async (req, res) => {
+  if (!PERPLEXITY_API_KEY) return res.status(400).json({ error: 'Perplexity APIキーが未設定です' });
+
+  const data = loadHMPartners();
+  const partner = data.partners.find(p => p.id === req.params.id);
+  if (!partner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  try {
+    const query = `${partner.name} ハウスメーカー 特徴 商品ラインナップ 坪単価 構造 2026年最新`;
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: [
+          { role: 'system', content: '日本のハウスメーカー情報をJSON形式で回答してください。' },
+          { role: 'user', content: `${partner.name}について以下の情報をJSON形式で教えてください: {"strengths": ["強み1", "強み2"], "productLines": ["商品名1", "商品名2"], "priceRange": "坪○〜○万円", "structure": ["構造1"]}` },
+        ],
+        temperature: 0.1,
+      }),
+    });
+
+    const result = await response.json();
+    const content = result.choices?.[0]?.message?.content || '';
+
+    // JSONを抽出
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      partner.autoInfo = {
+        strengths: parsed.strengths || partner.autoInfo?.strengths || [],
+        productLines: parsed.productLines || partner.autoInfo?.productLines || [],
+        priceRange: parsed.priceRange || partner.autoInfo?.priceRange || '',
+        structure: parsed.structure || partner.autoInfo?.structure || [],
+        lastUpdated: new Date().toISOString().split('T')[0],
+      };
+      saveHMPartners(data);
+      console.log(`🏭 HMパートナー情報更新: ${partner.name}`);
+      res.json({ success: true, autoInfo: partner.autoInfo });
+    } else {
+      res.status(500).json({ error: 'Perplexityの回答からJSON情報を抽出できませんでした', raw: content });
+    }
+  } catch (err) {
+    console.error('Perplexity HM情報取得エラー:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== HM紹介顧客の手動登録（被り検出付き） =====
+app.post('/api/admin/hm-referral', adminAuth, (req, res) => {
+  const { customer, hmPartnerId, hmContactId, notes } = req.body;
+  if (!customer || !customer.name) return res.status(400).json({ error: '顧客名は必須です' });
+  if (!hmPartnerId) return res.status(400).json({ error: 'hmPartnerId は必須です' });
+
+  // HMパートナー存在チェック
+  const hmData = loadHMPartners();
+  const hmPartner = hmData.partners.find(p => p.id === hmPartnerId);
+  if (!hmPartner) return res.status(404).json({ error: `HMパートナー "${hmPartnerId}" が見つかりません` });
+
+  const hmContact = hmContactId ? (hmPartner.contacts || []).find(c => c.id === hmContactId) : null;
+
+  // 被り検出: 名前 + (email OR 電話番号) で既存顧客を検索
+  const db = loadDB();
+  const existingEntries = Object.entries(db);
+  let conflictEntry = null;
+
+  if (customer.email || customer.phone) {
+    for (const [existingToken, record] of existingEntries) {
+      if (record.status === 'blocked' || record.status === 'withdrawn') continue;
+      const nameMatch = record.name && customer.name && record.name === customer.name;
+      const emailMatch = customer.email && record.email && record.email === customer.email;
+      const phoneMatch = customer.phone && record.phone && record.phone === customer.phone;
+
+      if (nameMatch && (emailMatch || phoneMatch)) {
+        conflictEntry = { token: existingToken, record };
+        break;
+      }
+      // emailまたはphoneのみの一致でも検出
+      if (emailMatch || phoneMatch) {
+        conflictEntry = { token: existingToken, record };
+        break;
+      }
+    }
+  }
+
+  if (conflictEntry) {
+    const existing = conflictEntry.record;
+    let conflictType = 'existing_self_registered';
+    let message = '';
+
+    if (existing.hmMode && existing.hmPartnerId) {
+      if (existing.hmPartnerId === hmPartnerId) {
+        conflictType = 'same_hm_different_contact';
+        message = `${existing.name}さんは既に${hmPartner.name}の${existing.hmContactName || '別の営業マン'}から紹介済みです。先着を維持します。`;
+      } else {
+        conflictType = 'different_hm';
+        message = `${existing.name}さんは既に${existing.hmPartnerName}からの紹介でHM専用モード中です。${hmPartner.name}には「既にご登録済み」とお伝えください。`;
+      }
+    } else {
+      conflictType = 'existing_self_registered';
+      message = `${existing.name}さんは既にブログ経由等で登録済みです。HM専用モードに切り替えますか？`;
+    }
+
+    return res.json({
+      status: 'conflict',
+      conflictType,
+      existingHm: existing.hmPartnerName || null,
+      existingReferredAt: existing.hmReferredAt || null,
+      message,
+      existingToken: conflictEntry.token,
+    });
+  }
+
+  // 新規登録
+  const token = generateToken();
+  const now = new Date().toISOString();
+
+  // タグ自動付与
+  const tagData = loadTags();
+  const autoTags = ['HM紹介', hmPartner.name];
+  function ensureTag(tagName, color, category) {
+    const existing = tagData.tags.find(t => t.name === tagName);
+    if (!existing) {
+      tagData.tags.push({ id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), name: tagName, color, category });
+    }
+  }
+  ensureTag('HM紹介', '#ff9500', 'ソース');
+  ensureTag(hmPartner.name, '#ff3b30', 'HMパートナー');
+  if (customer.prefecture) {
+    ensureTag(customer.prefecture, '#5856d6', '都道府県');
+    autoTags.push(customer.prefecture);
+  }
+  saveTags(tagData);
+
+  db[token] = {
+    name: customer.name,
+    email: customer.email || '',
+    phone: customer.phone || '',
+    area: customer.area || '',
+    budget: customer.budget || '',
+    freeComment: notes || '',
+    token,
+    chatHistory: [],
+    directChatHistory: [],
+    tags: autoTags,
+    stage: 1,
+    createdAt: now,
+    hmMode: true,
+    hmPartnerId: hmPartner.id,
+    hmPartnerName: hmPartner.name,
+    hmReferredAt: now.split('T')[0],
+    hmContactId: hmContact ? hmContact.id : null,
+    hmContactName: hmContact ? hmContact.name : null,
+    hmContactEmail: hmContact ? hmContact.email : null,
+    hmContactPhone: hmContact ? hmContact.phone : null,
+  };
+  saveDB(db);
+
+  console.log(`🏭 HM紹介顧客登録: ${customer.name} ← ${hmPartner.name}`);
+  res.json({
+    status: 'created',
+    token,
+    hmMode: true,
+    hmPartnerName: hmPartner.name,
+    referralUrl: hmPartner.referralUrl,
+  });
+});
+
+// ===== HM紹介顧客のHMモード切り替え（被り解消用） =====
+app.post('/api/admin/hm-referral/switch/:token', adminAuth, (req, res) => {
+  const { hmPartnerId, hmContactId } = req.body;
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
+
+  const hmData = loadHMPartners();
+  const hmPartner = hmData.partners.find(p => p.id === hmPartnerId);
+  if (!hmPartner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
+
+  const hmContact = hmContactId ? (hmPartner.contacts || []).find(c => c.id === hmContactId) : null;
+
+  record.hmMode = true;
+  record.hmPartnerId = hmPartner.id;
+  record.hmPartnerName = hmPartner.name;
+  record.hmReferredAt = new Date().toISOString().split('T')[0];
+  record.hmContactId = hmContact ? hmContact.id : null;
+  record.hmContactName = hmContact ? hmContact.name : null;
+  record.hmContactEmail = hmContact ? hmContact.email : null;
+  record.hmContactPhone = hmContact ? hmContact.phone : null;
+
+  // タグ更新
+  if (!record.tags) record.tags = [];
+  if (!record.tags.includes('HM紹介')) record.tags.push('HM紹介');
+  if (!record.tags.includes(hmPartner.name)) record.tags.push(hmPartner.name);
+
+  saveDB(db);
+  console.log(`🏭 HMモード切替: ${record.name} → ${hmPartner.name}`);
+  res.json({ success: true, message: `${record.name}さんをHM専用モード（${hmPartner.name}）に切り替えました` });
+});
+
+// ===== HM進捗レポートメール送信 =====
+app.post('/api/admin/hm-report/:token', adminAuth, async (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
+  if (!record.hmMode || !record.hmContactEmail) {
+    return res.status(400).json({ error: 'HM紹介顧客ではないか、営業マンのメールアドレスが未設定です' });
+  }
+
+  if (!SMTP_USER || !SMTP_PASS) {
+    return res.status(400).json({ error: 'SMTP設定がされていません' });
+  }
+
+  const stageNames = { 1: '登録', 2: '情報入力', 3: '面談予約', 4: '相談中', 5: 'ライフプラン', 6: '物件探し・内見', 7: '契約', 8: '引渡し' };
+  const stageName = stageNames[record.stage] || `ステージ${record.stage}`;
+  const nextAction = req.body.nextAction || '引き続きサポート中';
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
+    });
+
+    await transporter.sendMail({
+      from: `MuchiNavi <${SMTP_USER}>`,
+      to: record.hmContactEmail,
+      subject: '【MuchiNavi】ご紹介のお客様 進捗のご報告',
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 20px 24px; border-radius: 16px 16px 0 0;">
+            <h2 style="margin: 0; font-size: 18px;">📊 ご紹介のお客様 進捗のご報告</h2>
+          </div>
+          <div style="background: #fff; border: 1px solid #e5e5ea; border-top: none; padding: 24px; border-radius: 0 0 16px 16px;">
+            <p style="margin: 0 0 16px; font-size: 15px; color: #1d1d1f;">${record.hmContactName || ''} 様</p>
+            <p style="margin: 0 0 16px; font-size: 15px; color: #1d1d1f; line-height: 1.6;">
+              いつもお世話になっております。<br>TERASSの岡本です。
+            </p>
+            <p style="margin: 0 0 16px; font-size: 15px; color: #1d1d1f; line-height: 1.6;">
+              ご紹介いただきました ${record.name} 様の進捗をご報告いたします。
+            </p>
+            <div style="background: #f5f5f7; border-radius: 12px; padding: 16px; margin: 0 0 20px;">
+              <p style="margin: 0 0 8px; font-size: 14px;"><strong>■ 現在のステータス:</strong> ${stageName}</p>
+              <p style="margin: 0; font-size: 14px;"><strong>■ 次のステップ:</strong> ${nextAction}</p>
+            </div>
+            <p style="margin: 0 0 16px; font-size: 15px; color: #1d1d1f; line-height: 1.6;">
+              ${record.name} 様が ${record.hmPartnerName} で理想のお住まいを実現できるよう、<br>
+              土地探しを全力でサポートしてまいります。
+            </p>
+            <p style="margin: 0; font-size: 15px; color: #1d1d1f; line-height: 1.6;">
+              ご不明点がございましたら、お気軽にご連絡ください。
+            </p>
+            <hr style="border: none; border-top: 1px solid #e5e5ea; margin: 20px 0;">
+            <p style="margin: 0; font-size: 13px; color: #86868b;">岡本 岳大 ｜ TERASS 不動産エージェント</p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log(`📧 HM進捗レポート送信: ${record.name} → ${record.hmContactName} (${record.hmContactEmail})`);
+    res.json({ success: true, message: `${record.hmContactName}さんに進捗レポートを送信しました` });
+  } catch (err) {
+    console.error('HMレポート送信エラー:', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ===== 管理ページ =====

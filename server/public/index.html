@@ -3092,6 +3092,17 @@
     let directChatMessages = [];
     const TOTAL_STEPS = 14; // 0=welcome, 1=name, 2=birthdate, 3=prefecture, 4=family, 5=householdIncome, 6=propertyType, 7=purpose, 8=searchReason, 9=area, 10=budget, 11=freeComment, 12=contact, 13=password
 
+    // ===== HM専用モード: refパラメータ検出 =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const hmRefCode = urlParams.get('ref');
+    if (hmRefCode) {
+      // refパラメータをsessionStorageに保持（ページ遷移しても保持）
+      sessionStorage.setItem('muchinavi_hm_ref', hmRefCode);
+      console.log('🏭 HM紹介コード検出:', hmRefCode);
+    }
+    // sessionStorageから復元（refパラメータが消えても保持）
+    const activeHmRef = hmRefCode || sessionStorage.getItem('muchinavi_hm_ref') || null;
+
     // ===== フォーム途中保存（localStorage） =====
     function saveFormProgress() {
       try {
@@ -4047,10 +4058,15 @@
     // ===== Notify Agent & Save =====
     async function notifyAgent() {
       try {
+        // HM紹介コードがあればregistrationデータに含める
+        const registrationData = { ...customerData };
+        if (activeHmRef) {
+          registrationData.ref = activeHmRef;
+        }
         const res = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(customerData),
+          body: JSON.stringify(registrationData),
         });
         const data = await res.json();
         if (data.token) {
@@ -4058,6 +4074,8 @@
           // Save token to localStorage AND update URL
           localStorage.setItem('muchinavi_token', sessionToken);
           history.replaceState(null, '', `?t=${sessionToken}`);
+          // HM紹介コードをクリア（登録完了）
+          sessionStorage.removeItem('muchinavi_hm_ref');
         }
       } catch (e) {
         console.error('通知送信エラー:', e);
