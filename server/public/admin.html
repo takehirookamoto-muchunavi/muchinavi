@@ -2132,6 +2132,68 @@
             font-size: 12px;
             margin-left: 4px;
         }
+        /* ===== HM Partner Management ===== */
+        .sidebar-hm {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .sidebar-hm:hover { background: rgba(255,255,255,0.1); }
+        .sidebar-hm.active { background: rgba(255, 59, 48, 0.2); }
+        .hm-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+        .hm-badge {
+            background: #ff3b30;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+        .hm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 16px;
+        }
+        .hm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 24px; }
+        .hm-stat-card { background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow-sm); }
+        .hm-stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+        .hm-stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+        .partner-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); border-left: 4px solid #ccc; cursor: pointer; transition: var(--transition-fast); }
+        .partner-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .partner-card.priority-a { border-left-color: #ff3b30; }
+        .partner-card.priority-b { border-left-color: #ff9500; }
+        .partner-card.priority-c { border-left-color: #007aff; }
+        .priority-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff; }
+        .priority-badge.priority-a { background: #ff3b30; }
+        .priority-badge.priority-b { background: #ff9500; }
+        .priority-badge.priority-c { background: #007aff; }
+        .partner-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .partner-card-name { font-size: 16px; font-weight: 600; }
+        .partner-card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+        .referral-url-box { display: flex; align-items: center; gap: 8px; background: #f5f5f7; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-top: 8px; }
+        .referral-url-box code { flex: 1; word-break: break-all; color: var(--accent); }
+        .referral-url-box button { padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 12px; }
+        .referral-url-box button:hover { background: #eee; }
+        .contact-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f9fb; border-radius: 8px; margin-bottom: 8px; }
+        .contact-item-info { flex: 1; }
+        .contact-item-name { font-weight: 600; font-size: 14px; }
+        .contact-item-detail { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .contact-item-actions { display: flex; gap: 4px; }
+        .contact-item-actions button { padding: 4px 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .hm-detail-section { background: #f9f9fb; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+        .hm-detail-section h4 { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .hm-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .hm-info-item label { font-size: 11px; color: var(--text-secondary); display: block; }
+        .hm-info-item span { font-size: 14px; }
+        .sidebar-divider { padding: 8px 16px; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
         .terass-detail-section {
             background: #f9f9fb;
             border-radius: 10px;
@@ -2259,11 +2321,19 @@
             </div>
             <div id="stageAlertBanner" style="display:none;"></div>
             <div class="sidebar-customers" id="customerList"></div>
+            <div class="sidebar-divider">── ツール ──</div>
             <div class="sidebar-terass" id="terassOfferMenu" onclick="openTerassOfferView()">
                 <div class="terass-menu-item">
                     <span class="terass-icon">🟠</span>
                     <span class="terass-label">TERASS Offer</span>
                     <span class="terass-badge" id="terassOfferBadge" style="display:none;">0</span>
+                </div>
+            </div>
+            <div class="sidebar-hm" id="hmPartnerMenu" onclick="openHMPartnerView()">
+                <div class="hm-menu-item">
+                    <span class="terass-icon">🏭</span>
+                    <span class="terass-label">HMパートナー</span>
+                    <span class="hm-badge" id="hmPartnerBadge" style="display:none;">0</span>
                 </div>
             </div>
             <div class="sidebar-footer">
@@ -2951,6 +3021,31 @@
                 </div>
             </div>
 
+            <!-- HM Partner View -->
+            <div id="hmPartnerView" style="display:none; flex-direction:column; flex:1; overflow-y:auto;">
+                <div class="hm-header">
+                    <h2>🏭 HMパートナー管理</h2>
+                    <button class="btn-primary-sm" onclick="openHMPartnerAddModal()">+ パートナー追加</button>
+                </div>
+                <div class="hm-stats" id="hmStats"></div>
+                <div style="padding: 0 24px 24px;">
+                    <div class="pipeline-section" id="hmPriorityA">
+                        <h3>🔴 A優先（今すぐ）</h3>
+                        <div class="pipeline-cards" id="hmPriorityACards"></div>
+                    </div>
+                    <div class="pipeline-section" id="hmPriorityB">
+                        <h3>🟠 B優先（中期）</h3>
+                        <div class="pipeline-cards" id="hmPriorityBCards"></div>
+                    </div>
+                    <div class="pipeline-section collapsed" id="hmPriorityC">
+                        <h3 onclick="document.getElementById('hmPriorityC').classList.toggle('collapsed')" style="cursor:pointer;">
+                            🔵 C優先（後回し） <span class="toggle-icon">▶</span>
+                        </h3>
+                        <div class="pipeline-cards" id="hmPriorityCCards"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -3013,6 +3108,93 @@
             <div style="display:flex;gap:8px;margin-top:20px;">
                 <button class="btn" onclick="closeTerassNewModal()" style="flex:1;">キャンセル</button>
                 <button class="btn btn-primary" onclick="submitNewTerassOffer()" style="flex:1;">登録</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HM Partner Detail Modal -->
+    <div id="hmDetailModal" class="modal-overlay">
+        <div class="modal" style="max-width:650px;max-height:85vh;display:flex;flex-direction:column;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2 class="modal-title" id="hmDetailTitle" style="margin:0;"></h2>
+                <button onclick="closeHMDetail()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#86868b;">✕</button>
+            </div>
+            <div id="hmDetailContent" style="flex:1;overflow-y:auto;"></div>
+            <div style="display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                <button class="btn" onclick="closeHMDetail()" style="flex:1;">閉じる</button>
+                <button class="btn" id="hmDetailRefreshBtn" onclick="refreshHMFromDetail()" style="flex:1;">🔄 情報更新</button>
+                <button class="btn" id="hmDetailEditBtn" onclick="editHMFromDetail()" style="flex:1;">✏️ 編集</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HM Partner Add/Edit Modal -->
+    <div id="hmEditModal" class="modal-overlay">
+        <div class="modal" style="max-width:500px;">
+            <h2 class="modal-title" id="hmEditTitle">パートナー追加</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">ID（英数字）</label>
+                    <input type="text" id="hmEditId" class="form-input" placeholder="例: ichijo" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">会社名</label>
+                    <input type="text" id="hmEditName" class="form-input" placeholder="例: 一条工務店" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">優先度</label>
+                    <select id="hmEditPriority" class="form-input" style="width:100%;">
+                        <option value="">未設定</option>
+                        <option value="A">A（今すぐ）</option>
+                        <option value="B">B（中期）</option>
+                        <option value="C">C（後回し）</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">紹介コード</label>
+                    <input type="text" id="hmEditRefCode" class="form-input" placeholder="例: ichijo" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">メモ</label>
+                    <textarea id="hmEditNotes" class="form-input" rows="3" placeholder="営業メモ・特記事項" style="width:100%;resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+                <button class="btn" onclick="closeHMEditModal()" style="flex:1;">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveHMPartner()" style="flex:1;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HM Contact Add/Edit Modal -->
+    <div id="hmContactModal" class="modal-overlay">
+        <div class="modal" style="max-width:500px;">
+            <h2 class="modal-title" id="hmContactTitle">営業マン追加</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">名前</label>
+                    <input type="text" id="hmContactName" class="form-input" placeholder="営業マン名" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">展示場</label>
+                    <input type="text" id="hmContactHall" class="form-input" placeholder="例: なんば住宅博" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">電話番号</label>
+                    <input type="tel" id="hmContactPhone" class="form-input" placeholder="090-xxxx-xxxx" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">メールアドレス</label>
+                    <input type="email" id="hmContactEmail" class="form-input" placeholder="email@example.com" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">メモ</label>
+                    <textarea id="hmContactNotes" class="form-input" rows="2" placeholder="メモ" style="width:100%;resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+                <button class="btn" onclick="closeHMContactModal()" style="flex:1;">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveHMContact()" style="flex:1;">保存</button>
             </div>
         </div>
     </div>
@@ -3508,9 +3690,10 @@
             const threshold = STAGE_STAGNATION_THRESHOLDS[stageNum] || 999;
             const isStagnant = customer.status === 'active' && stageNum !== 8 && daysSinceStage >= threshold;
             const stagnantDot = isStagnant ? '<span class="stagnant-dot" title="ステージ滞留"></span>' : '';
+            const hmBadge = customer.hmMode ? '<span style="background:#ff3b30;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;margin-left:4px;">HM</span>' : '';
 
             item.innerHTML = `
-                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}</div>
+                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}${hmBadge}</div>
                 <div class="customer-meta">
                     <span>${customer.area || '-'}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
@@ -3776,6 +3959,7 @@
         // ======================== CUSTOMER SELECTION ========================
         async function selectCustomer(token) {
             closeTerassOfferView();
+            closeHMPartnerView();
             selectedToken = token;
             renderCustomerList();
 
@@ -3801,6 +3985,8 @@
         function showCustomerView() {
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
             document.getElementById('customerView').style.display = 'flex';
         }
 
@@ -4994,6 +5180,8 @@
             document.getElementById('customerView').style.display = 'none';
             document.getElementById('terassOfferView').style.display = 'none';
             document.getElementById('terassOfferMenu').classList.remove('active');
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
             document.getElementById('broadcastView').style.display = 'flex';
             // 顧客一覧のactive解除
             document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
@@ -5550,6 +5738,8 @@
             document.getElementById('customerView').style.display = 'none';
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
             document.getElementById('terassOfferView').style.display = 'flex';
             document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
             document.getElementById('terassOfferMenu').classList.add('active');
@@ -5840,6 +6030,368 @@
             } catch (e) {
                 showToast('登録に失敗しました', 'error');
             }
+        }
+
+        // ======================== HM PARTNER 管理 ========================
+        let hmEditMode = null; // null = add, partnerId = edit
+        let hmContactEditMode = null; // null = add, {partnerId, contactId} = edit
+        let hmDetailPartnerId = null;
+
+        function openHMPartnerView() {
+            document.getElementById('customerView').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('terassOfferView').style.display = 'none';
+            document.getElementById('hmPartnerView').style.display = 'flex';
+            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('terassOfferMenu').classList.remove('active');
+            document.getElementById('hmPartnerMenu').classList.add('active');
+            selectedToken = null;
+            loadHMPartnerData();
+        }
+
+        function closeHMPartnerView() {
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
+        }
+
+        async function loadHMPartnerData() {
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partners = res.partners || [];
+                renderHMStats(partners);
+                renderHMPartnerList(partners);
+                const badge = document.getElementById('hmPartnerBadge');
+                if (partners.length > 0) {
+                    badge.textContent = partners.length;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('HMパートナーデータ取得エラー:', e);
+            }
+        }
+
+        function renderHMStats(partners) {
+            const totalContacts = partners.reduce((sum, p) => sum + (p.contacts || []).length, 0);
+            document.getElementById('hmStats').innerHTML = `
+                <div class="hm-stat-card">
+                    <div class="hm-stat-value">${partners.length}</div>
+                    <div class="hm-stat-label">パートナー数</div>
+                </div>
+                <div class="hm-stat-card">
+                    <div class="hm-stat-value">${totalContacts}</div>
+                    <div class="hm-stat-label">営業マン数</div>
+                </div>
+                <div class="hm-stat-card">
+                    <div class="hm-stat-value">${partners.filter(p => p.priority === 'A').length}</div>
+                    <div class="hm-stat-label">A優先</div>
+                </div>
+            `;
+        }
+
+        function renderHMPartnerList(partners) {
+            const sections = { A: [], B: [], C: [], other: [] };
+            partners.forEach(p => {
+                const pri = (p.priority || '').toUpperCase();
+                if (sections[pri]) sections[pri].push(p);
+                else sections.other.push(p);
+            });
+
+            document.getElementById('hmPriorityACards').innerHTML =
+                [...sections.A, ...sections.other].map(p => createHMPartnerCard(p)).join('') || '<p style="color:var(--text-secondary);padding:12px;">パートナーなし</p>';
+            document.getElementById('hmPriorityBCards').innerHTML =
+                sections.B.map(p => createHMPartnerCard(p)).join('') || '<p style="color:var(--text-secondary);padding:12px;">パートナーなし</p>';
+            document.getElementById('hmPriorityCCards').innerHTML =
+                sections.C.map(p => createHMPartnerCard(p)).join('') || '<p style="color:var(--text-secondary);padding:12px;">パートナーなし</p>';
+        }
+
+        function createHMPartnerCard(partner) {
+            const pri = (partner.priority || '').toUpperCase();
+            const priClass = pri ? `priority-${pri.toLowerCase()}` : '';
+            const priBadge = pri ? `<span class="priority-badge priority-${pri.toLowerCase()}">${pri}</span>` : '';
+            const contactCount = (partner.contacts || []).length;
+            const strengths = (partner.autoInfo?.strengths || []).slice(0, 2).join('、');
+            const priceRange = partner.autoInfo?.priceRange || '';
+
+            return `
+                <div class="partner-card ${priClass}" onclick="openHMPartnerDetail('${partner.id}')">
+                    <div class="partner-card-header">
+                        <span class="partner-card-name">${partner.name}</span>
+                        ${priBadge}
+                    </div>
+                    <div class="partner-card-meta">
+                        <span>👤 営業マン ${contactCount}名</span>
+                        <span>🔗 ref=${partner.referralCode}</span>
+                        ${priceRange ? `<span>💰 ${priceRange}</span>` : ''}
+                    </div>
+                    ${strengths ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${strengths}</div>` : ''}
+                </div>
+            `;
+        }
+
+        async function openHMPartnerDetail(partnerId) {
+            hmDetailPartnerId = partnerId;
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partner = (res.partners || []).find(p => p.id === partnerId);
+                if (!partner) return showToast('パートナーが見つかりません', 'error');
+
+                document.getElementById('hmDetailTitle').textContent = partner.name;
+
+                const strengths = (partner.autoInfo?.strengths || []).map(s => `<li>${s}</li>`).join('');
+                const products = (partner.autoInfo?.productLines || []).join('、') || '-';
+                const structure = (partner.autoInfo?.structure || []).join('、') || '-';
+                const priceRange = partner.autoInfo?.priceRange || '-';
+                const pri = (partner.priority || '').toUpperCase();
+                const priBadge = pri ? `<span class="priority-badge priority-${pri.toLowerCase()}" style="margin-left:8px;">${pri}優先</span>` : '';
+
+                let contactsHtml = '';
+                if (partner.contacts && partner.contacts.length > 0) {
+                    contactsHtml = partner.contacts.map(c => `
+                        <div class="contact-item">
+                            <div class="contact-item-info">
+                                <div class="contact-item-name">${c.name}</div>
+                                <div class="contact-item-detail">
+                                    ${c.exhibitionHall ? `📍 ${c.exhibitionHall}` : ''}
+                                    ${c.phone ? ` | 📞 ${c.phone}` : ''}
+                                    ${c.email ? ` | ✉️ ${c.email}` : ''}
+                                </div>
+                                ${c.notes ? `<div class="contact-item-detail" style="margin-top:4px;">📝 ${c.notes}</div>` : ''}
+                            </div>
+                            <div class="contact-item-actions">
+                                <button onclick="event.stopPropagation();openHMContactEditModal('${partnerId}','${c.id}')">編集</button>
+                                <button onclick="event.stopPropagation();deleteHMContact('${partnerId}','${c.id}')" style="color:#ff3b30;">削除</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    contactsHtml = '<p style="color:var(--text-secondary);font-size:13px;">営業マン未登録</p>';
+                }
+
+                document.getElementById('hmDetailContent').innerHTML = `
+                    <div class="hm-detail-section">
+                        <h4>基本情報 ${priBadge}</h4>
+                        <div class="hm-info-grid">
+                            <div class="hm-info-item"><label>価格帯</label><span>${priceRange}</span></div>
+                            <div class="hm-info-item"><label>構造</label><span>${structure}</span></div>
+                            <div class="hm-info-item"><label>商品ライン</label><span>${products}</span></div>
+                            <div class="hm-info-item"><label>ID</label><span>${partner.id}</span></div>
+                        </div>
+                    </div>
+                    ${strengths ? `<div class="hm-detail-section"><h4>強み</h4><ul style="margin:0;padding-left:20px;font-size:14px;">${strengths}</ul></div>` : ''}
+                    <div class="hm-detail-section">
+                        <h4>紹介URL</h4>
+                        <div class="referral-url-box">
+                            <code>${partner.referralUrl}</code>
+                            <button onclick="copyReferralUrl('${partner.referralUrl}')">コピー</button>
+                        </div>
+                    </div>
+                    ${partner.manualNotes ? `<div class="hm-detail-section"><h4>メモ</h4><p style="font-size:14px;margin:0;white-space:pre-wrap;">${partner.manualNotes}</p></div>` : ''}
+                    <div class="hm-detail-section">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h4 style="margin:0;">営業マン (${(partner.contacts || []).length}名)</h4>
+                            <button class="btn" style="font-size:12px;padding:4px 12px;" onclick="openHMContactAddModal('${partnerId}')">+ 追加</button>
+                        </div>
+                        <div style="margin-top:12px;">${contactsHtml}</div>
+                    </div>
+                `;
+
+                document.getElementById('hmDetailModal').classList.add('active');
+            } catch (e) {
+                showToast('詳細取得エラー', 'error');
+            }
+        }
+
+        function closeHMDetail() {
+            document.getElementById('hmDetailModal').classList.remove('active');
+            hmDetailPartnerId = null;
+        }
+
+        function openHMPartnerAddModal() {
+            hmEditMode = null;
+            document.getElementById('hmEditTitle').textContent = 'パートナー追加';
+            document.getElementById('hmEditId').value = '';
+            document.getElementById('hmEditId').disabled = false;
+            document.getElementById('hmEditName').value = '';
+            document.getElementById('hmEditPriority').value = '';
+            document.getElementById('hmEditRefCode').value = '';
+            document.getElementById('hmEditNotes').value = '';
+            document.getElementById('hmEditModal').classList.add('active');
+        }
+
+        async function openHMPartnerEditModal(partnerId) {
+            hmEditMode = partnerId;
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partner = (res.partners || []).find(p => p.id === partnerId);
+                if (!partner) return;
+                document.getElementById('hmEditTitle').textContent = `${partner.name} を編集`;
+                document.getElementById('hmEditId').value = partner.id;
+                document.getElementById('hmEditId').disabled = true;
+                document.getElementById('hmEditName').value = partner.name;
+                document.getElementById('hmEditPriority').value = partner.priority || '';
+                document.getElementById('hmEditRefCode').value = partner.referralCode || '';
+                document.getElementById('hmEditNotes').value = partner.manualNotes || '';
+                document.getElementById('hmEditModal').classList.add('active');
+            } catch (e) {
+                showToast('データ取得エラー', 'error');
+            }
+        }
+
+        function closeHMEditModal() {
+            document.getElementById('hmEditModal').classList.remove('active');
+        }
+
+        async function saveHMPartner() {
+            const id = document.getElementById('hmEditId').value.trim();
+            const name = document.getElementById('hmEditName').value.trim();
+            const priority = document.getElementById('hmEditPriority').value;
+            const referralCode = document.getElementById('hmEditRefCode').value.trim();
+            const manualNotes = document.getElementById('hmEditNotes').value.trim();
+
+            if (!name) return showToast('会社名は必須です', 'error');
+
+            try {
+                if (hmEditMode) {
+                    await api.call('PUT', `/hm-partner/${hmEditMode}`, { name, priority: priority || null, referralCode, manualNotes });
+                    showToast(`${name} を更新しました`);
+                } else {
+                    if (!id) return showToast('IDは必須です', 'error');
+                    await api.call('POST', '/hm-partners', { id, name, priority: priority || null, referralCode: referralCode || id, manualNotes });
+                    showToast(`${name} を追加しました`);
+                }
+                closeHMEditModal();
+                closeHMDetail();
+                loadHMPartnerData();
+            } catch (e) {
+                showToast(e.message || '保存エラー', 'error');
+            }
+        }
+
+        async function deleteHMPartner(partnerId) {
+            showConfirmModal('パートナー削除', 'このパートナーを削除しますか？紹介URLも無効になります。', '削除する', async () => {
+                try {
+                    await api.call('DELETE', `/hm-partner/${partnerId}`);
+                    showToast('削除しました');
+                    closeHMDetail();
+                    loadHMPartnerData();
+                } catch (e) {
+                    showToast('削除エラー', 'error');
+                }
+            });
+        }
+
+        function editHMFromDetail() {
+            if (hmDetailPartnerId) {
+                closeHMDetail();
+                openHMPartnerEditModal(hmDetailPartnerId);
+            }
+        }
+
+        async function refreshHMFromDetail() {
+            if (!hmDetailPartnerId) return;
+            const btn = document.getElementById('hmDetailRefreshBtn');
+            btn.disabled = true;
+            btn.textContent = '更新中...';
+            try {
+                await api.call('POST', `/hm-partner/${hmDetailPartnerId}/refresh`);
+                showToast('情報を更新しました');
+                openHMPartnerDetail(hmDetailPartnerId);
+            } catch (e) {
+                showToast('更新エラー: ' + (e.message || ''), 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 情報更新';
+            }
+        }
+
+        function openHMContactAddModal(partnerId) {
+            hmContactEditMode = null;
+            document.getElementById('hmContactTitle').textContent = '営業マン追加';
+            document.getElementById('hmContactName').value = '';
+            document.getElementById('hmContactHall').value = '';
+            document.getElementById('hmContactPhone').value = '';
+            document.getElementById('hmContactEmail').value = '';
+            document.getElementById('hmContactNotes').value = '';
+            document.getElementById('hmContactModal').dataset.partnerId = partnerId;
+            document.getElementById('hmContactModal').classList.add('active');
+        }
+
+        async function openHMContactEditModal(partnerId, contactId) {
+            hmContactEditMode = { partnerId, contactId };
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partner = (res.partners || []).find(p => p.id === partnerId);
+                const contact = (partner?.contacts || []).find(c => c.id === contactId);
+                if (!contact) return;
+                document.getElementById('hmContactTitle').textContent = `${contact.name} を編集`;
+                document.getElementById('hmContactName').value = contact.name || '';
+                document.getElementById('hmContactHall').value = contact.exhibitionHall || '';
+                document.getElementById('hmContactPhone').value = contact.phone || '';
+                document.getElementById('hmContactEmail').value = contact.email || '';
+                document.getElementById('hmContactNotes').value = contact.notes || '';
+                document.getElementById('hmContactModal').dataset.partnerId = partnerId;
+                document.getElementById('hmContactModal').classList.add('active');
+            } catch (e) {
+                showToast('データ取得エラー', 'error');
+            }
+        }
+
+        function closeHMContactModal() {
+            document.getElementById('hmContactModal').classList.remove('active');
+        }
+
+        async function saveHMContact() {
+            const partnerId = document.getElementById('hmContactModal').dataset.partnerId;
+            const name = document.getElementById('hmContactName').value.trim();
+            const exhibitionHall = document.getElementById('hmContactHall').value.trim();
+            const phone = document.getElementById('hmContactPhone').value.trim();
+            const email = document.getElementById('hmContactEmail').value.trim();
+            const notes = document.getElementById('hmContactNotes').value.trim();
+
+            if (!name) return showToast('名前は必須です', 'error');
+
+            try {
+                if (hmContactEditMode) {
+                    await api.call('PUT', `/hm-partner/${partnerId}/contact/${hmContactEditMode.contactId}`, { name, exhibitionHall, phone, email, notes });
+                    showToast(`${name} を更新しました`);
+                } else {
+                    await api.call('POST', `/hm-partner/${partnerId}/contacts`, { name, exhibitionHall, phone, email, notes });
+                    showToast(`${name} を追加しました`);
+                }
+                closeHMContactModal();
+                openHMPartnerDetail(partnerId);
+            } catch (e) {
+                showToast(e.message || '保存エラー', 'error');
+            }
+        }
+
+        async function deleteHMContact(partnerId, contactId) {
+            showConfirmModal('営業マン削除', 'この営業マンを削除しますか？', '削除する', async () => {
+                try {
+                    await api.call('DELETE', `/hm-partner/${partnerId}/contact/${contactId}`);
+                    showToast('削除しました');
+                    openHMPartnerDetail(partnerId);
+                } catch (e) {
+                    showToast('削除エラー', 'error');
+                }
+            });
+        }
+
+        function copyReferralUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('URLをコピーしました');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast('URLをコピーしました');
+            });
         }
     </script>
 </body>

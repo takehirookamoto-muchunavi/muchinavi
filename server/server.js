@@ -89,6 +89,9 @@ if (IS_PRODUCTION && !GEMINI_API_KEY) {
   process.exit(1);
 }
 
+// ===== Slack通知設定 =====
+const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL || '';
+
 // ===== Perplexity API設定（リアルタイム検索） =====
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || '';
 const PERPLEXITY_CACHE = new Map(); // キャッシュ（キー: クエリ, 値: {data, timestamp}）
@@ -713,6 +716,56 @@ app.post('/api/register', async (req, res) => {
   saveDB(db);
 
   console.log('📩 新規登録:', customer.name, customer.email, '→ トークン:', token);
+
+  // ===== Slack通知（メールとは独立して必ず送信） =====
+  try {
+    if (SLACK_WEBHOOK_URL) {
+      const slackMessage = {
+        text: `🏠 *新規登録* | ${customer.name}さん`,
+        blocks: [
+          {
+            type: 'header',
+            text: { type: 'plain_text', text: '🏠 新規お客様が登録しました', emoji: true }
+          },
+          {
+            type: 'section',
+            fields: [
+              { type: 'mrkdwn', text: `*お名前:*\n${customer.name || '-'}` },
+              { type: 'mrkdwn', text: `*メール:*\n${customer.email || '-'}` },
+              { type: 'mrkdwn', text: `*希望エリア:*\n${customer.area || '-'}` },
+              { type: 'mrkdwn', text: `*予算:*\n${customer.budget || '-'}` },
+              { type: 'mrkdwn', text: `*物件種別:*\n${customer.propertyType || '-'}` },
+              { type: 'mrkdwn', text: `*家族構成:*\n${customer.family || '-'}` },
+              { type: 'mrkdwn', text: `*世帯年収:*\n${customer.householdIncome || '-'}` },
+              { type: 'mrkdwn', text: `*登録目的:*\n${customer.purpose || '-'}` },
+            ]
+          },
+          ...(customer.searchReason ? [{
+            type: 'section',
+            text: { type: 'mrkdwn', text: `*探索理由:*\n${customer.searchReason}` }
+          }] : []),
+          ...(customer.freeComment ? [{
+            type: 'section',
+            text: { type: 'mrkdwn', text: `*コメント:*\n${customer.freeComment}` }
+          }] : []),
+          {
+            type: 'context',
+            elements: [
+              { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
+            ]
+          }
+        ]
+      };
+      await fetch(SLACK_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slackMessage),
+      });
+      console.log('✅ Slack通知送信完了');
+    }
+  } catch (slackErr) {
+    console.error('⚠️ Slack通知エラー:', slackErr.message);
+  }
 
   // Send emails (non-blocking — registration always succeeds)
   try {
@@ -1563,6 +1616,45 @@ app.post('/api/direct-chat-history/:token', (req, res) => {
           </div>
         `,
       }).catch(e => console.error('通知メール送信エラー:', e.message));
+
+      // Slack通知
+      try {
+        if (SLACK_WEBHOOK_URL) {
+          await fetch(SLACK_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: `💬 ${customerName}さんからメッセージ`,
+              blocks: [
+                {
+                  type: 'header',
+                  text: { type: 'plain_text', text: '💬 個人チャット：新着メッセージ', emoji: true }
+                },
+                {
+                  type: 'section',
+                  fields: [
+                    { type: 'mrkdwn', text: `*送信者:*\n${customerName}さん` },
+                    { type: 'mrkdwn', text: `*メール:*\n${record.email || '-'}` },
+                  ]
+                },
+                {
+                  type: 'section',
+                  text: { type: 'mrkdwn', text: `*メッセージ:*\n${msgPreview}` }
+                },
+                {
+                  type: 'context',
+                  elements: [
+                    { type: 'mrkdwn', text: `📅 ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })} | MuchiNavi自動通知` }
+                  ]
+                }
+              ]
+            }),
+          });
+          console.log('✅ チャットSlack通知送信完了');
+        }
+      } catch (slackErr) {
+        console.error('⚠️ チャットSlack通知エラー:', slackErr.message);
+      }
     }
   }
 
