@@ -201,7 +201,9 @@ async function searchPerplexity(query) {
 function createTransporter() {
   if (!SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
@@ -583,10 +585,8 @@ app.get('/api/test-email', async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: SMTP_USER, pass: SMTP_PASS },
-    });
+    const transporter = createTransporter();
+    if (!transporter) return res.json({ success: false, error: 'SMTP未設定' });
 
     // SMTP接続を検証
     await transporter.verify();
@@ -770,13 +770,7 @@ app.post('/api/register', async (req, res) => {
   // Send emails (non-blocking — registration always succeeds)
   try {
     if (SMTP_USER && SMTP_PASS) {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: SMTP_USER, pass: SMTP_PASS },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 15000,
-      });
+      const transporter = createTransporter();
 
       // Verify SMTP connection first
       try {
@@ -3443,10 +3437,8 @@ app.post('/api/admin/hm-report/:token', adminAuth, async (req, res) => {
   const nextAction = req.body.nextAction || '引き続きサポート中';
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: SMTP_USER, pass: SMTP_PASS },
-    });
+    const transporter = createTransporter();
+    if (!transporter) return res.status(400).json({ error: 'SMTP未設定' });
 
     await transporter.sendMail({
       from: `MuchiNavi <${SMTP_USER}>`,
