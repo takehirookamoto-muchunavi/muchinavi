@@ -3011,7 +3011,7 @@ app.get('/api/admin/hm-partners', adminAuth, (req, res) => {
 
 // HMパートナー追加
 app.post('/api/admin/hm-partners', adminAuth, (req, res) => {
-  const { id, name, autoInfo, manualNotes, contacts, referralCode } = req.body;
+  const { id, name, autoInfo, manualNotes, contacts, referralCode, priority } = req.body;
   if (!id || !name) return res.status(400).json({ error: 'id と name は必須です' });
 
   const data = loadHMPartners();
@@ -3022,6 +3022,7 @@ app.post('/api/admin/hm-partners', adminAuth, (req, res) => {
   const newPartner = {
     id,
     name,
+    priority: priority || null,
     autoInfo: autoInfo || { strengths: [], productLines: [], priceRange: '', structure: [], lastUpdated: new Date().toISOString().split('T')[0] },
     manualNotes: manualNotes || '',
     contacts: contacts || [],
@@ -3043,7 +3044,7 @@ app.put('/api/admin/hm-partner/:id', adminAuth, (req, res) => {
   const partner = data.partners.find(p => p.id === req.params.id);
   if (!partner) return res.status(404).json({ error: 'HMパートナーが見つかりません' });
 
-  const updatable = ['name', 'autoInfo', 'manualNotes', 'referralCode', 'active'];
+  const updatable = ['name', 'autoInfo', 'manualNotes', 'referralCode', 'active', 'priority'];
   updatable.forEach(key => {
     if (req.body[key] !== undefined) partner[key] = req.body[key];
   });
