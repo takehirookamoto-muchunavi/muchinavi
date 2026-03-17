@@ -2193,7 +2193,15 @@
         .hm-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .hm-info-item label { font-size: 11px; color: var(--text-secondary); display: block; }
         .hm-info-item span { font-size: 14px; }
-        .sidebar-divider { padding: 8px 16px; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+        .sidebar-divider { padding: 4px 16px; font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 1px; text-align: center; }
+        .sidebar-tools { flex-shrink: 0; padding: 0 8px 4px; }
+        .sidebar-tools-row { display: flex; gap: 4px; }
+        .sidebar-tool-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 8px; cursor: pointer; transition: background 0.15s; position: relative; }
+        .sidebar-tool-btn:hover { background: rgba(255,255,255,0.12); }
+        .sidebar-tool-btn.active { background: rgba(255,255,255,0.18); }
+        .tool-icon { font-size: 18px; line-height: 1; }
+        .tool-label { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .tool-badge { position: absolute; top: 2px; right: 4px; font-size: 9px; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         .terass-detail-section {
             background: #f9f9fb;
             border-radius: 10px;
@@ -2304,6 +2312,7 @@
             <div class="sidebar-filter-bar" id="filterBar">
                 <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全て</button>
                 <button class="filter-btn" data-filter="attention" onclick="setFilter('attention')">要対応</button>
+                <button class="filter-btn" data-filter="terass" onclick="setFilter('terass')">TERASS</button>
                 <button class="filter-btn" data-filter="stage" onclick="setFilter('stage')">ステージ別</button>
             </div>
             <div id="stageFilterDropdown" style="display:none;padding:0 12px 8px;">
@@ -2320,25 +2329,31 @@
                 </select>
             </div>
             <div id="stageAlertBanner" style="display:none;"></div>
+            <div class="sidebar-tools">
+                <div class="sidebar-divider">── ツール ──</div>
+                <div class="sidebar-tools-row">
+                    <div class="sidebar-tool-btn" id="terassOfferMenu" onclick="openTerassOfferView()" title="TERASS Offer">
+                        <span class="tool-icon">🟠</span>
+                        <span class="tool-label">TERASS</span>
+                        <span class="terass-badge tool-badge" id="terassOfferBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="sidebar-tool-btn" id="hmPartnerMenu" onclick="openHMPartnerView()" title="HMパートナー">
+                        <span class="tool-icon">🏭</span>
+                        <span class="tool-label">HM</span>
+                        <span class="hm-badge tool-badge" id="hmPartnerBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="sidebar-tool-btn" onclick="openBroadcastView()" title="一斉配信">
+                        <span class="tool-icon">📢</span>
+                        <span class="tool-label">配信</span>
+                    </div>
+                    <div class="sidebar-tool-btn" onclick="openAnnouncementsModal()" title="お知らせ管理">
+                        <span class="tool-icon">🔔</span>
+                        <span class="tool-label">お知らせ</span>
+                    </div>
+                </div>
+            </div>
             <div class="sidebar-customers" id="customerList"></div>
-            <div class="sidebar-divider">── ツール ──</div>
-            <div class="sidebar-terass" id="terassOfferMenu" onclick="openTerassOfferView()">
-                <div class="terass-menu-item">
-                    <span class="terass-icon">🟠</span>
-                    <span class="terass-label">TERASS Offer</span>
-                    <span class="terass-badge" id="terassOfferBadge" style="display:none;">0</span>
-                </div>
-            </div>
-            <div class="sidebar-hm" id="hmPartnerMenu" onclick="openHMPartnerView()">
-                <div class="hm-menu-item">
-                    <span class="terass-icon">🏭</span>
-                    <span class="terass-label">HMパートナー</span>
-                    <span class="hm-badge" id="hmPartnerBadge" style="display:none;">0</span>
-                </div>
-            </div>
             <div class="sidebar-footer">
-                <button class="btn btn-primary" onclick="openBroadcastView()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg> 一斉配信</button>
-                <button class="btn" onclick="openAnnouncementsModal()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px; background: #f5f5f7; border: 1px solid var(--border); color: var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> お知らせ管理</button>
                 <button class="logout-btn" id="logoutBtn">ログアウト</button>
             </div>
         </div>
@@ -2761,6 +2776,13 @@
                                         <div class="form-group form-full-width">
                                             <label class="form-label">メモ</label>
                                             <textarea class="form-textarea" name="memo" placeholder="内部用メモ"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">🏭 HMパートナー</label>
+                                            <select class="form-input" name="hmPartnerId" id="hmPartnerSelect">
+                                                <option value="">未設定</option>
+                                                <!-- JS動的生成 -->
+                                            </select>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 進捗ステージ</label>
@@ -3691,9 +3713,10 @@
             const isStagnant = customer.status === 'active' && stageNum !== 8 && daysSinceStage >= threshold;
             const stagnantDot = isStagnant ? '<span class="stagnant-dot" title="ステージ滞留"></span>' : '';
             const hmBadge = customer.hmMode ? '<span style="background:#ff3b30;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;margin-left:4px;">HM</span>' : '';
+            const terassBadge = customer.source === 'terass_offer' ? '<span style="background:#ff9500;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;margin-left:4px;">TO</span>' : '';
 
             item.innerHTML = `
-                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}${hmBadge}</div>
+                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}${hmBadge}${terassBadge}</div>
                 <div class="customer-meta">
                     <span>${customer.area || '-'}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
@@ -3732,18 +3755,23 @@
 
             // フィルター適用
             let filteredCustomers = [...customers];
-            // TERASS Offer対応中を除外（approvedは通常リストに表示）
-            filteredCustomers = filteredCustomers.filter(c =>
-                c.source !== 'terass_offer' || c.offerStatus === 'approved'
-            );
-            if (currentFilter === 'attention') {
+            if (currentFilter === 'terass') {
+                // TERASSフィルター: TERASS Offer経由の顧客のみ表示（全ステータス）
+                filteredCustomers = filteredCustomers.filter(c => c.source === 'terass_offer');
+            } else {
+                // 通常フィルター: TERASS Offer対応中（未承認）を除外
                 filteredCustomers = filteredCustomers.filter(c =>
-                    c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)
+                    c.source !== 'terass_offer' || c.offerStatus === 'approved'
                 );
-            } else if (currentFilter === 'stage') {
-                const selectedStage = document.getElementById('stageFilter')?.value;
-                if (selectedStage) {
-                    filteredCustomers = filteredCustomers.filter(c => c.stage === parseInt(selectedStage));
+                if (currentFilter === 'attention') {
+                    filteredCustomers = filteredCustomers.filter(c =>
+                        c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)
+                    );
+                } else if (currentFilter === 'stage') {
+                    const selectedStage = document.getElementById('stageFilter')?.value;
+                    if (selectedStage) {
+                        filteredCustomers = filteredCustomers.filter(c => c.stage === parseInt(selectedStage));
+                    }
                 }
             }
 
@@ -4106,6 +4134,8 @@
             await loadTodosTab(customer);
             loadChatHistoryTab(customer);
             loadAgentChat(customer);
+            // 個人チャットも即座にクリア＆再読み込み（前の顧客のメッセージ残留を防止）
+            loadDirectChat();
         }
 
         async function loadDashboardTab(customer) {
@@ -4215,8 +4245,31 @@
             // 現在のステージを記憶（ステージ変更検出用）
             currentFormStage = parseInt(customer.stage) || 1;
 
+            // HMパートナードロップダウンを動的に生成
+            loadHMPartnerDropdown(customer.hmPartnerId || '');
+
             // タグ表示
             renderCustomerTagSelect(customer.tags || []);
+        }
+
+        async function loadHMPartnerDropdown(selectedId) {
+            const select = document.getElementById('hmPartnerSelect');
+            if (!select) return;
+            try {
+                const result = await fetch('/api/admin/hm-partners', { headers: { 'X-Admin-Pass': adminPass } });
+                const data = await result.json();
+                const partners = data.partners || [];
+                select.innerHTML = '<option value="">未設定</option>';
+                partners.filter(p => p.active !== false).forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.name}${p.priority ? ' [' + p.priority + ']' : ''}`;
+                    if (p.id === selectedId) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.error('HMパートナー取得エラー:', e);
+            }
         }
 
         async function renderCustomerTagSelect(customerTags) {
@@ -4257,6 +4310,17 @@
             const form = document.getElementById('customerInfoForm');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
+
+            // HMパートナー選択時に関連フィールドを自動設定
+            if (data.hmPartnerId) {
+                const hmSelect = document.getElementById('hmPartnerSelect');
+                const selectedOption = hmSelect?.options[hmSelect.selectedIndex];
+                data.hmPartnerName = selectedOption ? selectedOption.textContent.replace(/\s*\[.*\]$/, '') : '';
+                data.hmMode = true;
+            } else {
+                data.hmMode = false;
+                data.hmPartnerName = '';
+            }
 
             const submitBtn = form.querySelector('button[type="submit"]');
             setButtonLoading(submitBtn, true);
