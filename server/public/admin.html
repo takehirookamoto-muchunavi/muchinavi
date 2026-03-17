@@ -2202,8 +2202,9 @@
         .sub-tab-pane.active { display: block; }
 
         /* フローティングAI相談パネル */
-        .agent-float-btn { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(102,126,234,0.4); z-index: 100; transition: transform 0.2s, box-shadow 0.2s; }
-        .agent-float-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(102,126,234,0.5); }
+        .agent-float-btn { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; cursor: grab; box-shadow: 0 4px 16px rgba(102,126,234,0.4); z-index: 100; transition: box-shadow 0.2s; user-select: none; touch-action: none; }
+        .agent-float-btn:hover { box-shadow: 0 6px 24px rgba(102,126,234,0.5); }
+        .agent-float-btn.dragging { cursor: grabbing; box-shadow: 0 8px 32px rgba(102,126,234,0.6); transform: scale(1.1); }
         .agent-float-panel { position: fixed; bottom: 88px; right: 24px; width: 380px; height: 520px; background: white; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.15); z-index: 100; display: flex; flex-direction: column; overflow: hidden; }
         .agent-float-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; font-size: 14px; }
 
@@ -4973,6 +4974,11 @@
             const panel = document.getElementById('agentChatPanel');
             const btn = document.getElementById('agentChatFloating');
             if (panel.style.display === 'none') {
+                // パネルをボタンの位置に合わせて表示
+                const btnRect = btn.getBoundingClientRect();
+                panel.style.bottom = (window.innerHeight - btnRect.top + 12) + 'px';
+                panel.style.right = (window.innerWidth - btnRect.right) + 'px';
+                panel.style.left = 'auto';
                 panel.style.display = 'flex';
                 btn.style.display = 'none';
                 if (agentChatMessages.length > 0) {
@@ -4985,6 +4991,65 @@
                 btn.style.display = 'flex';
             }
         }
+
+        // ドラッグ移動機能
+        (function() {
+            const btn = document.getElementById('agentChatFloating');
+            if (!btn) return;
+            let isDragging = false, hasMoved = false, startX, startY, startLeft, startTop;
+
+            function onStart(e) {
+                const touch = e.touches ? e.touches[0] : e;
+                isDragging = true; hasMoved = false;
+                startX = touch.clientX; startY = touch.clientY;
+                const rect = btn.getBoundingClientRect();
+                startLeft = rect.left; startTop = rect.top;
+                btn.classList.add('dragging');
+                e.preventDefault();
+            }
+            function onMove(e) {
+                if (!isDragging) return;
+                const touch = e.touches ? e.touches[0] : e;
+                const dx = touch.clientX - startX, dy = touch.clientY - startY;
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMoved = true;
+                if (!hasMoved) return;
+                let newLeft = startLeft + dx, newTop = startTop + dy;
+                // 画面内に制限
+                newLeft = Math.max(0, Math.min(window.innerWidth - 52, newLeft));
+                newTop = Math.max(0, Math.min(window.innerHeight - 52, newTop));
+                btn.style.left = newLeft + 'px'; btn.style.top = newTop + 'px';
+                btn.style.right = 'auto'; btn.style.bottom = 'auto';
+                e.preventDefault();
+            }
+            function onEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                btn.classList.remove('dragging');
+                // 位置をlocalStorageに保存
+                if (hasMoved) {
+                    localStorage.setItem('agentBtnPos', JSON.stringify({
+                        left: btn.style.left, top: btn.style.top
+                    }));
+                }
+            }
+            // クリック vs ドラッグの判別
+            btn.removeAttribute('onclick');
+            btn.addEventListener('mousedown', onStart);
+            btn.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('mouseup', (e) => { if (isDragging && !hasMoved) toggleAgentPanel(); onEnd(); });
+            document.addEventListener('touchend', (e) => { if (isDragging && !hasMoved) toggleAgentPanel(); onEnd(); });
+
+            // 保存位置の復元
+            try {
+                const saved = JSON.parse(localStorage.getItem('agentBtnPos'));
+                if (saved) {
+                    btn.style.left = saved.left; btn.style.top = saved.top;
+                    btn.style.right = 'auto'; btn.style.bottom = 'auto';
+                }
+            } catch(e) {}
+        })();
 
         async function loadDirectChat() {
             if (!selectedToken) return;
