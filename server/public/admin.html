@@ -2193,6 +2193,20 @@
         .hm-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .hm-info-item label { font-size: 11px; color: var(--text-secondary); display: block; }
         .hm-info-item span { font-size: 14px; }
+        /* サブタブ（タブ内のタブ） */
+        .sub-tab-nav { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .sub-tab-btn { padding: 10px 16px; font-size: 13px; font-weight: 500; color: var(--text-secondary); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+        .sub-tab-btn:hover { color: var(--text-primary); }
+        .sub-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+        .sub-tab-pane { display: none; }
+        .sub-tab-pane.active { display: block; }
+
+        /* フローティングAI相談パネル */
+        .agent-float-btn { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(102,126,234,0.4); z-index: 100; transition: transform 0.2s, box-shadow 0.2s; }
+        .agent-float-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(102,126,234,0.5); }
+        .agent-float-panel { position: fixed; bottom: 88px; right: 24px; width: 380px; height: 520px; background: white; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.15); z-index: 100; display: flex; flex-direction: column; overflow: hidden; }
+        .agent-float-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; font-size: 14px; }
+
         .sidebar-divider { padding: 4px 16px; font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 1px; text-align: center; }
         .sidebar-tools { flex-shrink: 0; padding: 0 8px 4px; }
         .sidebar-tools-row { display: flex; gap: 4px; }
@@ -2261,6 +2275,8 @@
             .terass-header { padding: 16px; }
             .terass-pipeline { padding: 0 16px; }
             .offer-card-info { flex-direction: column; gap: 4px; }
+            .agent-float-panel { width: calc(100vw - 32px); right: 16px; bottom: 80px; height: 60vh; }
+            .agent-float-btn { bottom: 16px; right: 16px; }
         }
     </style>
 </head>
@@ -2470,33 +2486,86 @@
                 <!-- Tab Navigation -->
                 <div class="tab-nav-wrapper" id="tabNavWrapper">
                 <div class="tab-nav" id="tabNav">
-                    <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
-                    <button class="tab-btn" data-tab="info">お客様情報</button>
-                    <button class="tab-btn" data-tab="checklist">チェックリスト</button>
-                    <button class="tab-btn" data-tab="interactions">やり取り履歴</button>
-                    <button class="tab-btn" data-tab="todo">ToDo</button>
-                    <button class="tab-btn" data-tab="chatHistory">チャット履歴</button>
-                    <button class="tab-btn" data-tab="agentChat">エージェント相談室</button>
-                    <button class="tab-btn" data-tab="feedback">フィードバック</button>
-                    <button class="tab-btn" data-tab="carte">📋 カルテ</button>
+                    <button class="tab-btn active" data-tab="overview">📋 概要</button>
+                    <button class="tab-btn" data-tab="info">👤 情報</button>
+                    <button class="tab-btn" data-tab="communication">💬 やり取り</button>
+                    <button class="tab-btn" data-tab="tasks">✅ タスク</button>
                 </div>
                 </div>
 
                 <!-- Tab Content -->
                 <div class="tab-content">
-                    <!-- Dashboard Tab -->
-                    <div id="dashboardTab" class="tab-pane active">
+                    <!-- 概要タブ (旧ダッシュボード + カルテ + フィードバック統合) -->
+                    <div id="overviewTab" class="tab-pane active">
+                        <!-- カルテサマリー -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; margin-bottom: 20px;">
+                            <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">お客様カルテ</div>
+                            <div style="font-size: 20px; font-weight: 700;" id="carteCustomerName">-</div>
+                            <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px; opacity: 0.9;">
+                                <span id="carteAge">-</span>
+                                <span id="cartePrefecture">-</span>
+                                <span id="cartePropertyType">-</span>
+                            </div>
+                        </div>
+
+                        <!-- ダッシュボードグリッド -->
                         <div class="dashboard-grid" id="dashboardGrid"></div>
+
+                        <!-- 希望条件 -->
+                        <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">🏠</span> 希望条件
+                            </div>
+                            <div id="carteConditions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
+                        </div>
+
+                        <!-- エージェントメモ -->
+                        <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">📝</span> エージェントメモ
+                                <span style="font-size: 11px; color: var(--text-secondary); font-weight: 400;">（お客様には表示されません）</span>
+                            </div>
+                            <textarea id="carteAgentMemo" placeholder="お客様の特徴、注意点、提案方針などを記録&#10;&#10;例: 学区重視。第一子が来年小学校入学予定。通勤は渋谷まで40分以内希望。" rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                <span id="carteMemoSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
+                                <button class="btn btn-primary" onclick="saveCarteMemo()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">メモを保存</button>
+                            </div>
+                        </div>
+
+                        <!-- お客様向け提案メモ -->
+                        <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">💡</span> お客様向け提案メモ
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">ここに入力した内容は、お客様のカルテページに「エージェントからのアドバイス」として表示されます。</p>
+                            <textarea id="carteCustomerAdvice" placeholder="お客様へのアドバイスや提案を記入&#10;&#10;例: 現在の年収と予算感は無理のない範囲です。頭金を増やせると月々の返済が楽になります。" rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                <span id="carteAdviceSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
+                                <button class="btn btn-primary" onclick="saveCarteAdvice()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">提案を保存・公開</button>
+                            </div>
+                        </div>
+
+                        <!-- 最近のやり取り -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                             <h3>最近のやり取り</h3>
-                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=interactions]').click()">全て見る</button>
+                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=communication]').click()">全て見る</button>
                         </div>
                         <div id="recentInteractions"></div>
+
+                        <!-- 直近のToDo -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
                             <h3>直近のToDo</h3>
-                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=todo]').click()">全て見る</button>
+                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=tasks]').click()">全て見る</button>
                         </div>
                         <div id="recentTodos"></div>
+
+                        <!-- フィードバック -->
+                        <div style="margin-top: 32px;">
+                            <h3 style="margin-bottom: 16px;">フィードバック</h3>
+                            <div id="feedbackContent" style="padding: 0;">
+                                <p style="color: var(--text-secondary); font-size: 13px;">フィードバックデータを読み込み中...</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Customer Info Tab -->
@@ -2815,73 +2884,43 @@
                         </form>
                     </div>
 
-                    <!-- Checklist Tab -->
-                    <div id="checklistTab" class="tab-pane">
-                        <div id="checklistContainer"></div>
-                    </div>
+                    <!-- やり取りタブ (旧やり取り履歴 + チャット履歴 統合) -->
+                    <div id="communicationTab" class="tab-pane">
+                        <div class="sub-tab-nav">
+                            <button class="sub-tab-btn active" onclick="switchSubTab('comm', 'interactions')">📋 履歴記録</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('comm', 'aiChat')">🤖 MuchiNavi</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('comm', 'directChat')">💬 個人チャット</button>
+                        </div>
 
-                    <!-- Interactions Tab -->
-                    <div id="interactionsTab" class="tab-pane">
-                        <div class="interaction-form">
-                            <form id="interactionForm" class="interaction-grid">
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <select class="form-select" id="interactionMethod" required>
-                                        <option value="">連絡方法を選択</option>
-                                        <option value="電話">電話</option>
-                                        <option value="メール">メール</option>
-                                        <option value="LINE">LINE</option>
-                                        <option value="来店">来店</option>
-                                        <option value="内見">内見</option>
-                                        <option value="その他">その他</option>
-                                    </select>
+                        <!-- 履歴記録サブタブ -->
+                        <div class="sub-tab-pane active" id="commInteractionsPane">
+                            <div class="interaction-form">
+                                <form id="interactionForm" class="interaction-grid">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select class="form-select" id="interactionMethod" required>
+                                            <option value="">連絡方法を選択</option>
+                                            <option value="電話">電話</option>
+                                            <option value="メール">メール</option>
+                                            <option value="LINE">LINE</option>
+                                            <option value="来店">来店</option>
+                                            <option value="内見">内見</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="datetime-local" class="form-input" id="interactionDate" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">追加</button>
+                                </form>
+                                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                    <textarea class="form-textarea" id="interactionContent" placeholder="やり取りの内容..." style="margin-bottom: 0;"></textarea>
                                 </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <input type="datetime-local" class="form-input" id="interactionDate" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
-                                </div>
-                                <button type="submit" class="btn btn-primary">追加</button>
-                            </form>
-                            <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
-                                <textarea class="form-textarea" id="interactionContent" placeholder="やり取りの内容..." style="margin-bottom: 0;"></textarea>
                             </div>
-                        </div>
-                        <div class="interaction-list" id="interactionsList"></div>
-                    </div>
-
-                    <!-- Todo Tab -->
-                    <div id="todoTab" class="tab-pane">
-                        <div class="todo-form">
-                            <form id="todoForm" class="todo-grid">
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <input type="text" class="form-input" id="todoText" placeholder="ToDoを入力..." required>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <select class="form-select" id="todoPriority">
-                                        <option value="medium">中</option>
-                                        <option value="high">高</option>
-                                        <option value="low">低</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <input type="date" class="form-input" id="todoDeadline">
-                                </div>
-                                <button type="submit" class="btn btn-primary">追加</button>
-                            </form>
-                            <button class="ai-suggest-btn" id="aiSuggestBtn" style="margin-top: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> AI提案</button>
-                            <div id="suggestionsContainer"></div>
-                        </div>
-                        <div class="todo-list" id="todosList"></div>
-                    </div>
-
-                    <!-- Chat History Tab -->
-                    <div id="chatHistoryTab" class="tab-pane">
-                        <!-- Sub-tab navigation -->
-                        <div style="display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border);">
-                            <button class="chat-sub-tab active" id="subTabAI" onclick="switchAdminChatSub('ai')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> MuchiNavi</button>
-                            <button class="chat-sub-tab" id="subTabDirect" onclick="switchAdminChatSub('direct')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 個人チャット</button>
+                            <div class="interaction-list" id="interactionsList"></div>
                         </div>
 
-                        <!-- AI Chat sub-pane (existing content) -->
-                        <div id="aiChatSubPane">
+                        <!-- MuchiNavi AIチャット サブタブ -->
+                        <div class="sub-tab-pane" id="commAiChatPane">
                             <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
                                 <button class="btn btn-primary" id="refreshChatHistoryBtn" style="flex: 0 0 auto;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 再読み込み</button>
                                 <button class="btn btn-primary" id="extractInfoBtn" style="flex: 0 0 auto;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> チャットから情報を自動抽出</button>
@@ -2892,9 +2931,7 @@
                                     <span id="dateRangeInfo" style="margin-left: 16px;"></span>
                                 </div>
                             </div>
-                            <div id="chatHistoryMessages" style="background: white; border-radius: 8px; padding: 16px; min-height: 300px; border: 1px solid var(--border); margin-bottom: 20px;">
-                                <!-- Chat messages will be rendered here -->
-                            </div>
+                            <div id="chatHistoryMessages" style="background: white; border-radius: 8px; padding: 16px; min-height: 300px; border: 1px solid var(--border); margin-bottom: 20px;"></div>
                             <div id="extractionPanel" style="display: none;">
                                 <div style="background: var(--glass-light); border-radius: 8px; padding: 20px; margin-bottom: 16px;">
                                     <h3 style="margin-bottom: 16px;">抽出された情報</h3>
@@ -2907,8 +2944,8 @@
                             </div>
                         </div>
 
-                        <!-- Direct Chat sub-pane (new) -->
-                        <div id="directChatSubPane" style="display: none;">
+                        <!-- 個人チャット サブタブ -->
+                        <div class="sub-tab-pane" id="commDirectChatPane">
                             <div style="display: flex; gap: 12px; margin-bottom: 20px;">
                                 <button class="btn btn-primary" onclick="loadDirectChat()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 再読み込み</button>
                             </div>
@@ -2930,87 +2967,67 @@
                         </div>
                     </div>
 
-                    <!-- Agent Chat Tab -->
-                    <div id="agentChatTab" class="tab-pane" style="padding: 0; display: flex; flex-direction: column;">
-                        <div class="chat-container">
-                            <div class="chat-messages" id="agentChatMessages">
-                                <div class="chat-welcome">
-                                    <div class="chat-welcome-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-                                    <div class="chat-welcome-title">エージェント相談室</div>
-                                    <div class="chat-hints">
-                                        <div class="chat-hint">次のアプローチは？</div>
-                                        <div class="chat-hint">潜在ニーズ分析</div>
-                                        <div class="chat-hint">物件提案のコツ</div>
+                    <!-- タスクタブ (旧ToDo + チェックリスト 統合) -->
+                    <div id="tasksTab" class="tab-pane">
+                        <div class="sub-tab-nav">
+                            <button class="sub-tab-btn active" onclick="switchSubTab('tasks', 'todo')">📝 ToDo</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('tasks', 'checklist')">✅ チェックリスト</button>
+                        </div>
+
+                        <!-- ToDoサブタブ -->
+                        <div class="sub-tab-pane active" id="tasksTodoPane">
+                            <div class="todo-form">
+                                <form id="todoForm" class="todo-grid">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="text" class="form-input" id="todoText" placeholder="ToDoを入力..." required>
                                     </div>
-                                </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select class="form-select" id="todoPriority">
+                                            <option value="medium">中</option>
+                                            <option value="high">高</option>
+                                            <option value="low">低</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="date" class="form-input" id="todoDeadline">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">追加</button>
+                                </form>
+                                <button class="ai-suggest-btn" id="aiSuggestBtn" style="margin-top: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> AI提案</button>
+                                <div id="suggestionsContainer"></div>
                             </div>
-                            <div class="agent-quick-actions" id="agentQuickActions">
-                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">次のアプローチは？</button>
-                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">潜在ニーズ分析</button>
-                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">物件提案のコツ</button>
-                            </div>
-                            <div class="chat-input-container">
-                                <textarea class="chat-input" id="agentChatInput" placeholder="メッセージを入力..."></textarea>
-                                <button class="chat-send" id="agentChatSend">送信</button>
-                            </div>
+                            <div class="todo-list" id="todosList"></div>
+                        </div>
+
+                        <!-- チェックリストサブタブ -->
+                        <div class="sub-tab-pane" id="tasksChecklistPane">
+                            <div id="checklistContainer"></div>
                         </div>
                     </div>
 
-                    <!-- Feedback Tab -->
-                    <div id="feedbackTab" class="tab-pane">
-                        <div id="feedbackContent" style="padding: 8px 0;">
-                            <p style="color: var(--text-secondary); font-size: 13px;">フィードバックデータを読み込み中...</p>
-                        </div>
+                    <!-- フローティング AI相談ボタン + パネル -->
+                    <div id="agentChatFloating" class="agent-float-btn" onclick="toggleAgentPanel()" title="AI相談">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
                     </div>
-
-                    <!-- カルテタブ -->
-                    <div id="carteTab" class="tab-pane">
-                        <div style="padding: 8px 0;">
-                            <!-- カルテサマリー -->
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; margin-bottom: 20px;">
-                                <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">お客様カルテ</div>
-                                <div style="font-size: 20px; font-weight: 700;" id="carteCustomerName">-</div>
-                                <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px; opacity: 0.9;">
-                                    <span id="carteAge">-</span>
-                                    <span id="cartePrefecture">-</span>
-                                    <span id="cartePropertyType">-</span>
-                                </div>
+                    <div id="agentChatPanel" class="agent-float-panel" style="display:none;">
+                        <div class="agent-float-header">
+                            <span>🤖 AI相談室</span>
+                            <button onclick="toggleAgentPanel()" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+                        </div>
+                        <div class="chat-messages" id="agentChatMessages" style="flex:1;overflow-y:auto;padding:12px;">
+                            <div class="chat-welcome">
+                                <div class="chat-welcome-icon" style="margin-bottom:8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+                                <div class="chat-welcome-title" style="font-size:15px;">エージェント相談室</div>
                             </div>
-
-                            <!-- 現状の条件 -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">🏠</span> 希望条件
-                                </div>
-                                <div id="carteConditions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                </div>
-                            </div>
-
-                            <!-- カルテメモ（管理者のみ） -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">📝</span> エージェントメモ
-                                    <span style="font-size: 11px; color: var(--text-secondary); font-weight: 400;">（お客様には表示されません）</span>
-                                </div>
-                                <textarea id="carteAgentMemo" placeholder="お客様の特徴、注意点、提案方針などを記録&#10;&#10;例: 学区重視。第一子が来年小学校入学予定。通勤は渋谷まで40分以内希望。" rows="6" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <span id="carteMemoSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
-                                    <button class="btn btn-primary" onclick="saveCarteMemo()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">メモを保存</button>
-                                </div>
-                            </div>
-
-                            <!-- お客様向け提案メモ -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">💡</span> お客様向け提案メモ
-                                </div>
-                                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">ここに入力した内容は、お客様のカルテページに「エージェントからのアドバイス」として表示されます。</p>
-                                <textarea id="carteCustomerAdvice" placeholder="お客様へのアドバイスや提案を記入&#10;&#10;例: 現在の年収と予算感は無理のない範囲です。頭金を増やせると月々の返済が楽になります。世田谷区で4LDKは難しいかもしれませんが、隣接する狛江市なら予算内で見つかりやすいです。" rows="6" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <span id="carteAdviceSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
-                                    <button class="btn btn-primary" onclick="saveCarteAdvice()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">提案を保存・公開</button>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="agent-quick-actions" id="agentQuickActions" style="padding:8px 12px;gap:6px;">
+                            <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)" style="font-size:11px;padding:4px 10px;">次のアプローチは？</button>
+                            <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)" style="font-size:11px;padding:4px 10px;">潜在ニーズ分析</button>
+                            <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)" style="font-size:11px;padding:4px 10px;">物件提案のコツ</button>
+                        </div>
+                        <div style="padding:8px 12px 12px;display:flex;gap:8px;">
+                            <textarea class="chat-input" id="agentChatInput" placeholder="メッセージを入力..." style="flex:1;min-height:36px;max-height:80px;font-size:13px;padding:8px 12px;"></textarea>
+                            <button class="chat-send" id="agentChatSend" style="padding:8px 14px;font-size:13px;">送信</button>
                         </div>
                     </div>
 
@@ -4109,33 +4126,29 @@
                 e.target.classList.add('active');
                 document.getElementById(`${tab}Tab`).classList.add('active');
 
-                if (tab === 'agentChat') {
-                    if (agentChatMessages.length > 0) {
-                        renderAgentChat();
-                    } else {
-                        showAgentChatWelcome();
-                    }
-                }
-                if (tab === 'feedback') {
+                if (tab === 'overview') {
                     loadFeedbackTab();
-                }
-                if (tab === 'carte') {
-                    loadCarteTab();
                 }
             });
         });
 
         // ======================== CUSTOMER INFO TAB ========================
         async function loadCustomerTabs(customer) {
+            // 概要タブ (旧ダッシュボード + カルテ + フィードバック)
             await loadDashboardTab(customer);
+            loadCarteTab();
+            loadFeedbackTab();
+            // 情報タブ
             loadInfoForm(customer);
-            await loadChecklistTab(customer);
-            await loadInteractionsTab(customer);
+            // タスクタブ (ToDo + チェックリスト)
             await loadTodosTab(customer);
+            await loadChecklistTab(customer);
+            // やり取りタブ (履歴 + AIチャット + 個人チャット)
+            await loadInteractionsTab(customer);
             loadChatHistoryTab(customer);
-            loadAgentChat(customer);
-            // 個人チャットも即座にクリア＆再読み込み（前の顧客のメッセージ残留を防止）
             loadDirectChat();
+            // AI相談 (フローティングパネル)
+            loadAgentChat(customer);
         }
 
         async function loadDashboardTab(customer) {
@@ -4507,12 +4520,12 @@
                 const todos = result.todos || [];
                 renderTodosList(todos);
 
-                // ToDoタブに期限切れバッジ表示
-                const todoBtn = document.querySelector('[data-tab="todo"]');
-                if (todoBtn) {
+                // タスクタブに期限切れバッジ表示
+                const tasksBtn = document.querySelector('[data-tab="tasks"]');
+                if (tasksBtn) {
                     const todayStr = new Date().toISOString().split('T')[0];
                     const overdueCount = todos.filter(t => !t.done && t.deadline && t.deadline < todayStr).length;
-                    todoBtn.innerHTML = overdueCount > 0 ? `ToDo <span class="tab-badge">${overdueCount}</span>` : 'ToDo';
+                    tasksBtn.innerHTML = overdueCount > 0 ? `✅ タスク <span class="tab-badge">${overdueCount}</span>` : '✅ タスク';
                 }
             } catch (error) {
                 showToast('エラー: ToDoの読み込みに失敗しました', 'error');
@@ -4939,13 +4952,38 @@
         });
 
         // ======================== DIRECT CHAT (個人チャット) ========================
-        function switchAdminChatSub(tab) {
-            document.getElementById('subTabAI').classList.toggle('active', tab === 'ai');
-            document.getElementById('subTabDirect').classList.toggle('active', tab === 'direct');
-            document.getElementById('aiChatSubPane').style.display = tab === 'ai' ? 'block' : 'none';
-            document.getElementById('directChatSubPane').style.display = tab === 'direct' ? 'block' : 'none';
+        // 汎用サブタブ切替
+        function switchSubTab(group, subTab) {
+            const parent = document.getElementById(`${group === 'comm' ? 'communication' : group}Tab`);
+            if (!parent) return;
+            parent.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+            parent.querySelectorAll('.sub-tab-pane').forEach(p => p.classList.remove('active'));
+            // ボタンのactive
+            const paneId = `${group}${subTab.charAt(0).toUpperCase() + subTab.slice(1)}Pane`;
+            const pane = document.getElementById(paneId);
+            if (pane) pane.classList.add('active');
+            // ボタンにactiveを付与（イベントのtargetから）
+            event.target.classList.add('active');
+            // データロード
+            if (subTab === 'directChat') loadDirectChat();
+        }
 
-            if (tab === 'direct') loadDirectChat();
+        // フローティングAI相談パネルの開閉
+        function toggleAgentPanel() {
+            const panel = document.getElementById('agentChatPanel');
+            const btn = document.getElementById('agentChatFloating');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'flex';
+                btn.style.display = 'none';
+                if (agentChatMessages.length > 0) {
+                    renderAgentChat();
+                } else {
+                    showAgentChatWelcome();
+                }
+            } else {
+                panel.style.display = 'none';
+                btn.style.display = 'flex';
+            }
         }
 
         async function loadDirectChat() {
