@@ -3031,6 +3031,7 @@
                 <button class="top-nav-btn" onclick="navigateTo('terass')" id="navTerassBtn" title="TERASS Offer">🟠<span class="nav-label">TERASS</span><span class="nav-badge" id="terassNavBadge" style="display:none;">0</span></button>
                 <button class="top-nav-btn" onclick="navigateTo('hm')" id="navHMBtn" title="HMパートナー">🏭<span class="nav-label">HM</span></button>
                 <button class="top-nav-btn" onclick="navigateTo('broadcast')" id="navBroadcastBtn" title="配信">📢<span class="nav-label">配信</span></button>
+                <button class="top-nav-btn" onclick="navigateTo('feedback')" id="navFeedbackBtn" title="フィードバック">📊<span class="nav-label">FB</span></button>
                 <button class="top-nav-btn" onclick="showPasswordModal()" title="設定"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                 <button class="top-nav-btn logout-btn" id="logoutBtnNav" title="ログアウト"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
             </div>
@@ -3863,6 +3864,48 @@
         </div>
     </div>
 
+            <!-- Feedback Dashboard View -->
+            <div id="feedbackDashboardView" style="display:none; padding-top: 72px;">
+                <div style="max-width:1200px;margin:0 auto;padding:24px;">
+                    <h2 style="font-size:24px;font-weight:700;margin-bottom:24px;">📊 フィードバックダッシュボード</h2>
+
+                    <!-- 統計カード -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px;" id="fbStatsCards">
+                        <div class="hm-stat-card"><div class="hm-stat-value" id="fbAvgRating">-</div><div class="hm-stat-label">平均満足度 (★/5)</div></div>
+                        <div class="hm-stat-card"><div class="hm-stat-value" id="fbTotalCount">-</div><div class="hm-stat-label">フィードバック数</div></div>
+                        <div class="hm-stat-card"><div class="hm-stat-value" id="fbNpsScore">-</div><div class="hm-stat-label">NPSスコア</div></div>
+                        <div class="hm-stat-card"><div class="hm-stat-value" id="fbActiveUsers">-</div><div class="hm-stat-label">アクティブ顧客</div></div>
+                    </div>
+
+                    <!-- NPS分布 -->
+                    <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:24px;">
+                        <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">📈 NPS分布</h3>
+                        <div style="display:flex;gap:8px;align-items:flex-end;height:60px;margin-bottom:8px;" id="npsDistChart"></div>
+                        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);">
+                            <span>🔴 批判者 (0-6)</span><span>🟡 中立者 (7-8)</span><span>🟢 推奨者 (9-10)</span>
+                        </div>
+                    </div>
+
+                    <!-- 満足度分布 -->
+                    <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:24px;">
+                        <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">⭐ 満足度分布</h3>
+                        <div id="fbDistribution"></div>
+                    </div>
+
+                    <!-- 最新フィードバック -->
+                    <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:24px;">
+                        <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">💬 最新フィードバック</h3>
+                        <div id="fbLatestList" style="max-height:400px;overflow-y:auto;"></div>
+                    </div>
+
+                    <!-- 行動データ -->
+                    <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow-sm);">
+                        <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">📱 行動データ</h3>
+                        <div id="fbActivityStats"></div>
+                    </div>
+                </div>
+            </div>
+
     <!-- TERASS Offer Detail Modal -->
     <div id="terassDetailModal" class="modal-overlay">
         <div class="modal" style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;">
@@ -4187,7 +4230,7 @@
         // ======================== NEW NAVIGATION & LIST VIEW ========================
         function navigateTo(view) {
             currentView = view;
-            const views = ['listView', 'detailView', 'broadcastView', 'terassOfferView', 'hmPartnerView'];
+            const views = ['listView', 'detailView', 'broadcastView', 'terassOfferView', 'hmPartnerView', 'feedbackDashboardView'];
             views.forEach(v => {
                 const el = document.getElementById(v);
                 if (el) el.style.display = 'none';
@@ -4205,10 +4248,13 @@
             } else if (view === 'hm') {
                 document.getElementById('hmPartnerView').style.display = 'block';
                 loadHMPartnerData();
+            } else if (view === 'feedback') {
+                document.getElementById('feedbackDashboardView').style.display = 'block';
+                loadFeedbackDashboard();
             }
             // Update nav active state
             document.querySelectorAll('.top-nav-btn').forEach(b => b.classList.remove('active'));
-            const navMap = { list: 'navListBtn', terass: 'navTerassBtn', hm: 'navHMBtn', broadcast: 'navBroadcastBtn' };
+            const navMap = { list: 'navListBtn', terass: 'navTerassBtn', hm: 'navHMBtn', broadcast: 'navBroadcastBtn', feedback: 'navFeedbackBtn' };
             if (navMap[view]) document.getElementById(navMap[view])?.classList.add('active');
         }
 
@@ -7430,6 +7476,115 @@
 
         function closeHMPartnerView() {
             navigateTo('list');
+        }
+
+        // ======================== FEEDBACK DASHBOARD ========================
+        async function loadFeedbackDashboard() {
+            try {
+                const [fbRes, npsRes, actRes] = await Promise.all([
+                    api.call('GET', '/feedback'),
+                    api.call('GET', '/nps'),
+                    api.call('GET', '/activity-stats')
+                ]);
+
+                // 満足度統計
+                document.getElementById('fbAvgRating').textContent = fbRes.stats?.average || '-';
+                document.getElementById('fbTotalCount').textContent = fbRes.stats?.total || '0';
+
+                // NPS統計
+                const npsScore = npsRes.stats?.npsScore;
+                document.getElementById('fbNpsScore').textContent = npsScore !== undefined ? (npsScore > 0 ? '+' + npsScore : npsScore) : '-';
+                document.getElementById('fbNpsScore').style.color = npsScore >= 50 ? '#34c759' : npsScore >= 0 ? '#ff9500' : '#ff3b30';
+
+                // アクティブユーザー
+                document.getElementById('fbActiveUsers').textContent = actRes.activeCustomers || '0';
+
+                // NPS分布チャート
+                const npsChart = document.getElementById('npsDistChart');
+                if (npsRes.nps && npsRes.nps.length > 0) {
+                    const dist = new Array(11).fill(0);
+                    npsRes.nps.forEach(n => { dist[n.score]++; });
+                    const maxVal = Math.max(...dist, 1);
+                    npsChart.innerHTML = dist.map((count, i) => {
+                        const h = Math.max(count / maxVal * 50, 2);
+                        const color = i <= 6 ? '#ff3b30' : i <= 8 ? '#ff9500' : '#34c759';
+                        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                            <div style="font-size:9px;color:var(--text-secondary);margin-bottom:2px;">${count}</div>
+                            <div style="width:100%;height:${h}px;background:${color};border-radius:4px;"></div>
+                            <div style="font-size:9px;margin-top:2px;">${i}</div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    npsChart.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:16px;">NPS回答データがまだありません</div>';
+                }
+
+                // 満足度分布
+                const distEl = document.getElementById('fbDistribution');
+                const distribution = fbRes.stats?.distribution || [0,0,0,0,0];
+                const totalFb = distribution.reduce((a,b) => a + b, 0) || 1;
+                distEl.innerHTML = [5,4,3,2,1].map(star => {
+                    const count = distribution[star - 1];
+                    const pct = (count / totalFb * 100).toFixed(0);
+                    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="font-size:13px;width:30px;">★${star}</span>
+                        <div style="flex:1;height:12px;background:#f5f5f7;border-radius:6px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:${star >= 4 ? '#34c759' : star >= 3 ? '#ff9500' : '#ff3b30'};border-radius:6px;transition:width 0.5s;"></div>
+                        </div>
+                        <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right;">${count}件</span>
+                    </div>`;
+                }).join('');
+
+                // 最新フィードバック
+                const listEl = document.getElementById('fbLatestList');
+                const allFb = [...(fbRes.feedback || []), ...(npsRes.nps || []).map(n => ({ ...n, isNps: true }))];
+                allFb.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                if (allFb.length === 0) {
+                    listEl.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:8px;">フィードバックがまだありません</div>';
+                } else {
+                    listEl.innerHTML = allFb.slice(0, 20).map(fb => {
+                        const date = new Date(fb.createdAt).toLocaleDateString('ja-JP');
+                        if (fb.isNps) {
+                            const color = fb.score >= 9 ? '#34c759' : fb.score >= 7 ? '#ff9500' : '#ff3b30';
+                            return `<div style="padding:10px 0;border-bottom:1px solid #f5f5f7;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="font-weight:600;font-size:13px;">${fb.customerName || '-'}</span>
+                                    <span style="font-size:11px;color:var(--text-secondary);">${date}</span>
+                                </div>
+                                <div style="margin-top:4px;"><span style="background:${color};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">NPS: ${fb.score}/10</span></div>
+                                ${fb.comment ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${fb.comment}</div>` : ''}
+                            </div>`;
+                        } else {
+                            return `<div style="padding:10px 0;border-bottom:1px solid #f5f5f7;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="font-weight:600;font-size:13px;">${fb.customerName || '-'}</span>
+                                    <span style="font-size:11px;color:var(--text-secondary);">${date}</span>
+                                </div>
+                                <div style="margin-top:4px;color:#ffb800;font-size:13px;">${'★'.repeat(fb.rating)}${'☆'.repeat(5-fb.rating)}</div>
+                                ${fb.tags?.length ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${fb.tags.join(', ')}</div>` : ''}
+                                ${fb.comment ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${fb.comment}</div>` : ''}
+                            </div>`;
+                        }
+                    }).join('');
+                }
+
+                // 行動データ
+                const actEl = document.getElementById('fbActivityStats');
+                const breakdown = actRes.actionBreakdown || {};
+                const actionLabels = { chat_start: '💬 チャット開始', chat_message: '📝 メッセージ送信', page_view: '👁 ページ閲覧', home_view: '🏠 ホーム閲覧', faq_click: '❓ FAQ閲覧', doc_view: '📄 書類確認' };
+                actEl.innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+                        ${Object.entries(breakdown).map(([key, count]) => `
+                            <div style="background:#f5f5f7;border-radius:10px;padding:12px;text-align:center;">
+                                <div style="font-size:20px;font-weight:700;color:var(--accent);">${count}</div>
+                                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${actionLabels[key] || key}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">総アクション数: ${actRes.totalActions || 0}</div>
+                `;
+            } catch (e) {
+                console.error('フィードバックダッシュボード読み込みエラー:', e);
+            }
         }
 
         async function loadHMPartnerData() {

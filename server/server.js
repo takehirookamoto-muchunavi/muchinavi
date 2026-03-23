@@ -1510,6 +1510,122 @@ app.get('/api/admin/feedback', adminAuth, (req, res) => {
   });
 });
 
+// ===== NPS調査 =====
+app.post('/api/customer/nps/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  if (record.status === 'blocked' || record.status === 'withdrawn')
+    return res.status(403).json({ error: 'access denied' });
+
+  const { score, comment } = req.body;
+  if (score === undefined || score < 0 || score > 10) return res.status(400).json({ error: 'スコアは0〜10で入力してください' });
+
+  if (!record.nps) record.nps = [];
+  record.nps.push({
+    id: 'nps_' + Date.now(),
+    score: parseInt(score, 10),
+    comment: comment || '',
+    stage: record.stage || 1,
+    createdAt: new Date().toISOString()
+  });
+  saveDB(db);
+
+  console.log(`📊 NPS: ${record.name} スコア${score} ${comment || ''}`);
+
+  // 低スコア（0-6: 批判者）の場合メール通知
+  if (parseInt(score, 10) <= 6) {
+    sendNotificationEmail({
+      to: NOTIFY_EMAIL,
+      subject: `⚠️ NPS低スコア: ${record.name}さん (${score}/10)`,
+      html: `<p><strong>${record.name}</strong>さんからNPS低スコアがありました。</p>
+        <p>スコア: ${score}/10</p>
+        <p>コメント: ${comment || 'なし'}</p>
+        <p>ステージ: ${record.stage || 1}</p>`
+    }).catch(e => console.error('NPS通知メール失敗:', e.message));
+  }
+
+  res.json({ success: true });
+});
+
+// ===== 行動データ記録 =====
+app.post('/api/customer/activity/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+
+  const { action, meta } = req.body;
+  if (!action) return res.status(400).json({ error: 'action required' });
+
+  if (!record.activityLog) record.activityLog = [];
+  // 最新500件のみ保持
+  if (record.activityLog.length >= 500) record.activityLog = record.activityLog.slice(-400);
+
+  record.activityLog.push({
+    action, // 'page_view' | 'chat_start' | 'chat_message' | 'faq_click' | 'home_view' | 'doc_view'
+    meta: meta || {},
+    timestamp: new Date().toISOString()
+  });
+
+  // 最終アクティブ日時を更新
+  record.lastActiveAt = new Date().toISOString();
+  saveDB(db);
+  res.json({ success: true });
+});
+
+// ===== 管理API: NPS一覧・統計 =====
+app.get('/api/admin/nps', adminAuth, (req, res) => {
+  const db = loadDB();
+  const allNps = [];
+  Object.entries(db).forEach(([token, record]) => {
+    if (record.nps && record.nps.length > 0) {
+      record.nps.forEach(n => {
+        allNps.push({ ...n, customerName: record.name || '名前未設定', customerToken: token });
+      });
+    }
+  });
+  allNps.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const scores = allNps.map(n => n.score);
+  const promoters = scores.filter(s => s >= 9).length;
+  const passives = scores.filter(s => s >= 7 && s <= 8).length;
+  const detractors = scores.filter(s => s <= 6).length;
+  const total = scores.length;
+  const npsScore = total > 0 ? Math.round(((promoters - detractors) / total) * 100) : 0;
+
+  res.json({
+    nps: allNps,
+    stats: {
+      total,
+      npsScore,
+      promoters,
+      passives,
+      detractors,
+      average: total > 0 ? parseFloat((scores.reduce((a, b) => a + b, 0) / total).toFixed(1)) : 0
+    }
+  });
+});
+
+// ===== 管理API: 行動データ統計 =====
+app.get('/api/admin/activity-stats', adminAuth, (req, res) => {
+  const db = loadDB();
+  const stats = { totalActions: 0, activeCustomers: 0, actionBreakdown: {}, dailyActive: {} };
+
+  Object.entries(db).forEach(([token, record]) => {
+    if (record.activityLog && record.activityLog.length > 0) {
+      stats.activeCustomers++;
+      record.activityLog.forEach(log => {
+        stats.totalActions++;
+        stats.actionBreakdown[log.action] = (stats.actionBreakdown[log.action] || 0) + 1;
+        const day = log.timestamp?.substring(0, 10);
+        if (day) stats.dailyActive[day] = (stats.dailyActive[day] || 0) + 1;
+      });
+    }
+  });
+
+  res.json(stats);
+});
+
 // ===== お知らせ通知 =====
 const ANNOUNCEMENTS_FILE = path.join(__dirname, 'announcements.json');
 

@@ -1063,6 +1063,47 @@
       font-weight: 600;
     }
 
+    /* NPS調査 */
+    .nps-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4); z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    .nps-card {
+      background: #fff; border-radius: 16px; padding: 24px; margin: 16px;
+      max-width: 400px; width: 100%; position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .nps-close {
+      position: absolute; top: 12px; right: 16px; font-size: 18px;
+      color: #aeaeb2; cursor: pointer; line-height: 1;
+    }
+    .nps-scores {
+      display: flex; gap: 4px; justify-content: center;
+    }
+    .nps-score-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid #e5e5ea;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #1d1d1f; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .nps-score-btn:hover { border-color: #0071e3; }
+    .nps-score-btn.selected { border-color: transparent; color: #fff; }
+    .nps-comment {
+      width: 100%; border: 1.5px solid #e5e5ea; border-radius: 10px;
+      padding: 10px 12px; font-size: 13px; resize: none; margin-top: 12px;
+      font-family: inherit; box-sizing: border-box;
+    }
+    .nps-comment:focus { border-color: #0071e3; outline: none; }
+    .nps-submit {
+      width: 100%; background: #0071e3; color: #fff; border: none;
+      border-radius: 10px; padding: 10px; font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-top: 8px; transition: background 0.2s;
+    }
+    .nps-submit:disabled { background: #c7c7cc; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     .chat-room-tabs {
       display: flex;
       background: #f5f5f7;
@@ -4345,6 +4386,12 @@
       // お知らせ読み込み
       loadAnnouncements();
 
+      // 行動データ記録
+      trackActivity('chat_start', { stage: customerData.stage });
+
+      // NPS調査チェック（登録7日後、30日後等）
+      setTimeout(checkNPS, 3000);
+
       // ヘッダー自動縮小を有効化
       setTimeout(setupCompactHeader, 100);
 
@@ -4722,6 +4769,87 @@
       }
     }
 
+    // ===== NPS調査 =====
+    function checkNPS() {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return;
+      const regDate = customerData?.registeredAt || localStorage.getItem('muchinavi_reg_date');
+      if (!regDate) return;
+      const daysSinceReg = Math.floor((Date.now() - new Date(regDate).getTime()) / (1000*60*60*24));
+      const npsSchedule = [7, 30, 90, 180]; // 登録後7日、30日、90日、180日
+      for (const d of npsSchedule) {
+        if (daysSinceReg >= d && !localStorage.getItem('muchinavi_nps_' + d)) {
+          showNPS(d);
+          break;
+        }
+      }
+    }
+
+    function showNPS(dayTrigger) {
+      const existing = document.querySelector('.nps-overlay');
+      if (existing) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'nps-overlay';
+      overlay.innerHTML = `
+        <div class="nps-card">
+          <div class="nps-close" onclick="this.parentElement.parentElement.remove()">✕</div>
+          <div style="font-size:16px;font-weight:700;color:#1d1d1f;margin-bottom:4px;">MuchiNaviをおすすめしたいですか？</div>
+          <div style="font-size:12px;color:#86868b;margin-bottom:16px;">0（全く思わない）〜 10（強く思う）</div>
+          <div class="nps-scores" id="nps-scores">
+            ${Array.from({length:11}, (_,i) => `<div class="nps-score-btn" onclick="selectNPS(${i}, ${dayTrigger})">${i}</div>`).join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#aeaeb2;margin-top:4px;">
+            <span>おすすめしない</span><span>おすすめしたい</span>
+          </div>
+          <textarea class="nps-comment" id="nps-comment" placeholder="もっと良くするには？（任意）" rows="2" style="display:none;"></textarea>
+          <button class="nps-submit" id="nps-submit" style="display:none;" disabled>送信する</button>
+        </div>`;
+      document.body.appendChild(overlay);
+    }
+
+    let npsSelectedScore = -1;
+    function selectNPS(score, dayTrigger) {
+      npsSelectedScore = score;
+      document.querySelectorAll('.nps-score-btn').forEach((el, i) => {
+        el.classList.toggle('selected', i === score);
+        if (i <= 6) el.style.background = i === score ? '#ff3b30' : '';
+        else if (i <= 8) el.style.background = i === score ? '#ff9500' : '';
+        else el.style.background = i === score ? '#34c759' : '';
+        el.style.color = i === score ? '#fff' : '';
+      });
+      document.getElementById('nps-comment').style.display = 'block';
+      const btn = document.getElementById('nps-submit');
+      btn.style.display = 'block';
+      btn.disabled = false;
+      btn.onclick = () => submitNPS(dayTrigger);
+    }
+
+    async function submitNPS(dayTrigger) {
+      const btn = document.getElementById('nps-submit');
+      btn.disabled = true; btn.textContent = '送信中...';
+      try {
+        const token = sessionToken || customerData.token || localStorage.getItem('muchinavi_token');
+        await fetch(`/api/customer/nps/${token}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ score: npsSelectedScore, comment: document.getElementById('nps-comment')?.value || '' })
+        });
+        localStorage.setItem('muchinavi_nps_' + dayTrigger, '1');
+        const card = document.querySelector('.nps-card');
+        if (card) card.innerHTML = '<div style="text-align:center;padding:24px;"><div style="font-size:32px;margin-bottom:8px;">🙏</div><div style="font-size:15px;font-weight:600;color:#1d1d1f;">ご回答ありがとうございます！</div><div style="font-size:12px;color:#86868b;margin-top:4px;">サービス改善に活用させていただきます。</div></div>';
+        setTimeout(() => document.querySelector('.nps-overlay')?.remove(), 2500);
+      } catch(e) { btn.textContent = '送信に失敗しました'; }
+    }
+
+    // ===== 行動データ自動記録 =====
+    function trackActivity(action, meta = {}) {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return;
+      fetch(`/api/customer/activity/${token}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, meta })
+      }).catch(() => {}); // サイレント（失敗しても問題なし）
+    }
+
     // ===== File Upload =====
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
@@ -4910,6 +5038,9 @@
 
       isSending = true;
       console.log('[MuchiNavi] sending:', text, pendingFile ? '+ file' : '');
+
+      // 行動データ記録
+      trackActivity('chat_message', { length: text.length });
 
       // Upload file first if present
       let uploadedFile = null;
