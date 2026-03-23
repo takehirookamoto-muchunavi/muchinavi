@@ -610,6 +610,48 @@
             border-color: var(--accent);
         }
 
+        /* 購入/売却タイプ切替タブ */
+        .type-toggle-bar {
+            display: flex;
+            padding: 8px 12px 4px;
+            gap: 0;
+        }
+        .type-toggle-btn {
+            flex: 1;
+            padding: 8px 0;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            position: relative;
+        }
+        .type-toggle-btn.type-purchase {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            border-radius: 10px 0 0 10px;
+        }
+        .type-toggle-btn.type-sale {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            border-radius: 0 10px 10px 0;
+        }
+        .type-toggle-btn.type-purchase.active {
+            background: linear-gradient(135deg, #34c759, #30b350);
+            color: white;
+        }
+        .type-toggle-btn.type-sale.active {
+            background: linear-gradient(135deg, #007aff, #0062d1);
+            color: white;
+        }
+        .type-toggle-btn .type-count {
+            font-size: 11px;
+            font-weight: 400;
+            opacity: 0.8;
+            margin-left: 4px;
+        }
+
         /* 折りたたみフォームセクション */
         .form-section {
             grid-column: 1 / -1;
@@ -1774,6 +1816,641 @@
             background: rgba(0, 0, 0, 0.3);
         }
 
+        /* ======================== TOP NAV BAR ======================== */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+        .top-nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .top-nav-logo svg { width: 28px; height: 28px; }
+        .top-nav-tools {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .top-nav-btn {
+            padding: 8px 14px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+        .top-nav-btn:hover { background: var(--bg); color: var(--text); }
+        .top-nav-btn .nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+        .top-nav-btn.active { background: var(--accent); color: white; }
+        .top-nav-btn.logout-btn { color: var(--danger); }
+        .top-nav-btn.logout-btn:hover { background: #fff5f5; }
+
+        /* ======================== LIST VIEW ======================== */
+        .list-view {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            padding-top: 80px;
+        }
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .list-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .list-header h1 .header-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0071e3, #34c759);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .list-header-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .btn-new-customer {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all var(--transition-fast);
+        }
+        .btn-new-customer:hover { background: #005bb5; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+        .list-filter-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+        .list-filter-tab {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+        .list-filter-tab:hover { color: var(--text); }
+        .list-filter-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+        .list-filter-tab .tab-count {
+            display: inline-block;
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+        .list-filter-tab.active .tab-count { background: #e8f4fd; color: var(--accent); }
+
+        .list-sort-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .list-sort-select {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+        }
+        .list-search-input {
+            flex: 1;
+            max-width: 300px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            transition: border-color var(--transition-fast);
+        }
+        .list-search-input:focus { outline: none; border-color: var(--accent); }
+        .list-stats-summary {
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Customer Card (full-width) */
+        .customer-card {
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1fr;
+            align-items: center;
+            padding: 16px 24px;
+            background: white;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--success);
+            transition: all var(--transition-fast);
+        }
+        .customer-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+        .customer-card.type-sale { border-left-color: var(--accent); }
+        .customer-card .card-left {}
+        .card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-name .type-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: white;
+        }
+        .type-badge.purchase { background: var(--success); }
+        .type-badge.sale { background: var(--accent); }
+        .card-source {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .card-stage-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+        .card-center {
+            display: flex;
+            gap: 32px;
+        }
+        .card-metric {
+            display: flex;
+            flex-direction: column;
+        }
+        .card-metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .card-metric-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .card-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+        .card-stage-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .stage-progress-mini {
+            width: 160px;
+            height: 6px;
+            background: #e5e5ea;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .stage-progress-mini .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .stage-progress-mini .progress-fill.purchase { background: linear-gradient(90deg, var(--success), #30d158); }
+        .stage-progress-mini .progress-fill.sale { background: linear-gradient(90deg, var(--accent), #40a9ff); }
+        .card-chevron {
+            color: #ccc;
+            font-size: 18px;
+        }
+        .card-contact-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+        .card-contact-dot.overdue { background: var(--danger); }
+        .card-contact-dot.warning { background: var(--warning); }
+        .card-contact-dot.ok { background: var(--success); }
+
+        /* ======================== DETAIL VIEW ======================== */
+        .detail-view {
+            display: none;
+            padding-top: 56px;
+        }
+        .detail-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: all var(--transition-fast);
+        }
+        .detail-back-btn:hover { background: rgba(255,255,255,0.3); }
+        .detail-header {
+            padding: 24px 32px 20px;
+            color: white;
+            border-radius: 0 0 20px 20px;
+        }
+        .detail-header.purchase { background: linear-gradient(135deg, #34c759, #30b350, #248a3d); }
+        .detail-header.sale { background: linear-gradient(135deg, #0071e3, #0062d1, #004eb5); }
+        .detail-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .detail-type-label {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+        .detail-customer-name {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .detail-source {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .detail-header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .detail-action-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .detail-action-btn:hover { background: rgba(255,255,255,0.25); }
+        .detail-action-btn.danger { border-color: rgba(255,100,100,0.5); }
+        .detail-action-btn.danger:hover { background: rgba(255,100,100,0.3); }
+        .detail-metrics-row {
+            display: flex;
+            gap: 32px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .detail-metric {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-metric-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .detail-metric-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Stage Stepper */
+        .stage-stepper-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        .stage-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+        .stage-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        .stage-step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            border: 2px solid #ddd;
+            background: white;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+        .stage-step.completed .stage-step-circle {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .stage-step.current .stage-step-circle {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+        }
+        .stage-step.sale.completed .stage-step-circle {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .stage-step.sale.current .stage-step-circle {
+            background: #0062d1;
+            border-color: #0062d1;
+            box-shadow: 0 0 0 4px rgba(0, 98, 209, 0.2);
+        }
+        .stage-step-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-align: center;
+            max-width: 80px;
+            line-height: 1.3;
+        }
+        .stage-step.completed .stage-step-label,
+        .stage-step.current .stage-step-label {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .stage-stepper-line {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e5e5ea;
+            z-index: 0;
+        }
+        .stage-stepper-line .line-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.5s ease;
+        }
+        .stage-stepper-line .line-fill.sale { background: var(--accent); }
+        .stage-advance-btn {
+            display: block;
+            margin: 16px auto 0;
+            padding: 10px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .stage-advance-btn:hover { background: #005bb5; transform: translateY(-1px); }
+
+        /* Detail Content (2-column hybrid) */
+        .detail-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 32px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+        .detail-main {}
+        .detail-main-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .detail-main-tab {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all var(--transition-fast);
+        }
+        .detail-main-tab:hover { color: var(--text); }
+        .detail-main-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+        /* Detail Sidebar (right column) */
+        .detail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .sidebar-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .sidebar-card-header {
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sidebar-card-body {
+            padding: 12px 16px;
+        }
+        .sidebar-card-body.empty {
+            text-align: center;
+            padding: 24px 16px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .sidebar-add-btn {
+            font-size: 12px;
+            padding: 4px 10px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .sidebar-add-btn:hover { background: #005bb5; }
+
+        /* Activity Timeline */
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .activity-text {
+            font-size: 13px;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .activity-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Quick Todo List in sidebar */
+        .sidebar-todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .sidebar-todo-item:last-child { border-bottom: none; }
+        .sidebar-todo-check {
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+        .sidebar-todo-text {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text);
+        }
+        .sidebar-todo-deadline {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .sidebar-todo-deadline.overdue { color: var(--danger); font-weight: 600; }
+
+        /* Quick Actions */
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all var(--transition-fast);
+        }
+        .quick-action-btn:hover { border-color: var(--accent); color: var(--accent); background: #f8fbff; }
+        .quick-action-btn:last-child { margin-bottom: 0; }
+
         /* ======================== RESPONSIVE ======================== */
         @media (max-width: 768px) {
             .admin-container {
@@ -2279,6 +2956,33 @@
             .offer-card-info { flex-direction: column; gap: 4px; }
             .agent-float-panel { width: calc(100vw - 32px); right: 16px; bottom: 80px; height: 60vh; }
             .agent-float-btn { bottom: 16px; right: 16px; }
+            /* New layout responsive */
+            .list-view { padding: 16px; padding-top: 72px; }
+            .list-header h1 { font-size: 20px; }
+            .list-filter-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .list-filter-tab { padding: 10px 14px; font-size: 13px; }
+            .customer-card { grid-template-columns: 1fr; gap: 10px; padding: 14px 16px; }
+            .card-center { gap: 16px; flex-wrap: wrap; }
+            .card-right { align-items: flex-start; flex-direction: row; gap: 12px; }
+            .stage-progress-mini { width: 120px; }
+            .detail-header { padding: 16px 20px; border-radius: 0 0 12px 12px; }
+            .detail-customer-name { font-size: 20px; }
+            .detail-metrics-row { flex-wrap: wrap; gap: 16px; }
+            .detail-content { grid-template-columns: 1fr; padding: 0 16px 24px; }
+            .stage-stepper-container { padding: 16px; overflow-x: auto; }
+            .stage-stepper { min-width: 500px; }
+            .stage-step-label { font-size: 10px; max-width: 60px; }
+            .top-nav { padding: 0 16px; }
+            .top-nav-btn span.nav-label { display: none; }
+        }
+        @media (max-width: 480px) {
+            .list-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .btn-new-customer { width: 100%; justify-content: center; }
+            .list-sort-row { flex-wrap: wrap; }
+            .list-search-input { max-width: 100%; flex: 1 1 100%; }
+            .detail-header-top { flex-direction: column; gap: 12px; }
+            .detail-header-actions { width: 100%; }
+            .card-center { flex-direction: column; gap: 6px; }
         }
     </style>
 </head>
@@ -2306,8 +3010,23 @@
 
     <!-- Main Dashboard -->
     <div id="adminContainer" class="admin-container" style="display: none;">
+        <nav class="top-nav">
+            <div class="top-nav-logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                MuchiNavi
+                <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:4px;" id="lastUpdatedNav">--:--</span>
+            </div>
+            <div class="top-nav-tools">
+                <button class="top-nav-btn active" onclick="navigateTo('list')" id="navListBtn" title="顧客一覧"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">顧客</span></button>
+                <button class="top-nav-btn" onclick="navigateTo('terass')" id="navTerassBtn" title="TERASS Offer">🟠<span class="nav-label">TERASS</span><span class="nav-badge" id="terassNavBadge" style="display:none;">0</span></button>
+                <button class="top-nav-btn" onclick="navigateTo('hm')" id="navHMBtn" title="HMパートナー">🏭<span class="nav-label">HM</span></button>
+                <button class="top-nav-btn" onclick="navigateTo('broadcast')" id="navBroadcastBtn" title="配信">📢<span class="nav-label">配信</span></button>
+                <button class="top-nav-btn" onclick="showPasswordModal()" title="設定"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="top-nav-btn logout-btn" id="logoutBtnNav" title="ログアウト"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+            </div>
+        </nav>
         <!-- Sidebar -->
-        <div class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar" id="adminSidebar" style="display:none">
             <div class="sidebar-header">
                 <div class="sidebar-header-title">
                     <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> MuchiNavi 管理</div>
@@ -2327,6 +3046,10 @@
                     placeholder="検索..."
                 >
             </div>
+            <div class="type-toggle-bar" id="typeToggleBar">
+                <button class="type-toggle-btn type-purchase active" onclick="setTypeFilter('purchase')">🏠 購入<span class="type-count" id="purchaseCount"></span></button>
+                <button class="type-toggle-btn type-sale" onclick="setTypeFilter('sale')">💰 売却<span class="type-count" id="saleCount"></span></button>
+            </div>
             <div class="sidebar-filter-bar" id="filterBar">
                 <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全て</button>
                 <button class="filter-btn" data-filter="attention" onclick="setFilter('attention')">要対応</button>
@@ -2336,14 +3059,6 @@
             <div id="stageFilterDropdown" style="display:none;padding:0 12px 8px;">
                 <select id="stageFilter" onchange="applyStageFilter()" style="width:100%;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;font-size:12px;">
                     <option value="">全ステージ</option>
-                    <option value="1">1. 登録</option>
-                    <option value="2">2. 情報入力</option>
-                    <option value="3">3. 面談予約</option>
-                    <option value="4">4. 相談中</option>
-                    <option value="5">5. ライフプラン</option>
-                    <option value="6">6. 物件探し・内見</option>
-                    <option value="7">7. 契約</option>
-                    <option value="8">8. 引渡し</option>
                 </select>
             </div>
             <div id="stageAlertBanner" style="display:none;"></div>
@@ -2378,14 +3093,34 @@
 
         <!-- Main Content -->
         <div class="admin-main">
-            <button class="sidebar-toggle-btn" id="sidebarToggle" onclick="toggleSidebar()" title="サイドバー切替">☰</button>
+            <button class="sidebar-toggle-btn" id="sidebarToggle" onclick="toggleSidebar()" title="サイドバー切替" style="display:none">☰</button>
             <!-- Empty State or Action Bar + Tabs -->
-            <div id="emptyState" class="empty-state">
-                <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-                <div class="empty-state-title">お客様を選択</div>
-                <div class="empty-state-text">左のリストからお客様を選択して管理を開始してください</div>
-                <div id="needsAttentionSection" style="width:100%;max-width:600px;"></div>
-                <div class="stats-grid" id="statsGrid"></div>
+            <div id="listView" class="list-view">
+                <div class="list-header">
+                    <div>
+                        <h1><div class="header-icon">🏠</div> 顧客管理</h1>
+                        <div class="list-header-desc">顧客ごとの商談一覧です</div>
+                    </div>
+                </div>
+                <div class="list-filter-tabs" id="listFilterTabs">
+                    <button class="list-filter-tab active" data-filter="active" onclick="setListFilter('active')">進行中 <span class="tab-count" id="countActive">0</span></button>
+                    <button class="list-filter-tab" data-filter="purchase" onclick="setListFilter('purchase')">購入 <span class="tab-count" id="countPurchase">0</span></button>
+                    <button class="list-filter-tab" data-filter="sale" onclick="setListFilter('sale')">売却 <span class="tab-count" id="countSale">0</span></button>
+                    <button class="list-filter-tab" data-filter="terass" onclick="setListFilter('terass')">TERASS <span class="tab-count" id="countTerass">0</span></button>
+                    <button class="list-filter-tab" data-filter="attention" onclick="setListFilter('attention')">要対応 <span class="tab-count" id="countAttention">0</span></button>
+                    <button class="list-filter-tab" data-filter="completed" onclick="setListFilter('completed')">完了 <span class="tab-count" id="countCompleted">0</span></button>
+                </div>
+                <div class="list-sort-row">
+                    <select class="list-sort-select" id="listSortSelect" onchange="sortCustomerCards()">
+                        <option value="updated">更新日順</option>
+                        <option value="name">名前順</option>
+                        <option value="stage">ステージ順</option>
+                        <option value="contact">最終連絡日順</option>
+                    </select>
+                    <input type="text" class="list-search-input" id="listSearchInput" placeholder="名前で検索...">
+                    <div class="list-stats-summary" id="listStatsSummary"></div>
+                </div>
+                <div id="customerCardList"></div>
             </div>
 
             <!-- Broadcast View (独立・顧客選択不要) -->
@@ -2471,10 +3206,24 @@
                 </div>
             </div>
 
+            <!-- Detail View (wraps customerView) -->
+            <div id="detailView" class="detail-view" style="display:none;">
+                <div class="detail-header" id="detailHeader"></div>
+                <div class="stage-stepper-container">
+                    <div class="stage-stepper" id="stageStepper"></div>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-main">
+                        <div class="detail-main-tabs" id="detailMainTabs">
+                            <button class="detail-main-tab active" data-tab="overview" onclick="switchDetailTab('overview')">📋 商談情報</button>
+                            <button class="detail-main-tab" data-tab="info" onclick="switchDetailTab('info')">👤 ヒアリングシート</button>
+                            <button class="detail-main-tab" data-tab="communication" onclick="switchDetailTab('communication')">💬 MuchiNavi</button>
+                            <button class="detail-main-tab" data-tab="tasks" onclick="switchDetailTab('tasks')">✅ タスク</button>
+                        </div>
             <!-- Customer Selected View -->
-            <div id="customerView" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
-                <!-- Action Bar -->
-                <div class="action-bar">
+            <div id="customerView">
+                <!-- Action Bar (hidden, replaced by detailHeader) -->
+                <div class="action-bar" style="display:none">
                     <div class="action-bar-left">
                         <div class="action-bar-title" id="actionBarTitle"></div>
                         <span class="customer-status" id="actionBarStatus"></span>
@@ -2485,8 +3234,8 @@
                     </div>
                 </div>
 
-                <!-- Tab Navigation -->
-                <div class="tab-nav-wrapper" id="tabNavWrapper">
+                <!-- Tab Navigation (hidden, replaced by detail-main-tabs) -->
+                <div class="tab-nav-wrapper" id="tabNavWrapper" style="display:none">
                 <div class="tab-nav" id="tabNav">
                     <button class="tab-btn active" data-tab="overview">📋 概要</button>
                     <button class="tab-btn" data-tab="info">👤 情報</button>
@@ -3028,6 +3777,27 @@
 
                 </div>
             </div>
+                    </div><!-- end detail-main -->
+                    <div class="detail-sidebar" id="detailSidebarPanel">
+                        <div class="sidebar-card">
+                            <div class="sidebar-card-header">📞 直近の活動 <button class="sidebar-add-btn" onclick="switchDetailTab('communication')">記録追加</button></div>
+                            <div class="sidebar-card-body" id="sidebarActivityList"><div style="text-align:center;padding:16px;color:var(--text-secondary);font-size:13px;">活動記録はまだありません</div></div>
+                        </div>
+                        <div class="sidebar-card">
+                            <div class="sidebar-card-header">✅ ToDo <button class="sidebar-add-btn" onclick="switchDetailTab('tasks')">追加</button></div>
+                            <div class="sidebar-card-body" id="sidebarTodoList"><div style="text-align:center;padding:16px;color:var(--text-secondary);font-size:13px;">ToDoはまだありません</div></div>
+                        </div>
+                        <div class="sidebar-card">
+                            <div class="sidebar-card-header">⚡ クイックアクション</div>
+                            <div class="sidebar-card-body" id="sidebarQuickActions">
+                                <button class="quick-action-btn" onclick="switchDetailTab('communication');setTimeout(()=>switchSubTab('comm','directChat'),100)">💬 メッセージ送信</button>
+                                <button class="quick-action-btn" onclick="switchDetailTab('tasks')">📝 ToDo追加</button>
+                                <button class="quick-action-btn" onclick="toggleAgentPanel()">🤖 AIに相談</button>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end detail-content -->
+            </div><!-- end detailView -->
 
             <!-- TERASS Offer View -->
             <div id="terassOfferView" style="display:none; flex-direction:column; flex:1; overflow-y:auto;">
@@ -3316,6 +4086,9 @@
         let currentFilter = 'all';
         let currentFormStage = null;
         let currentCustomerType = 'purchase'; // 現在選択中の顧客タイプ
+        let currentTypeFilter = 'purchase'; // サイドバーの購入/売却フィルター
+        let currentView = 'list';
+        let currentListFilter = 'active';
 
         const STAGE_STAGNATION_THRESHOLDS = { 1:14, 2:14, 3:30, 4:30, 5:30, 6:45, 7:45 };
         const SALE_STAGE_STAGNATION_THRESHOLDS = { 1:14, 2:14, 3:30, 4:21, 5:14, 6:45, 7:30, 8:30 };
@@ -3399,6 +4172,336 @@
 
         function getStageTodoTemplates(customer) {
             return (customer && customer.customerType === 'sale') ? SALE_STAGE_TODO_TEMPLATES : STAGE_TODO_TEMPLATES;
+        }
+
+        // ======================== NEW NAVIGATION & LIST VIEW ========================
+        function navigateTo(view) {
+            currentView = view;
+            const views = ['listView', 'detailView', 'broadcastView', 'terassOfferView', 'hmPartnerView'];
+            views.forEach(v => {
+                const el = document.getElementById(v);
+                if (el) el.style.display = 'none';
+            });
+            if (view === 'detail') {
+                document.getElementById('detailView').style.display = 'block';
+            } else if (view === 'list') {
+                document.getElementById('listView').style.display = '';
+            } else if (view === 'broadcast') {
+                document.getElementById('broadcastView').style.display = 'flex';
+                initBroadcastTab();
+            } else if (view === 'terass') {
+                document.getElementById('terassOfferView').style.display = 'flex';
+                loadTerassOfferData();
+            } else if (view === 'hm') {
+                document.getElementById('hmPartnerView').style.display = 'flex';
+                loadHMPartnerData();
+            }
+            // Update nav active state
+            document.querySelectorAll('.top-nav-btn').forEach(b => b.classList.remove('active'));
+            const navMap = { list: 'navListBtn', terass: 'navTerassBtn', hm: 'navHMBtn', broadcast: 'navBroadcastBtn' };
+            if (navMap[view]) document.getElementById(navMap[view])?.classList.add('active');
+        }
+
+        function setListFilter(filter) {
+            currentListFilter = filter;
+            document.querySelectorAll('.list-filter-tab').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.list-filter-tab[data-filter="${filter}"]`)?.classList.add('active');
+            renderCustomerCards();
+        }
+
+        function renderCustomerCards() {
+            const container = document.getElementById('customerCardList');
+            if (!container) return;
+
+            let filtered = [...customers];
+
+            switch (currentListFilter) {
+                case 'active':
+                    filtered = filtered.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved'));
+                    break;
+                case 'purchase':
+                    filtered = filtered.filter(c => (c.customerType || 'purchase') !== 'sale');
+                    break;
+                case 'sale':
+                    filtered = filtered.filter(c => c.customerType === 'sale');
+                    break;
+                case 'terass':
+                    filtered = filtered.filter(c => c.source === 'terass_offer');
+                    break;
+                case 'attention':
+                    filtered = filtered.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0));
+                    break;
+                case 'completed':
+                    filtered = filtered.filter(c => {
+                        const maxStage = c.customerType === 'sale' ? 9 : 8;
+                        return c.stage >= maxStage;
+                    });
+                    break;
+            }
+
+            const query = (document.getElementById('listSearchInput')?.value || '').toLowerCase();
+            if (query) {
+                filtered = filtered.filter(c => (c.name || '').toLowerCase().includes(query) || (c.email || '').toLowerCase().includes(query));
+            }
+
+            const sortBy = document.getElementById('listSortSelect')?.value || 'updated';
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'name': return (a.name || '').localeCompare(b.name || '');
+                    case 'stage': return (b.stage || 0) - (a.stage || 0);
+                    case 'contact': return (a.daysSinceContact || 0) - (b.daysSinceContact || 0);
+                    default: return new Date(b.lastContactDate || b.createdAt || 0) - new Date(a.lastContactDate || a.createdAt || 0);
+                }
+            });
+
+            container.innerHTML = filtered.map(c => createCustomerCard(c)).join('');
+
+            const summary = document.getElementById('listStatsSummary');
+            if (summary) summary.textContent = `${filtered.length}件表示`;
+
+            updateListFilterCounts();
+        }
+
+        function createCustomerCard(customer) {
+            const isSale = customer.customerType === 'sale';
+            const labels = getStageLabels(customer);
+            const maxStage = isSale ? 9 : 8;
+            const progress = Math.round((customer.stage / maxStage) * 100);
+            const stageName = labels[customer.stage - 1] || '不明';
+
+            let dotClass = 'ok';
+            if (customer.daysSinceContact >= 14) dotClass = 'overdue';
+            else if (customer.daysSinceContact >= 7) dotClass = 'warning';
+
+            let budgetDisplay = '-';
+            if (isSale) {
+                budgetDisplay = customer.saleDesiredPrice || '-';
+            } else {
+                budgetDisplay = customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-';
+            }
+
+            let sourceLabel = '';
+            if (customer.source === 'terass_offer') sourceLabel = 'TERASS Offer';
+            else if (customer.hmPartnerId) sourceLabel = 'HMパートナー';
+            else sourceLabel = 'MuchiNavi';
+
+            const regDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
+            const lastContact = customer.lastContactDate ? new Date(customer.lastContactDate).toLocaleDateString('ja-JP') : '-';
+
+            const stageColors = ['#e0e0e0','#b0b0b0','#ffa726','#42a5f5','#66bb6a','#ab47bc','#ef5350','#26a69a','#8d6e63'];
+            const stageColor = stageColors[Math.min(customer.stage - 1, stageColors.length - 1)] || '#999';
+
+            return `<div class="customer-card ${isSale ? 'type-sale' : ''}" onclick="selectCustomer('${customer.token}')">
+                <div class="card-left">
+                    <div class="card-name">
+                        <span class="card-contact-dot ${dotClass}"></span>
+                        ${customer.name || '名前未設定'}
+                        <span class="type-badge ${isSale ? 'sale' : 'purchase'}">${isSale ? '売却' : '購入'}</span>
+                    </div>
+                    <div class="card-source">${sourceLabel}</div>
+                    <div class="card-stage-badge" style="background:${stageColor}15;color:${stageColor};border:1px solid ${stageColor}30;">${customer.stage}. ${stageName}</div>
+                </div>
+                <div class="card-center">
+                    <div class="card-metric">
+                        <div class="card-metric-label">${isSale ? '希望売却価格' : '予算'}</div>
+                        <div class="card-metric-value">${budgetDisplay}</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="card-metric-label">登録日</div>
+                        <div class="card-metric-value">${regDate}</div>
+                    </div>
+                    <div class="card-metric">
+                        <div class="card-metric-label">最終連絡</div>
+                        <div class="card-metric-value">${lastContact}</div>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="card-stage-label">${stageName}</div>
+                    <div class="stage-progress-mini"><div class="progress-fill ${isSale ? 'sale' : 'purchase'}" style="width:${progress}%"></div></div>
+                </div>
+            </div>`;
+        }
+
+        function updateListFilterCounts() {
+            const active = customers.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved')).length;
+            const purchase = customers.filter(c => (c.customerType || 'purchase') !== 'sale').length;
+            const sale = customers.filter(c => c.customerType === 'sale').length;
+            const terass = customers.filter(c => c.source === 'terass_offer').length;
+            const attention = customers.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)).length;
+            const completed = customers.filter(c => { const max = c.customerType === 'sale' ? 9 : 8; return c.stage >= max; }).length;
+
+            const setCount = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setCount('countActive', active);
+            setCount('countPurchase', purchase);
+            setCount('countSale', sale);
+            setCount('countTerass', terass);
+            setCount('countAttention', attention);
+            setCount('countCompleted', completed);
+        }
+
+        function renderDetailHeader(customer) {
+            const isSale = customer.customerType === 'sale';
+            const labels = getStageLabels(customer);
+            const stageName = labels[customer.stage - 1] || '不明';
+
+            let sourceLabel = '';
+            if (customer.source === 'terass_offer') sourceLabel = 'TERASS Offer';
+            else if (customer.hmPartnerId) sourceLabel = 'HMパートナー';
+            else sourceLabel = 'MuchiNavi';
+
+            let budgetDisplay = '-';
+            if (isSale) budgetDisplay = customer.saleDesiredPrice || '-';
+            else budgetDisplay = customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-';
+
+            const regDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
+
+            document.getElementById('detailHeader').className = `detail-header ${isSale ? 'sale' : 'purchase'}`;
+            document.getElementById('detailHeader').innerHTML = `
+                <button class="detail-back-btn" onclick="navigateTo('list')">← 一覧に戻る</button>
+                <div class="detail-header-top">
+                    <div>
+                        <div class="detail-type-label">${isSale ? '売却商談' : '購入商談'}</div>
+                        <div class="detail-customer-name">${customer.name || '名前未設定'}（${isSale ? '売却' : '購入'}）</div>
+                        <div class="detail-source">${sourceLabel}</div>
+                    </div>
+                    <div class="detail-header-actions">
+                        <button class="detail-action-btn" onclick="blockCustomer()">ブロック</button>
+                        <button class="detail-action-btn danger" onclick="deleteCustomer()">削除</button>
+                    </div>
+                </div>
+                <div class="detail-metrics-row">
+                    <div class="detail-metric">
+                        <div class="detail-metric-label">${isSale ? '希望売却価格' : '予算'}</div>
+                        <div class="detail-metric-value">${budgetDisplay}</div>
+                    </div>
+                    <div class="detail-metric">
+                        <div class="detail-metric-label">登録日</div>
+                        <div class="detail-metric-value">${regDate}</div>
+                    </div>
+                    <div class="detail-metric">
+                        <div class="detail-metric-label">ステータス</div>
+                        <div class="detail-metric-value">${stageName}</div>
+                    </div>
+                    <div class="detail-metric">
+                        <div class="detail-metric-label">最終連絡</div>
+                        <div class="detail-metric-value">${customer.lastContactDate ? new Date(customer.lastContactDate).toLocaleDateString('ja-JP') : '-'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStageStepper(customer) {
+            const isSale = customer.customerType === 'sale';
+            const labels = getStageLabels(customer);
+            const maxStage = labels.length;
+            const currentStage = customer.stage;
+            const progressPct = ((currentStage - 1) / (maxStage - 1)) * 100;
+
+            let stepsHtml = '<div class="stage-stepper-line"><div class="line-fill ' + (isSale ? 'sale' : '') + '" style="width:' + progressPct + '%"></div></div>';
+
+            labels.forEach((label, i) => {
+                const stageNum = i + 1;
+                let cls = isSale ? 'sale ' : '';
+                if (stageNum < currentStage) cls += 'completed';
+                else if (stageNum === currentStage) cls += 'current';
+
+                const icon = stageNum < currentStage ? '✓' : stageNum;
+
+                stepsHtml += `<div class="stage-step ${cls}">
+                    <div class="stage-step-circle">${icon}</div>
+                    <div class="stage-step-label">${label}</div>
+                </div>`;
+            });
+
+            document.getElementById('stageStepper').innerHTML = stepsHtml;
+
+            const container = document.getElementById('stageStepper').parentElement;
+            const existingBtn = container.querySelector('.stage-advance-btn');
+            if (existingBtn) existingBtn.remove();
+
+            if (currentStage < maxStage) {
+                const nextLabel = labels[currentStage] || '';
+                const btn = document.createElement('button');
+                btn.className = 'stage-advance-btn';
+                btn.textContent = `✓ フェーズを完了としてマーク → ${nextLabel}`;
+                btn.onclick = async () => {
+                    if (!confirm(`ステージを「${nextLabel}」に進めますか？`)) return;
+                    try {
+                        await api.updateCustomer(selectedToken, { stage: currentStage + 1 });
+                        showToast(`ステージを「${nextLabel}」に更新しました`, 'success');
+                        await selectCustomer(selectedToken);
+                    } catch(e) { showToast('更新に失敗しました', 'error'); }
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        async function renderDetailSidebar(customer) {
+            try {
+                const result = await api.getInteractions(customer.token);
+                const interactions = (result.interactions || []).slice(0, 5);
+                const el = document.getElementById('sidebarActivityList');
+                if (interactions.length === 0) {
+                    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-secondary);font-size:13px;">活動記録はまだありません</div>';
+                } else {
+                    const methodIcons = { phone: '📞', email: '📧', meeting: '🤝', line: '💬', other: '📋' };
+                    el.innerHTML = interactions.map(i => `
+                        <div class="activity-item">
+                            <div class="activity-icon">${methodIcons[i.method] || '📋'}</div>
+                            <div class="activity-content">
+                                <div class="activity-text">${i.content || ''}</div>
+                                <div class="activity-date">${i.date ? new Date(i.date).toLocaleDateString('ja-JP') : ''}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+
+            try {
+                const result = await api.getTodos(customer.token);
+                const todos = (result.todos || []).filter(t => !t.done).slice(0, 5);
+                const el = document.getElementById('sidebarTodoList');
+                if (todos.length === 0) {
+                    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-secondary);font-size:13px;">未完了のToDoはありません</div>';
+                } else {
+                    el.innerHTML = todos.map(t => {
+                        const isOverdue = t.deadline && new Date(t.deadline) < new Date();
+                        const deadlineStr = t.deadline ? new Date(t.deadline).toLocaleDateString('ja-JP') : '';
+                        return `<div class="sidebar-todo-item">
+                            <input type="checkbox" class="sidebar-todo-check" onchange="completeSidebarTodo('${t.id}')">
+                            <div class="sidebar-todo-text">${t.text}</div>
+                            ${deadlineStr ? `<div class="sidebar-todo-deadline ${isOverdue ? 'overdue' : ''}">${deadlineStr}</div>` : ''}
+                        </div>`;
+                    }).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function completeSidebarTodo(todoId) {
+            try {
+                await api.updateTodo(selectedToken, todoId, { done: true });
+                showToast('ToDo完了', 'success');
+                const customer = customers.find(c => c.token === selectedToken);
+                if (customer) renderDetailSidebar(customer);
+                loadTodosTab();
+            } catch(e) { showToast('更新に失敗しました', 'error'); }
+        }
+
+        function switchDetailTab(tab) {
+            document.querySelectorAll('.detail-main-tab').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.detail-main-tab[data-tab="${tab}"]`)?.classList.add('active');
+
+            const tabMap = { overview: 'overview', info: 'info', communication: 'communication', tasks: 'tasks' };
+            const oldTab = tabMap[tab];
+            if (oldTab) {
+                document.querySelectorAll('#overviewTab, #infoTab, #communicationTab, #tasksTab').forEach(p => p.style.display = 'none');
+                const target = document.getElementById(oldTab + 'Tab');
+                if (target) target.style.display = '';
+            }
+        }
+
+        function sortCustomerCards() {
+            renderCustomerCards();
         }
 
         // ======================== API UTILITIES ========================
@@ -3645,6 +4748,7 @@
         function showDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('adminContainer').style.display = 'flex';
+            navigateTo('list');
             startAutoRefresh();
         }
 
@@ -3678,6 +4782,10 @@
             if (indicator) {
                 indicator.textContent = `最終更新: ${lastUpdateTime}`;
             }
+            const navIndicator = document.getElementById('lastUpdatedNav');
+            if (navIndicator) {
+                navIndicator.textContent = `${hours}:${minutes}`;
+            }
         }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -3705,6 +4813,15 @@
             showLogin();
         });
 
+        // Nav logout button
+        const logoutBtnNav = document.getElementById('logoutBtnNav');
+        if (logoutBtnNav) {
+            logoutBtnNav.addEventListener('click', () => {
+                sessionStorage.removeItem('adminPass');
+                showLogin();
+            });
+        }
+
         // ======================== DASHBOARD LOADING ========================
         async function loadDashboard() {
             try {
@@ -3716,7 +4833,10 @@
                     const tagResult = await api.getTags();
                     window.allTags = tagResult.tags || [];
                 } catch(e) { window.allTags = []; }
+                updateTypeFilterCounts();
+                updateStageFilterOptions();
                 renderCustomerList();
+                renderCustomerCards();
                 renderStats();
             } catch (error) {
                 showToast('エラー: ダッシュボードの読み込みに失敗しました', 'error');
@@ -3796,11 +4916,16 @@
         function renderCustomerList() {
             const list = document.getElementById('customerList');
 
-            // ステージ滞留アラート（全ステージ対応）
+            // ステージ滞留アラート（タイプフィルター適用）
             const alertBanner = document.getElementById('stageAlertBanner');
             const stagnantCustomers = customers.filter(c => {
-                if (c.status !== 'active' || c.stage === 8) return false;
-                const thresh = STAGE_STAGNATION_THRESHOLDS[c.stage] || 999;
+                const cType = c.customerType || 'purchase';
+                if (currentTypeFilter === 'sale' ? cType !== 'sale' : cType === 'sale') return false;
+                if (c.status !== 'active') return false;
+                const maxStage = cType === 'sale' ? 9 : 8;
+                if (c.stage === maxStage) return false;
+                const thresholds = cType === 'sale' ? SALE_STAGE_STAGNATION_THRESHOLDS : STAGE_STAGNATION_THRESHOLDS;
+                const thresh = thresholds[c.stage] || 999;
                 const stageDate = new Date(c.stageUpdatedAt || c.createdAt);
                 const daysSinceStage = Math.floor((Date.now() - stageDate.getTime()) / (1000*60*60*24));
                 return daysSinceStage >= thresh;
@@ -3816,8 +4941,13 @@
                 alertBanner.style.display = 'none';
             }
 
-            // フィルター適用
-            let filteredCustomers = [...customers];
+            // タイプフィルター適用（購入/売却）
+            let filteredCustomers = customers.filter(c => {
+                const cType = c.customerType || 'purchase';
+                return currentTypeFilter === 'sale' ? cType === 'sale' : cType !== 'sale';
+            });
+
+            // サブフィルター適用
             if (currentFilter === 'terass') {
                 // TERASSフィルター: TERASS Offer経由の顧客のみ表示（全ステータス）
                 filteredCustomers = filteredCustomers.filter(c => c.source === 'terass_offer');
@@ -3854,11 +4984,15 @@
         }
 
         function renderTagGroupedList(list) {
-            // タグ別にグループ化
+            // タイプフィルター適用してからタグ別にグループ化
+            const typeFiltered = customers.filter(c => {
+                const cType = c.customerType || 'purchase';
+                return currentTypeFilter === 'sale' ? cType === 'sale' : cType !== 'sale';
+            });
             const tagGroups = {};
             const noTagCustomers = [];
 
-            customers.forEach(customer => {
+            typeFiltered.forEach(customer => {
                 if (customer.tags && customer.tags.length > 0) {
                     customer.tags.forEach(tag => {
                         if (!tagGroups[tag]) tagGroups[tag] = [];
@@ -3995,6 +5129,7 @@
             };
 
             const grid = document.getElementById('statsGrid');
+            if (!grid) return;
             grid.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-value">${stats.total}</div>
@@ -4049,36 +5184,25 @@
 
         // ======================== CUSTOMER SELECTION ========================
         async function selectCustomer(token) {
-            closeTerassOfferView();
-            closeHMPartnerView();
             selectedToken = token;
             renderCustomerList();
-
-            // モバイルではサイドバーを自動的に閉じる
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('adminSidebar');
-                if (sidebar && !sidebar.classList.contains('collapsed')) {
-                    sidebar.classList.add('collapsed');
-                }
-            }
 
             try {
                 const result = await api.getCustomer(token);
                 const customer = result.customer;
                 renderActionBar(customer);
                 loadCustomerTabs(customer);
-                showCustomerView();
+                navigateTo('detail');
+                renderDetailHeader(customer);
+                renderStageStepper(customer);
+                renderDetailSidebar(customer);
             } catch (error) {
                 showToast('エラー: 顧客データの読み込みに失敗しました', 'error');
             }
         }
 
         function showCustomerView() {
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('broadcastView').style.display = 'none';
-            document.getElementById('hmPartnerView').style.display = 'none';
-            document.getElementById('hmPartnerMenu').classList.remove('active');
-            document.getElementById('customerView').style.display = 'flex';
+            navigateTo('detail');
         }
 
         function renderActionBar(customer) {
@@ -4131,19 +5255,22 @@
             });
         }
 
-        document.getElementById('deleteBtn').addEventListener('click', () => {
+        function deleteCustomer() {
             showConfirmModal('削除', 'このお客様を削除しますか？この操作は取り消せません。', '削除', async () => {
                 try {
                     await api.deleteCustomer(selectedToken);
                     showToast('削除しました', 'success');
                     selectedToken = null;
                     loadDashboard();
-                    document.getElementById('emptyState').style.display = 'flex';
-                    document.getElementById('customerView').style.display = 'none';
+                    navigateTo('list');
                 } catch (error) {
                     showToast('エラー: 削除に失敗しました', 'error');
                 }
             }, true);
+        }
+
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            deleteCustomer();
         });
 
         // ======================== TAB NAVIGATION ========================
@@ -5401,25 +6528,11 @@
 
         // ======================== BROADCAST (一斉配信) ========================
         function openBroadcastView() {
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('customerView').style.display = 'none';
-            document.getElementById('terassOfferView').style.display = 'none';
-            document.getElementById('terassOfferMenu').classList.remove('active');
-            document.getElementById('hmPartnerView').style.display = 'none';
-            document.getElementById('hmPartnerMenu').classList.remove('active');
-            document.getElementById('broadcastView').style.display = 'flex';
-            // 顧客一覧のactive解除
-            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
-            initBroadcastTab();
+            navigateTo('broadcast');
         }
 
         function closeBroadcastView() {
-            document.getElementById('broadcastView').style.display = 'none';
-            if (selectedToken) {
-                document.getElementById('customerView').style.display = 'flex';
-            } else {
-                document.getElementById('emptyState').style.display = 'flex';
-            }
+            navigateTo('list');
         }
 
         function switchBroadcastSub(sub) {
@@ -5668,17 +6781,24 @@
         }
 
         // ======================== SEARCH ========================
-        document.getElementById('customerSearch').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const items = document.querySelectorAll('.customer-item');
-
-            items.forEach(item => {
-                const name = item.querySelector('.customer-name').textContent.toLowerCase();
-                const meta = item.querySelector('.customer-meta').textContent.toLowerCase();
-                const matches = name.includes(query) || meta.includes(query);
-                item.style.display = matches ? '' : 'none';
+        const customerSearchEl = document.getElementById('customerSearch');
+        if (customerSearchEl) {
+            customerSearchEl.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const items = document.querySelectorAll('.customer-item');
+                items.forEach(item => {
+                    const name = item.querySelector('.customer-name')?.textContent.toLowerCase() || '';
+                    const meta = item.querySelector('.customer-meta')?.textContent.toLowerCase() || '';
+                    const matches = name.includes(query) || meta.includes(query);
+                    item.style.display = matches ? '' : 'none';
+                });
             });
-        });
+        }
+        // New list search input
+        const listSearchEl = document.getElementById('listSearchInput');
+        if (listSearchEl) {
+            listSearchEl.addEventListener('input', () => { renderCustomerCards(); });
+        }
 
         // ======================== ENTER KEY FOR CHAT ========================
         // ======================== INIT ========================
@@ -5892,6 +7012,33 @@
             );
         }
 
+        // 購入/売却タイプ切替
+        function setTypeFilter(type) {
+            currentTypeFilter = type;
+            document.querySelectorAll('.type-toggle-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.type-toggle-btn.type-${type}`)?.classList.add('active');
+            // ステージフィルターのドロップダウンを更新
+            updateStageFilterOptions();
+            setFilter('all'); // フィルターをリセット
+        }
+
+        function updateTypeFilterCounts() {
+            const purchaseCount = customers.filter(c => (c.customerType || 'purchase') !== 'sale').length;
+            const saleCount = customers.filter(c => c.customerType === 'sale').length;
+            const pEl = document.getElementById('purchaseCount');
+            const sEl = document.getElementById('saleCount');
+            if (pEl) pEl.textContent = `(${purchaseCount})`;
+            if (sEl) sEl.textContent = `(${saleCount})`;
+        }
+
+        function updateStageFilterOptions() {
+            const sel = document.getElementById('stageFilter');
+            if (!sel) return;
+            const labels = currentTypeFilter === 'sale' ? SALE_STAGE_LABELS : PURCHASE_STAGE_LABELS;
+            sel.innerHTML = '<option value="">全ステージ</option>' +
+                labels.map((label, i) => `<option value="${i+1}">${i+1}. ${label}</option>`).join('');
+        }
+
         // フィルター機能
         function setFilter(filter) {
             currentFilter = filter;
@@ -5960,20 +7107,11 @@
         let terassDetailToken = null;
 
         function openTerassOfferView() {
-            document.getElementById('customerView').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('broadcastView').style.display = 'none';
-            document.getElementById('hmPartnerView').style.display = 'none';
-            document.getElementById('hmPartnerMenu').classList.remove('active');
-            document.getElementById('terassOfferView').style.display = 'flex';
-            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('terassOfferMenu').classList.add('active');
-            loadTerassOfferData();
+            navigateTo('terass');
         }
 
         function closeTerassOfferView() {
-            document.getElementById('terassOfferView').style.display = 'none';
-            document.getElementById('terassOfferMenu').classList.remove('active');
+            navigateTo('list');
         }
 
         async function loadTerassOfferData() {
@@ -6210,8 +7348,15 @@
             try {
                 const stats = await api.call('GET', '/terass-offer/stats');
                 const badge = document.getElementById('terassOfferBadge');
-                badge.textContent = stats.active;
-                badge.style.display = stats.active > 0 ? 'inline' : 'none';
+                if (badge) {
+                    badge.textContent = stats.active;
+                    badge.style.display = stats.active > 0 ? 'inline' : 'none';
+                }
+                const navBadge = document.getElementById('terassNavBadge');
+                if (navBadge) {
+                    navBadge.textContent = stats.active;
+                    navBadge.style.display = stats.active > 0 ? 'inline' : 'none';
+                }
             } catch (e) { /* silent */ }
         }
 
@@ -6263,21 +7408,12 @@
         let hmDetailPartnerId = null;
 
         function openHMPartnerView() {
-            document.getElementById('customerView').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('broadcastView').style.display = 'none';
-            document.getElementById('terassOfferView').style.display = 'none';
-            document.getElementById('hmPartnerView').style.display = 'flex';
-            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('terassOfferMenu').classList.remove('active');
-            document.getElementById('hmPartnerMenu').classList.add('active');
+            navigateTo('hm');
             selectedToken = null;
-            loadHMPartnerData();
         }
 
         function closeHMPartnerView() {
-            document.getElementById('hmPartnerView').style.display = 'none';
-            document.getElementById('hmPartnerMenu').classList.remove('active');
+            navigateTo('list');
         }
 
         async function loadHMPartnerData() {
