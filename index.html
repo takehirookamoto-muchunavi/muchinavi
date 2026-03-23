@@ -4935,7 +4935,7 @@
         const hintsEl = document.getElementById('chat-hints');
         if (hintsEl) hintsEl.innerHTML = `
           <button class="chat-hint" onclick="sendHint('売却の流れを教えてください')"><span class="hint-icon">📋</span>売却の流れ</button>
-          <button class="chat-hint" onclick="sendHint('簡易査定をお願いします')"><span class="hint-icon">💰</span>簡易査定</button>
+          <button class="chat-hint" onclick="sendHint('売却にかかる費用の種類を教えてください')"><span class="hint-icon">💰</span>売却の費用</button>
           <button class="chat-hint" onclick="sendHint('売却にかかる費用を教えてください')"><span class="hint-icon">📊</span>売却費用</button>
           <button class="chat-hint" onclick="sendHint('媒介契約の種類と違いを教えてください')"><span class="hint-icon">📝</span>媒介契約の種類</button>
           <button class="chat-hint" onclick="sendHint('売却時の税金について教えてください')"><span class="hint-icon">🏛️</span>税金・控除</button>
@@ -5218,10 +5218,7 @@
       switchAppTab('chat');
       setTimeout(() => {
         const input = document.getElementById('chat-input');
-        const price = customerData?.saleDesiredPrice || '';
-        input.value = price
-          ? `簡易査定をお願いします。希望売却価格は${price}ですが、市場データから見た妥当な価格帯と、手元に残る金額の概算を教えてください。`
-          : '自宅の簡易査定をお願いします。おおよその売却価格の目安と、手元に残る金額を知りたいです。';
+        input.value = '売却にかかる費用の種類と、査定の流れを教えてください。';
         sendMessage();
       }, 300);
     }
@@ -5273,15 +5270,15 @@
 
     function getSaleFaqs(stage) {
       const map = {
-        1: ['売却の流れを教えて', '査定はどうやるの？', '売却にかかる費用は？'],
-        2: ['売却価格はどう決める？', '相場を知る方法は？', '築年数は価格にどう影響する？'],
+        1: ['売却の流れを教えて', '査定ってどういう流れ？', '売却にかかる費用の種類は？'],
+        2: ['高く売るコツは？', '売却前にリフォームすべき？', '売却にかかる費用の種類は？'],
         3: ['面談では何を聞かれる？', '売却の準備は何が必要？'],
-        4: ['査定額に納得できない場合は？', '高く売るコツは？', '複数社に査定を依頼すべき？'],
+        4: ['査定書の見方を教えて', '高く売るコツは？', '媒介契約って何？'],
         5: ['媒介契約の種類と違いは？', '専任と一般どっちがいい？', '囲い込みって何？'],
         6: ['販売活動の流れは？', 'なかなか売れない場合は？', '値下げのタイミングは？'],
         7: ['内覧準備のコツは？', '内覧時に気をつけることは？'],
-        8: ['売却時の税金は？', '3000万円控除って何？', '確定申告は必要？'],
-        9: ['決済日の流れは？', '引渡しまでの準備は？', '抵当権抹消の手続きは？']
+        8: ['売却時にどんな税金がかかる？', '3000万円控除ってどんな制度？', '確定申告は必要？'],
+        9: ['決済日の流れは？', '引渡しまでの準備は？', '抵当権抹消ってどんな手続き？']
       };
       return map[stage] || map[1];
     }
@@ -5580,7 +5577,7 @@
       const quickEl = document.getElementById('home-quick-actions');
       if (isSale && quickEl) {
         quickEl.innerHTML = `
-          <button onclick="askSimulation()" class="home-quick-btn">💰 簡易査定・手取り額</button>
+          <button onclick="askSimulation()" class="home-quick-btn">💰 費用・査定の相談</button>
           <button onclick="switchAppTab('chat')" class="home-quick-btn">💬 AIに相談</button>
           <button onclick="askSaleStatus()" class="home-quick-btn">📊 売却状況を確認</button>
           <button onclick="openProfile()" class="home-quick-btn">👤 マイページ</button>
