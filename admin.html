@@ -4504,9 +4504,15 @@
             const tabMap = { overview: 'overview', info: 'info', communication: 'communication', tasks: 'tasks' };
             const oldTab = tabMap[tab];
             if (oldTab) {
-                document.querySelectorAll('#overviewTab, #infoTab, #communicationTab, #tasksTab').forEach(p => p.style.display = 'none');
+                document.querySelectorAll('#overviewTab, #infoTab, #communicationTab, #tasksTab').forEach(p => {
+                    p.classList.remove('active');
+                    p.style.display = '';
+                });
                 const target = document.getElementById(oldTab + 'Tab');
-                if (target) target.style.display = '';
+                if (target) {
+                    target.classList.add('active');
+                    target.style.display = '';
+                }
             }
         }
 
