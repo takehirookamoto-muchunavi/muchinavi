@@ -3674,11 +3674,21 @@
         type: 'text',
         key: 'salePropertyLocation',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        title: '売却物件の所在地を\n教えてください',
-        subtitle: '市区町村まででも大丈夫です',
-        placeholder: '例: 東京都世田谷区三軒茶屋1-1-1',
+        title: '売却物件の住所を\n教えてください',
+        subtitle: '番地まで入力してください（査定に必要です）',
+        placeholder: '例: 大阪府大阪市北区梅田1-1-1',
         required: true,
         response: (val) => `${val}の物件ですね！`,
+      },
+      {
+        type: 'text',
+        key: 'salePropertyName',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/></svg>',
+        title: '物件名（マンション名等）と\n部屋番号を教えてください',
+        subtitle: '戸建て・土地の場合は「戸建て」等と入力してください',
+        placeholder: '例: ○○マンション 305号室',
+        required: true,
+        response: (val) => `承知しました！`,
       },
       {
         type: 'choice',
@@ -3694,6 +3704,31 @@
           { icon: '', label: '31年〜', value: '31年〜' },
         ],
         response: (val) => `築${val}ですね、承知しました！`,
+      },
+      {
+        type: 'text',
+        key: 'saleArea',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>',
+        title: '面積を教えてください',
+        subtitle: 'おおよそで大丈夫です（㎡ or 坪）',
+        placeholder: '例: 70㎡ / 3LDK / 土地100坪',
+        required: true,
+        response: (val) => `ありがとうございます！`,
+      },
+      {
+        type: 'choice',
+        key: 'saleLayout',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+        title: '間取りは？',
+        subtitle: '',
+        choices: [
+          { icon: '', label: '1R〜1LDK', value: '1R〜1LDK' },
+          { icon: '', label: '2LDK〜2SLDK', value: '2LDK〜2SLDK' },
+          { icon: '', label: '3LDK〜3SLDK', value: '3LDK〜3SLDK' },
+          { icon: '', label: '4LDK以上', value: '4LDK以上' },
+          { icon: '', label: '土地のみ', value: '土地のみ' },
+        ],
+        response: (val) => `${val}ですね！`,
       },
       {
         type: 'slider',
@@ -3764,15 +3799,12 @@
     function getSteps() {
       const typeSpecific = customerData.customerType === 'sale' ? saleOnlySteps : purchaseOnlySteps;
       if (customerData.customerType === 'sale') {
-        // 売却顧客：不要な共通ステップ（家族構成・世帯年収）を除外
-        const saleCommonStart = commonStepsStart.filter(s => s.key !== 'family' && s.key !== 'householdIncome');
-        // 生まれ年のsubtitleを売却向けに
-        const adjusted = saleCommonStart.map(s => {
-          if (s.key === 'birthInfo') return { ...s, subtitle: '本人確認の参考情報として使用します' };
-          if (s.key === 'prefecture') return { ...s, title: '{name}さんが\n今お住まいの都道府県は？', subtitle: '売却物件の所在地と異なる場合もお聞きします' };
-          return s;
-        });
-        return [...adjusted, ...typeSpecific, ...commonStepsEnd];
+        // 売却顧客：不要な共通ステップを除外（生まれ年月・都道府県・家族構成・世帯年収）
+        // 売却に必要な情報は saleOnlySteps で全て聞く
+        const saleCommonStart = commonStepsStart.filter(s =>
+          s.key !== 'family' && s.key !== 'householdIncome' && s.key !== 'birthInfo' && s.key !== 'prefecture'
+        );
+        return [...saleCommonStart, ...typeSpecific, ...commonStepsEnd];
       }
       return [...commonStepsStart, ...typeSpecific, ...commonStepsEnd];
     }
@@ -3964,10 +3996,22 @@
               <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
-            <!-- 電話番号フィールドは削除済み -->
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号 <span style="color: var(--danger);">*</span></label>
+              <input class="input-field" type="tel" id="contact-phone" placeholder="090-1234-5678" style="text-align: left;">
+            </div>
+            <!-- メール認証エリア -->
+            <div id="verify-area" style="display:none;">
+              <div style="background:#f0f7ff;border-radius:10px;padding:12px;margin-bottom:8px;">
+                <div style="font-size:13px;font-weight:600;color:#0071e3;margin-bottom:4px;">📧 認証コードを送信しました</div>
+                <div style="font-size:11px;color:#86868b;">メールに届いた6桁のコードを入力してください（10分以内）</div>
+              </div>
+              <input class="input-field" type="text" id="verify-code" placeholder="6桁の認証コード" maxlength="6" pattern="[0-9]*" inputmode="numeric" style="text-align: center; font-size: 20px; letter-spacing: 8px; font-weight: 700;">
+              <button style="background:none;border:none;color:#0071e3;font-size:12px;cursor:pointer;margin-top:4px;" onclick="resendVerifyCode()">コードを再送信</button>
+            </div>
           </div>
           <div style="margin-top: 24px;">
-            <button class="btn-primary" onclick="submitContact()">次へ →</button>
+            <button class="btn-primary" id="contact-submit-btn" onclick="submitContact()">認証コードを送信 →</button>
           </div>
           <div class="step-response" id="step-response"></div>
         `;
@@ -4244,20 +4288,100 @@
       nextStep(step.format(parseInt(val)));
     }
 
-    function submitContact() {
-      const email = document.getElementById('contact-email').value.trim();
-      const phoneEl = document.getElementById('contact-phone');
-      const phone = phoneEl ? phoneEl.value.trim() : '';
+    let emailVerified = false;
+    let verifyEmail = '';
 
+    async function submitContact() {
+      const email = document.getElementById('contact-email').value.trim();
+      const phone = document.getElementById('contact-phone')?.value.trim() || '';
+      const btn = document.getElementById('contact-submit-btn');
+
+      // バリデーション
       if (!email || !email.includes('@')) {
         document.getElementById('contact-email').style.borderColor = 'var(--danger)';
         document.getElementById('contact-email').focus();
         return;
       }
+      if (!phone || phone.length < 10) {
+        document.getElementById('contact-phone').style.borderColor = 'var(--danger)';
+        document.getElementById('contact-phone').focus();
+        return;
+      }
 
-      customerData.email = email;
-      customerData.phone = phone || '未入力';
-      nextStep('contact-done');
+      // 認証コード未送信 → コード送信
+      if (!emailVerified && !document.getElementById('verify-area').style.display.includes('block')) {
+        btn.disabled = true;
+        btn.textContent = '送信中...';
+        try {
+          const res = await fetch('/api/send-verify-code', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const data = await res.json();
+          if (data.success) {
+            verifyEmail = email;
+            document.getElementById('verify-area').style.display = 'block';
+            document.getElementById('contact-email').readOnly = true;
+            document.getElementById('contact-email').style.background = '#f5f5f7';
+            document.getElementById('contact-phone').readOnly = true;
+            document.getElementById('contact-phone').style.background = '#f5f5f7';
+            btn.textContent = '認証して次へ →';
+            btn.disabled = false;
+            document.getElementById('verify-code').focus();
+          } else {
+            btn.textContent = data.error || '送信に失敗しました';
+            setTimeout(() => { btn.textContent = '認証コードを送信 →'; btn.disabled = false; }, 2000);
+          }
+        } catch(e) {
+          btn.textContent = '送信に失敗しました';
+          setTimeout(() => { btn.textContent = '認証コードを送信 →'; btn.disabled = false; }, 2000);
+        }
+        return;
+      }
+
+      // 認証コード検証
+      const code = document.getElementById('verify-code')?.value.trim();
+      if (!code || code.length !== 6) {
+        document.getElementById('verify-code').style.borderColor = 'var(--danger)';
+        document.getElementById('verify-code').focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '認証中...';
+      try {
+        const res = await fetch('/api/verify-code', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: verifyEmail, code })
+        });
+        const data = await res.json();
+        if (data.verified) {
+          emailVerified = true;
+          customerData.email = verifyEmail;
+          customerData.phone = phone;
+          customerData.emailVerified = true;
+          nextStep('contact-done');
+        } else {
+          document.getElementById('verify-code').style.borderColor = 'var(--danger)';
+          btn.textContent = data.error || '認証に失敗しました';
+          setTimeout(() => { btn.textContent = '認証して次へ →'; btn.disabled = false; }, 2000);
+        }
+      } catch(e) {
+        btn.textContent = '認証に失敗しました';
+        setTimeout(() => { btn.textContent = '認証して次へ →'; btn.disabled = false; }, 2000);
+      }
+    }
+
+    async function resendVerifyCode() {
+      const email = verifyEmail || document.getElementById('contact-email').value.trim();
+      if (!email) return;
+      try {
+        await fetch('/api/send-verify-code', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        alert('認証コードを再送信しました。メールをご確認ください。');
+      } catch(e) { alert('再送信に失敗しました。'); }
     }
 
     function submitPassword() {

@@ -680,6 +680,56 @@ app.get('/api/test-email', async (req, res) => {
   }
 });
 
+// ===== メール認証コード送信・検証 =====
+const EMAIL_VERIFY_CODES = new Map(); // key: email, value: { code, expiresAt }
+
+app.post('/api/send-verify-code', async (req, res) => {
+  const { email } = req.body;
+  if (!email || !email.includes('@')) return res.status(400).json({ error: '有効なメールアドレスを入力してください' });
+
+  const code = String(Math.floor(100000 + Math.random() * 900000)); // 6桁
+  EMAIL_VERIFY_CODES.set(email.toLowerCase(), { code, expiresAt: Date.now() + 10 * 60 * 1000 }); // 10分有効
+
+  try {
+    await sendNotificationEmail({
+      to: email,
+      subject: '【MuchiNavi】メール認証コード',
+      html: `
+        <div style="max-width:400px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,sans-serif;text-align:center;">
+          <div style="background:#0071e3;color:#fff;padding:20px;border-radius:12px 12px 0 0;">
+            <h2 style="margin:0;font-size:18px;">MuchiNavi メール認証</h2>
+          </div>
+          <div style="background:#fff;padding:24px;border:1px solid #e5e5ea;border-top:none;border-radius:0 0 12px 12px;">
+            <p style="font-size:14px;color:#3a3a3c;">以下の認証コードを入力してください。</p>
+            <div style="font-size:32px;font-weight:700;letter-spacing:8px;color:#0071e3;margin:20px 0;padding:16px;background:#f0f7ff;border-radius:10px;">${code}</div>
+            <p style="font-size:11px;color:#aeaeb2;">このコードは10分間有効です。</p>
+          </div>
+        </div>`
+    });
+    console.log(`📧 認証コード送信: ${email} → ${code}`);
+    res.json({ success: true });
+  } catch(e) {
+    console.error('認証コード送信失敗:', e.message);
+    res.status(500).json({ error: 'メール送信に失敗しました' });
+  }
+});
+
+app.post('/api/verify-code', (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) return res.status(400).json({ error: 'メールアドレスと認証コードが必要です' });
+
+  const stored = EMAIL_VERIFY_CODES.get(email.toLowerCase());
+  if (!stored) return res.status(400).json({ error: '認証コードが見つかりません。再送信してください' });
+  if (Date.now() > stored.expiresAt) {
+    EMAIL_VERIFY_CODES.delete(email.toLowerCase());
+    return res.status(400).json({ error: '認証コードの有効期限が切れました。再送信してください' });
+  }
+  if (stored.code !== code.trim()) return res.status(400).json({ error: '認証コードが正しくありません' });
+
+  EMAIL_VERIFY_CODES.delete(email.toLowerCase());
+  res.json({ success: true, verified: true });
+});
+
 // ===== Customer Registration → Save + Email =====
 app.post('/api/register', async (req, res) => {
   const customer = req.body;
@@ -765,7 +815,7 @@ app.post('/api/register', async (req, res) => {
   const db = loadDB();
   // Determine initial stage based on profile completeness
   const profileFields = customer.customerType === 'sale'
-    ? ['name','birthYear','prefecture','family','householdIncome','salePropertyType','salePropertyLocation','saleDesiredPrice','email','phone']
+    ? ['name','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','email','phone']
     : ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
   const filled = profileFields.filter(f => customer[f] && customer[f] !== '' && customer[f] !== '-' && customer[f] !== '未入力').length;
   const initialStage = (filled >= Math.ceil(profileFields.length * 0.7)) ? 2 : 1;
@@ -1301,7 +1351,7 @@ app.put('/api/customer/profile/:token', (req, res) => {
   // Auto-stage: check if profile is 70%+ filled → stage 2
   if (!record.stage || record.stage < 2) {
     const profileFields = (record.customerType === 'sale')
-      ? ['name','birthYear','prefecture','family','householdIncome','salePropertyType','salePropertyLocation','saleDesiredPrice','email','phone']
+      ? ['name','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','email','phone']
       : ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
     const filled = profileFields.filter(f => record[f] && record[f] !== '' && record[f] !== '-' && record[f] !== '未入力').length;
     if (filled >= Math.ceil(profileFields.length * 0.7)) {
@@ -1931,9 +1981,11 @@ app.post('/api/chat', async (req, res) => {
 名前: ${custName}（※ 会話中は必ず「${custName}さん」と呼ぶこと。呼び捨て厳禁）
 相談種別: 売却
 家族構成: ${customer.family || '未入力'}
-世帯年収: ${customer.householdIncome || '未入力'}
 売却物件種別: ${customer.salePropertyType || '未入力'}
 売却物件所在地: ${customer.salePropertyLocation || '未入力'}
+物件名・部屋番号: ${customer.salePropertyName || '未入力'}
+面積: ${customer.saleArea || '未入力'}
+間取り: ${customer.saleLayout || '未入力'}
 築年数: ${customer.saleBuildingAge || '未入力'}
 希望売却価格: ${customer.saleDesiredPrice || '未入力'}
 売却理由: ${customer.saleReason || ''}
