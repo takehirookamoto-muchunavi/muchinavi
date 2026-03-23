@@ -916,10 +916,11 @@ app.post('/api/register', async (req, res) => {
 
       // ===== 1) お客様への登録完了メール =====
       if (customer.email) {
-        // AIでお客様に最適な記事を選定
+        // AIでお客様に最適な記事を選定（売却顧客はスキップ：売却記事がまだないため）
         let recommendedArticles = [];
+        const isSaleCustomer = customer.customerType === 'sale';
         try {
-          if (GEMINI_API_KEY) {
+          if (GEMINI_API_KEY && !isSaleCustomer) {
             const articleList = BLOG_ARTICLES.map((a, i) => `${i}: ${a.title}【${a.category}】`).join('\n');
             const customerProfile = `名前: ${customer.name}, 家族: ${customer.family || '未入力'}, 物件種別: ${customer.propertyType || '未入力'}, 目的: ${customer.purpose || '未入力'}, エリア: ${customer.area || '未入力'}, 予算: ${customer.budget || '未入力'}, 世帯年収: ${customer.householdIncome || '未入力'}, 探索理由: ${customer.searchReason || '未入力'}`;
             const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.3 } });
@@ -942,8 +943,8 @@ JSON形式で記事のインデックス番号を3つ返してください: {"in
         } catch (aiErr) {
           console.error('記事AI選定エラー:', aiErr.message);
         }
-        // フォールバック
-        if (recommendedArticles.length === 0) {
+        // フォールバック（購入顧客のみ）
+        if (recommendedArticles.length === 0 && !isSaleCustomer) {
           recommendedArticles = [
             { title: '家探し初心者必見！失敗しない3つのステップ', url: 'https://muchinochi55.com/家探し初心者必見！失敗しない3つのステップと成/' },
             { title: '住宅ローンの基本と選び方完全ガイド', url: 'https://muchinochi55.com/【2025年版】住宅ローンの基本と選び方完全ガイド/' },
@@ -2275,11 +2276,11 @@ ${customerContext}
 {{CHOICES|選択肢1|選択肢2|選択肢3|選択肢4}}
 選択肢は3〜4個。具体的な質問や選択肢タップ後はそのまま回答。
 
-【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。
+${customerType !== 'sale' ? `【ブログ記事紹介】回答に関連する記事を最大2つ紹介可能。
 フォーマット（厳守）：{{ARTICLE|記事タイトル}}
 ※記事タイトルのみを入れること。カテゴリ名やカッコは含めないこと。
 例：{{ARTICLE|住宅ローンの基礎知識}}
-利用可能な記事: ${articleListCompact}
+利用可能な記事: ${articleListCompact}` : `【ブログ記事紹介】現在、売却向けの記事は準備中のため、{{ARTICLE}}タグは使用しないこと。記事の紹介は行わず、AIの知識とPerplexityファクトデータで回答すること。`}
 
 【面談予約リンクのルール】
 フォーマット：{{BOOKING|${TIMEREX_URL}}}
