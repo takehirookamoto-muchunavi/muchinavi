@@ -146,9 +146,7 @@
 
         /* ======================== MAIN DASHBOARD ======================== */
         .admin-container {
-            display: flex;
-            height: 100vh;
-            gap: 0;
+            min-height: 100vh;
         }
 
         /* Sidebar */
@@ -788,10 +786,7 @@
 
         /* Main Content Area */
         .admin-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .empty-state {
@@ -3124,7 +3119,7 @@
             </div>
 
             <!-- Broadcast View (独立・顧客選択不要) -->
-            <div id="broadcastView" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+            <div id="broadcastView" style="display: none; padding-top: 72px;">
                 <div class="action-bar">
                     <div class="action-bar-left">
                         <div class="action-bar-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg> 一斉配信</div>
@@ -3800,7 +3795,7 @@
             </div><!-- end detailView -->
 
             <!-- TERASS Offer View -->
-            <div id="terassOfferView" style="display:none; flex-direction:column; flex:1; overflow-y:auto;">
+            <div id="terassOfferView" style="display:none; padding-top: 72px; overflow-y:auto;">
                 <div class="terass-header">
                     <h2>TERASS Offer 管理</h2>
                     <button class="btn-primary-sm" onclick="openNewTerassOffer()">+ 新規登録</button>
@@ -3826,7 +3821,7 @@
             </div>
 
             <!-- HM Partner View -->
-            <div id="hmPartnerView" style="display:none; flex-direction:column; flex:1; overflow-y:auto;">
+            <div id="hmPartnerView" style="display:none; padding-top: 72px; overflow-y:auto;">
                 <div class="hm-header">
                     <h2>🏭 HMパートナー管理</h2>
                     <button class="btn-primary-sm" onclick="openHMPartnerAddModal()">+ パートナー追加</button>
