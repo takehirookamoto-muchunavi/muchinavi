@@ -3655,111 +3655,177 @@
     ];
 
     // 売却専用ステップ
-    const saleOnlySteps = [
-      {
-        type: 'choice',
-        key: 'salePropertyType',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-        title: '売却をお考えの物件の種類は？',
-        subtitle: '当てはまるものをお選びください',
+    // 売却専用ステップ：物件種別に応じて動的に生成
+    const SALE_ICON = { home: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', mansion: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/></svg>', land: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>', other: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', pin: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>', build: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>', grid: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>', layout: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>', yen: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', edit: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' };
+
+    function getSaleSteps() {
+      const pType = customerData.salePropertyType || '';
+      const steps = [];
+
+      // 1. 物件種別選択（常に最初）
+      steps.push({
+        type: 'choice', key: 'salePropertyType', icon: SALE_ICON.home,
+        title: '売却をお考えの物件の種類は？', subtitle: '当てはまるものをお選びください',
         choices: [
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', label: '戸建て', value: '戸建て' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/></svg>', label: 'マンション', value: 'マンション' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>', label: '土地', value: '土地' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', label: 'その他', value: 'その他' },
+          { icon: SALE_ICON.home, label: '戸建て', value: '戸建て' },
+          { icon: SALE_ICON.mansion, label: 'マンション', value: 'マンション' },
+          { icon: SALE_ICON.land, label: '土地', value: '土地' },
+          { icon: SALE_ICON.other, label: 'その他', value: 'その他' },
         ],
         response: (val) => `${val}の売却ですね！`,
-      },
-      {
-        type: 'text',
-        key: 'salePropertyLocation',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        title: '売却物件の住所を\n教えてください',
-        subtitle: '番地まで入力してください（査定に必要です）',
-        placeholder: '例: 大阪府大阪市北区梅田1-1-1',
-        required: true,
+      });
+
+      // 2. 住所（共通）
+      steps.push({
+        type: 'text', key: 'salePropertyLocation', icon: SALE_ICON.pin,
+        title: '売却物件の住所を\n教えてください', subtitle: '番地まで入力してください（査定に必要です）',
+        placeholder: '例: 大阪府大阪市北区梅田1-1-1', required: true,
         response: (val) => `${val}の物件ですね！`,
-      },
-      {
-        type: 'text',
-        key: 'salePropertyName',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/></svg>',
-        title: '物件名（マンション名等）と\n部屋番号を教えてください',
-        subtitle: '戸建て・土地の場合は「戸建て」等と入力してください',
-        placeholder: '例: ○○マンション 305号室',
-        required: true,
-        response: (val) => `承知しました！`,
-      },
-      {
-        type: 'choice',
-        key: 'saleBuildingAge',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
-        title: '築年数はどのくらいですか？',
-        subtitle: 'おおよそで大丈夫です',
-        choices: [
-          { icon: '', label: '〜5年', value: '〜5年' },
-          { icon: '', label: '6〜10年', value: '6〜10年' },
-          { icon: '', label: '11〜20年', value: '11〜20年' },
-          { icon: '', label: '21〜30年', value: '21〜30年' },
-          { icon: '', label: '31年〜', value: '31年〜' },
-        ],
-        response: (val) => `築${val}ですね、承知しました！`,
-      },
-      {
-        type: 'text',
-        key: 'saleArea',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>',
-        title: '面積を教えてください',
-        subtitle: 'おおよそで大丈夫です（㎡ or 坪）',
-        placeholder: '例: 70㎡ / 3LDK / 土地100坪',
-        required: true,
-        response: (val) => `ありがとうございます！`,
-      },
-      {
-        type: 'choice',
-        key: 'saleLayout',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
-        title: '間取りは？',
-        subtitle: '',
-        choices: [
-          { icon: '', label: '1R〜1LDK', value: '1R〜1LDK' },
-          { icon: '', label: '2LDK〜2SLDK', value: '2LDK〜2SLDK' },
-          { icon: '', label: '3LDK〜3SLDK', value: '3LDK〜3SLDK' },
-          { icon: '', label: '4LDK以上', value: '4LDK以上' },
-          { icon: '', label: '土地のみ', value: '土地のみ' },
-        ],
-        response: (val) => `${val}ですね！`,
-      },
-      {
-        type: 'slider',
-        key: 'saleDesiredPrice',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-        title: '希望の売却価格は？',
-        subtitle: 'ざっくりのイメージで大丈夫です',
-        min: 500,
-        max: 30000,
-        step: 500,
-        default: 3000,
-        format: (val) => {
-          if (val >= 10000) return `${(val/10000).toFixed(1)}億円`;
-          return `${val.toLocaleString()}万円`;
-        },
-        skipText: 'まだわからない',
-        skipValue: '未定',
-        skipResponse: '査定をもとに一緒に考えましょう！',
+      });
+
+      // 3〜: 物件種別に応じた分岐
+      if (pType === 'マンション') {
+        steps.push({
+          type: 'text', key: 'salePropertyName', icon: SALE_ICON.mansion,
+          title: 'マンション名と部屋番号を\n教えてください', subtitle: '正確な査定に必要です',
+          placeholder: '例: ○○マンション 305号室', required: true,
+          response: (val) => `承知しました！`,
+        });
+        steps.push({
+          type: 'text', key: 'saleArea', icon: SALE_ICON.grid,
+          title: '専有面積を教えてください', subtitle: 'おおよそで大丈夫です',
+          placeholder: '例: 70㎡', required: true,
+          response: (val) => `ありがとうございます！`,
+        });
+        steps.push({
+          type: 'choice', key: 'saleLayout', icon: SALE_ICON.layout,
+          title: '間取りは？', subtitle: '',
+          choices: [
+            { icon: '', label: '1R〜1LDK', value: '1R〜1LDK' },
+            { icon: '', label: '2LDK〜2SLDK', value: '2LDK〜2SLDK' },
+            { icon: '', label: '3LDK〜3SLDK', value: '3LDK〜3SLDK' },
+            { icon: '', label: '4LDK以上', value: '4LDK以上' },
+          ],
+          response: (val) => `${val}ですね！`,
+        });
+        steps.push({
+          type: 'choice', key: 'saleBuildingAge', icon: SALE_ICON.build,
+          title: '築年数はどのくらいですか？', subtitle: 'おおよそで大丈夫です',
+          choices: [
+            { icon: '', label: '〜5年', value: '〜5年' }, { icon: '', label: '6〜10年', value: '6〜10年' },
+            { icon: '', label: '11〜20年', value: '11〜20年' }, { icon: '', label: '21〜30年', value: '21〜30年' },
+            { icon: '', label: '31年〜', value: '31年〜' },
+          ],
+          response: (val) => `築${val}ですね！`,
+        });
+        steps.push({
+          type: 'text', key: 'saleFloorDirection', icon: SALE_ICON.mansion,
+          title: '階数と方角を教えてください', subtitle: '任意ですが査定精度が上がります',
+          placeholder: '例: 3階 南向き', required: false,
+          skipText: 'わからない・スキップ', skipValue: '', skipResponse: '了解です！',
+          response: (val) => `ありがとうございます！`,
+        });
+
+      } else if (pType === '戸建て') {
+        steps.push({
+          type: 'text', key: 'saleArea', icon: SALE_ICON.grid,
+          title: '土地面積と建物面積を\n教えてください', subtitle: 'おおよそで大丈夫です',
+          placeholder: '例: 土地100㎡ / 建物80㎡', required: true,
+          response: (val) => `ありがとうございます！`,
+        });
+        steps.push({
+          type: 'choice', key: 'saleLayout', icon: SALE_ICON.layout,
+          title: '間取りは？', subtitle: '',
+          choices: [
+            { icon: '', label: '2LDK以下', value: '2LDK以下' },
+            { icon: '', label: '3LDK', value: '3LDK' },
+            { icon: '', label: '4LDK', value: '4LDK' },
+            { icon: '', label: '5LDK以上', value: '5LDK以上' },
+          ],
+          response: (val) => `${val}ですね！`,
+        });
+        steps.push({
+          type: 'choice', key: 'saleBuildingAge', icon: SALE_ICON.build,
+          title: '築年数はどのくらいですか？', subtitle: 'おおよそで大丈夫です',
+          choices: [
+            { icon: '', label: '〜5年', value: '〜5年' }, { icon: '', label: '6〜10年', value: '6〜10年' },
+            { icon: '', label: '11〜20年', value: '11〜20年' }, { icon: '', label: '21〜30年', value: '21〜30年' },
+            { icon: '', label: '31年〜', value: '31年〜' },
+          ],
+          response: (val) => `築${val}ですね！`,
+        });
+
+      } else if (pType === '土地') {
+        steps.push({
+          type: 'text', key: 'saleArea', icon: SALE_ICON.grid,
+          title: '土地面積を教えてください', subtitle: 'おおよそで大丈夫です（㎡ or 坪）',
+          placeholder: '例: 150㎡ / 約45坪', required: true,
+          response: (val) => `ありがとうございます！`,
+        });
+        steps.push({
+          type: 'choice', key: 'saleOldHouse', icon: SALE_ICON.home,
+          title: '建物（古家）はありますか？', subtitle: '',
+          choices: [
+            { icon: '', label: '更地（建物なし）', value: '更地' },
+            { icon: '', label: '古家あり', value: '古家あり' },
+          ],
+          response: (val) => `${val}ですね！`,
+        });
+        steps.push({
+          type: 'text', key: 'saleRoadAccess', icon: SALE_ICON.pin,
+          title: '接道状況を教えてください', subtitle: '任意ですが査定精度が上がります',
+          placeholder: '例: 南側6m公道に接道 / 旗竿地', required: false,
+          skipText: 'わからない・スキップ', skipValue: '', skipResponse: '了解です！',
+          response: (val) => `ありがとうございます！`,
+        });
+
+      } else {
+        // その他（一棟アパート・事業用等）
+        steps.push({
+          type: 'text', key: 'salePropertyName', icon: SALE_ICON.other,
+          title: '物件の詳細を教えてください', subtitle: '物件名・種類・規模など',
+          placeholder: '例: ○○アパート 全6室 / 店舗兼住宅', required: true,
+          response: (val) => `承知しました！`,
+        });
+        steps.push({
+          type: 'text', key: 'saleArea', icon: SALE_ICON.grid,
+          title: '面積を教えてください', subtitle: '土地面積・建物面積（おおよそで可）',
+          placeholder: '例: 土地200㎡ / 建物300㎡', required: true,
+          response: (val) => `ありがとうございます！`,
+        });
+        steps.push({
+          type: 'choice', key: 'saleBuildingAge', icon: SALE_ICON.build,
+          title: '築年数はどのくらいですか？', subtitle: 'おおよそで大丈夫です',
+          choices: [
+            { icon: '', label: '〜5年', value: '〜5年' }, { icon: '', label: '6〜10年', value: '6〜10年' },
+            { icon: '', label: '11〜20年', value: '11〜20年' }, { icon: '', label: '21〜30年', value: '21〜30年' },
+            { icon: '', label: '31年〜', value: '31年〜' },
+          ],
+          response: (val) => `築${val}ですね！`,
+        });
+      }
+
+      // 共通: 希望売却価格
+      steps.push({
+        type: 'slider', key: 'saleDesiredPrice', icon: SALE_ICON.yen,
+        title: '希望の売却価格は？', subtitle: 'ざっくりのイメージで大丈夫です',
+        min: 500, max: 30000, step: 500, default: 3000,
+        format: (val) => val >= 10000 ? `${(val/10000).toFixed(1)}億円` : `${val.toLocaleString()}万円`,
+        skipText: 'まだわからない', skipValue: '未定', skipResponse: '査定をもとに一緒に考えましょう！',
         response: (val) => `了解です！最適な売却プランを考えましょう`,
-      },
-      {
-        type: 'textarea',
-        key: 'saleReason',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+      });
+
+      // 共通: 売却理由
+      steps.push({
+        type: 'textarea', key: 'saleReason', icon: SALE_ICON.edit,
         title: '{name}さんが売却を考えている\n理由を教えてください',
         subtitle: '詳しく書いていただくほど、的確なサポートができます',
         placeholder: '例: 住み替えのため、相続した物件を売りたい、転勤で引っ越すため',
-        required: true,
-        response: (val) => `詳しくありがとうございます！`,
-      },
-    ];
+        required: true, response: (val) => `詳しくありがとうございます！`,
+      });
+
+      return steps;
+    }
 
     // 共通の終了ステップ
     const commonStepsEnd = [
@@ -3797,16 +3863,14 @@
 
     // ステップを動的に構築（customerTypeに基づいて分岐）
     function getSteps() {
-      const typeSpecific = customerData.customerType === 'sale' ? saleOnlySteps : purchaseOnlySteps;
       if (customerData.customerType === 'sale') {
-        // 売却顧客：不要な共通ステップを除外（生まれ年月・都道府県・家族構成・世帯年収）
-        // 売却に必要な情報は saleOnlySteps で全て聞く
+        // 売却顧客：不要な共通ステップを除外 + 物件種別に応じた動的ステップ
         const saleCommonStart = commonStepsStart.filter(s =>
           s.key !== 'family' && s.key !== 'householdIncome' && s.key !== 'birthInfo' && s.key !== 'prefecture'
         );
-        return [...saleCommonStart, ...typeSpecific, ...commonStepsEnd];
+        return [...saleCommonStart, ...getSaleSteps(), ...commonStepsEnd];
       }
-      return [...commonStepsStart, ...typeSpecific, ...commonStepsEnd];
+      return [...commonStepsStart, ...purchaseOnlySteps, ...commonStepsEnd];
     }
 
     // ===== Render step =====

@@ -1987,6 +1987,9 @@ app.post('/api/chat', async (req, res) => {
 面積: ${customer.saleArea || '未入力'}
 間取り: ${customer.saleLayout || '未入力'}
 築年数: ${customer.saleBuildingAge || '未入力'}
+階数・方角: ${customer.saleFloorDirection || '未入力'}
+古家有無: ${customer.saleOldHouse || '未入力'}
+接道状況: ${customer.saleRoadAccess || '未入力'}
 希望売却価格: ${customer.saleDesiredPrice || '未入力'}
 売却理由: ${customer.saleReason || ''}
 フリーコメント: ${customer.freeComment || ''}
