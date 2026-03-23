@@ -682,6 +682,26 @@
       transition: all 0.15s;
     }
     .home-quick-btn:hover { background: #f5f5f7; }
+    .home-doc-item, .home-todo-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid #f0f0f2;
+    }
+    .home-doc-item:last-child, .home-todo-item:last-child { border-bottom: none; }
+    .home-doc-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid #e5e5ea; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #fff; flex-shrink: 0; cursor: pointer; transition: all 0.2s;
+    }
+    .home-doc-check.checked { background: #34c759; border-color: #34c759; }
+    .home-doc-text { font-size: 13px; color: #1d1d1f; line-height: 1.4; }
+    .home-doc-text.checked { color: #aeaeb2; text-decoration: line-through; }
+    .home-todo-priority {
+      font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px;
+    }
+    .home-todo-priority.high { background: #fff5f5; color: #ff3b30; }
+    .home-todo-priority.medium { background: #fff8f0; color: #ff9500; }
+    .home-todo-priority.low { background: #f0f7ff; color: #0071e3; }
+    .home-todo-deadline { font-size: 11px; color: #86868b; }
 
     /* ===== Chat UI ===== */
     .chat-screen {
@@ -3152,6 +3172,18 @@
           <button class="home-message-reply" onclick="switchAppTab('chat')">返信する →</button>
         </div>
 
+        <!-- 書類チェックリスト -->
+        <div class="home-progress-card" id="home-docs-card">
+          <div class="home-card-title">📄 必要書類チェックリスト</div>
+          <div id="home-docs-list"></div>
+        </div>
+
+        <!-- 次の予定（ToDo） -->
+        <div class="home-progress-card" id="home-todos-card" style="display:none;">
+          <div class="home-card-title">📅 今後の予定・タスク</div>
+          <div id="home-todos-list"></div>
+        </div>
+
         <!-- クイックアクション -->
         <div class="home-quick-actions">
           <button onclick="switchAppTab('chat')" class="home-quick-btn">💬 AIに相談</button>
@@ -5227,6 +5259,8 @@
 
       // 岡本さんからのメッセージ（ダイレクトチャットの最新メッセージがあれば表示）
       loadAgentMessage();
+      renderDocChecklist();
+      loadMyTodos();
     }
 
     function getNextActions(stage, isSale) {
@@ -5270,6 +5304,92 @@
           document.getElementById('home-agent-message').style.display = 'block';
           document.getElementById('home-message-content').textContent = latest.text || latest.message || '';
         }
+      } catch(e) { /* silent */ }
+    }
+
+    // ===== 書類チェックリスト =====
+    function renderDocChecklist() {
+      const stage = customerData?.stage || 1;
+      const isSale = customerData?.customerType === 'sale';
+      const docs = isSale ? getSaleDocuments(stage) : getPurchaseDocuments(stage);
+      const el = document.getElementById('home-docs-list');
+      if (!el) return;
+
+      const checkedDocs = JSON.parse(localStorage.getItem('muchinavi_docs_checked') || '{}');
+      el.innerHTML = docs.map((doc, i) => {
+        const key = `${isSale?'s':'p'}_${stage}_${i}`;
+        const checked = checkedDocs[key];
+        return `<div class="home-doc-item">
+          <div class="home-doc-check ${checked ? 'checked' : ''}" onclick="toggleDocCheck('${key}', this)">${checked ? '✓' : ''}</div>
+          <div class="home-doc-text ${checked ? 'checked' : ''}">${doc}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleDocCheck(key, el) {
+      const checkedDocs = JSON.parse(localStorage.getItem('muchinavi_docs_checked') || '{}');
+      checkedDocs[key] = !checkedDocs[key];
+      localStorage.setItem('muchinavi_docs_checked', JSON.stringify(checkedDocs));
+      renderDocChecklist();
+      trackActivity('doc_check', { key });
+    }
+
+    function getPurchaseDocuments(stage) {
+      const map = {
+        1: ['本人確認書類（運転免許証・マイナンバーカード等）'],
+        2: ['源泉徴収票または確定申告書', '本人確認書類', '希望条件メモ'],
+        3: ['面談日の候補日を準備', '現在の家計状況メモ', '希望エリア・間取りの整理'],
+        4: ['源泉徴収票（直近2年分）', '本人確認書類', '住民票', '印鑑証明書'],
+        5: ['ライフプラン表', '家計収支表', '将来の収入見込み資料'],
+        6: ['内見チェックリスト', '物件比較表', 'カメラ（内見写真用）'],
+        7: ['住民票', '印鑑証明書', '実印', '収入証明書（源泉徴収票2年分）', '本人確認書類', '手付金（現金または振込）', '銀行届出印', '通帳', '住宅ローン本申込書類'],
+        8: ['残代金', '実印', '印鑑証明書', '住民票', '本人確認書類', '火災保険加入手続き', '引越し手配', '各種届出（転居届・郵便転送等）']
+      };
+      return map[stage] || map[1];
+    }
+
+    function getSaleDocuments(stage) {
+      const map = {
+        1: ['本人確認書類', '権利証（登記識別情報）の所在確認'],
+        2: ['登記簿謄本', '固定資産税納税通知書', '建物図面・測量図', '購入時の売買契約書'],
+        3: ['物件資料の整理', '面談日候補の準備'],
+        4: ['権利証（登記識別情報）', '固定資産税納税通知書', '登記簿謄本', '建物図面'],
+        5: ['実印', '印鑑証明書', '本人確認書類', '媒介契約の種類を決定'],
+        6: ['部屋の整理整頓', '清掃・クリーニング', '内覧用のスリッパ準備'],
+        7: ['内覧時の対応準備', '物件の状態説明メモ'],
+        8: ['実印', '印鑑証明書（発行3ヶ月以内）', '住民票', '権利証（登記識別情報）', '固定資産評価証明書', '本人確認書類', '銀行口座情報（代金受取用）'],
+        9: ['鍵の引渡し準備', '引越し手配', '各種届出（転居届・郵便転送等）', 'ローン残債の確認・完済手続き']
+      };
+      return map[stage] || map[1];
+    }
+
+    // ===== ToDo取得・表示 =====
+    async function loadMyTodos() {
+      try {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        if (!token) return;
+        const res = await fetch(`/api/customer/my-todos/${token}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const todos = data.todos || [];
+        const card = document.getElementById('home-todos-card');
+        const list = document.getElementById('home-todos-list');
+        if (!card || !list) return;
+        if (todos.length === 0) { card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        const priorityLabels = { high: '高', medium: '中', low: '低' };
+        list.innerHTML = todos.slice(0, 5).map(t => {
+          const deadline = t.deadline ? new Date(t.deadline).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }) : '';
+          return `<div class="home-todo-item">
+            <div>
+              <div style="font-size:13px;color:#1d1d1f;font-weight:500;">${t.text}</div>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <span class="home-todo-priority ${t.priority || 'medium'}">${priorityLabels[t.priority] || '中'}</span>
+                ${deadline ? `<span class="home-todo-deadline">〆 ${deadline}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+        }).join('');
       } catch(e) { /* silent */ }
     }
 

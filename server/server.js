@@ -1329,6 +1329,8 @@ app.post('/api/customer/advance-stage/:token', (req, res) => {
     record.stage = stage;
     saveDB(db);
     console.log(`📊 ステージ進行: ${record.name} → ${stage}`);
+    // ステージ変更メール通知
+    sendStageChangeNotification(record, currentStage, stage);
     res.json({ success: true, stage: record.stage });
   } else {
     res.json({ success: false, message: 'ステージ変更できません', stage: currentStage });
@@ -1717,6 +1719,51 @@ app.post('/api/customer/announcements/:token/read', (req, res) => {
 });
 
 // ===== 顧客パスワード変更 =====
+// ===== 顧客向け: 自分のToDo取得 =====
+app.get('/api/customer/my-todos/:token', (req, res) => {
+  const db = loadDB();
+  const record = db[req.params.token];
+  if (!record) return res.status(404).json({ error: 'not found' });
+  if (record.status === 'blocked' || record.status === 'withdrawn')
+    return res.status(403).json({ error: 'access denied' });
+
+  const todos = (record.todos || []).filter(t => !t.done);
+  res.json({ todos: todos.map(t => ({ id: t.id, text: t.text, priority: t.priority, deadline: t.deadline })) });
+});
+
+// ===== 顧客向け: ステージ変更メール通知 =====
+function sendStageChangeNotification(record, oldStage, newStage) {
+  if (!record.email) return;
+  const isSale = record.customerType === 'sale';
+  const purchaseStages = ['登録', '情報入力', '面談予約', '相談中', 'ライフプラン', '物件探し・内見', '契約', '引渡し'];
+  const saleStages = ['登録', '情報入力', '面談予約', '査定', '媒介契約', '販売活動', '内覧対応', '契約', '決済・引渡し'];
+  const stages = isSale ? saleStages : purchaseStages;
+  const stageName = stages[newStage - 1] || '';
+  const pct = Math.round(((newStage - 1) / (stages.length - 1)) * 100);
+
+  sendNotificationEmail({
+    to: record.email,
+    subject: `🎉 MuchiNavi: 「${stageName}」に進みました！`,
+    html: `
+      <div style="max-width:500px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">
+        <div style="background:#0071e3;color:#fff;padding:24px;border-radius:16px 16px 0 0;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🎉</div>
+          <h2 style="margin:0;font-size:20px;">${record.name}さん、おめでとうございます！</h2>
+        </div>
+        <div style="background:#fff;padding:24px;border:1px solid #e5e5ea;border-top:none;border-radius:0 0 16px 16px;">
+          <p style="font-size:15px;color:#1d1d1f;">「<strong>${stageName}</strong>」のステップに進みました。</p>
+          <div style="background:#f5f5f7;border-radius:12px;padding:16px;margin:16px 0;text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:#0071e3;">${pct}%</div>
+            <div style="font-size:12px;color:#86868b;">完了</div>
+          </div>
+          <p style="font-size:13px;color:#3a3a3c;">MuchiNaviにログインして、次のステップを確認しましょう。</p>
+          <a href="https://muchinavi.com" style="display:block;background:#0071e3;color:#fff;text-decoration:none;text-align:center;padding:12px;border-radius:10px;font-weight:600;margin-top:16px;">MuchiNaviを開く</a>
+          <p style="font-size:11px;color:#aeaeb2;margin-top:16px;text-align:center;">このメールはMuchiNaviから自動送信されています。</p>
+        </div>
+      </div>`
+  }).catch(e => console.error('ステージ変更通知メール失敗:', e.message));
+}
+
 app.post('/api/customer/change-password/:token', (req, res) => {
   const db = loadDB();
   const record = db[req.params.token];
@@ -3296,15 +3343,21 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice','hmMode','hmPartnerId','hmPartnerName','hmReferredAt','hmContactId','hmContactName','hmContactEmail','hmContactPhone'];
   const updates = req.body;
 
-  // Track old values for auto-tag update
+  // Track old values for auto-tag update and stage change notification
   const oldPrefecture = record.prefecture;
   const oldPropertyType = record.propertyType;
+  const oldStage = record.stage || 1;
 
   updatable.forEach(key => {
     if (updates[key] !== undefined) {
       record[key] = (key === 'stage') ? parseInt(updates[key], 10) : updates[key];
     }
   });
+
+  // ステージ変更メール通知（管理者側からの変更）
+  if (updates.stage && parseInt(updates.stage, 10) > oldStage) {
+    sendStageChangeNotification(record, oldStage, parseInt(updates.stage, 10));
+  }
 
   // Auto-update tags if prefecture or propertyType changed
   if ((updates.prefecture && updates.prefecture !== oldPrefecture) ||
