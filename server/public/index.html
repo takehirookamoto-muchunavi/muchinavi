@@ -4936,7 +4936,11 @@
     }
 
     // ===== Progress Bar =====
-    const STAGE_LABELS = ['登録', '情報入力', '面談予約', '相談中', 'ライフプラン', '物件探し・内見', '契約', '引渡し'];
+    const PURCHASE_STAGE_LABELS = ['登録', '情報入力', '面談予約', '相談中', 'ライフプラン', '物件探し・内見', '契約', '引渡し'];
+    const SALE_STAGE_LABELS_CHAT = ['登録', '情報入力', '面談予約', '査定', '媒介契約', '販売活動', '内覧対応', '契約', '決済・引渡し'];
+    function getStageLabels() { return (customerData?.customerType === 'sale') ? SALE_STAGE_LABELS_CHAT : PURCHASE_STAGE_LABELS; }
+    // 後方互換用
+    let STAGE_LABELS = PURCHASE_STAGE_LABELS;
     const STAGE_ICONS = [
       '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
       '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
@@ -4969,6 +4973,11 @@
 
     function renderProgressBar(stage, profile) {
       profile = profile || {};
+      // 売却/購入に応じたラベルを動的取得
+      STAGE_LABELS = getStageLabels();
+      // ICONSも数を合わせる
+      while (STAGE_ICONS.length < STAGE_LABELS.length) STAGE_ICONS.push('<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>');
+
       const stepsEl = document.getElementById('progress-steps');
       const labelsEl = document.getElementById('progress-labels');
       const statusText = document.getElementById('progress-status-text');
