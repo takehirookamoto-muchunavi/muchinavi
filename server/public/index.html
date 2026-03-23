@@ -3185,7 +3185,7 @@
         </div>
 
         <!-- クイックアクション -->
-        <div class="home-quick-actions">
+        <div class="home-quick-actions" id="home-quick-actions">
           <button onclick="switchAppTab('chat')" class="home-quick-btn">💬 AIに相談</button>
           <button onclick="openProfile()" class="home-quick-btn">👤 マイページ</button>
         </div>
@@ -4923,6 +4923,28 @@
       }
     }
 
+    // ===== 売却用クイックアクション =====
+    function askSimulation() {
+      switchAppTab('chat');
+      setTimeout(() => {
+        const input = document.getElementById('chat-input');
+        const price = customerData?.saleDesiredPrice || '';
+        input.value = price
+          ? `売却価格${price}の場合、手元にいくら残りますか？仲介手数料、税金、諸費用を含めて計算してください。`
+          : '自宅を売却した場合、手元にいくら残るか計算してほしいです。費用の内訳も教えてください。';
+        sendMessage();
+      }, 300);
+    }
+
+    function askSaleStatus() {
+      switchAppTab('chat');
+      setTimeout(() => {
+        const input = document.getElementById('chat-input');
+        input.value = '現在の売却の進捗状況と、次にやるべきことを教えてください。';
+        sendMessage();
+      }, 300);
+    }
+
     // ===== ステージ別FAQ候補 =====
     function renderFaqSuggestions() {
       const stage = customerData?.stage || 1;
@@ -5261,6 +5283,17 @@
       loadAgentMessage();
       renderDocChecklist();
       loadMyTodos();
+
+      // 売却顧客向けクイックアクション追加
+      const quickEl = document.getElementById('home-quick-actions');
+      if (isSale && quickEl) {
+        quickEl.innerHTML = `
+          <button onclick="askSimulation()" class="home-quick-btn">💰 手取り額を計算</button>
+          <button onclick="switchAppTab('chat')" class="home-quick-btn">💬 AIに相談</button>
+          <button onclick="askSaleStatus()" class="home-quick-btn">📊 売却状況を確認</button>
+          <button onclick="openProfile()" class="home-quick-btn">👤 マイページ</button>
+        `;
+      }
     }
 
     function getNextActions(stage, isSale) {
