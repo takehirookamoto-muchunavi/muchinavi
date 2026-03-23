@@ -1260,6 +1260,37 @@
       font-weight: 600;
     }
 
+    /* マイルストーン祝福 */
+    .milestone-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    .milestone-card {
+      background: #fff; border-radius: 20px; padding: 32px 24px;
+      text-align: center; max-width: 340px; width: 90%;
+      position: relative; overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .milestone-confetti { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; }
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(350px) rotate(720deg); opacity: 0; }
+    }
+
+    /* FAQ候補ボタン */
+    .faq-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 8px 16px 4px; background: transparent;
+    }
+    .faq-chip {
+      background: #f0f7ff; color: #0071e3; border: 1px solid #d1e5ff;
+      border-radius: 16px; padding: 6px 12px; font-size: 12px;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .faq-chip:hover { background: #0071e3; color: #fff; }
+
     /* NPS調査 */
     .nps-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -3047,6 +3078,7 @@
       <div class="file-upload-progress-bar"><div class="file-upload-progress-fill" id="ai-progress-fill"></div></div>
       <div class="file-upload-progress-text" id="ai-progress-text">アップロード中...</div>
     </div>
+    <div class="faq-suggestions" id="faq-suggestions"></div>
     <div class="chat-input-bar" id="ai-chat-input-bar">
       <button class="file-attach-btn" onclick="document.getElementById('ai-file-input').click()" title="ファイルを添付（JPG, PNG, PDF 最大10MB）">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
@@ -4630,6 +4662,9 @@
       // 行動データ記録
       trackActivity('chat_start', { stage: customerData.stage });
 
+      // FAQ候補表示
+      renderFaqSuggestions();
+
       // NPS調査チェック（登録7日後、30日後等）
       setTimeout(checkNPS, 3000);
 
@@ -4856,6 +4891,82 @@
       }
     }
 
+    // ===== ステージ別FAQ候補 =====
+    function renderFaqSuggestions() {
+      const stage = customerData?.stage || 1;
+      const isSale = customerData?.customerType === 'sale';
+      const faqs = isSale ? getSaleFaqs(stage) : getPurchaseFaqs(stage);
+      const el = document.getElementById('faq-suggestions');
+      if (!el || !faqs.length) return;
+      // メッセージが少ない時のみ表示
+      const msgCount = chatMessages.filter(m => m.role === 'user').length;
+      if (msgCount > 5) { el.style.display = 'none'; return; }
+      el.style.display = 'flex';
+      el.innerHTML = faqs.map(q => `<div class="faq-chip" onclick="askFaq(this, '${q.replace(/'/g, "\\'")}')">${q}</div>`).join('');
+    }
+
+    function askFaq(el, question) {
+      const input = document.getElementById('chat-input');
+      input.value = question;
+      sendMessage();
+      document.getElementById('faq-suggestions').style.display = 'none';
+      trackActivity('faq_click', { question });
+    }
+
+    function getPurchaseFaqs(stage) {
+      const map = {
+        1: ['住宅購入の流れを教えて', '予算はどう決めればいい？', '頭金はいくら必要？'],
+        2: ['住宅ローンの種類を教えて', '変動金利と固定金利の違いは？', '年収に対していくら借りられる？'],
+        3: ['面談では何を聞かれる？', '面談の準備は何が必要？', 'オンライン面談はできる？'],
+        4: ['物件の探し方のコツは？', '内見のチェックポイントは？', '良い物件の見分け方は？'],
+        5: ['ライフプランって何？', 'FPに相談した方がいい？', '教育費と住宅ローンの両立は？'],
+        6: ['内見で見るべきポイントは？', '値引き交渉はできる？', '複数物件で迷ったらどうする？'],
+        7: ['契約時の注意点は？', '重要事項説明って何？', '手付金はいくら？'],
+        8: ['引渡し当日の流れは？', '引越しの準備リストは？', '住所変更の手続きは？']
+      };
+      return map[stage] || map[1];
+    }
+
+    function getSaleFaqs(stage) {
+      const map = {
+        1: ['売却の流れを教えて', '査定はどうやるの？', '売却にかかる費用は？'],
+        2: ['売却価格はどう決める？', '相場を知る方法は？', '築年数は価格にどう影響する？'],
+        3: ['面談では何を聞かれる？', '売却の準備は何が必要？'],
+        4: ['査定額に納得できない場合は？', '高く売るコツは？', '複数社に査定を依頼すべき？'],
+        5: ['媒介契約の種類と違いは？', '専任と一般どっちがいい？', '囲い込みって何？'],
+        6: ['販売活動の流れは？', 'なかなか売れない場合は？', '値下げのタイミングは？'],
+        7: ['内覧準備のコツは？', '内覧時に気をつけることは？'],
+        8: ['売却時の税金は？', '3000万円控除って何？', '確定申告は必要？'],
+        9: ['決済日の流れは？', '引渡しまでの準備は？', '抵当権抹消の手続きは？']
+      };
+      return map[stage] || map[1];
+    }
+
+    // ===== マイルストーン祝福 =====
+    function showMilestoneCelebration(stageName) {
+      const overlay = document.createElement('div');
+      overlay.className = 'milestone-overlay';
+      overlay.innerHTML = `
+        <div class="milestone-card">
+          <div class="milestone-confetti" id="milestone-confetti"></div>
+          <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+          <div style="font-size:18px;font-weight:700;color:#1d1d1f;margin-bottom:6px;">おめでとうございます！</div>
+          <div style="font-size:14px;color:#3a3a3c;margin-bottom:4px;">「${stageName}」のステップが完了しました</div>
+          <div style="font-size:12px;color:#86868b;">着実に前に進んでいますね！</div>
+          <button onclick="this.parentElement.parentElement.remove()" style="margin-top:16px;background:#0071e3;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;">次に進む</button>
+        </div>`;
+      document.body.appendChild(overlay);
+      // 紙吹雪アニメーション
+      const confettiEl = document.getElementById('milestone-confetti');
+      const colors = ['#ff3b30','#ff9500','#ffcc00','#34c759','#0071e3','#af52de'];
+      for (let i = 0; i < 30; i++) {
+        const piece = document.createElement('div');
+        piece.style.cssText = `position:absolute;width:8px;height:8px;background:${colors[i%colors.length]};border-radius:${Math.random()>0.5?'50%':'2px'};left:${Math.random()*100}%;top:-10px;animation:confetti-fall ${1.5+Math.random()*1.5}s ease-out ${Math.random()*0.5}s forwards;`;
+        confettiEl.appendChild(piece);
+      }
+      setTimeout(() => overlay.remove(), 6000);
+    }
+
     function openBookingAndTrack() {
       localStorage.setItem('muchinavi_booking_clicked', 'true');
       const bookingBtn = document.getElementById('chat-booking-btn');
@@ -5004,8 +5115,17 @@
     // ステージ変更時のフィードバック表示
     function checkStageFeedback(oldStage, newStage) {
       if (newStage > oldStage && newStage >= 3) {
+        // マイルストーン祝福
+        const isSale = customerData?.customerType === 'sale';
+        const steps = isSale ? SALE_STEPS : PURCHASE_STEPS;
+        const completedStepName = steps[oldStage - 1] || '';
+        if (completedStepName && !localStorage.getItem('muchinavi_milestone_' + oldStage)) {
+          localStorage.setItem('muchinavi_milestone_' + oldStage, '1');
+          setTimeout(() => showMilestoneCelebration(completedStepName), 500);
+        }
+        // フィードバック（祝福の後に表示）
         if (shouldShowFeedback('stage_' + newStage)) {
-          setTimeout(() => showFeedbackInChat('stage_change'), 1500);
+          setTimeout(() => showFeedbackInChat('stage_change'), 4000);
         }
       }
     }
