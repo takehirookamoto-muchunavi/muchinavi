@@ -486,6 +486,203 @@
       to { stroke-dashoffset: 0; }
     }
 
+    /* ===== Bottom Navigation ===== */
+    .bottom-nav {
+      display: flex;
+      background: #fff;
+      border-top: 1px solid #e5e5ea;
+      padding: 6px 0;
+      padding-bottom: max(6px, env(safe-area-inset-bottom));
+      position: relative;
+      z-index: 200;
+      flex-shrink: 0;
+    }
+    .bottom-nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 0;
+      background: none;
+      border: none;
+      color: #aeaeb2;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .bottom-nav-btn.active { color: #0071e3; }
+    .bottom-nav-btn svg { transition: transform 0.15s; }
+    .bottom-nav-btn.active svg { transform: scale(1.1); }
+
+    /* ===== Home Screen ===== */
+    .home-screen {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%);
+    }
+    .home-content {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+    }
+    .home-greeting {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 24px;
+      line-height: 1.3;
+    }
+    .home-progress-card, .home-next-action, .home-message-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .home-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 16px;
+    }
+    .home-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .home-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 48px;
+      position: relative;
+    }
+    .home-step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: #e5e5ea;
+      transition: all 0.3s;
+      z-index: 1;
+    }
+    .home-step.completed .home-step-dot { background: #34c759; }
+    .home-step.current .home-step-dot { background: #0071e3; animation: pulse-dot 2s infinite; }
+    .home-step.future .home-step-dot { background: #e5e5ea; color: #aeaeb2; }
+    .home-step-label {
+      font-size: 9px;
+      color: #86868b;
+      margin-top: 4px;
+      text-align: center;
+      max-width: 56px;
+      line-height: 1.2;
+    }
+    .home-step.current .home-step-label { color: #0071e3; font-weight: 600; }
+    .home-step-line {
+      flex: 1;
+      height: 3px;
+      background: #e5e5ea;
+      min-width: 12px;
+      margin-top: -20px;
+    }
+    .home-step-line.completed { background: #34c759; }
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,113,227,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(0,113,227,0); }
+    }
+    .home-progress-label {
+      font-size: 13px;
+      color: #86868b;
+      text-align: center;
+    }
+    .home-action-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .home-action-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f5f5f7;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .home-action-item:hover { background: #eeeeef; }
+    .home-action-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #0071e3;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .home-action-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d1d1f;
+      line-height: 1.4;
+    }
+    .home-action-sub {
+      font-size: 11px;
+      color: #86868b;
+      margin-top: 2px;
+    }
+    .home-message-content {
+      font-size: 14px;
+      color: #3a3a3c;
+      line-height: 1.6;
+      padding: 12px;
+      background: #f0f7ff;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .home-message-reply {
+      background: none;
+      border: none;
+      color: #0071e3;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    .home-quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .home-quick-btn {
+      background: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1f;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: all 0.15s;
+    }
+    .home-quick-btn:hover { background: #f5f5f7; }
+
     /* ===== Chat UI ===== */
     .chat-screen {
       display: none;
@@ -2886,6 +3083,50 @@
       <textarea id="direct-chat-input" placeholder="エージェントにメッセージ…" rows="1"></textarea>
       <button onclick="sendDirectMessage()" id="direct-send-btn">送信</button>
     </div>
+    <!-- ===== ボトムナビゲーション ===== -->
+    <div class="bottom-nav" id="bottom-nav">
+      <button class="bottom-nav-btn" data-tab="home" onclick="switchAppTab('home')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>ホーム</span>
+      </button>
+      <button class="bottom-nav-btn active" data-tab="chat" onclick="switchAppTab('chat')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>チャット</span>
+      </button>
+    </div>
+
+    <!-- ===== ホーム画面 ===== -->
+    <div class="home-screen" id="home-screen" style="display:none;">
+      <div class="home-content">
+        <div class="home-greeting" id="home-greeting"></div>
+
+        <!-- 進捗ステッパー -->
+        <div class="home-progress-card">
+          <div class="home-card-title">📍 現在の進捗</div>
+          <div class="home-stepper" id="home-stepper"></div>
+          <div class="home-progress-label" id="home-progress-label"></div>
+        </div>
+
+        <!-- 次にやること -->
+        <div class="home-next-action" id="home-next-action">
+          <div class="home-card-title">📌 次にやること</div>
+          <div class="home-action-content" id="home-action-content"></div>
+        </div>
+
+        <!-- 岡本さんからのメッセージ -->
+        <div class="home-message-card" id="home-agent-message" style="display:none;">
+          <div class="home-card-title">💬 岡本からのメッセージ</div>
+          <div class="home-message-content" id="home-message-content"></div>
+          <button class="home-message-reply" onclick="switchAppTab('chat')">返信する →</button>
+        </div>
+
+        <!-- クイックアクション -->
+        <div class="home-quick-actions">
+          <button onclick="switchAppTab('chat')" class="home-quick-btn">💬 AIに相談</button>
+          <button onclick="openProfile()" class="home-quick-btn">👤 マイページ</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ===== プロフィール編集画面 ===== -->
@@ -4767,6 +5008,149 @@
           setTimeout(() => showFeedbackInChat('stage_change'), 1500);
         }
       }
+    }
+
+    // ===== ボトムナビ・タブ切替 =====
+    let currentAppTab = 'chat';
+
+    function switchAppTab(tab) {
+      currentAppTab = tab;
+      document.querySelectorAll('.bottom-nav-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+      });
+
+      // チャット関連要素
+      const chatElements = ['chat-messages', 'chat-input-bar', 'chat-room-tabs', 'progress-bar',
+        'direct-chat-messages', 'direct-chat-input-bar', 'chat-welcome',
+        'ai-file-preview', 'direct-file-preview', 'ai-file-hint', 'direct-file-hint',
+        'ai-file-progress', 'direct-file-progress'];
+
+      if (tab === 'home') {
+        document.getElementById('home-screen').style.display = 'block';
+        chatElements.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+        loadHomeScreen();
+        trackActivity('home_view', { stage: customerData?.stage });
+      } else {
+        document.getElementById('home-screen').style.display = 'none';
+        // チャットの表示を復元
+        const activeRoom = document.querySelector('.chat-room-tab.active')?.dataset?.room || 'ai';
+        const roomTabs = document.getElementById('chat-room-tabs');
+        if (roomTabs) roomTabs.style.display = '';
+        if (activeRoom === 'ai') {
+          const aiMsgs = document.getElementById('chat-messages');
+          if (aiMsgs) aiMsgs.style.display = '';
+          const aiBar = document.getElementById('chat-input-bar');
+          if (aiBar) aiBar.style.display = '';
+        } else {
+          const directMsgs = document.getElementById('direct-chat-messages');
+          if (directMsgs) directMsgs.style.display = '';
+          const directBar = document.getElementById('direct-chat-input-bar');
+          if (directBar) directBar.style.display = '';
+        }
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) progressBar.style.display = '';
+      }
+    }
+
+    // ===== ホーム画面データ読み込み =====
+    const PURCHASE_STEPS = ['登録', '情報入力', '面談予約', '相談中', 'ライフプラン', '物件探し', '契約', '引渡し'];
+    const SALE_STEPS = ['登録', '情報入力', '面談予約', '査定', '媒介契約', '販売活動', '内覧対応', '契約', '決済'];
+
+    function loadHomeScreen() {
+      const name = customerData?.name || 'お客様';
+      const stage = customerData?.stage || 1;
+      const isSale = customerData?.customerType === 'sale';
+      const steps = isSale ? SALE_STEPS : PURCHASE_STEPS;
+      const hour = new Date().getHours();
+      const timeGreeting = hour < 12 ? 'おはようございます' : hour < 18 ? 'こんにちは' : 'こんばんは';
+
+      // 挨拶
+      document.getElementById('home-greeting').innerHTML =
+        `${timeGreeting}、<br><strong>${name}さん</strong> 👋`;
+
+      // 進捗ステッパー
+      const stepperEl = document.getElementById('home-stepper');
+      let stepperHTML = '';
+      steps.forEach((label, i) => {
+        const stepNum = i + 1;
+        const status = stepNum < stage ? 'completed' : stepNum === stage ? 'current' : 'future';
+        if (i > 0) {
+          stepperHTML += `<div class="home-step-line ${stepNum <= stage ? 'completed' : ''}"></div>`;
+        }
+        stepperHTML += `<div class="home-step ${status}">
+          <div class="home-step-dot">${status === 'completed' ? '✓' : stepNum}</div>
+          <div class="home-step-label">${label}</div>
+        </div>`;
+      });
+      stepperEl.innerHTML = stepperHTML;
+
+      // 進捗ラベル
+      const pct = Math.round(((stage - 1) / (steps.length - 1)) * 100);
+      document.getElementById('home-progress-label').textContent =
+        `現在: ${steps[stage - 1] || steps[0]}（${pct}%完了）`;
+
+      // 次にやること
+      const actionContent = document.getElementById('home-action-content');
+      const nextActions = getNextActions(stage, isSale);
+      actionContent.innerHTML = nextActions.map(a =>
+        `<div class="home-action-item" onclick="switchAppTab('chat')">
+          <div class="home-action-icon">${a.icon}</div>
+          <div>
+            <div class="home-action-text">${a.text}</div>
+            <div class="home-action-sub">${a.sub}</div>
+          </div>
+        </div>`
+      ).join('');
+
+      // 岡本さんからのメッセージ（ダイレクトチャットの最新メッセージがあれば表示）
+      loadAgentMessage();
+    }
+
+    function getNextActions(stage, isSale) {
+      if (isSale) {
+        const saleActions = {
+          1: [{ icon: '📝', text: '基本情報を入力しましょう', sub: '物件情報を教えてください' }],
+          2: [{ icon: '📝', text: '物件の詳細情報を入力', sub: '正確な査定に必要です' }],
+          3: [{ icon: '📅', text: '面談の予約をしましょう', sub: '売却の方針を一緒に決めましょう' }],
+          4: [{ icon: '🔍', text: '査定結果を確認しましょう', sub: 'AIに査定について質問できます' }],
+          5: [{ icon: '📋', text: '媒介契約の準備', sub: '契約の種類を選びましょう' }],
+          6: [{ icon: '📊', text: '販売状況を確認', sub: 'AIに最新状況を聞いてみましょう' }],
+          7: [{ icon: '🏠', text: '内覧準備をしましょう', sub: 'チェックリストを確認' }],
+          8: [{ icon: '📝', text: '契約に向けた準備', sub: '必要書類を確認しましょう' }],
+          9: [{ icon: '🎉', text: '決済・引渡しの準備', sub: 'もうすぐ完了です！' }]
+        };
+        return saleActions[stage] || [{ icon: '💬', text: 'AIに相談してみましょう', sub: '何でもお気軽にどうぞ' }];
+      }
+      const purchaseActions = {
+        1: [{ icon: '📝', text: '基本情報を入力しましょう', sub: 'より正確なアドバイスが可能になります' }],
+        2: [{ icon: '📝', text: '希望条件を入力しましょう', sub: 'エリア・予算・間取りなど' }],
+        3: [{ icon: '📅', text: '面談の予約をしましょう', sub: 'オンラインでも対面でもOKです' }],
+        4: [{ icon: '💬', text: 'AIに住まいの相談をしましょう', sub: '何でもお気軽にどうぞ' }],
+        5: [{ icon: '💰', text: 'ライフプランを確認しましょう', sub: '資金計画のシミュレーション' }],
+        6: [{ icon: '🏠', text: '物件情報を確認しましょう', sub: 'AIに条件を伝えてみてください' }],
+        7: [{ icon: '📝', text: '契約に向けた準備', sub: '必要書類を確認しましょう' }],
+        8: [{ icon: '🎉', text: '引渡しの準備', sub: 'おめでとうございます！' }]
+      };
+      return purchaseActions[stage] || [{ icon: '💬', text: 'AIに相談してみましょう', sub: '何でもお気軽にどうぞ' }];
+    }
+
+    async function loadAgentMessage() {
+      try {
+        const token = sessionToken || localStorage.getItem('muchinavi_token');
+        if (!token) return;
+        const res = await fetch(`/api/customer/direct-messages/${token}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const agentMsgs = (data.messages || []).filter(m => m.sender === 'agent');
+        if (agentMsgs.length > 0) {
+          const latest = agentMsgs[agentMsgs.length - 1];
+          document.getElementById('home-agent-message').style.display = 'block';
+          document.getElementById('home-message-content').textContent = latest.text || latest.message || '';
+        }
+      } catch(e) { /* silent */ }
     }
 
     // ===== NPS調査 =====

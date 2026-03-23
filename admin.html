@@ -4963,7 +4963,7 @@
             item.innerHTML = `
                 <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}${saleBadge}${hmBadge}${terassBadge}</div>
                 <div class="customer-meta">
-                    <span>${customer.area || '-'}</span>
+                    <span>${customer.customerType === 'sale' ? (customer.salePropertyLocation || '-') : (customer.area || '-')}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
                         ${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}
