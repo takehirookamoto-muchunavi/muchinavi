@@ -2678,6 +2678,21 @@
             font-size: 12px;
             font-weight: 600;
         }
+        .terass-header, .hm-header {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .terass-stats, .hm-stats {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .terass-pipeline, #hmPartnerView > div:last-child {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .terass-header {
             display: flex;
             justify-content: space-between;
@@ -4182,13 +4197,13 @@
             } else if (view === 'list') {
                 document.getElementById('listView').style.display = '';
             } else if (view === 'broadcast') {
-                document.getElementById('broadcastView').style.display = 'flex';
+                document.getElementById('broadcastView').style.display = 'block';
                 initBroadcastTab();
             } else if (view === 'terass') {
-                document.getElementById('terassOfferView').style.display = 'flex';
+                document.getElementById('terassOfferView').style.display = 'block';
                 loadTerassOfferData();
             } else if (view === 'hm') {
-                document.getElementById('hmPartnerView').style.display = 'flex';
+                document.getElementById('hmPartnerView').style.display = 'block';
                 loadHMPartnerData();
             }
             // Update nav active state
@@ -7554,14 +7569,14 @@
                     </div>
                 `;
 
-                document.getElementById('hmDetailModal').classList.add('active');
+                document.getElementById('hmDetailModal').classList.add('show');
             } catch (e) {
                 showToast('詳細取得エラー', 'error');
             }
         }
 
         function closeHMDetail() {
-            document.getElementById('hmDetailModal').classList.remove('active');
+            document.getElementById('hmDetailModal').classList.remove('show');
             hmDetailPartnerId = null;
         }
 
@@ -7574,7 +7589,7 @@
             document.getElementById('hmEditPriority').value = '';
             document.getElementById('hmEditRefCode').value = '';
             document.getElementById('hmEditNotes').value = '';
-            document.getElementById('hmEditModal').classList.add('active');
+            document.getElementById('hmEditModal').classList.add('show');
         }
 
         async function openHMPartnerEditModal(partnerId) {
@@ -7590,14 +7605,14 @@
                 document.getElementById('hmEditPriority').value = partner.priority || '';
                 document.getElementById('hmEditRefCode').value = partner.referralCode || '';
                 document.getElementById('hmEditNotes').value = partner.manualNotes || '';
-                document.getElementById('hmEditModal').classList.add('active');
+                document.getElementById('hmEditModal').classList.add('show');
             } catch (e) {
                 showToast('データ取得エラー', 'error');
             }
         }
 
         function closeHMEditModal() {
-            document.getElementById('hmEditModal').classList.remove('active');
+            document.getElementById('hmEditModal').classList.remove('show');
         }
 
         async function saveHMPartner() {
@@ -7672,7 +7687,7 @@
             document.getElementById('hmContactEmail').value = '';
             document.getElementById('hmContactNotes').value = '';
             document.getElementById('hmContactModal').dataset.partnerId = partnerId;
-            document.getElementById('hmContactModal').classList.add('active');
+            document.getElementById('hmContactModal').classList.add('show');
         }
 
         async function openHMContactEditModal(partnerId, contactId) {
@@ -7689,14 +7704,14 @@
                 document.getElementById('hmContactEmail').value = contact.email || '';
                 document.getElementById('hmContactNotes').value = contact.notes || '';
                 document.getElementById('hmContactModal').dataset.partnerId = partnerId;
-                document.getElementById('hmContactModal').classList.add('active');
+                document.getElementById('hmContactModal').classList.add('show');
             } catch (e) {
                 showToast('データ取得エラー', 'error');
             }
         }
 
         function closeHMContactModal() {
-            document.getElementById('hmContactModal').classList.remove('active');
+            document.getElementById('hmContactModal').classList.remove('show');
         }
 
         async function saveHMContact() {
