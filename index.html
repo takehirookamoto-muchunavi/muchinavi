@@ -3763,6 +3763,17 @@
     // ステップを動的に構築（customerTypeに基づいて分岐）
     function getSteps() {
       const typeSpecific = customerData.customerType === 'sale' ? saleOnlySteps : purchaseOnlySteps;
+      if (customerData.customerType === 'sale') {
+        // 売却顧客：不要な共通ステップ（家族構成・世帯年収）を除外
+        const saleCommonStart = commonStepsStart.filter(s => s.key !== 'family' && s.key !== 'householdIncome');
+        // 生まれ年のsubtitleを売却向けに
+        const adjusted = saleCommonStart.map(s => {
+          if (s.key === 'birthInfo') return { ...s, subtitle: '本人確認の参考情報として使用します' };
+          if (s.key === 'prefecture') return { ...s, title: '{name}さんが\n今お住まいの都道府県は？', subtitle: '売却物件の所在地と異なる場合もお聞きします' };
+          return s;
+        });
+        return [...adjusted, ...typeSpecific, ...commonStepsEnd];
+      }
       return [...commonStepsStart, ...typeSpecific, ...commonStepsEnd];
     }
 
