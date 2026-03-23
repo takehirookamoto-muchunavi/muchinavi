@@ -4930,8 +4930,8 @@
         const input = document.getElementById('chat-input');
         const price = customerData?.saleDesiredPrice || '';
         input.value = price
-          ? `売却価格${price}の場合、手元にいくら残りますか？仲介手数料、税金、諸費用を含めて計算してください。`
-          : '自宅を売却した場合、手元にいくら残るか計算してほしいです。費用の内訳も教えてください。';
+          ? `簡易査定をお願いします。希望売却価格は${price}ですが、市場データから見た妥当な価格帯と、手元に残る金額の概算を教えてください。`
+          : '自宅の簡易査定をお願いします。おおよその売却価格の目安と、手元に残る金額を知りたいです。';
         sendMessage();
       }, 300);
     }
@@ -5288,7 +5288,7 @@
       const quickEl = document.getElementById('home-quick-actions');
       if (isSale && quickEl) {
         quickEl.innerHTML = `
-          <button onclick="askSimulation()" class="home-quick-btn">💰 手取り額を計算</button>
+          <button onclick="askSimulation()" class="home-quick-btn">💰 簡易査定・手取り額</button>
           <button onclick="switchAppTab('chat')" class="home-quick-btn">💬 AIに相談</button>
           <button onclick="askSaleStatus()" class="home-quick-btn">📊 売却状況を確認</button>
           <button onclick="openProfile()" class="home-quick-btn">👤 マイページ</button>
