@@ -3090,7 +3090,7 @@
     let selectedChoiceValue = null; // Track selected choice value for later submission
     let currentChatRoom = 'ai'; // 'ai' or 'direct'
     let directChatMessages = [];
-    const TOTAL_STEPS = 14; // 0=welcome, 1=name, 2=birthdate, 3=prefecture, 4=family, 5=householdIncome, 6=propertyType, 7=purpose, 8=searchReason, 9=area, 10=budget, 11=freeComment, 12=contact, 13=password
+    function getTotalSteps() { return getSteps().length; }
 
     // ===== HM専用モード: refパラメータ検出 =====
     const urlParams = new URLSearchParams(window.location.search);
@@ -3148,13 +3148,26 @@
     };
 
     // ===== Steps config =====
-    const steps = [
+    // 共通ステップ（購入・売却共通）
+    const commonStepsStart = [
       {
         type: 'welcome',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
         title: 'MuchiNaviへようこそ',
-        subtitle: 'AIがあなたの住まい探しをサポートします。\n簡単な質問に答えるだけで、あなた専用のアドバイザーが準備できます。',
+        subtitle: 'AIがあなたの不動産のご相談をサポートします。\n簡単な質問に答えるだけで、あなた専用のアドバイザーが準備できます。',
         buttonText: 'はじめる',
+      },
+      {
+        type: 'choice',
+        key: 'customerType',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+        title: 'どのようなご相談ですか？',
+        subtitle: 'お客様に合わせたサポートをご用意します',
+        choices: [
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', label: '住まいを購入したい', value: 'purchase' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', label: '不動産を売却したい', value: 'sale' },
+        ],
+        response: (val) => val === 'purchase' ? '住まい探しをサポートします！' : '売却をしっかりサポートします！',
       },
       {
         type: 'text',
@@ -3220,6 +3233,10 @@
         ],
         response: (val) => `ありがとうございます！`,
       },
+    ];
+
+    // 購入専用ステップ
+    const purchaseOnlySteps = [
       {
         type: 'choice',
         key: 'propertyType',
@@ -3289,6 +3306,82 @@
         skipResponse: '全然OKです！これから一緒に考えましょう',
         response: (val) => `了解です！ぴったりの物件を探しましょう`,
       },
+    ];
+
+    // 売却専用ステップ
+    const saleOnlySteps = [
+      {
+        type: 'choice',
+        key: 'salePropertyType',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+        title: '売却をお考えの物件の種類は？',
+        subtitle: '当てはまるものをお選びください',
+        choices: [
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', label: '戸建て', value: '戸建て' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/></svg>', label: 'マンション', value: 'マンション' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>', label: '土地', value: '土地' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', label: 'その他', value: 'その他' },
+        ],
+        response: (val) => `${val}の売却ですね！`,
+      },
+      {
+        type: 'text',
+        key: 'salePropertyLocation',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        title: '売却物件の所在地を\n教えてください',
+        subtitle: '市区町村まででも大丈夫です',
+        placeholder: '例: 東京都世田谷区三軒茶屋1-1-1',
+        required: true,
+        response: (val) => `${val}の物件ですね！`,
+      },
+      {
+        type: 'choice',
+        key: 'saleBuildingAge',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+        title: '築年数はどのくらいですか？',
+        subtitle: 'おおよそで大丈夫です',
+        choices: [
+          { icon: '', label: '〜5年', value: '〜5年' },
+          { icon: '', label: '6〜10年', value: '6〜10年' },
+          { icon: '', label: '11〜20年', value: '11〜20年' },
+          { icon: '', label: '21〜30年', value: '21〜30年' },
+          { icon: '', label: '31年〜', value: '31年〜' },
+        ],
+        response: (val) => `築${val}ですね、承知しました！`,
+      },
+      {
+        type: 'slider',
+        key: 'saleDesiredPrice',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        title: '希望の売却価格は？',
+        subtitle: 'ざっくりのイメージで大丈夫です',
+        min: 500,
+        max: 30000,
+        step: 500,
+        default: 3000,
+        format: (val) => {
+          if (val >= 10000) return `${(val/10000).toFixed(1)}億円`;
+          return `${val.toLocaleString()}万円`;
+        },
+        skipText: 'まだわからない',
+        skipValue: '未定',
+        skipResponse: '査定をもとに一緒に考えましょう！',
+        response: (val) => `了解です！最適な売却プランを考えましょう`,
+      },
+      {
+        type: 'textarea',
+        key: 'saleReason',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        title: '{name}さんが売却を考えている\n理由を教えてください',
+        subtitle: '詳しく書いていただくほど、的確なサポートができます',
+        placeholder: '例: 住み替えのため、相続した物件を売りたい、転勤で引っ越すため',
+        required: true,
+        response: (val) => `詳しくありがとうございます！`,
+      },
+    ];
+
+    // 共通の終了ステップ
+    const commonStepsEnd = [
       {
         type: 'textarea',
         key: 'freeComment',
@@ -3321,9 +3414,15 @@
       },
     ];
 
+    // ステップを動的に構築（customerTypeに基づいて分岐）
+    function getSteps() {
+      const typeSpecific = customerData.customerType === 'sale' ? saleOnlySteps : purchaseOnlySteps;
+      return [...commonStepsStart, ...typeSpecific, ...commonStepsEnd];
+    }
+
     // ===== Render step =====
     function renderStep(stepIdx) {
-      const step = steps[stepIdx];
+      const step = getSteps()[stepIdx];
       const card = document.getElementById('step-card');
       const progress = document.getElementById('progress');
 
@@ -3563,7 +3662,7 @@
     }
 
     function renderProgress(stepIdx) {
-      const totalQuestions = TOTAL_STEPS - 1; // ウェルカム画面を除く
+      const totalQuestions = getTotalSteps() - 1; // ウェルカム画面を除く
       const percent = Math.round((stepIdx / totalQuestions) * 100);
       const remaining = totalQuestions - stepIdx;
 
@@ -3584,7 +3683,7 @@
 
     // ===== Step handlers =====
     function nextStep(value) {
-      const step = steps[currentStep];
+      const step = getSteps()[currentStep];
       if (value !== undefined && step.key) {
         customerData[step.key] = value;
       }
@@ -3595,7 +3694,7 @@
           step_number: currentStep,
           step_key: step.key || 'welcome',
           step_title: step.title || '',
-          total_steps: TOTAL_STEPS
+          total_steps: getTotalSteps()
         });
       }
 
@@ -3607,7 +3706,7 @@
         showResponse(step.response(value));
         setTimeout(() => {
           currentStep++;
-          if (currentStep < TOTAL_STEPS) {
+          if (currentStep < getTotalSteps()) {
             renderStep(currentStep);
           } else {
             showCompletion();
@@ -3615,7 +3714,7 @@
         }, 1200);
       } else {
         currentStep++;
-        if (currentStep < TOTAL_STEPS) {
+        if (currentStep < getTotalSteps()) {
           renderStep(currentStep);
         } else {
           showCompletion();
@@ -3635,7 +3734,7 @@
     }
 
     function skipStep() {
-      const step = steps[currentStep];
+      const step = getSteps()[currentStep];
       customerData[step.key] = step.skipValue;
 
       // GA4: フォームステップスキップイベント
@@ -3644,7 +3743,7 @@
           step_number: currentStep,
           step_key: step.key || 'unknown',
           step_title: step.title || '',
-          total_steps: TOTAL_STEPS,
+          total_steps: getTotalSteps()
           skipped: true
         });
       }
@@ -3666,7 +3765,7 @@
       });
 
       if (hasSub) {
-        const step = steps[currentStep];
+        const step = getSteps()[currentStep];
         const area = document.getElementById('sub-question-area');
         selectedChoiceValue = value; // Store the value with sub-question
         area.innerHTML = `
@@ -3778,12 +3877,12 @@
     }
 
     function updateBudget(val) {
-      const step = steps[currentStep];
+      const step = getSteps()[currentStep];
       document.getElementById('budget-display').textContent = step.format(parseInt(val));
     }
 
     function submitSlider() {
-      const step = steps[currentStep];
+      const step = getSteps()[currentStep];
       const val = document.getElementById('budget-slider').value;
       nextStep(step.format(parseInt(val)));
     }
@@ -4024,7 +4123,7 @@
           </div>
           <h2 class="step-title">登録完了！</h2>
           <p class="step-subtitle">
-            ${customerData.name}さん専用の<br>AIアシスタントが準備できました
+            ${customerData.name}さん専用の<br>${customerData.customerType === 'sale' ? '売却サポートAI' : 'AIアシスタント'}が準備できました
           </p>
           <button class="btn-primary" onclick="startChat()" style="margin-top: 8px;">
             MuchiNaviに相談する
@@ -4041,8 +4140,9 @@
         if (typeof gtag === 'function') {
           gtag('event', 'registration_complete', {
             method: 'muchinavi_form',
+            customer_type: customerData.customerType || 'purchase',
             prefecture: customerData.prefecture || '',
-            property_type: customerData.propertyType || '',
+            property_type: customerData.propertyType || customerData.salePropertyType || '',
             household_income: customerData.householdIncome || ''
           });
         }

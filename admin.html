@@ -454,6 +454,7 @@
         .stage-badge.stage-6 { background: rgba(175,82,222,0.25); color: #c99de8; }
         .stage-badge.stage-7 { background: rgba(255,69,58,0.25); color: #ff7b74; }
         .stage-badge.stage-8 { background: rgba(255,214,10,0.25); color: #ffd94d; }
+        .stage-badge.stage-9 { background: rgba(52,199,89,0.25); color: #5ed888; }
 
         .stage-alert-banner {
             background: rgba(255,69,58,0.15);
@@ -2132,6 +2133,91 @@
             font-size: 12px;
             margin-left: 4px;
         }
+        /* ===== HM Partner Management ===== */
+        .sidebar-hm {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .sidebar-hm:hover { background: rgba(255,255,255,0.1); }
+        .sidebar-hm.active { background: rgba(255, 59, 48, 0.2); }
+        .hm-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+        .hm-badge {
+            background: #ff3b30;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+        .hm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 16px;
+        }
+        .hm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 24px; }
+        .hm-stat-card { background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow-sm); }
+        .hm-stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+        .hm-stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+        .partner-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm); border-left: 4px solid #ccc; cursor: pointer; transition: var(--transition-fast); }
+        .partner-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .partner-card.priority-a { border-left-color: #ff3b30; }
+        .partner-card.priority-b { border-left-color: #ff9500; }
+        .partner-card.priority-c { border-left-color: #007aff; }
+        .priority-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff; }
+        .priority-badge.priority-a { background: #ff3b30; }
+        .priority-badge.priority-b { background: #ff9500; }
+        .priority-badge.priority-c { background: #007aff; }
+        .partner-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .partner-card-name { font-size: 16px; font-weight: 600; }
+        .partner-card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+        .referral-url-box { display: flex; align-items: center; gap: 8px; background: #f5f5f7; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-top: 8px; }
+        .referral-url-box code { flex: 1; word-break: break-all; color: var(--accent); }
+        .referral-url-box button { padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 12px; }
+        .referral-url-box button:hover { background: #eee; }
+        .contact-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f9fb; border-radius: 8px; margin-bottom: 8px; }
+        .contact-item-info { flex: 1; }
+        .contact-item-name { font-weight: 600; font-size: 14px; }
+        .contact-item-detail { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .contact-item-actions { display: flex; gap: 4px; }
+        .contact-item-actions button { padding: 4px 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .hm-detail-section { background: #f9f9fb; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+        .hm-detail-section h4 { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .hm-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .hm-info-item label { font-size: 11px; color: var(--text-secondary); display: block; }
+        .hm-info-item span { font-size: 14px; }
+        /* サブタブ（タブ内のタブ） */
+        .sub-tab-nav { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .sub-tab-btn { padding: 10px 16px; font-size: 13px; font-weight: 500; color: var(--text-secondary); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+        .sub-tab-btn:hover { color: var(--text-primary); }
+        .sub-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+        .sub-tab-pane { display: none; }
+        .sub-tab-pane.active { display: block; }
+
+        /* フローティングAI相談パネル */
+        .agent-float-btn { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; cursor: grab; box-shadow: 0 4px 16px rgba(102,126,234,0.4); z-index: 100; transition: box-shadow 0.2s; user-select: none; touch-action: none; }
+        .agent-float-btn:hover { box-shadow: 0 6px 24px rgba(102,126,234,0.5); }
+        .agent-float-btn.dragging { cursor: grabbing; box-shadow: 0 8px 32px rgba(102,126,234,0.6); transform: scale(1.1); }
+        .agent-float-panel { position: fixed; bottom: 88px; right: 24px; width: 380px; height: 520px; background: white; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.15); z-index: 100; display: flex; flex-direction: column; overflow: hidden; }
+        .agent-float-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; font-size: 14px; }
+
+        .sidebar-divider { padding: 4px 16px; font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 1px; text-align: center; }
+        .sidebar-tools { flex-shrink: 0; padding: 0 8px 4px; }
+        .sidebar-tools-row { display: flex; gap: 4px; }
+        .sidebar-tool-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 8px; cursor: pointer; transition: background 0.15s; position: relative; }
+        .sidebar-tool-btn:hover { background: rgba(255,255,255,0.12); }
+        .sidebar-tool-btn.active { background: rgba(255,255,255,0.18); }
+        .tool-icon { font-size: 18px; line-height: 1; }
+        .tool-label { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .tool-badge { position: absolute; top: 2px; right: 4px; font-size: 9px; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         .terass-detail-section {
             background: #f9f9fb;
             border-radius: 10px;
@@ -2191,6 +2277,8 @@
             .terass-header { padding: 16px; }
             .terass-pipeline { padding: 0 16px; }
             .offer-card-info { flex-direction: column; gap: 4px; }
+            .agent-float-panel { width: calc(100vw - 32px); right: 16px; bottom: 80px; height: 60vh; }
+            .agent-float-btn { bottom: 16px; right: 16px; }
         }
     </style>
 </head>
@@ -2242,6 +2330,7 @@
             <div class="sidebar-filter-bar" id="filterBar">
                 <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全て</button>
                 <button class="filter-btn" data-filter="attention" onclick="setFilter('attention')">要対応</button>
+                <button class="filter-btn" data-filter="terass" onclick="setFilter('terass')">TERASS</button>
                 <button class="filter-btn" data-filter="stage" onclick="setFilter('stage')">ステージ別</button>
             </div>
             <div id="stageFilterDropdown" style="display:none;padding:0 12px 8px;">
@@ -2258,17 +2347,31 @@
                 </select>
             </div>
             <div id="stageAlertBanner" style="display:none;"></div>
-            <div class="sidebar-customers" id="customerList"></div>
-            <div class="sidebar-terass" id="terassOfferMenu" onclick="openTerassOfferView()">
-                <div class="terass-menu-item">
-                    <span class="terass-icon">🟠</span>
-                    <span class="terass-label">TERASS Offer</span>
-                    <span class="terass-badge" id="terassOfferBadge" style="display:none;">0</span>
+            <div class="sidebar-tools">
+                <div class="sidebar-divider">── ツール ──</div>
+                <div class="sidebar-tools-row">
+                    <div class="sidebar-tool-btn" id="terassOfferMenu" onclick="openTerassOfferView()" title="TERASS Offer">
+                        <span class="tool-icon">🟠</span>
+                        <span class="tool-label">TERASS</span>
+                        <span class="terass-badge tool-badge" id="terassOfferBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="sidebar-tool-btn" id="hmPartnerMenu" onclick="openHMPartnerView()" title="HMパートナー">
+                        <span class="tool-icon">🏭</span>
+                        <span class="tool-label">HM</span>
+                        <span class="hm-badge tool-badge" id="hmPartnerBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="sidebar-tool-btn" onclick="openBroadcastView()" title="一斉配信">
+                        <span class="tool-icon">📢</span>
+                        <span class="tool-label">配信</span>
+                    </div>
+                    <div class="sidebar-tool-btn" onclick="openAnnouncementsModal()" title="お知らせ管理">
+                        <span class="tool-icon">🔔</span>
+                        <span class="tool-label">お知らせ</span>
+                    </div>
                 </div>
             </div>
+            <div class="sidebar-customers" id="customerList"></div>
             <div class="sidebar-footer">
-                <button class="btn btn-primary" onclick="openBroadcastView()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg> 一斉配信</button>
-                <button class="btn" onclick="openAnnouncementsModal()" style="width: 100%; margin-bottom: 8px; border-radius: 8px; font-size: 13px; padding: 10px; background: #f5f5f7; border: 1px solid var(--border); color: var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> お知らせ管理</button>
                 <button class="logout-btn" id="logoutBtn">ログアウト</button>
             </div>
         </div>
@@ -2385,33 +2488,86 @@
                 <!-- Tab Navigation -->
                 <div class="tab-nav-wrapper" id="tabNavWrapper">
                 <div class="tab-nav" id="tabNav">
-                    <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
-                    <button class="tab-btn" data-tab="info">お客様情報</button>
-                    <button class="tab-btn" data-tab="checklist">チェックリスト</button>
-                    <button class="tab-btn" data-tab="interactions">やり取り履歴</button>
-                    <button class="tab-btn" data-tab="todo">ToDo</button>
-                    <button class="tab-btn" data-tab="chatHistory">チャット履歴</button>
-                    <button class="tab-btn" data-tab="agentChat">エージェント相談室</button>
-                    <button class="tab-btn" data-tab="feedback">フィードバック</button>
-                    <button class="tab-btn" data-tab="carte">📋 カルテ</button>
+                    <button class="tab-btn active" data-tab="overview">📋 概要</button>
+                    <button class="tab-btn" data-tab="info">👤 情報</button>
+                    <button class="tab-btn" data-tab="communication">💬 やり取り</button>
+                    <button class="tab-btn" data-tab="tasks">✅ タスク</button>
                 </div>
                 </div>
 
                 <!-- Tab Content -->
                 <div class="tab-content">
-                    <!-- Dashboard Tab -->
-                    <div id="dashboardTab" class="tab-pane active">
+                    <!-- 概要タブ (旧ダッシュボード + カルテ + フィードバック統合) -->
+                    <div id="overviewTab" class="tab-pane active">
+                        <!-- カルテサマリー -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; margin-bottom: 20px;">
+                            <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">お客様カルテ</div>
+                            <div style="font-size: 20px; font-weight: 700;" id="carteCustomerName">-</div>
+                            <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px; opacity: 0.9;">
+                                <span id="carteAge">-</span>
+                                <span id="cartePrefecture">-</span>
+                                <span id="cartePropertyType">-</span>
+                            </div>
+                        </div>
+
+                        <!-- ダッシュボードグリッド -->
                         <div class="dashboard-grid" id="dashboardGrid"></div>
+
+                        <!-- 希望条件 -->
+                        <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">🏠</span> 希望条件
+                            </div>
+                            <div id="carteConditions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
+                        </div>
+
+                        <!-- エージェントメモ -->
+                        <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">📝</span> エージェントメモ
+                                <span style="font-size: 11px; color: var(--text-secondary); font-weight: 400;">（お客様には表示されません）</span>
+                            </div>
+                            <textarea id="carteAgentMemo" placeholder="お客様の特徴、注意点、提案方針などを記録&#10;&#10;例: 学区重視。第一子が来年小学校入学予定。通勤は渋谷まで40分以内希望。" rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                <span id="carteMemoSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
+                                <button class="btn btn-primary" onclick="saveCarteMemo()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">メモを保存</button>
+                            </div>
+                        </div>
+
+                        <!-- お客様向け提案メモ -->
+                        <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 16px;">💡</span> お客様向け提案メモ
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">ここに入力した内容は、お客様のカルテページに「エージェントからのアドバイス」として表示されます。</p>
+                            <textarea id="carteCustomerAdvice" placeholder="お客様へのアドバイスや提案を記入&#10;&#10;例: 現在の年収と予算感は無理のない範囲です。頭金を増やせると月々の返済が楽になります。" rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                <span id="carteAdviceSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
+                                <button class="btn btn-primary" onclick="saveCarteAdvice()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">提案を保存・公開</button>
+                            </div>
+                        </div>
+
+                        <!-- 最近のやり取り -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                             <h3>最近のやり取り</h3>
-                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=interactions]').click()">全て見る</button>
+                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=communication]').click()">全て見る</button>
                         </div>
                         <div id="recentInteractions"></div>
+
+                        <!-- 直近のToDo -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; margin-bottom: 16px;">
                             <h3>直近のToDo</h3>
-                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=todo]').click()">全て見る</button>
+                            <button class="btn" style="font-size: 12px; padding: 4px 12px;" onclick="document.querySelector('[data-tab=tasks]').click()">全て見る</button>
                         </div>
                         <div id="recentTodos"></div>
+
+                        <!-- フィードバック -->
+                        <div style="margin-top: 32px;">
+                            <h3 style="margin-bottom: 16px;">フィードバック</h3>
+                            <div id="feedbackContent" style="padding: 0;">
+                                <p style="color: var(--text-secondary); font-size: 13px;">フィードバックデータを読み込み中...</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Customer Info Tab -->
@@ -2693,16 +2849,16 @@
                                             <textarea class="form-textarea" name="memo" placeholder="内部用メモ"></textarea>
                                         </div>
                                         <div class="form-group">
+                                            <label class="form-label">🏭 HMパートナー</label>
+                                            <select class="form-input" name="hmPartnerId" id="hmPartnerSelect">
+                                                <option value="">未設定</option>
+                                                <!-- JS動的生成 -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="form-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 進捗ステージ</label>
-                                            <select class="form-input" name="stage">
-                                                <option value="1">1. 登録完了</option>
-                                                <option value="2">2. 情報入力</option>
-                                                <option value="3">3. 面談予約</option>
-                                                <option value="4">4. 相談中</option>
-                                                <option value="5">5. ライフプラン</option>
-                                                <option value="6">6. 物件探し・内見</option>
-                                                <option value="7">7. 契約手続き</option>
-                                                <option value="8">8. 引渡し完了</option>
+                                            <select class="form-input" name="stage" id="stageSelect">
+                                                <!-- JS動的生成 -->
                                             </select>
                                         </div>
                                         <div class="form-group form-full-width">
@@ -2723,73 +2879,43 @@
                         </form>
                     </div>
 
-                    <!-- Checklist Tab -->
-                    <div id="checklistTab" class="tab-pane">
-                        <div id="checklistContainer"></div>
-                    </div>
+                    <!-- やり取りタブ (旧やり取り履歴 + チャット履歴 統合) -->
+                    <div id="communicationTab" class="tab-pane">
+                        <div class="sub-tab-nav">
+                            <button class="sub-tab-btn active" onclick="switchSubTab('comm', 'interactions')">📋 履歴記録</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('comm', 'aiChat')">🤖 MuchiNavi</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('comm', 'directChat')">💬 個人チャット</button>
+                        </div>
 
-                    <!-- Interactions Tab -->
-                    <div id="interactionsTab" class="tab-pane">
-                        <div class="interaction-form">
-                            <form id="interactionForm" class="interaction-grid">
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <select class="form-select" id="interactionMethod" required>
-                                        <option value="">連絡方法を選択</option>
-                                        <option value="電話">電話</option>
-                                        <option value="メール">メール</option>
-                                        <option value="LINE">LINE</option>
-                                        <option value="来店">来店</option>
-                                        <option value="内見">内見</option>
-                                        <option value="その他">その他</option>
-                                    </select>
+                        <!-- 履歴記録サブタブ -->
+                        <div class="sub-tab-pane active" id="commInteractionsPane">
+                            <div class="interaction-form">
+                                <form id="interactionForm" class="interaction-grid">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select class="form-select" id="interactionMethod" required>
+                                            <option value="">連絡方法を選択</option>
+                                            <option value="電話">電話</option>
+                                            <option value="メール">メール</option>
+                                            <option value="LINE">LINE</option>
+                                            <option value="来店">来店</option>
+                                            <option value="内見">内見</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="datetime-local" class="form-input" id="interactionDate" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">追加</button>
+                                </form>
+                                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                    <textarea class="form-textarea" id="interactionContent" placeholder="やり取りの内容..." style="margin-bottom: 0;"></textarea>
                                 </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <input type="datetime-local" class="form-input" id="interactionDate" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
-                                </div>
-                                <button type="submit" class="btn btn-primary">追加</button>
-                            </form>
-                            <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
-                                <textarea class="form-textarea" id="interactionContent" placeholder="やり取りの内容..." style="margin-bottom: 0;"></textarea>
                             </div>
-                        </div>
-                        <div class="interaction-list" id="interactionsList"></div>
-                    </div>
-
-                    <!-- Todo Tab -->
-                    <div id="todoTab" class="tab-pane">
-                        <div class="todo-form">
-                            <form id="todoForm" class="todo-grid">
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <input type="text" class="form-input" id="todoText" placeholder="ToDoを入力..." required>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <select class="form-select" id="todoPriority">
-                                        <option value="medium">中</option>
-                                        <option value="high">高</option>
-                                        <option value="low">低</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <input type="date" class="form-input" id="todoDeadline">
-                                </div>
-                                <button type="submit" class="btn btn-primary">追加</button>
-                            </form>
-                            <button class="ai-suggest-btn" id="aiSuggestBtn" style="margin-top: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> AI提案</button>
-                            <div id="suggestionsContainer"></div>
-                        </div>
-                        <div class="todo-list" id="todosList"></div>
-                    </div>
-
-                    <!-- Chat History Tab -->
-                    <div id="chatHistoryTab" class="tab-pane">
-                        <!-- Sub-tab navigation -->
-                        <div style="display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border);">
-                            <button class="chat-sub-tab active" id="subTabAI" onclick="switchAdminChatSub('ai')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> MuchiNavi</button>
-                            <button class="chat-sub-tab" id="subTabDirect" onclick="switchAdminChatSub('direct')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 個人チャット</button>
+                            <div class="interaction-list" id="interactionsList"></div>
                         </div>
 
-                        <!-- AI Chat sub-pane (existing content) -->
-                        <div id="aiChatSubPane">
+                        <!-- MuchiNavi AIチャット サブタブ -->
+                        <div class="sub-tab-pane" id="commAiChatPane">
                             <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
                                 <button class="btn btn-primary" id="refreshChatHistoryBtn" style="flex: 0 0 auto;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 再読み込み</button>
                                 <button class="btn btn-primary" id="extractInfoBtn" style="flex: 0 0 auto;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> チャットから情報を自動抽出</button>
@@ -2800,9 +2926,7 @@
                                     <span id="dateRangeInfo" style="margin-left: 16px;"></span>
                                 </div>
                             </div>
-                            <div id="chatHistoryMessages" style="background: white; border-radius: 8px; padding: 16px; min-height: 300px; border: 1px solid var(--border); margin-bottom: 20px;">
-                                <!-- Chat messages will be rendered here -->
-                            </div>
+                            <div id="chatHistoryMessages" style="background: white; border-radius: 8px; padding: 16px; min-height: 300px; border: 1px solid var(--border); margin-bottom: 20px;"></div>
                             <div id="extractionPanel" style="display: none;">
                                 <div style="background: var(--glass-light); border-radius: 8px; padding: 20px; margin-bottom: 16px;">
                                     <h3 style="margin-bottom: 16px;">抽出された情報</h3>
@@ -2815,8 +2939,8 @@
                             </div>
                         </div>
 
-                        <!-- Direct Chat sub-pane (new) -->
-                        <div id="directChatSubPane" style="display: none;">
+                        <!-- 個人チャット サブタブ -->
+                        <div class="sub-tab-pane" id="commDirectChatPane">
                             <div style="display: flex; gap: 12px; margin-bottom: 20px;">
                                 <button class="btn btn-primary" onclick="loadDirectChat()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 再読み込み</button>
                             </div>
@@ -2838,87 +2962,67 @@
                         </div>
                     </div>
 
-                    <!-- Agent Chat Tab -->
-                    <div id="agentChatTab" class="tab-pane" style="padding: 0; display: flex; flex-direction: column;">
-                        <div class="chat-container">
-                            <div class="chat-messages" id="agentChatMessages">
-                                <div class="chat-welcome">
-                                    <div class="chat-welcome-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-                                    <div class="chat-welcome-title">エージェント相談室</div>
-                                    <div class="chat-hints">
-                                        <div class="chat-hint">次のアプローチは？</div>
-                                        <div class="chat-hint">潜在ニーズ分析</div>
-                                        <div class="chat-hint">物件提案のコツ</div>
+                    <!-- タスクタブ (旧ToDo + チェックリスト 統合) -->
+                    <div id="tasksTab" class="tab-pane">
+                        <div class="sub-tab-nav">
+                            <button class="sub-tab-btn active" onclick="switchSubTab('tasks', 'todo')">📝 ToDo</button>
+                            <button class="sub-tab-btn" onclick="switchSubTab('tasks', 'checklist')">✅ チェックリスト</button>
+                        </div>
+
+                        <!-- ToDoサブタブ -->
+                        <div class="sub-tab-pane active" id="tasksTodoPane">
+                            <div class="todo-form">
+                                <form id="todoForm" class="todo-grid">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="text" class="form-input" id="todoText" placeholder="ToDoを入力..." required>
                                     </div>
-                                </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select class="form-select" id="todoPriority">
+                                            <option value="medium">中</option>
+                                            <option value="high">高</option>
+                                            <option value="low">低</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="date" class="form-input" id="todoDeadline">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">追加</button>
+                                </form>
+                                <button class="ai-suggest-btn" id="aiSuggestBtn" style="margin-top: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> AI提案</button>
+                                <div id="suggestionsContainer"></div>
                             </div>
-                            <div class="agent-quick-actions" id="agentQuickActions">
-                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">次のアプローチは？</button>
-                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">潜在ニーズ分析</button>
-                                <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)">物件提案のコツ</button>
-                            </div>
-                            <div class="chat-input-container">
-                                <textarea class="chat-input" id="agentChatInput" placeholder="メッセージを入力..."></textarea>
-                                <button class="chat-send" id="agentChatSend">送信</button>
-                            </div>
+                            <div class="todo-list" id="todosList"></div>
+                        </div>
+
+                        <!-- チェックリストサブタブ -->
+                        <div class="sub-tab-pane" id="tasksChecklistPane">
+                            <div id="checklistContainer"></div>
                         </div>
                     </div>
 
-                    <!-- Feedback Tab -->
-                    <div id="feedbackTab" class="tab-pane">
-                        <div id="feedbackContent" style="padding: 8px 0;">
-                            <p style="color: var(--text-secondary); font-size: 13px;">フィードバックデータを読み込み中...</p>
-                        </div>
+                    <!-- フローティング AI相談ボタン + パネル -->
+                    <div id="agentChatFloating" class="agent-float-btn" onclick="toggleAgentPanel()" title="AI相談">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
                     </div>
-
-                    <!-- カルテタブ -->
-                    <div id="carteTab" class="tab-pane">
-                        <div style="padding: 8px 0;">
-                            <!-- カルテサマリー -->
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; margin-bottom: 20px;">
-                                <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">お客様カルテ</div>
-                                <div style="font-size: 20px; font-weight: 700;" id="carteCustomerName">-</div>
-                                <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px; opacity: 0.9;">
-                                    <span id="carteAge">-</span>
-                                    <span id="cartePrefecture">-</span>
-                                    <span id="cartePropertyType">-</span>
-                                </div>
+                    <div id="agentChatPanel" class="agent-float-panel" style="display:none;">
+                        <div class="agent-float-header">
+                            <span>🤖 AI相談室</span>
+                            <button onclick="toggleAgentPanel()" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>
+                        </div>
+                        <div class="chat-messages" id="agentChatMessages" style="flex:1;overflow-y:auto;padding:12px;">
+                            <div class="chat-welcome">
+                                <div class="chat-welcome-icon" style="margin-bottom:8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+                                <div class="chat-welcome-title" style="font-size:15px;">エージェント相談室</div>
                             </div>
-
-                            <!-- 現状の条件 -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">🏠</span> 希望条件
-                                </div>
-                                <div id="carteConditions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                </div>
-                            </div>
-
-                            <!-- カルテメモ（管理者のみ） -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">📝</span> エージェントメモ
-                                    <span style="font-size: 11px; color: var(--text-secondary); font-weight: 400;">（お客様には表示されません）</span>
-                                </div>
-                                <textarea id="carteAgentMemo" placeholder="お客様の特徴、注意点、提案方針などを記録&#10;&#10;例: 学区重視。第一子が来年小学校入学予定。通勤は渋谷まで40分以内希望。" rows="6" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <span id="carteMemoSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
-                                    <button class="btn btn-primary" onclick="saveCarteMemo()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">メモを保存</button>
-                                </div>
-                            </div>
-
-                            <!-- お客様向け提案メモ -->
-                            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
-                                <div style="font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">💡</span> お客様向け提案メモ
-                                </div>
-                                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">ここに入力した内容は、お客様のカルテページに「エージェントからのアドバイス」として表示されます。</p>
-                                <textarea id="carteCustomerAdvice" placeholder="お客様へのアドバイスや提案を記入&#10;&#10;例: 現在の年収と予算感は無理のない範囲です。頭金を増やせると月々の返済が楽になります。世田谷区で4LDKは難しいかもしれませんが、隣接する狛江市なら予算内で見つかりやすいです。" rows="6" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; line-height: 1.7;"></textarea>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <span id="carteAdviceSaved" style="font-size: 12px; color: var(--success); display: none;">✓ 保存しました</span>
-                                    <button class="btn btn-primary" onclick="saveCarteAdvice()" style="font-size: 13px; padding: 8px 20px; margin-left: auto;">提案を保存・公開</button>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="agent-quick-actions" id="agentQuickActions" style="padding:8px 12px;gap:6px;">
+                            <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)" style="font-size:11px;padding:4px 10px;">次のアプローチは？</button>
+                            <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)" style="font-size:11px;padding:4px 10px;">潜在ニーズ分析</button>
+                            <button class="agent-quick-btn" onclick="sendQuickAction(this.textContent)" style="font-size:11px;padding:4px 10px;">物件提案のコツ</button>
+                        </div>
+                        <div style="padding:8px 12px 12px;display:flex;gap:8px;">
+                            <textarea class="chat-input" id="agentChatInput" placeholder="メッセージを入力..." style="flex:1;min-height:36px;max-height:80px;font-size:13px;padding:8px 12px;"></textarea>
+                            <button class="chat-send" id="agentChatSend" style="padding:8px 14px;font-size:13px;">送信</button>
                         </div>
                     </div>
 
@@ -2947,6 +3051,31 @@
                             <span class="toggle-icon">▶</span>
                         </h3>
                         <div class="pipeline-cards" id="terassInactiveCards"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HM Partner View -->
+            <div id="hmPartnerView" style="display:none; flex-direction:column; flex:1; overflow-y:auto;">
+                <div class="hm-header">
+                    <h2>🏭 HMパートナー管理</h2>
+                    <button class="btn-primary-sm" onclick="openHMPartnerAddModal()">+ パートナー追加</button>
+                </div>
+                <div class="hm-stats" id="hmStats"></div>
+                <div style="padding: 0 24px 24px;">
+                    <div class="pipeline-section" id="hmPriorityA">
+                        <h3>🔴 A優先（今すぐ）</h3>
+                        <div class="pipeline-cards" id="hmPriorityACards"></div>
+                    </div>
+                    <div class="pipeline-section" id="hmPriorityB">
+                        <h3>🟠 B優先（中期）</h3>
+                        <div class="pipeline-cards" id="hmPriorityBCards"></div>
+                    </div>
+                    <div class="pipeline-section collapsed" id="hmPriorityC">
+                        <h3 onclick="document.getElementById('hmPriorityC').classList.toggle('collapsed')" style="cursor:pointer;">
+                            🔵 C優先（後回し） <span class="toggle-icon">▶</span>
+                        </h3>
+                        <div class="pipeline-cards" id="hmPriorityCCards"></div>
                     </div>
                 </div>
             </div>
@@ -3013,6 +3142,93 @@
             <div style="display:flex;gap:8px;margin-top:20px;">
                 <button class="btn" onclick="closeTerassNewModal()" style="flex:1;">キャンセル</button>
                 <button class="btn btn-primary" onclick="submitNewTerassOffer()" style="flex:1;">登録</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HM Partner Detail Modal -->
+    <div id="hmDetailModal" class="modal-overlay">
+        <div class="modal" style="max-width:650px;max-height:85vh;display:flex;flex-direction:column;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2 class="modal-title" id="hmDetailTitle" style="margin:0;"></h2>
+                <button onclick="closeHMDetail()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#86868b;">✕</button>
+            </div>
+            <div id="hmDetailContent" style="flex:1;overflow-y:auto;"></div>
+            <div style="display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                <button class="btn" onclick="closeHMDetail()" style="flex:1;">閉じる</button>
+                <button class="btn" id="hmDetailRefreshBtn" onclick="refreshHMFromDetail()" style="flex:1;">🔄 情報更新</button>
+                <button class="btn" id="hmDetailEditBtn" onclick="editHMFromDetail()" style="flex:1;">✏️ 編集</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HM Partner Add/Edit Modal -->
+    <div id="hmEditModal" class="modal-overlay">
+        <div class="modal" style="max-width:500px;">
+            <h2 class="modal-title" id="hmEditTitle">パートナー追加</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">ID（英数字）</label>
+                    <input type="text" id="hmEditId" class="form-input" placeholder="例: ichijo" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">会社名</label>
+                    <input type="text" id="hmEditName" class="form-input" placeholder="例: 一条工務店" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">優先度</label>
+                    <select id="hmEditPriority" class="form-input" style="width:100%;">
+                        <option value="">未設定</option>
+                        <option value="A">A（今すぐ）</option>
+                        <option value="B">B（中期）</option>
+                        <option value="C">C（後回し）</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">紹介コード</label>
+                    <input type="text" id="hmEditRefCode" class="form-input" placeholder="例: ichijo" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">メモ</label>
+                    <textarea id="hmEditNotes" class="form-input" rows="3" placeholder="営業メモ・特記事項" style="width:100%;resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+                <button class="btn" onclick="closeHMEditModal()" style="flex:1;">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveHMPartner()" style="flex:1;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HM Contact Add/Edit Modal -->
+    <div id="hmContactModal" class="modal-overlay">
+        <div class="modal" style="max-width:500px;">
+            <h2 class="modal-title" id="hmContactTitle">営業マン追加</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">名前</label>
+                    <input type="text" id="hmContactName" class="form-input" placeholder="営業マン名" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">展示場</label>
+                    <input type="text" id="hmContactHall" class="form-input" placeholder="例: なんば住宅博" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">電話番号</label>
+                    <input type="tel" id="hmContactPhone" class="form-input" placeholder="090-xxxx-xxxx" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">メールアドレス</label>
+                    <input type="email" id="hmContactEmail" class="form-input" placeholder="email@example.com" style="width:100%;">
+                </div>
+                <div>
+                    <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">メモ</label>
+                    <textarea id="hmContactNotes" class="form-input" rows="2" placeholder="メモ" style="width:100%;resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+                <button class="btn" onclick="closeHMContactModal()" style="flex:1;">キャンセル</button>
+                <button class="btn btn-primary" onclick="saveHMContact()" style="flex:1;">保存</button>
             </div>
         </div>
     </div>
@@ -3099,8 +3315,16 @@
         let lastUpdateTime = null;
         let currentFilter = 'all';
         let currentFormStage = null;
+        let currentCustomerType = 'purchase'; // 現在選択中の顧客タイプ
 
         const STAGE_STAGNATION_THRESHOLDS = { 1:14, 2:14, 3:30, 4:30, 5:30, 6:45, 7:45 };
+        const SALE_STAGE_STAGNATION_THRESHOLDS = { 1:14, 2:14, 3:30, 4:21, 5:14, 6:45, 7:30, 8:30 };
+
+        const PURCHASE_STAGE_LABELS = ['登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
+        const SALE_STAGE_LABELS = ['登録','情報入力','面談予約','査定','媒介契約','販売活動','内見対応','契約','決済・引渡し'];
+        function getStageLabels(customer) {
+            return (customer && customer.customerType === 'sale') ? SALE_STAGE_LABELS : PURCHASE_STAGE_LABELS;
+        }
 
         const STAGE_TODO_TEMPLATES = {
             2: [
@@ -3136,6 +3360,46 @@
                 { text: 'アンケート・フィードバックのお願い', priority: 'low', deadlineDays: 14 },
             ],
         };
+
+        const SALE_STAGE_TODO_TEMPLATES = {
+            2: [
+                { text: 'お客様に電話で初回ご挨拶', priority: 'high', deadlineDays: 3 },
+                { text: '売却物件の詳細ヒアリング', priority: 'medium', deadlineDays: 7 },
+            ],
+            3: [
+                { text: '面談日程の調整・確定', priority: 'high', deadlineDays: 2 },
+                { text: '売却物件の事前調査', priority: 'medium', deadlineDays: 5 },
+            ],
+            4: [
+                { text: '査定書の作成・送付', priority: 'high', deadlineDays: 5 },
+                { text: '近隣相場のリサーチ', priority: 'medium', deadlineDays: 3 },
+            ],
+            5: [
+                { text: '媒介契約書の準備', priority: 'high', deadlineDays: 3 },
+                { text: '媒介契約の種類を説明・合意', priority: 'medium', deadlineDays: 5 },
+            ],
+            6: [
+                { text: '物件写真の撮影・掲載', priority: 'high', deadlineDays: 5 },
+                { text: 'ポータルサイト・レインズ掲載', priority: 'high', deadlineDays: 3 },
+                { text: '販売活動レポートの定期報告', priority: 'medium', deadlineDays: 14 },
+            ],
+            7: [
+                { text: '内見スケジュール調整', priority: 'high', deadlineDays: 2 },
+                { text: '内見結果のフィードバック共有', priority: 'medium', deadlineDays: 1 },
+            ],
+            8: [
+                { text: '売買契約書類の準備', priority: 'high', deadlineDays: 3 },
+                { text: '重要事項説明の準備', priority: 'high', deadlineDays: 5 },
+            ],
+            9: [
+                { text: '決済日の調整', priority: 'high', deadlineDays: 7 },
+                { text: '引渡し後のフォローアップ', priority: 'medium', deadlineDays: 14 },
+            ],
+        };
+
+        function getStageTodoTemplates(customer) {
+            return (customer && customer.customerType === 'sale') ? SALE_STAGE_TODO_TEMPLATES : STAGE_TODO_TEMPLATES;
+        }
 
         // ======================== API UTILITIES ========================
         const api = {
@@ -3484,20 +3748,20 @@
                 ? `<div class="customer-tags-row">${customer.tags.slice(0, 3).map(t => `<span class="customer-tag-badge">${t}</span>`).join('')}${customer.tags.length > 3 ? `<span class="customer-tag-badge" style="opacity:0.5;">+${customer.tags.length - 3}</span>` : ''}</div>`
                 : '';
 
-            const stageLabels = ['登録','情報入力','面談予約','相談中','ライフプラン','物件探し・内見','契約','引渡し'];
+            const stageLabels = getStageLabels(customer);
             const stageNum = customer.stage || 1;
-            const stageBadge = `<span class="stage-badge stage-${stageNum}">${stageLabels[stageNum - 1]}</span>`;
+            const stageBadge = `<span class="stage-badge stage-${stageNum}">${stageLabels[stageNum - 1] || 'ステージ' + stageNum}</span>`;
 
             // 連絡状況ドット
             const days = customer.daysSinceContact;
             const hasHistory = customer.hasContactHistory;
             let contactDotClass = 'contact-gray';
             let contactLabel = '連絡なし';
-            if (hasHistory && days !== null) {
+            if (hasHistory && days != null) {
                 if (days <= 14) { contactDotClass = 'contact-green'; contactLabel = `${days}日前`; }
                 else if (days <= 30) { contactDotClass = 'contact-yellow'; contactLabel = `${days}日前`; }
                 else { contactDotClass = 'contact-red'; contactLabel = `${days}日前`; }
-            } else if (days !== null) {
+            } else if (days != null) {
                 contactLabel = `登録${days}日前`;
             }
             const contactDot = `<span class="contact-dot ${contactDotClass}"></span>`;
@@ -3505,12 +3769,17 @@
             // ステージ滞留チェック
             const stageDate = new Date(customer.stageUpdatedAt || customer.createdAt);
             const daysSinceStage = Math.floor((Date.now() - stageDate.getTime()) / (1000*60*60*24));
-            const threshold = STAGE_STAGNATION_THRESHOLDS[stageNum] || 999;
-            const isStagnant = customer.status === 'active' && stageNum !== 8 && daysSinceStage >= threshold;
+            const stagnationThresholds = customer.customerType === 'sale' ? SALE_STAGE_STAGNATION_THRESHOLDS : STAGE_STAGNATION_THRESHOLDS;
+            const threshold = stagnationThresholds[stageNum] || 999;
+            const maxStage = customer.customerType === 'sale' ? 9 : 8;
+            const isStagnant = customer.status === 'active' && stageNum !== maxStage && daysSinceStage >= threshold;
             const stagnantDot = isStagnant ? '<span class="stagnant-dot" title="ステージ滞留"></span>' : '';
+            const saleBadge = customer.customerType === 'sale' ? '<span style="background:#007aff;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;margin-left:4px;">売却</span>' : '';
+            const hmBadge = customer.hmMode ? '<span style="background:#ff3b30;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;margin-left:4px;">HM</span>' : '';
+            const terassBadge = customer.source === 'terass_offer' ? '<span style="background:#ff9500;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;margin-left:4px;">TO</span>' : '';
 
             item.innerHTML = `
-                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}</div>
+                <div class="customer-name">${contactDot}${customer.name || '名前未設定'} ${stageBadge}${stagnantDot}${saleBadge}${hmBadge}${terassBadge}</div>
                 <div class="customer-meta">
                     <span>${customer.area || '-'}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
@@ -3549,18 +3818,23 @@
 
             // フィルター適用
             let filteredCustomers = [...customers];
-            // TERASS Offer対応中を除外（approvedは通常リストに表示）
-            filteredCustomers = filteredCustomers.filter(c =>
-                c.source !== 'terass_offer' || c.offerStatus === 'approved'
-            );
-            if (currentFilter === 'attention') {
+            if (currentFilter === 'terass') {
+                // TERASSフィルター: TERASS Offer経由の顧客のみ表示（全ステータス）
+                filteredCustomers = filteredCustomers.filter(c => c.source === 'terass_offer');
+            } else {
+                // 通常フィルター: TERASS Offer対応中（未承認）を除外
                 filteredCustomers = filteredCustomers.filter(c =>
-                    c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)
+                    c.source !== 'terass_offer' || c.offerStatus === 'approved'
                 );
-            } else if (currentFilter === 'stage') {
-                const selectedStage = document.getElementById('stageFilter')?.value;
-                if (selectedStage) {
-                    filteredCustomers = filteredCustomers.filter(c => c.stage === parseInt(selectedStage));
+                if (currentFilter === 'attention') {
+                    filteredCustomers = filteredCustomers.filter(c =>
+                        c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)
+                    );
+                } else if (currentFilter === 'stage') {
+                    const selectedStage = document.getElementById('stageFilter')?.value;
+                    if (selectedStage) {
+                        filteredCustomers = filteredCustomers.filter(c => c.stage === parseInt(selectedStage));
+                    }
                 }
             }
 
@@ -3776,6 +4050,7 @@
         // ======================== CUSTOMER SELECTION ========================
         async function selectCustomer(token) {
             closeTerassOfferView();
+            closeHMPartnerView();
             selectedToken = token;
             renderCustomerList();
 
@@ -3801,6 +4076,8 @@
         function showCustomerView() {
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
             document.getElementById('customerView').style.display = 'flex';
         }
 
@@ -3895,30 +4172,28 @@
                 e.target.classList.add('active');
                 document.getElementById(`${tab}Tab`).classList.add('active');
 
-                if (tab === 'agentChat') {
-                    if (agentChatMessages.length > 0) {
-                        renderAgentChat();
-                    } else {
-                        showAgentChatWelcome();
-                    }
-                }
-                if (tab === 'feedback') {
+                if (tab === 'overview') {
                     loadFeedbackTab();
-                }
-                if (tab === 'carte') {
-                    loadCarteTab();
                 }
             });
         });
 
         // ======================== CUSTOMER INFO TAB ========================
         async function loadCustomerTabs(customer) {
+            // 概要タブ (旧ダッシュボード + カルテ + フィードバック)
             await loadDashboardTab(customer);
+            loadCarteTab();
+            loadFeedbackTab();
+            // 情報タブ
             loadInfoForm(customer);
-            await loadChecklistTab(customer);
-            await loadInteractionsTab(customer);
+            // タスクタブ (ToDo + チェックリスト)
             await loadTodosTab(customer);
+            await loadChecklistTab(customer);
+            // やり取りタブ (履歴 + AIチャット + 個人チャット)
+            await loadInteractionsTab(customer);
             loadChatHistoryTab(customer);
+            loadDirectChat();
+            // AI相談 (フローティングパネル)
             loadAgentChat(customer);
         }
 
@@ -3935,29 +4210,30 @@
                 });
             }
 
-            const stageNames = ['', '反響対応', '面談準備', '初回商談', 'ヒアリング', '物件案内', 'プレゼン', '購入手順', '契約'];
+            const dashboardStageLabels = getStageLabels(customer);
             const registeredDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
+            const isSale = customer.customerType === 'sale';
 
             grid.innerHTML = `
                 <div class="info-card">
                     <div class="info-label">氏名</div>
-                    <div class="info-value">${customer.name || '-'}</div>
+                    <div class="info-value">${customer.name || '-'}${isSale ? ' <span style="background:#007aff;color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;">売却</span>' : ''}</div>
                 </div>
                 <div class="info-card">
                     <div class="info-label">家族構成</div>
                     <div class="info-value">${customer.family || '-'}</div>
                 </div>
                 <div class="info-card">
-                    <div class="info-label">対象エリア</div>
-                    <div class="info-value">${customer.area || '-'}</div>
+                    <div class="info-label">${isSale ? '売却物件所在地' : '対象エリア'}</div>
+                    <div class="info-value">${isSale ? (customer.salePropertyLocation || '-') : (customer.area || '-')}</div>
                 </div>
                 <div class="info-card">
-                    <div class="info-label">予算</div>
-                    <div class="info-value">${customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-'}</div>
+                    <div class="info-label">${isSale ? '希望売却価格' : '予算'}</div>
+                    <div class="info-value">${isSale ? (customer.saleDesiredPrice || '-') : (customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-')}</div>
                 </div>
                 <div class="info-card">
                     <div class="info-label">ステージ</div>
-                    <div class="info-value">${customer.stage ? stageNames[customer.stage] || 'ステージ' + customer.stage : '-'}</div>
+                    <div class="info-value">${customer.stage ? dashboardStageLabels[customer.stage - 1] || 'ステージ' + customer.stage : '-'}</div>
                 </div>
                 <div class="info-card">
                     <div class="info-label">登録日</div>
@@ -4026,11 +4302,45 @@
                 }
             });
 
+            // ステージドロップダウンを動的生成（購入/売却で分岐）
+            const stageSelect = document.getElementById('stageSelect');
+            if (stageSelect) {
+                const labels = getStageLabels(customer);
+                stageSelect.innerHTML = labels.map((label, i) =>
+                    `<option value="${i + 1}">${i + 1}. ${label}</option>`
+                ).join('');
+                stageSelect.value = customer.stage || 1;
+            }
+
             // 現在のステージを記憶（ステージ変更検出用）
             currentFormStage = parseInt(customer.stage) || 1;
+            currentCustomerType = customer.customerType || 'purchase';
+
+            // HMパートナードロップダウンを動的に生成
+            loadHMPartnerDropdown(customer.hmPartnerId || '');
 
             // タグ表示
             renderCustomerTagSelect(customer.tags || []);
+        }
+
+        async function loadHMPartnerDropdown(selectedId) {
+            const select = document.getElementById('hmPartnerSelect');
+            if (!select) return;
+            try {
+                const result = await fetch('/api/admin/hm-partners', { headers: { 'X-Admin-Pass': adminPass } });
+                const data = await result.json();
+                const partners = data.partners || [];
+                select.innerHTML = '<option value="">未設定</option>';
+                partners.filter(p => p.active !== false).forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.name}${p.priority ? ' [' + p.priority + ']' : ''}`;
+                    if (p.id === selectedId) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.error('HMパートナー取得エラー:', e);
+            }
         }
 
         async function renderCustomerTagSelect(customerTags) {
@@ -4072,6 +4382,17 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
 
+            // HMパートナー選択時に関連フィールドを自動設定
+            if (data.hmPartnerId) {
+                const hmSelect = document.getElementById('hmPartnerSelect');
+                const selectedOption = hmSelect?.options[hmSelect.selectedIndex];
+                data.hmPartnerName = selectedOption ? selectedOption.textContent.replace(/\s*\[.*\]$/, '') : '';
+                data.hmMode = true;
+            } else {
+                data.hmMode = false;
+                data.hmPartnerName = '';
+            }
+
             const submitBtn = form.querySelector('button[type="submit"]');
             setButtonLoading(submitBtn, true);
             try {
@@ -4080,9 +4401,10 @@
 
                 // ステージ変更検出 → ToDoテンプレート提案
                 const newStage = parseInt(data.stage);
-                if (newStage && newStage !== currentFormStage && STAGE_TODO_TEMPLATES[newStage]) {
+                const todoTemplates = currentCustomerType === 'sale' ? SALE_STAGE_TODO_TEMPLATES : STAGE_TODO_TEMPLATES;
+                if (newStage && newStage !== currentFormStage && todoTemplates[newStage]) {
                     currentFormStage = newStage;
-                    showStageTodoSuggestions(newStage, STAGE_TODO_TEMPLATES[newStage]);
+                    showStageTodoSuggestions(newStage, todoTemplates[newStage]);
                 } else {
                     currentFormStage = newStage || currentFormStage;
                 }
@@ -4257,12 +4579,12 @@
                 const todos = result.todos || [];
                 renderTodosList(todos);
 
-                // ToDoタブに期限切れバッジ表示
-                const todoBtn = document.querySelector('[data-tab="todo"]');
-                if (todoBtn) {
+                // タスクタブに期限切れバッジ表示
+                const tasksBtn = document.querySelector('[data-tab="tasks"]');
+                if (tasksBtn) {
                     const todayStr = new Date().toISOString().split('T')[0];
                     const overdueCount = todos.filter(t => !t.done && t.deadline && t.deadline < todayStr).length;
-                    todoBtn.innerHTML = overdueCount > 0 ? `ToDo <span class="tab-badge">${overdueCount}</span>` : 'ToDo';
+                    tasksBtn.innerHTML = overdueCount > 0 ? `✅ タスク <span class="tab-badge">${overdueCount}</span>` : '✅ タスク';
                 }
             } catch (error) {
                 showToast('エラー: ToDoの読み込みに失敗しました', 'error');
@@ -4689,14 +5011,103 @@
         });
 
         // ======================== DIRECT CHAT (個人チャット) ========================
-        function switchAdminChatSub(tab) {
-            document.getElementById('subTabAI').classList.toggle('active', tab === 'ai');
-            document.getElementById('subTabDirect').classList.toggle('active', tab === 'direct');
-            document.getElementById('aiChatSubPane').style.display = tab === 'ai' ? 'block' : 'none';
-            document.getElementById('directChatSubPane').style.display = tab === 'direct' ? 'block' : 'none';
-
-            if (tab === 'direct') loadDirectChat();
+        // 汎用サブタブ切替
+        function switchSubTab(group, subTab) {
+            const parent = document.getElementById(`${group === 'comm' ? 'communication' : group}Tab`);
+            if (!parent) return;
+            parent.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+            parent.querySelectorAll('.sub-tab-pane').forEach(p => p.classList.remove('active'));
+            // ボタンのactive
+            const paneId = `${group}${subTab.charAt(0).toUpperCase() + subTab.slice(1)}Pane`;
+            const pane = document.getElementById(paneId);
+            if (pane) pane.classList.add('active');
+            // ボタンにactiveを付与（イベントのtargetから）
+            event.target.classList.add('active');
+            // データロード
+            if (subTab === 'directChat') loadDirectChat();
         }
+
+        // フローティングAI相談パネルの開閉
+        function toggleAgentPanel() {
+            const panel = document.getElementById('agentChatPanel');
+            const btn = document.getElementById('agentChatFloating');
+            if (panel.style.display === 'none') {
+                // パネルをボタンの位置に合わせて表示
+                const btnRect = btn.getBoundingClientRect();
+                panel.style.bottom = (window.innerHeight - btnRect.top + 12) + 'px';
+                panel.style.right = (window.innerWidth - btnRect.right) + 'px';
+                panel.style.left = 'auto';
+                panel.style.display = 'flex';
+                btn.style.display = 'none';
+                if (agentChatMessages.length > 0) {
+                    renderAgentChat();
+                } else {
+                    showAgentChatWelcome();
+                }
+            } else {
+                panel.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        // ドラッグ移動機能
+        (function() {
+            const btn = document.getElementById('agentChatFloating');
+            if (!btn) return;
+            let isDragging = false, hasMoved = false, startX, startY, startLeft, startTop;
+
+            function onStart(e) {
+                const touch = e.touches ? e.touches[0] : e;
+                isDragging = true; hasMoved = false;
+                startX = touch.clientX; startY = touch.clientY;
+                const rect = btn.getBoundingClientRect();
+                startLeft = rect.left; startTop = rect.top;
+                btn.classList.add('dragging');
+                e.preventDefault();
+            }
+            function onMove(e) {
+                if (!isDragging) return;
+                const touch = e.touches ? e.touches[0] : e;
+                const dx = touch.clientX - startX, dy = touch.clientY - startY;
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMoved = true;
+                if (!hasMoved) return;
+                let newLeft = startLeft + dx, newTop = startTop + dy;
+                // 画面内に制限
+                newLeft = Math.max(0, Math.min(window.innerWidth - 52, newLeft));
+                newTop = Math.max(0, Math.min(window.innerHeight - 52, newTop));
+                btn.style.left = newLeft + 'px'; btn.style.top = newTop + 'px';
+                btn.style.right = 'auto'; btn.style.bottom = 'auto';
+                e.preventDefault();
+            }
+            function onEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                btn.classList.remove('dragging');
+                // 位置をlocalStorageに保存
+                if (hasMoved) {
+                    localStorage.setItem('agentBtnPos', JSON.stringify({
+                        left: btn.style.left, top: btn.style.top
+                    }));
+                }
+            }
+            // クリック vs ドラッグの判別
+            btn.removeAttribute('onclick');
+            btn.addEventListener('mousedown', onStart);
+            btn.addEventListener('touchstart', onStart, { passive: false });
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('mouseup', (e) => { if (isDragging && !hasMoved) toggleAgentPanel(); onEnd(); });
+            document.addEventListener('touchend', (e) => { if (isDragging && !hasMoved) toggleAgentPanel(); onEnd(); });
+
+            // 保存位置の復元
+            try {
+                const saved = JSON.parse(localStorage.getItem('agentBtnPos'));
+                if (saved) {
+                    btn.style.left = saved.left; btn.style.top = saved.top;
+                    btn.style.right = 'auto'; btn.style.bottom = 'auto';
+                }
+            } catch(e) {}
+        })();
 
         async function loadDirectChat() {
             if (!selectedToken) return;
@@ -4994,6 +5405,8 @@
             document.getElementById('customerView').style.display = 'none';
             document.getElementById('terassOfferView').style.display = 'none';
             document.getElementById('terassOfferMenu').classList.remove('active');
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
             document.getElementById('broadcastView').style.display = 'flex';
             // 顧客一覧のactive解除
             document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
@@ -5550,6 +5963,8 @@
             document.getElementById('customerView').style.display = 'none';
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
             document.getElementById('terassOfferView').style.display = 'flex';
             document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
             document.getElementById('terassOfferMenu').classList.add('active');
@@ -5840,6 +6255,368 @@
             } catch (e) {
                 showToast('登録に失敗しました', 'error');
             }
+        }
+
+        // ======================== HM PARTNER 管理 ========================
+        let hmEditMode = null; // null = add, partnerId = edit
+        let hmContactEditMode = null; // null = add, {partnerId, contactId} = edit
+        let hmDetailPartnerId = null;
+
+        function openHMPartnerView() {
+            document.getElementById('customerView').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('broadcastView').style.display = 'none';
+            document.getElementById('terassOfferView').style.display = 'none';
+            document.getElementById('hmPartnerView').style.display = 'flex';
+            document.querySelectorAll('.customer-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('terassOfferMenu').classList.remove('active');
+            document.getElementById('hmPartnerMenu').classList.add('active');
+            selectedToken = null;
+            loadHMPartnerData();
+        }
+
+        function closeHMPartnerView() {
+            document.getElementById('hmPartnerView').style.display = 'none';
+            document.getElementById('hmPartnerMenu').classList.remove('active');
+        }
+
+        async function loadHMPartnerData() {
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partners = res.partners || [];
+                renderHMStats(partners);
+                renderHMPartnerList(partners);
+                const badge = document.getElementById('hmPartnerBadge');
+                if (partners.length > 0) {
+                    badge.textContent = partners.length;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('HMパートナーデータ取得エラー:', e);
+            }
+        }
+
+        function renderHMStats(partners) {
+            const totalContacts = partners.reduce((sum, p) => sum + (p.contacts || []).length, 0);
+            document.getElementById('hmStats').innerHTML = `
+                <div class="hm-stat-card">
+                    <div class="hm-stat-value">${partners.length}</div>
+                    <div class="hm-stat-label">パートナー数</div>
+                </div>
+                <div class="hm-stat-card">
+                    <div class="hm-stat-value">${totalContacts}</div>
+                    <div class="hm-stat-label">営業マン数</div>
+                </div>
+                <div class="hm-stat-card">
+                    <div class="hm-stat-value">${partners.filter(p => p.priority === 'A').length}</div>
+                    <div class="hm-stat-label">A優先</div>
+                </div>
+            `;
+        }
+
+        function renderHMPartnerList(partners) {
+            const sections = { A: [], B: [], C: [], other: [] };
+            partners.forEach(p => {
+                const pri = (p.priority || '').toUpperCase();
+                if (sections[pri]) sections[pri].push(p);
+                else sections.other.push(p);
+            });
+
+            document.getElementById('hmPriorityACards').innerHTML =
+                [...sections.A, ...sections.other].map(p => createHMPartnerCard(p)).join('') || '<p style="color:var(--text-secondary);padding:12px;">パートナーなし</p>';
+            document.getElementById('hmPriorityBCards').innerHTML =
+                sections.B.map(p => createHMPartnerCard(p)).join('') || '<p style="color:var(--text-secondary);padding:12px;">パートナーなし</p>';
+            document.getElementById('hmPriorityCCards').innerHTML =
+                sections.C.map(p => createHMPartnerCard(p)).join('') || '<p style="color:var(--text-secondary);padding:12px;">パートナーなし</p>';
+        }
+
+        function createHMPartnerCard(partner) {
+            const pri = (partner.priority || '').toUpperCase();
+            const priClass = pri ? `priority-${pri.toLowerCase()}` : '';
+            const priBadge = pri ? `<span class="priority-badge priority-${pri.toLowerCase()}">${pri}</span>` : '';
+            const contactCount = (partner.contacts || []).length;
+            const strengths = (partner.autoInfo?.strengths || []).slice(0, 2).join('、');
+            const priceRange = partner.autoInfo?.priceRange || '';
+
+            return `
+                <div class="partner-card ${priClass}" onclick="openHMPartnerDetail('${partner.id}')">
+                    <div class="partner-card-header">
+                        <span class="partner-card-name">${partner.name}</span>
+                        ${priBadge}
+                    </div>
+                    <div class="partner-card-meta">
+                        <span>👤 営業マン ${contactCount}名</span>
+                        <span>🔗 ref=${partner.referralCode}</span>
+                        ${priceRange ? `<span>💰 ${priceRange}</span>` : ''}
+                    </div>
+                    ${strengths ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${strengths}</div>` : ''}
+                </div>
+            `;
+        }
+
+        async function openHMPartnerDetail(partnerId) {
+            hmDetailPartnerId = partnerId;
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partner = (res.partners || []).find(p => p.id === partnerId);
+                if (!partner) return showToast('パートナーが見つかりません', 'error');
+
+                document.getElementById('hmDetailTitle').textContent = partner.name;
+
+                const strengths = (partner.autoInfo?.strengths || []).map(s => `<li>${s}</li>`).join('');
+                const products = (partner.autoInfo?.productLines || []).join('、') || '-';
+                const structure = (partner.autoInfo?.structure || []).join('、') || '-';
+                const priceRange = partner.autoInfo?.priceRange || '-';
+                const pri = (partner.priority || '').toUpperCase();
+                const priBadge = pri ? `<span class="priority-badge priority-${pri.toLowerCase()}" style="margin-left:8px;">${pri}優先</span>` : '';
+
+                let contactsHtml = '';
+                if (partner.contacts && partner.contacts.length > 0) {
+                    contactsHtml = partner.contacts.map(c => `
+                        <div class="contact-item">
+                            <div class="contact-item-info">
+                                <div class="contact-item-name">${c.name}</div>
+                                <div class="contact-item-detail">
+                                    ${c.exhibitionHall ? `📍 ${c.exhibitionHall}` : ''}
+                                    ${c.phone ? ` | 📞 ${c.phone}` : ''}
+                                    ${c.email ? ` | ✉️ ${c.email}` : ''}
+                                </div>
+                                ${c.notes ? `<div class="contact-item-detail" style="margin-top:4px;">📝 ${c.notes}</div>` : ''}
+                            </div>
+                            <div class="contact-item-actions">
+                                <button onclick="event.stopPropagation();openHMContactEditModal('${partnerId}','${c.id}')">編集</button>
+                                <button onclick="event.stopPropagation();deleteHMContact('${partnerId}','${c.id}')" style="color:#ff3b30;">削除</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    contactsHtml = '<p style="color:var(--text-secondary);font-size:13px;">営業マン未登録</p>';
+                }
+
+                document.getElementById('hmDetailContent').innerHTML = `
+                    <div class="hm-detail-section">
+                        <h4>基本情報 ${priBadge}</h4>
+                        <div class="hm-info-grid">
+                            <div class="hm-info-item"><label>価格帯</label><span>${priceRange}</span></div>
+                            <div class="hm-info-item"><label>構造</label><span>${structure}</span></div>
+                            <div class="hm-info-item"><label>商品ライン</label><span>${products}</span></div>
+                            <div class="hm-info-item"><label>ID</label><span>${partner.id}</span></div>
+                        </div>
+                    </div>
+                    ${strengths ? `<div class="hm-detail-section"><h4>強み</h4><ul style="margin:0;padding-left:20px;font-size:14px;">${strengths}</ul></div>` : ''}
+                    <div class="hm-detail-section">
+                        <h4>紹介URL</h4>
+                        <div class="referral-url-box">
+                            <code>${partner.referralUrl}</code>
+                            <button onclick="copyReferralUrl('${partner.referralUrl}')">コピー</button>
+                        </div>
+                    </div>
+                    ${partner.manualNotes ? `<div class="hm-detail-section"><h4>メモ</h4><p style="font-size:14px;margin:0;white-space:pre-wrap;">${partner.manualNotes}</p></div>` : ''}
+                    <div class="hm-detail-section">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h4 style="margin:0;">営業マン (${(partner.contacts || []).length}名)</h4>
+                            <button class="btn" style="font-size:12px;padding:4px 12px;" onclick="openHMContactAddModal('${partnerId}')">+ 追加</button>
+                        </div>
+                        <div style="margin-top:12px;">${contactsHtml}</div>
+                    </div>
+                `;
+
+                document.getElementById('hmDetailModal').classList.add('active');
+            } catch (e) {
+                showToast('詳細取得エラー', 'error');
+            }
+        }
+
+        function closeHMDetail() {
+            document.getElementById('hmDetailModal').classList.remove('active');
+            hmDetailPartnerId = null;
+        }
+
+        function openHMPartnerAddModal() {
+            hmEditMode = null;
+            document.getElementById('hmEditTitle').textContent = 'パートナー追加';
+            document.getElementById('hmEditId').value = '';
+            document.getElementById('hmEditId').disabled = false;
+            document.getElementById('hmEditName').value = '';
+            document.getElementById('hmEditPriority').value = '';
+            document.getElementById('hmEditRefCode').value = '';
+            document.getElementById('hmEditNotes').value = '';
+            document.getElementById('hmEditModal').classList.add('active');
+        }
+
+        async function openHMPartnerEditModal(partnerId) {
+            hmEditMode = partnerId;
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partner = (res.partners || []).find(p => p.id === partnerId);
+                if (!partner) return;
+                document.getElementById('hmEditTitle').textContent = `${partner.name} を編集`;
+                document.getElementById('hmEditId').value = partner.id;
+                document.getElementById('hmEditId').disabled = true;
+                document.getElementById('hmEditName').value = partner.name;
+                document.getElementById('hmEditPriority').value = partner.priority || '';
+                document.getElementById('hmEditRefCode').value = partner.referralCode || '';
+                document.getElementById('hmEditNotes').value = partner.manualNotes || '';
+                document.getElementById('hmEditModal').classList.add('active');
+            } catch (e) {
+                showToast('データ取得エラー', 'error');
+            }
+        }
+
+        function closeHMEditModal() {
+            document.getElementById('hmEditModal').classList.remove('active');
+        }
+
+        async function saveHMPartner() {
+            const id = document.getElementById('hmEditId').value.trim();
+            const name = document.getElementById('hmEditName').value.trim();
+            const priority = document.getElementById('hmEditPriority').value;
+            const referralCode = document.getElementById('hmEditRefCode').value.trim();
+            const manualNotes = document.getElementById('hmEditNotes').value.trim();
+
+            if (!name) return showToast('会社名は必須です', 'error');
+
+            try {
+                if (hmEditMode) {
+                    await api.call('PUT', `/hm-partner/${hmEditMode}`, { name, priority: priority || null, referralCode, manualNotes });
+                    showToast(`${name} を更新しました`);
+                } else {
+                    if (!id) return showToast('IDは必須です', 'error');
+                    await api.call('POST', '/hm-partners', { id, name, priority: priority || null, referralCode: referralCode || id, manualNotes });
+                    showToast(`${name} を追加しました`);
+                }
+                closeHMEditModal();
+                closeHMDetail();
+                loadHMPartnerData();
+            } catch (e) {
+                showToast(e.message || '保存エラー', 'error');
+            }
+        }
+
+        async function deleteHMPartner(partnerId) {
+            showConfirmModal('パートナー削除', 'このパートナーを削除しますか？紹介URLも無効になります。', '削除する', async () => {
+                try {
+                    await api.call('DELETE', `/hm-partner/${partnerId}`);
+                    showToast('削除しました');
+                    closeHMDetail();
+                    loadHMPartnerData();
+                } catch (e) {
+                    showToast('削除エラー', 'error');
+                }
+            });
+        }
+
+        function editHMFromDetail() {
+            if (hmDetailPartnerId) {
+                closeHMDetail();
+                openHMPartnerEditModal(hmDetailPartnerId);
+            }
+        }
+
+        async function refreshHMFromDetail() {
+            if (!hmDetailPartnerId) return;
+            const btn = document.getElementById('hmDetailRefreshBtn');
+            btn.disabled = true;
+            btn.textContent = '更新中...';
+            try {
+                await api.call('POST', `/hm-partner/${hmDetailPartnerId}/refresh`);
+                showToast('情報を更新しました');
+                openHMPartnerDetail(hmDetailPartnerId);
+            } catch (e) {
+                showToast('更新エラー: ' + (e.message || ''), 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 情報更新';
+            }
+        }
+
+        function openHMContactAddModal(partnerId) {
+            hmContactEditMode = null;
+            document.getElementById('hmContactTitle').textContent = '営業マン追加';
+            document.getElementById('hmContactName').value = '';
+            document.getElementById('hmContactHall').value = '';
+            document.getElementById('hmContactPhone').value = '';
+            document.getElementById('hmContactEmail').value = '';
+            document.getElementById('hmContactNotes').value = '';
+            document.getElementById('hmContactModal').dataset.partnerId = partnerId;
+            document.getElementById('hmContactModal').classList.add('active');
+        }
+
+        async function openHMContactEditModal(partnerId, contactId) {
+            hmContactEditMode = { partnerId, contactId };
+            try {
+                const res = await api.call('GET', '/hm-partners');
+                const partner = (res.partners || []).find(p => p.id === partnerId);
+                const contact = (partner?.contacts || []).find(c => c.id === contactId);
+                if (!contact) return;
+                document.getElementById('hmContactTitle').textContent = `${contact.name} を編集`;
+                document.getElementById('hmContactName').value = contact.name || '';
+                document.getElementById('hmContactHall').value = contact.exhibitionHall || '';
+                document.getElementById('hmContactPhone').value = contact.phone || '';
+                document.getElementById('hmContactEmail').value = contact.email || '';
+                document.getElementById('hmContactNotes').value = contact.notes || '';
+                document.getElementById('hmContactModal').dataset.partnerId = partnerId;
+                document.getElementById('hmContactModal').classList.add('active');
+            } catch (e) {
+                showToast('データ取得エラー', 'error');
+            }
+        }
+
+        function closeHMContactModal() {
+            document.getElementById('hmContactModal').classList.remove('active');
+        }
+
+        async function saveHMContact() {
+            const partnerId = document.getElementById('hmContactModal').dataset.partnerId;
+            const name = document.getElementById('hmContactName').value.trim();
+            const exhibitionHall = document.getElementById('hmContactHall').value.trim();
+            const phone = document.getElementById('hmContactPhone').value.trim();
+            const email = document.getElementById('hmContactEmail').value.trim();
+            const notes = document.getElementById('hmContactNotes').value.trim();
+
+            if (!name) return showToast('名前は必須です', 'error');
+
+            try {
+                if (hmContactEditMode) {
+                    await api.call('PUT', `/hm-partner/${partnerId}/contact/${hmContactEditMode.contactId}`, { name, exhibitionHall, phone, email, notes });
+                    showToast(`${name} を更新しました`);
+                } else {
+                    await api.call('POST', `/hm-partner/${partnerId}/contacts`, { name, exhibitionHall, phone, email, notes });
+                    showToast(`${name} を追加しました`);
+                }
+                closeHMContactModal();
+                openHMPartnerDetail(partnerId);
+            } catch (e) {
+                showToast(e.message || '保存エラー', 'error');
+            }
+        }
+
+        async function deleteHMContact(partnerId, contactId) {
+            showConfirmModal('営業マン削除', 'この営業マンを削除しますか？', '削除する', async () => {
+                try {
+                    await api.call('DELETE', `/hm-partner/${partnerId}/contact/${contactId}`);
+                    showToast('削除しました');
+                    openHMPartnerDetail(partnerId);
+                } catch (e) {
+                    showToast('削除エラー', 'error');
+                }
+            });
+        }
+
+        function copyReferralUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('URLをコピーしました');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast('URLをコピーしました');
+            });
         }
     </script>
 </body>
