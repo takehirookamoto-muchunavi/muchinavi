@@ -3130,8 +3130,8 @@
         <div class="chat-welcome-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <h3>MuchiNaviに何でも聞いてください</h3>
         <div class="welcome-sub">24時間対応 AIアシスタント</div>
-        <p>住宅ローン、物件の選び方、スケジュール…<br>住まい探しのことなら何でもお気軽にどうぞ。</p>
-        <div class="chat-hints">
+        <p id="chat-welcome-desc">住宅ローン、物件の選び方、スケジュール…<br>住まい探しのことなら何でもお気軽にどうぞ。</p>
+        <div class="chat-hints" id="chat-hints">
           <button class="chat-hint" onclick="sendHint('住宅ローンのシミュレーションをお願いします')"><span class="hint-icon">💰</span>ローンシミュレーション</button>
           <button class="chat-hint" onclick="sendHint('物件探しで失敗しないコツを教えてください')"><span class="hint-icon">🏠</span>物件探しのコツ</button>
           <button class="chat-hint" onclick="sendHint('購入までの全体スケジュールを教えてください')"><span class="hint-icon">📅</span>購入の流れ</button>
@@ -4924,8 +4924,24 @@
     function startChat() {
       document.getElementById('onboarding').style.display = 'none';
       document.getElementById('chat-screen').classList.add('active');
+      const isSale = customerData?.customerType === 'sale';
       document.getElementById('chat-customer-name').textContent =
-        `${customerData.name}さんの住まい相談`;
+        `${customerData.name}さんの${isSale ? '売却相談' : '住まい相談'}`;
+
+      // 売却顧客はウェルカムメッセージとヒントを差し替え
+      if (isSale) {
+        const descEl = document.getElementById('chat-welcome-desc');
+        if (descEl) descEl.innerHTML = '売却価格の目安、費用、手続きの流れ…<br>不動産売却のことなら何でもお気軽にどうぞ。';
+        const hintsEl = document.getElementById('chat-hints');
+        if (hintsEl) hintsEl.innerHTML = `
+          <button class="chat-hint" onclick="sendHint('売却の流れを教えてください')"><span class="hint-icon">📋</span>売却の流れ</button>
+          <button class="chat-hint" onclick="sendHint('簡易査定をお願いします')"><span class="hint-icon">💰</span>簡易査定</button>
+          <button class="chat-hint" onclick="sendHint('売却にかかる費用を教えてください')"><span class="hint-icon">📊</span>売却費用</button>
+          <button class="chat-hint" onclick="sendHint('媒介契約の種類と違いを教えてください')"><span class="hint-icon">📝</span>媒介契約の種類</button>
+          <button class="chat-hint" onclick="sendHint('売却時の税金について教えてください')"><span class="hint-icon">🏛️</span>税金・控除</button>
+          <button class="chat-hint" onclick="sendHint('高く売るコツを教えてください')"><span class="hint-icon">📈</span>高く売るコツ</button>
+        `;
+      }
 
       // Restore chat history if any
       if (chatMessages.length > 0) {
