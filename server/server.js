@@ -1261,7 +1261,9 @@ app.post('/api/login', (req, res) => {
       name: record.name, family: record.family, householdIncome: record.householdIncome,
       propertyType: record.propertyType, purpose: record.purpose, searchReason: record.searchReason,
       area: record.area, budget: record.budget, freeComment: record.freeComment,
-      email: record.email, phone: record.phone,
+      email: record.email, phone: record.phone, customerType: record.customerType || 'purchase',
+      salePropertyType: record.salePropertyType, saleDesiredPrice: record.saleDesiredPrice,
+      stage: record.stage || 1,
     },
     chatHistory: record.chatHistory || [],
     directChatHistory: record.directChatHistory || [],
@@ -1291,7 +1293,10 @@ app.get('/api/session/:token', (req, res) => {
       name: record.name, family: record.family, householdIncome: record.householdIncome,
       propertyType: record.propertyType, purpose: record.purpose, searchReason: record.searchReason,
       area: record.area, budget: record.budget, freeComment: record.freeComment,
-      email: record.email, phone: record.phone,
+      email: record.email, phone: record.phone, customerType: record.customerType || 'purchase',
+      salePropertyType: record.salePropertyType, salePropertyLocation: record.salePropertyLocation,
+      salePropertyName: record.salePropertyName, saleDesiredPrice: record.saleDesiredPrice,
+      stage: record.stage || 1,
     },
     chatHistory: record.chatHistory || [],
     directChatHistory: record.directChatHistory || [],
@@ -1311,7 +1316,7 @@ app.get('/api/customer/profile/:token', (req, res) => {
 
   // Return all editable fields
   const profile = {};
-  const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line'];
+  const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line','customerType','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','saleReason','saleFloorDirection','saleOldHouse','saleRoadAccess'];
   fields.forEach(k => { profile[k] = record[k] || ''; });
   profile.stage = record.stage || 1;
   // カルテ用: エージェントからのアドバイス（お客様向け公開メモ）
