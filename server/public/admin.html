@@ -3120,6 +3120,7 @@
                     <button class="list-filter-tab" data-filter="terass" onclick="setListFilter('terass')">TERASS <span class="tab-count" id="countTerass">0</span></button>
                     <button class="list-filter-tab" data-filter="attention" onclick="setListFilter('attention')">要対応 <span class="tab-count" id="countAttention">0</span></button>
                     <button class="list-filter-tab" data-filter="completed" onclick="setListFilter('completed')">完了 <span class="tab-count" id="countCompleted">0</span></button>
+                    <button class="list-filter-tab" data-filter="internal" onclick="setListFilter('internal')">関係者 <span class="tab-count" id="countInternal">0</span></button>
                 </div>
                 <div class="list-sort-row">
                     <select class="list-sort-select" id="listSortSelect" onchange="sortCustomerCards()">
@@ -4271,15 +4272,20 @@
 
             let filtered = [...customers];
 
+            // 「関係者」タブ以外ではinternalアカウントを除外
+            if (currentListFilter !== 'internal') {
+                filtered = filtered.filter(c => (c.accountType || 'customer') !== 'internal');
+            }
+
             switch (currentListFilter) {
                 case 'active':
                     filtered = filtered.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved'));
                     break;
                 case 'purchase':
-                    filtered = filtered.filter(c => (c.customerType || 'purchase') !== 'sale');
+                    filtered = filtered.filter(c => c.status === 'active' && (c.customerType || 'purchase') !== 'sale');
                     break;
                 case 'sale':
-                    filtered = filtered.filter(c => c.customerType === 'sale');
+                    filtered = filtered.filter(c => c.status === 'active' && c.customerType === 'sale');
                     break;
                 case 'terass':
                     filtered = filtered.filter(c => c.source === 'terass_offer');
@@ -4292,6 +4298,9 @@
                         const maxStage = c.customerType === 'sale' ? 9 : 8;
                         return c.stage >= maxStage;
                     });
+                    break;
+                case 'internal':
+                    filtered = filtered.filter(c => (c.accountType || 'customer') === 'internal');
                     break;
             }
 
@@ -4379,12 +4388,14 @@
         }
 
         function updateListFilterCounts() {
-            const active = customers.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved')).length;
-            const purchase = customers.filter(c => (c.customerType || 'purchase') !== 'sale').length;
-            const sale = customers.filter(c => c.customerType === 'sale').length;
-            const terass = customers.filter(c => c.source === 'terass_offer').length;
-            const attention = customers.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)).length;
-            const completed = customers.filter(c => { const max = c.customerType === 'sale' ? 9 : 8; return c.stage >= max; }).length;
+            const real = customers.filter(c => (c.accountType || 'customer') !== 'internal');
+            const active = real.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved')).length;
+            const purchase = real.filter(c => c.status === 'active' && (c.customerType || 'purchase') !== 'sale').length;
+            const sale = real.filter(c => c.status === 'active' && c.customerType === 'sale').length;
+            const terass = real.filter(c => c.source === 'terass_offer').length;
+            const attention = real.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)).length;
+            const completed = real.filter(c => { const max = c.customerType === 'sale' ? 9 : 8; return c.stage >= max; }).length;
+            const internal = customers.filter(c => (c.accountType || 'customer') === 'internal').length;
 
             const setCount = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
             setCount('countActive', active);
@@ -4393,6 +4404,7 @@
             setCount('countTerass', terass);
             setCount('countAttention', attention);
             setCount('countCompleted', completed);
+            setCount('countInternal', internal);
         }
 
         function renderDetailHeader(customer) {
@@ -4421,6 +4433,7 @@
                         <div class="detail-source">${sourceLabel}</div>
                     </div>
                     <div class="detail-header-actions">
+                        <button class="detail-action-btn" id="toggleInternalBtn" onclick="toggleAccountType()">関係者に設定</button>
                         <button class="detail-action-btn" onclick="blockCustomer()">ブロック</button>
                         <button class="detail-action-btn danger" onclick="deleteCustomer()">削除</button>
                     </div>
@@ -5287,6 +5300,34 @@
                 blockBtn.textContent = 'ブロック';
                 blockBtn.onclick = () => blockCustomer();
             }
+
+            // 関係者トグルボタンの更新
+            const internalBtn = document.getElementById('toggleInternalBtn');
+            if (internalBtn) {
+                const isInternal = (customer.accountType || 'customer') === 'internal';
+                internalBtn.textContent = isInternal ? 'お客様に戻す' : '関係者に設定';
+                internalBtn.style.background = isInternal ? '#ff9500' : '';
+                internalBtn.style.color = isInternal ? '#fff' : '';
+            }
+        }
+
+        async function toggleAccountType() {
+            const customer = customers.find(c => c.token === selectedToken);
+            if (!customer) return;
+            const isInternal = (customer.accountType || 'customer') === 'internal';
+            const newType = isInternal ? 'customer' : 'internal';
+            const label = isInternal ? 'お客様に戻す' : '関係者に設定する';
+            showConfirmModal('アカウント種別変更', `${customer.name}さんを${label}しますか？`, label, async () => {
+                try {
+                    await api.updateCustomer(selectedToken, { accountType: newType });
+                    showToast(isInternal ? 'お客様に戻しました' : '関係者に設定しました', 'success');
+                    loadDashboard();
+                    const result = await api.getCustomer(selectedToken);
+                    renderDetailView(result.customer);
+                } catch (error) {
+                    showToast('エラー: 変更に失敗しました', 'error');
+                }
+            });
         }
 
         async function blockCustomer() {
