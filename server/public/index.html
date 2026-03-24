@@ -4199,7 +4199,8 @@
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
             <div>
-              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号 <span style="color: var(--danger);">*</span></label>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号 ${customerData.customerType === 'sale' ? '<span style="color: var(--danger);">*</span>' : '<span style="color:#86868b;">(任意)</span>'}</label>
+              ${customerData.customerType === 'sale' ? '<div style="font-size:11px;color:#86868b;margin-bottom:6px;">※ 査定のお打ち合わせや内覧日程の調整にお電話が必要となります</div>' : '<div style="font-size:11px;color:#86868b;margin-bottom:6px;">※ 面談予約時のご連絡に使用します。電話営業は一切しません</div>'}
               <input class="input-field" type="tel" id="contact-phone" placeholder="090-1234-5678" style="text-align: left;">
             </div>
             <!-- メール認証エリア -->
@@ -4545,7 +4546,9 @@
         document.getElementById('contact-email').focus();
         return;
       }
-      if (!phone || phone.length < 10) {
+      // 売却は電話番号必須、購入は任意
+      const isSaleReg = customerData.customerType === 'sale';
+      if (isSaleReg && (!phone || phone.length < 10)) {
         document.getElementById('contact-phone').style.borderColor = 'var(--danger)';
         document.getElementById('contact-phone').focus();
         return;
