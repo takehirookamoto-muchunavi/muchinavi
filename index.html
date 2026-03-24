@@ -3593,15 +3593,7 @@
         required: true,
         response: (val) => `ありがとうございます！`,
       },
-      {
-        type: 'prefecture',
-        key: 'prefecture',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        title: '{name}さんが\n今お住まいの都道府県は？',
-        subtitle: '',
-        required: true,
-        response: (val) => `${val}にお住まいなんですね！`,
-      },
+      // 都道府県ステップは削除（検討エリアで都道府県→市区町村を聞くため重複）
       {
         type: 'choice',
         key: 'family',
