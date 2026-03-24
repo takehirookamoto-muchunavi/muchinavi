@@ -6659,8 +6659,31 @@
     }
 
     function renderCarte(p) {
+      const isSale = p.customerType === 'sale';
+
+      // カルテ見出しを動的変更
+      const carteTitle = document.querySelector('#carte-content .carte-section-title');
+      if (carteTitle) carteTitle.textContent = isSale ? 'あなたの不動産売却' : 'あなたの住まい探し';
+      const carteIcon = document.querySelector('#carte-content .carte-section-icon');
+      if (carteIcon) carteIcon.textContent = isSale ? '🏢' : '🏠';
+
+      // エージェント紹介文を動的変更
+      const agentDesc = document.querySelector('.carte-agent-card p');
+      if (agentDesc) agentDesc.textContent = isSale
+        ? 'お客様ファーストで、不動産売却が最善の結果になるようサポートします。気になることがあればいつでもご相談ください。'
+        : 'お客様ファーストで、住宅購入がずっと幸せにつながるようサポートします。気になることがあればいつでもご相談ください。';
+
       // 1. 現状サマリー
-      const summaryItems = [
+      const summaryItems = isSale ? [
+        { label: 'お名前', value: p.name || '-' },
+        { label: '年齢', value: p.birthYear ? `${new Date().getFullYear() - p.birthYear}歳` : '-' },
+        { label: 'お住まい', value: p.prefecture || '-' },
+        { label: 'ご家族構成', value: p.family || '-' },
+        { label: '売却物件種別', value: p.salePropertyType || '-' },
+        { label: '物件所在地', value: p.salePropertyLocation || '-' },
+        { label: '希望売却価格', value: p.saleDesiredPrice || '-' },
+        { label: '売却理由', value: p.saleReason || '-' },
+      ] : [
         { label: 'お名前', value: p.name || '-' },
         { label: '年齢', value: p.birthYear ? `${new Date().getFullYear() - p.birthYear}歳` : '-' },
         { label: 'お住まい', value: p.prefecture || '-' },
@@ -6676,7 +6699,17 @@
 
       // 2. 進捗ステータス
       const stage = p.stage || 1;
-      const stages = [
+      const stages = isSale ? [
+        { name: '登録', desc: '基本情報の登録が完了しました' },
+        { name: '情報入力', desc: '物件情報の確認・補完' },
+        { name: '面談予約', desc: 'オンライン面談の予約' },
+        { name: '査定', desc: '物件の査定・市場分析' },
+        { name: '媒介契約', desc: '売却の正式な依頼契約' },
+        { name: '販売活動', desc: '物件の広告・内覧対応' },
+        { name: '内見対応', desc: '購入希望者の内覧対応' },
+        { name: '契約', desc: '売買契約・必要書類の準備' },
+        { name: '決済・引渡し', desc: '残金決済と物件の引渡し' },
+      ] : [
         { name: '登録', desc: '基本情報の登録が完了しました' },
         { name: '情報入力', desc: 'プロフィール情報の確認・補完' },
         { name: '面談予約', desc: 'オンライン面談の予約' },
@@ -6728,55 +6761,80 @@
 
     function generateAdvice(p) {
       const advices = [];
+      const isSale = p.customerType === 'sale';
 
-      // 予算に基づくアドバイス
-      if (p.householdIncome && p.budget) {
+      if (isSale) {
+        // === 売却向けアドバイス ===
         advices.push({
-          title: '💰 資金計画について',
-          text: `世帯年収${p.householdIncome}で${p.budget}のご予算をお考えですね。住宅ローンの借入額や月々の返済額について、一度シミュレーションしてみましょう。AIチャットで「住宅ローンシミュレーション」と聞いてみてください。`
+          title: '💰 売却費用について',
+          text: '売却時には仲介手数料・印紙税・登記費用等がかかります。AIチャットで「売却にかかる費用」と聞いてみてください。'
         });
-      }
 
-      // 物件タイプに基づくアドバイス
-      if (p.propertyType) {
-        const typeAdvice = {
-          '中古戸建て': 'リフォーム費用や築年数による耐震性の確認がポイントです。インスペクション（建物検査）の活用もおすすめです。',
-          '中古マンション': '管理費・修繕積立金の確認、大規模修繕の履歴や今後の計画をチェックしましょう。',
-          '新築戸建て': '建売と注文住宅の違い、建築条件付き土地の仕組みなど、選択肢を広く検討できます。',
-          '注文住宅': '土地探しと建築会社選びが重要です。ハウスメーカー選びのポイントもお気軽にご相談ください。',
-        };
-        advices.push({
-          title: `🏠 ${p.propertyType}をお探しの方へ`,
-          text: typeAdvice[p.propertyType] || '物件探しのポイントをAIに聞いてみましょう。'
-        });
-      }
+        if (p.salePropertyType) {
+          const saleTypeAdvice = {
+            'マンション': '築年数・階数・方角が価格に影響します。管理状況や修繕計画の資料を準備しておくと査定がスムーズです。',
+            '戸建て': '土地と建物それぞれの価値評価が重要です。境界確定や建物の状態確認がポイントになります。',
+            '土地': '接道状況・地形・用途地域が価格を左右します。境界確定測量が必要になる場合があります。',
+          };
+          advices.push({
+            title: `🏢 ${p.salePropertyType}の売却ポイント`,
+            text: saleTypeAdvice[p.salePropertyType] || '物件の種類に応じた売却のコツをAIに聞いてみましょう。'
+          });
+        }
 
-      // エリアに基づくアドバイス
-      if (p.area && p.area !== '未定（一緒に探したい）') {
         advices.push({
-          title: '📍 エリアについて',
-          text: `${p.area}エリアでお探しですね。通勤・通学のアクセスや、生活利便性、将来の資産価値なども考慮すると良いでしょう。`
+          title: '📋 売却の流れ',
+          text: '査定 → 媒介契約 → 販売活動 → 内覧対応 → 契約 → 決済・引渡し の流れです。各ステップで何をすべきか、AIに聞いてみてください。'
         });
       } else {
-        advices.push({
-          title: '📍 エリア選びのヒント',
-          text: 'まだエリアが決まっていなくても大丈夫です。通勤時間・学区・生活環境など、優先順位を整理することから始めましょう。'
-        });
-      }
+        // === 購入向けアドバイス ===
+        if (p.householdIncome && p.budget) {
+          advices.push({
+            title: '💰 資金計画について',
+            text: `世帯年収${p.householdIncome}で${p.budget}のご予算をお考えですね。住宅ローンの借入額や月々の返済額について、一度シミュレーションしてみましょう。AIチャットで「住宅ローンシミュレーション」と聞いてみてください。`
+          });
+        }
 
-      // 家族構成に基づくアドバイス
-      if (p.family && p.family.includes('子ども')) {
-        advices.push({
-          title: '👨‍👩‍👧 お子様がいらっしゃる方へ',
-          text: '学区情報、公園や病院へのアクセス、将来の部屋数なども考慮したいポイントです。お子様の成長に合わせた住まい選びをサポートします。'
-        });
+        if (p.propertyType) {
+          const typeAdvice = {
+            '中古戸建て': 'リフォーム費用や築年数による耐震性の確認がポイントです。インスペクション（建物検査）の活用もおすすめです。',
+            '中古マンション': '管理費・修繕積立金の確認、大規模修繕の履歴や今後の計画をチェックしましょう。',
+            '新築戸建て': '建売と注文住宅の違い、建築条件付き土地の仕組みなど、選択肢を広く検討できます。',
+            '注文住宅': '土地探しと建築会社選びが重要です。ハウスメーカー選びのポイントもお気軽にご相談ください。',
+          };
+          advices.push({
+            title: `🏠 ${p.propertyType}をお探しの方へ`,
+            text: typeAdvice[p.propertyType] || '物件探しのポイントをAIに聞いてみましょう。'
+          });
+        }
+
+        if (p.area && p.area !== '未定（一緒に探したい）') {
+          advices.push({
+            title: '📍 エリアについて',
+            text: `${p.area}エリアでお探しですね。通勤・通学のアクセスや、生活利便性、将来の資産価値なども考慮すると良いでしょう。`
+          });
+        } else {
+          advices.push({
+            title: '📍 エリア選びのヒント',
+            text: 'まだエリアが決まっていなくても大丈夫です。通勤時間・学区・生活環境など、優先順位を整理することから始めましょう。'
+          });
+        }
+
+        if (p.family && p.family.includes('子ども')) {
+          advices.push({
+            title: '👨‍👩‍👧 お子様がいらっしゃる方へ',
+            text: '学区情報、公園や病院へのアクセス、将来の部屋数なども考慮したいポイントです。お子様の成長に合わせた住まい選びをサポートします。'
+          });
+        }
       }
 
       // デフォルトのアドバイス
       if (advices.length === 0) {
         advices.push({
           title: '✨ まずは気軽にご相談ください',
-          text: 'AIチャットで何でも質問できます。住宅購入の基礎知識から、具体的な物件相談まで、お気軽にどうぞ。'
+          text: isSale
+            ? 'AIチャットで何でも質問できます。売却の流れや費用のことなど、お気軽にどうぞ。'
+            : 'AIチャットで何でも質問できます。住宅購入の基礎知識から、具体的な物件相談まで、お気軽にどうぞ。'
         });
       }
 
