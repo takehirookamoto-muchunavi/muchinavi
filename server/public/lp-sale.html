@@ -1,0 +1,2392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuchiNavi（ムチナビ）| 不動産売却AIアシスタント</title>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VWS2PHHS4X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VWS2PHHS4X');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #ffffff;
+    --bg: #fafbff;
+    --bg-warm: #f4f2ff;
+    --bg-card: #ffffff;
+    --dark: #1a1a2e;
+    --dark-soft: #2d2d44;
+    --text: #1a1a2e;
+    --text-sub: #6b7094;
+    --text-light: #9a9cba;
+    --border: rgba(99,102,241,0.08);
+    --border-hover: rgba(99,102,241,0.2);
+    /* Pop gradient palette */
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --primary-dark: #4f46e5;
+    --accent: #f472b6;
+    --accent-light: #f9a8d4;
+    --teal: #2dd4bf;
+    --teal-light: #5eead4;
+    --coral: #fb7185;
+    --sky: #38bdf8;
+    --gradient-main: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    --gradient-soft: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(168,85,247,0.05) 50%, rgba(236,72,153,0.03) 100%);
+    --gradient-card: linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(236,72,153,0.02) 100%);
+    --shadow-sm: 0 2px 8px rgba(99,102,241,0.06);
+    --shadow-md: 0 8px 32px rgba(99,102,241,0.08);
+    --shadow-lg: 0 20px 60px rgba(99,102,241,0.12);
+    --glow-primary: rgba(99,102,241,0.2);
+    --cta-gradient: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #ec4899 100%);
+    --cta-shadow: rgba(249,115,22,0.3);
+    --cta-shadow-hover: rgba(249,115,22,0.45);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    background: var(--white);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: calc(100dvh - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    overflow: hidden;
+    padding: 80px 24px 24px;
+  }
+
+  .hero-bg-shapes {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+
+  .hero-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+  }
+
+  .hero-shape-1 {
+    width: 500px; height: 500px;
+    background: rgba(99,102,241,0.15);
+    top: -10%; right: -5%;
+    animation: floatShape 12s ease-in-out infinite alternate;
+  }
+
+  .hero-shape-2 {
+    width: 400px; height: 400px;
+    background: rgba(244,114,182,0.12);
+    bottom: -10%; left: -5%;
+    animation: floatShape 10s ease-in-out infinite alternate-reverse;
+  }
+
+  .hero-shape-3 {
+    width: 300px; height: 300px;
+    background: rgba(45,212,191,0.1);
+    top: 30%; left: 20%;
+    animation: floatShape 14s ease-in-out infinite alternate;
+  }
+
+  @keyframes floatShape {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, -20px) scale(1.1); }
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 860px; text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gradient-soft);
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 100px;
+    padding: 8px 22px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    opacity: 0;
+    animation: fadeDown 1s ease 0.3s forwards;
+    backdrop-filter: blur(10px);
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2.5s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(45,212,191,0.4);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 6vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 40px 0 28px;
+    letter-spacing: -0.03em;
+    color: var(--dark);
+  }
+
+  .hero h1 .char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px) rotateX(40deg);
+    animation: charReveal 0.6s ease forwards;
+  }
+
+  @keyframes charReveal {
+    to { opacity: 1; transform: translateY(0) rotateX(0); }
+  }
+
+  .hero h1 .hero-keyword {
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .hero h1 .gradient-text {
+    position: relative;
+    font-size: 1.15em;
+  }
+
+  /* グラデーションを各charスパンにも適用 */
+  .hero h1 .gradient-text,
+  .hero h1 .gradient-text .char {
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .hero-sub {
+    font-size: clamp(0.95rem, 1.8vw, 1.12rem);
+    font-weight: 400;
+    line-height: 2;
+    color: var(--text-sub);
+    margin-bottom: 40px;
+    max-width: 520px;
+    margin-left: auto; margin-right: auto;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.8s forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-cta-wrap {
+    opacity: 0;
+    animation: fadeUp 1s ease 2.2s forwards;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center; gap: 10px;
+    background: var(--cta-gradient);
+    color: var(--white);
+    text-decoration: none;
+    padding: 20px 56px;
+    border-radius: 100px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 32px var(--cta-shadow);
+    border: none;
+    position: relative; overflow: hidden;
+  }
+
+  .cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.6s ease;
+  }
+
+  .cta-button:hover::before { left: 100%; }
+
+  .cta-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 48px var(--cta-shadow-hover);
+  }
+
+  .cta-button svg {
+    width: 18px; height: 18px;
+    transition: transform 0.3s ease;
+  }
+
+  .cta-button:hover svg { transform: translateX(5px); }
+
+  .hero-note {
+    margin-top: 20px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    letter-spacing: 0.08em;
+  }
+
+  /* ===== SCROLL DOWN INDICATOR ===== */
+  .scroll-indicator {
+    margin-top: auto;
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; gap: 6px;
+    opacity: 0;
+    animation: fadeUp 1s ease 2.8s forwards;
+    z-index: 10;
+  }
+
+  .scroll-indicator span {
+    font-size: 0.62rem;
+    color: var(--text-light);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .scroll-indicator .scroll-line {
+    width: 1px; height: 28px;
+    background: var(--text-light);
+    opacity: 0.4;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scroll-indicator .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: -100%; left: 0;
+    width: 100%; height: 100%;
+    background: var(--gradient-main);
+    animation: scrollLineMove 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollLineMove {
+    0% { top: -100%; opacity: 1; }
+    100% { top: 100%; opacity: 0.3; }
+  }
+
+  /* ===== SECTION COMMON ===== */
+  section { padding: 120px 24px; }
+  .container { max-width: 1080px; margin: 0 auto; }
+
+  .section-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+    color: var(--dark);
+  }
+
+  .section-desc {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    max-width: 560px;
+    line-height: 2;
+  }
+
+  .section-header { text-align: center; margin-bottom: 72px; }
+  .section-header .section-desc { margin: 0 auto; }
+
+  .white-section { background: var(--white); }
+  .soft-section { background: var(--bg); }
+  .warm-section { background: var(--bg-warm); }
+
+  /* ===== ANIMATION CLASSES ===== */
+  .anim-up {
+    opacity: 0; transform: translateY(60px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .anim-left {
+    opacity: 0; transform: translateX(-60px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .anim-right {
+    opacity: 0; transform: translateX(60px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .anim-scale {
+    opacity: 0; transform: scale(0.85);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .anim-up.visible,
+  .anim-left.visible,
+  .anim-right.visible,
+  .anim-scale.visible {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+  }
+
+  .stagger-1 { transition-delay: 0.1s; }
+  .stagger-2 { transition-delay: 0.2s; }
+  .stagger-3 { transition-delay: 0.3s; }
+  .stagger-4 { transition-delay: 0.4s; }
+  .stagger-5 { transition-delay: 0.5s; }
+  .stagger-6 { transition-delay: 0.6s; }
+
+  /* ===== PROBLEM ===== */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .problem-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 28px;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; overflow: hidden;
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gradient-card);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .problem-card:hover::before { opacity: 1; }
+
+  .problem-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .problem-icon {
+    width: 64px; height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .problem-icon svg {
+    width: 28px; height: 28px;
+    position: relative; z-index: 1;
+  }
+
+  .problem-icon-1 { background: rgba(99,102,241,0.08); }
+  .problem-icon-1 svg { color: var(--primary); }
+  .problem-icon-2 { background: rgba(244,114,182,0.08); }
+  .problem-icon-2 svg { color: var(--accent); }
+  .problem-icon-3 { background: rgba(45,212,191,0.08); }
+  .problem-icon-3 svg { color: var(--teal); }
+
+  .problem-card:hover .problem-icon { transform: scale(1.15) rotate(5deg); }
+
+  .problem-card h3 {
+    font-size: 1.05rem; font-weight: 700;
+    margin-bottom: 12px; color: var(--dark);
+    position: relative;
+  }
+
+  .problem-card p {
+    font-size: 0.88rem; color: var(--text-sub);
+    line-height: 1.8; text-align: left;
+    position: relative;
+  }
+
+  /* ===== SOLUTION ===== */
+  .solution-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .solution-visual {
+    background: transparent;
+    border: none;
+    border-radius: 24px;
+    padding: 0;
+    position: relative; overflow: hidden;
+    box-shadow: none;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* デモ動画 */
+  .demo-video-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    aspect-ratio: 9 / 16;
+  }
+
+  .demo-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 24px;
+    display: block;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    background: #1a1a2e;
+  }
+
+  /* スマホ風のヘッダー */
+  .chat-header {
+    display: flex;
+    align-items: center; gap: 10px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .chat-header-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--gradient-main);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .chat-header-dot svg { width: 16px; height: 16px; color: white; }
+
+  .chat-header-info { flex: 1; }
+
+  .chat-header-name {
+    font-size: 0.82rem; font-weight: 700;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .chat-header-status {
+    font-size: 0.65rem; color: var(--teal);
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .chat-header-status::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--teal);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .chat-body {
+    padding: 20px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 340px;
+  }
+
+  /* チャット行 */
+  .chat-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    margin-bottom: 4px;
+  }
+
+  .chat-row.user { justify-content: flex-end; }
+  .chat-row.ai { justify-content: flex-start; }
+
+  .chat-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 800;
+  }
+
+  .chat-row.user .chat-avatar {
+    background: rgba(45,212,191,0.15);
+    color: var(--teal);
+    order: 2;
+  }
+
+  .chat-row.ai .chat-avatar {
+    background: var(--gradient-main);
+    color: white;
+  }
+
+  .chat-row.ai .chat-avatar svg { width: 14px; height: 14px; }
+
+  /* 吹き出し */
+  .chat-msg {
+    max-width: 82%;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    position: relative;
+  }
+
+  .chat-row.user .chat-msg {
+    background: var(--primary);
+    color: white;
+    border-radius: 16px 16px 4px 16px;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+  }
+
+  .chat-row.ai .chat-msg {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+    border-radius: 16px 16px 16px 4px;
+  }
+
+  /* タイピングインジケーター */
+  .chat-typing {
+    display: flex;
+    align-items: flex-end; gap: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    margin-bottom: 4px;
+  }
+
+  .chat-typing .chat-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--gradient-main);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .chat-typing .chat-avatar svg { width: 14px; height: 14px; color: white; }
+
+  .typing-dots {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px 16px 16px 4px;
+    padding: 14px 20px;
+    display: flex; gap: 5px;
+  }
+
+  .typing-dots span {
+    width: 7px; height: 7px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* タイムスタンプ */
+  .chat-time {
+    text-align: center;
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.2);
+    margin: 8px 0 12px;
+    opacity: 0;
+  }
+
+  .solution-text h2 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 900;
+    margin-bottom: 20px; line-height: 1.35;
+    color: var(--dark);
+  }
+
+  .solution-text p {
+    color: var(--text-sub);
+    margin-bottom: 14px; line-height: 1.9;
+    font-size: 0.95rem;
+  }
+
+  .solution-highlights {
+    list-style: none;
+    margin-top: 28px; padding: 0;
+  }
+
+  .solution-highlights li {
+    display: flex;
+    align-items: center; gap: 14px;
+    padding: 12px 0;
+    font-size: 0.95rem;
+    color: var(--dark);
+    border-bottom: 1px solid rgba(99,102,241,0.06);
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.5s ease;
+  }
+
+  .solution-highlights li:last-child { border-bottom: none; }
+
+  .solution-text.visible .solution-highlights li:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 0.3s; }
+  .solution-text.visible .solution-highlights li:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 0.45s; }
+  .solution-text.visible .solution-highlights li:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 0.6s; }
+  .solution-text.visible .solution-highlights li:nth-child(4) { opacity: 1; transform: translateX(0); transition-delay: 0.75s; }
+
+  .solution-highlights li .check {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    background: var(--gradient-main);
+    border-radius: 50%;
+    display: flex;
+    align-items: center; justify-content: center;
+  }
+
+  .check svg { width: 12px; height: 12px; color: white; }
+
+  /* ===== FEATURES ===== */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; overflow: hidden;
+  }
+
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(99,102,241,0.04), transparent 30%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    animation: cardScan 4s linear infinite;
+    pointer-events: none;
+  }
+
+  .feature-card:hover::after { opacity: 1; }
+
+  @keyframes cardScan {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .feature-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .feature-num {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    background: var(--gradient-main);
+    color: var(--white);
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+    position: relative; z-index: 1;
+  }
+
+  .feature-card h3 {
+    font-size: 1.08rem; font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 12px;
+    position: relative; z-index: 1;
+  }
+
+  .feature-card p {
+    font-size: 0.88rem; color: var(--text-sub);
+    line-height: 1.8;
+    position: relative; z-index: 1;
+  }
+
+  /* ===== HOW IT WORKS ===== */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    position: relative;
+  }
+
+  .steps-line {
+    position: absolute;
+    top: 44px;
+    left: calc(16.67% + 30px);
+    right: calc(16.67% + 30px);
+    height: 2px;
+    background: var(--gradient-main);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 2px;
+  }
+
+  .steps-line.visible { transform: scaleX(1); }
+
+  .step { text-align: center; position: relative; }
+
+  .step-number {
+    width: 88px; height: 88px;
+    background: var(--white);
+    border: 2px solid transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 1.8rem; font-weight: 900;
+    margin: 0 auto 28px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    box-shadow: var(--shadow-md);
+    background-clip: padding-box;
+  }
+
+  .step-number::before {
+    content: '';
+    position: absolute; inset: -2px;
+    border-radius: 50%;
+    background: var(--gradient-main);
+    z-index: -1;
+  }
+
+  .step-number span {
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .step:hover .step-number {
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(99,102,241,0.2);
+  }
+
+  .step h3 {
+    font-size: 1.08rem; font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 10px;
+  }
+
+  .step p {
+    font-size: 0.88rem; color: var(--text-sub);
+    line-height: 1.8;
+    max-width: 220px; margin: 0 auto;
+  }
+
+  /* ===== BENEFITS ===== */
+  .benefit-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .benefit-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 20px;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; overflow: hidden;
+  }
+
+  .benefit-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--gradient-main);
+    transform: scaleX(0);
+    transition: transform 0.5s ease;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .benefit-card:hover::before { transform: scaleX(1); }
+
+  .benefit-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .benefit-icon-wrap {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .benefit-icon-wrap svg { width: 26px; height: 26px; }
+  .benefit-card:hover .benefit-icon-wrap { transform: scale(1.2) rotate(-5deg); }
+
+  .benefit-icon-1 { background: rgba(99,102,241,0.08); color: var(--primary); }
+  .benefit-icon-2 { background: rgba(45,212,191,0.08); color: var(--teal); }
+  .benefit-icon-3 { background: rgba(244,114,182,0.08); color: var(--accent); }
+  .benefit-icon-4 { background: rgba(56,189,248,0.08); color: var(--sky); }
+
+  .benefit-card h3 {
+    font-size: 0.98rem; font-weight: 700;
+    margin-bottom: 8px; color: var(--dark);
+  }
+
+  .benefit-card p {
+    font-size: 0.84rem;
+    color: var(--text-sub);
+    line-height: 1.7;
+  }
+
+  /* ===== NUMBERS (数字で見る実績) ===== */
+  .numbers-section {
+    background: var(--dark);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .numbers-section .section-label {
+    background: linear-gradient(135deg, #818cf8, #f9a8d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .numbers-section .section-title { color: var(--white); }
+  .numbers-section .section-desc { color: rgba(255,255,255,0.5); }
+
+  .numbers-bg {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+
+  .numbers-bg-shape {
+    position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.2;
+  }
+
+  .numbers-bg-shape:nth-child(1) {
+    width: 300px; height: 300px;
+    background: rgba(99,102,241,0.4);
+    top: -10%; left: 10%;
+  }
+
+  .numbers-bg-shape:nth-child(2) {
+    width: 250px; height: 250px;
+    background: rgba(236,72,153,0.3);
+    bottom: -10%; right: 15%;
+  }
+
+  .numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    position: relative; z-index: 1;
+  }
+
+  .number-item {
+    text-align: center;
+    padding: 32px 16px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.5s ease;
+  }
+
+  .number-item:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(99,102,241,0.2);
+    transform: translateY(-4px);
+  }
+
+  .number-value {
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .number-unit {
+    font-size: 0.7em;
+    font-weight: 700;
+  }
+
+  .number-label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .number-desc {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    font-weight: 400;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* カウントアップアニメーション */
+  .number-value .count-up {
+    display: inline-block;
+  }
+
+  /* ===== FAQ ===== */
+  .faq-list {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .faq-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .faq-item:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .faq-item.open {
+    border-color: rgba(99,102,241,0.2);
+    box-shadow: var(--shadow-md);
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.3s ease;
+  }
+
+  .faq-question:hover { background: rgba(99,102,241,0.02); }
+
+  .faq-q-badge {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--gradient-main);
+    color: white;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 800;
+  }
+
+  .faq-q-text {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.5;
+  }
+
+  .faq-toggle {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .faq-toggle svg {
+    width: 14px; height: 14px;
+    color: var(--text-sub);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .faq-item.open .faq-toggle {
+    background: var(--primary);
+  }
+
+  .faq-item.open .faq-toggle svg {
+    color: white;
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease;
+  }
+
+  .faq-item.open .faq-answer {
+    max-height: 300px;
+  }
+
+  .faq-answer-inner {
+    padding: 0 24px 24px;
+    padding-left: 66px;
+    font-size: 0.88rem;
+    color: var(--text-sub);
+    line-height: 1.9;
+  }
+
+  /* ===== VOICE (お客様の声) ===== */
+  .voice-section {
+    background: var(--white);
+    overflow: hidden;
+  }
+
+  .voice-carousel-wrap {
+    position: relative;
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+
+  .voice-carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 24px 32px;
+    scrollbar-width: none;
+  }
+
+  .voice-carousel::-webkit-scrollbar { display: none; }
+
+  .voice-card {
+    flex: 0 0 320px;
+    scroll-snap-align: start;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    position: relative;
+    transition: all 0.4s ease;
+  }
+
+  .voice-card:first-child { margin-left: calc(50% - 540px); }
+  .voice-card:last-child { margin-right: 40px; }
+
+  .voice-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+  }
+
+  .voice-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 20px 20px 0 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .voice-card:hover::before { opacity: 1; }
+
+  .voice-card:nth-child(odd)::before { background: var(--gradient-main); }
+  .voice-card:nth-child(even)::before { background: linear-gradient(135deg, var(--teal), var(--sky)); }
+
+  .voice-quote-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .voice-card:nth-child(odd) .voice-quote-icon {
+    background: rgba(99,102,241,0.08);
+    color: var(--primary);
+  }
+
+  .voice-card:nth-child(even) .voice-quote-icon {
+    background: rgba(45,212,191,0.08);
+    color: var(--teal);
+  }
+
+  .voice-quote-icon svg { width: 18px; height: 18px; }
+
+  .voice-quote-icon {
+    margin-bottom: 18px;
+  }
+
+  .voice-text {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.85;
+    margin-bottom: 20px;
+    min-height: 100px;
+  }
+
+  .voice-author {
+    display: flex;
+    align-items: center; gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .voice-author-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 800;
+    color: white;
+  }
+
+  .voice-card:nth-child(1) .voice-author-avatar { background: #6366f1; }
+  .voice-card:nth-child(2) .voice-author-avatar { background: #2dd4bf; }
+  .voice-card:nth-child(3) .voice-author-avatar { background: #f472b6; }
+  .voice-card:nth-child(4) .voice-author-avatar { background: #38bdf8; }
+  .voice-card:nth-child(5) .voice-author-avatar { background: #a855f7; }
+  .voice-card:nth-child(6) .voice-author-avatar { background: #fb7185; }
+  .voice-card:nth-child(7) .voice-author-avatar { background: #34d399; }
+
+  .voice-author-info { flex: 1; }
+
+  .voice-author-name {
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--dark);
+  }
+
+  .voice-author-detail {
+    font-size: 0.7rem;
+    color: var(--text-light);
+  }
+
+  /* スクロールヒント */
+  .voice-scroll-hint {
+    display: flex;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--text-light);
+    letter-spacing: 0.05em;
+  }
+
+  .voice-scroll-hint svg {
+    width: 16px; height: 16px;
+    animation: swipeHint 2s ease-in-out infinite;
+  }
+
+  @keyframes swipeHint {
+    0%, 100% { transform: translateX(0); opacity: 0.5; }
+    50% { transform: translateX(8px); opacity: 1; }
+  }
+
+  /* ===== PROFILE ===== */
+  .profile-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 48px;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 48px;
+    transition: all 0.5s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .profile-layout:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+  }
+
+  .profile-avatar {
+    width: 240px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .profile-avatar::before {
+    content: '';
+    position: absolute; inset: -2px;
+    border-radius: 22px;
+    background: var(--gradient-main);
+    z-index: -1;
+  }
+
+  .profile-avatar:hover { transform: scale(1.03); }
+  .profile-avatar img { width: 100%; height: auto; display: block; }
+
+  .profile-avatar .fallback {
+    background: var(--bg);
+    color: var(--primary);
+    text-align: center;
+    padding: 60px 16px;
+  }
+
+  .profile-avatar .fallback .initials {
+    font-size: 3rem; font-weight: 900; display: block;
+  }
+
+  .profile-info h3 {
+    font-size: 1.4rem; font-weight: 800;
+    color: var(--dark); margin-bottom: 6px;
+  }
+
+  .profile-info .role {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .profile-info p {
+    font-size: 0.92rem;
+    color: var(--text-sub);
+    line-height: 2;
+  }
+
+  /* ===== MESSAGE (想い) ===== */
+  .message-section {
+    background: var(--white);
+    padding: 100px 24px;
+  }
+
+  .message-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .message-quote-mark {
+    position: absolute;
+    top: -20px; left: -10px;
+    font-size: 6rem;
+    font-family: Georgia, serif;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0.12;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .message-headline {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.7;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .message-headline .gradient-line {
+    display: block;
+    width: 40px; height: 3px;
+    background: var(--gradient-main);
+    border-radius: 2px;
+    margin-top: 16px;
+  }
+
+  .message-body p {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    line-height: 2.2;
+    margin-bottom: 20px;
+  }
+
+  .message-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .message-highlight {
+    display: inline-block;
+    background: linear-gradient(transparent 60%, rgba(99,102,241,0.12) 60%);
+    padding: 0 2px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .message-signature {
+    margin-top: 36px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .message-sig-line {
+    width: 32px; height: 1px;
+    background: var(--gradient-main);
+  }
+
+  .message-sig-name {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    letter-spacing: 0.05em;
+  }
+
+  /* ===== CTA SECTION ===== */
+  .cta-section {
+    background: var(--dark);
+    text-align: center;
+    padding: 140px 24px;
+    position: relative; overflow: hidden;
+  }
+
+  .cta-bg-shapes {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+
+  .cta-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.3;
+  }
+
+  .cta-shape-1 {
+    width: 400px; height: 400px;
+    background: rgba(99,102,241,0.3);
+    top: -20%; right: 10%;
+  }
+
+  .cta-shape-2 {
+    width: 300px; height: 300px;
+    background: rgba(236,72,153,0.2);
+    bottom: -20%; left: 10%;
+  }
+
+  .cta-inner {
+    position: relative; z-index: 1;
+    max-width: 640px; margin: 0 auto;
+  }
+
+  .cta-inner .section-label {
+    background: linear-gradient(135deg, #818cf8, #f9a8d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .cta-inner h2 {
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    font-weight: 900;
+    margin-bottom: 20px;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  .cta-inner p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 48px;
+    line-height: 1.9;
+  }
+
+  .cta-section .cta-button {
+    box-shadow: 0 8px 40px var(--cta-shadow);
+  }
+
+  .cta-section .cta-button:hover {
+    box-shadow: 0 12px 60px var(--cta-shadow-hover);
+  }
+
+  /* ===== DIVIDER ===== */
+  .section-divider {
+    height: 2px;
+    background: var(--gradient-main);
+    margin: 0 auto;
+    max-width: 200px;
+    transform: scaleX(0);
+    transition: transform 1s ease;
+    border-radius: 2px;
+  }
+
+  .section-divider.visible { transform: scaleX(1); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+  }
+
+
+  /* ===== FLOATING CTA ===== */
+  .floating-cta {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  }
+
+  .floating-cta.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .floating-cta .cta-button {
+    padding: 16px 44px;
+    font-size: 0.95rem;
+    box-shadow: 0 8px 32px var(--cta-shadow), 0 4px 16px rgba(0,0,0,0.1);
+    white-space: nowrap;
+  }
+
+  .floating-cta .cta-button:hover {
+    box-shadow: 0 12px 48px var(--cta-shadow-hover), 0 4px 20px rgba(0,0,0,0.15);
+  }
+
+  .floating-cta .floating-note {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  /* モバイル用改行制御 */
+  .sp-br { display: none; }
+  .pc-br { display: inline; }
+
+  @media (max-width: 768px) {
+    .sp-br { display: inline; }
+    .pc-br { display: none; }
+
+    section { padding: 80px 20px; }
+    .hero { min-height: calc(100dvh - 48px); padding: 80px 20px 20px; }
+    .hero h1 { font-size: 1.7rem; line-height: 1.4; }
+    .hero h1 br.pc-br { display: none; }
+    .hero-sub { font-size: 0.88rem; line-height: 1.9; margin-bottom: 36px; }
+
+    .cta-button {
+      padding: 17px 40px;
+      font-size: 0.95rem;
+      width: 100%;
+      justify-content: center;
+      max-width: 320px;
+    }
+
+    .scroll-indicator { padding-top: 20px; }
+    .scroll-indicator .scroll-line { height: 20px; }
+
+    /* セクション説明文：モバイルでは左寄せ */
+    .section-header { margin-bottom: 48px; }
+    .section-header .section-desc {
+      text-align: left;
+      font-size: 0.88rem;
+    }
+    .section-title { font-size: 1.35rem; line-height: 1.45; }
+    .section-title br { display: none; }
+
+    .problem-grid { grid-template-columns: 1fr; gap: 12px; }
+    .problem-card {
+      padding: 28px 24px; text-align: left;
+      display: flex; gap: 18px; align-items: flex-start;
+    }
+    .problem-icon { width: 48px; height: 48px; min-width: 48px; border-radius: 12px; margin: 0; }
+    .problem-icon svg { width: 22px; height: 22px; }
+    .problem-card h3 { font-size: 0.98rem; margin-bottom: 6px; }
+
+    .solution-layout { grid-template-columns: 1fr; gap: 36px; }
+    .solution-visual { order: -1; }
+    .chat-body { padding: 16px 12px 20px; min-height: 300px; }
+    .chat-msg { font-size: 0.78rem; padding: 10px 14px; max-width: 85%; }
+    .solution-text h2 { text-align: center; font-size: 1.25rem; }
+    .solution-text p { text-align: left; font-size: 0.88rem; }
+
+    .feature-grid { grid-template-columns: 1fr; gap: 12px; }
+    .feature-card { padding: 24px; display: flex; gap: 16px; align-items: flex-start; }
+    .feature-num { min-width: 36px; margin-bottom: 0; }
+
+    .steps { grid-template-columns: 1fr; gap: 24px; }
+    .steps-line { display: none; }
+    .step { display: flex; align-items: center; gap: 20px; text-align: left; }
+    .step-number { width: 56px; height: 56px; min-width: 56px; font-size: 1.3rem; margin: 0; }
+    .step p { margin: 0; max-width: none; }
+    .step p br { display: none; }
+
+    .benefit-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .benefit-card { padding: 24px 16px; }
+    .benefit-icon-wrap { width: 44px; height: 44px; border-radius: 12px; }
+    .benefit-icon-wrap svg { width: 20px; height: 20px; }
+    .benefit-card h3 { font-size: 0.9rem; }
+    .benefit-card p { font-size: 0.8rem; }
+
+    .numbers-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .number-item { padding: 24px 12px; }
+    .number-value { font-size: 2rem; }
+    .number-label { font-size: 0.76rem; }
+    .number-desc { font-size: 0.65rem; }
+
+    .faq-question { padding: 18px 20px; gap: 10px; }
+    .faq-q-text { font-size: 0.88rem; }
+    .faq-answer-inner { padding-left: 52px; padding-right: 20px; font-size: 0.84rem; }
+
+    .voice-card { flex: 0 0 280px; padding: 28px 22px; }
+    .voice-card:first-child { margin-left: 0; }
+    .voice-text { font-size: 0.84rem; min-height: 80px; }
+
+    .profile-layout { grid-template-columns: 1fr; text-align: center; padding: 32px 24px; gap: 24px; }
+    .profile-avatar { width: 200px; }
+    .profile-info p { text-align: left; font-size: 0.88rem; }
+
+    .message-section { padding: 72px 20px; }
+    .message-headline { font-size: 1.2rem; }
+    .message-body p { font-size: 0.9rem; line-height: 2.1; text-align: left; }
+    .message-quote-mark { font-size: 4rem; top: -14px; left: -4px; }
+
+    .cta-inner h2 { font-size: 1.35rem; }
+    .cta-inner h2 br, .cta-inner p br { display: none; }
+    .cta-inner p { font-size: 0.9rem; text-align: left; }
+
+    /* フローティングCTA モバイル対応 */
+    .floating-cta {
+      bottom: 16px;
+      width: calc(100% - 32px);
+    }
+    .floating-cta .cta-button {
+      width: 100%;
+      justify-content: center;
+      padding: 15px 32px;
+      font-size: 0.9rem;
+      max-width: none;
+    }
+    .floating-cta .floating-note {
+      font-size: 0.62rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 1.5rem; }
+    .benefit-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg-shapes">
+    <div class="hero-shape hero-shape-1"></div>
+    <div class="hero-shape hero-shape-2"></div>
+    <div class="hero-shape hero-shape-3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      AI ASSISTANT / 24H
+    </div>
+    <h1 id="heroTitle">不動産売却の<br><span class="hero-keyword">「知らなかった」</span>を<br><span class="gradient-text hero-keyword">ゼロにする。</span></h1>
+    <p class="hero-sub">
+      売却のプロの知識をAIに。<br>
+      いつでも・どこでも・何度でも。<br>
+      あなたの不動産売却を、もっと安心で有利に。
+    </p>
+    <div class="hero-cta-wrap">
+      <a href="https://muchinavi.com/?mode=sale" class="cta-button" target="_blank" rel="noopener" onclick="gtag('event','cta_click',{cta_location:'hero'})">
+        今すぐ無料で相談する
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <p class="hero-note">かんたんな質問に答えるだけ・3分で完了 / 営業連絡なし</p>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ===== NUMBERS (数字で見る実績) ===== -->
+<section class="numbers-section">
+  <div class="numbers-bg">
+    <div class="numbers-bg-shape"></div>
+    <div class="numbers-bg-shape"></div>
+  </div>
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Numbers</span>
+      <h2 class="section-title" style="color:#fff;">数字で見るMuchiNavi</h2>
+    </div>
+    <div class="numbers-grid">
+      <div class="number-item anim-up stagger-1">
+        <div class="number-value"><span class="count-up" data-target="150">0</span><span class="number-unit">件以上</span></div>
+        <div class="number-label">専門記事＋最新市場データ</div>
+        <div class="number-desc">売却費用・税制・手続きなど幅広く対応</div>
+      </div>
+      <div class="number-item anim-up stagger-2">
+        <div class="number-value"><span class="count-up" data-target="24">0</span><span class="number-unit">時間</span></div>
+        <div class="number-label">いつでも対応可能</div>
+        <div class="number-desc">深夜でも休日でも、思いついた時にすぐ相談</div>
+      </div>
+      <div class="number-item anim-up stagger-3">
+        <div class="number-value" style="font-size: clamp(1.4rem, 3.5vw, 2rem);"><span style="-webkit-text-fill-color: inherit;">毎週</span><span class="number-unit">更新</span></div>
+        <div class="number-label">売却相場・成約データを定期更新</div>
+        <div class="number-desc">プロが見ている最新情報をあなたにも</div>
+      </div>
+      <div class="number-item anim-up stagger-4">
+        <div class="number-value"><span class="count-up" data-target="3">0</span><span class="number-unit">分</span></div>
+        <div class="number-label">かんたん無料登録</div>
+        <div class="number-desc">面倒な入力は最小限、すぐ使えます</div>
+      </div>
+      <div class="number-item anim-up stagger-5">
+        <div class="number-value"><span class="count-up" data-target="0">0</span><span class="number-unit">円</span></div>
+        <div class="number-label">完全無料で利用</div>
+        <div class="number-desc">相談も情報提供も、費用は一切かかりません</div>
+      </div>
+      <div class="number-item anim-up stagger-6">
+        <div class="number-value" style="font-size: clamp(1.1rem, 2.8vw, 1.6rem); line-height: 1.3;"><span style="-webkit-text-fill-color: inherit;">関西全域</span><br><span style="-webkit-text-fill-color: inherit;">東京23区</span></div>
+        <div class="number-label">対応エリア（順次拡大中）</div>
+        <div class="number-desc">お住まいのエリアに合わせた情報をお届け</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROBLEM ===== -->
+<section class="soft-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Problem</span>
+      <h2 class="section-title">不動産売却、こんな不安は<br>ありませんか？</h2>
+      <p class="section-desc">人生最大の買い物なのに、分からないことだらけ。<br class="sp-br">でも、気軽に聞ける相手がいない...</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card anim-up stagger-1">
+        <div class="problem-icon problem-icon-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <h3>売却の流れがわからない</h3>
+          <p>査定？媒介契約？販売活動？不動産売却のステップが複雑すぎて、何から始めればいいのか分からない。</p>
+        </div>
+      </div>
+      <div class="problem-card anim-up stagger-2">
+        <div class="problem-icon problem-icon-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <h3>適正価格がわからない</h3>
+          <p>自分の物件がいくらで売れるのか見当がつかない。安く売って損をしたくない、でも高すぎると売れない。</p>
+        </div>
+      </div>
+      <div class="problem-card anim-up stagger-3">
+        <div class="problem-icon problem-icon-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <h3>販売活動がブラックボックスで不安</h3>
+          <p>不動産会社に任せたけど、ちゃんと営業してくれているか分からない。進捗が見えないのが不安。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== SOLUTION ===== -->
+<section class="white-section">
+  <div class="container">
+    <div class="solution-layout">
+      <div class="solution-visual anim-left" id="chatDemo">
+        <div class="demo-video-wrapper">
+          <video src="demo.mp4" autoplay muted loop playsinline preload="auto" class="demo-video"></video>
+        </div>
+      </div>
+      <div class="solution-text anim-right">
+        <span class="section-label">Solution</span>
+        <h2>MuchiNavi（ムチナビ）とは？</h2>
+        <p>150本以上の専門記事と現場の経験をAIに集約。<br class="sp-br">不動産売却に関するあなたの疑問に、<br class="sp-br">24時間いつでもお答えします。</p>
+        <p>プロが毎日チェックしている最新の金利・相場・制度情報をもとに、<br class="sp-br">あなたの状況に合わせた最適な回答をご提案。<br class="sp-br"><strong>"自分だけ知らなかった"をゼロに。</strong></p>
+        <ul class="solution-highlights">
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>24時間365日、いつでも相談OK</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>最新の売却相場・成約データに基づく信頼性の高い回答</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>あなたのエリア・予算に最適化された情報提供</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>必要に応じてプロへ直接相談も可能</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="soft-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Features</span>
+      <h2 class="section-title">MuchiNaviの主な機能</h2>
+      <p class="section-desc">不動産売却をトータルサポートする、<br class="sp-br">便利な機能をご用意しています。</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card anim-scale stagger-1">
+        <div class="feature-num">01</div>
+        <div>
+          <h3>売却の疑問にAIが即回答</h3>
+          <p>売却の流れ、費用、税金、媒介契約の違いなど、あらゆる疑問にAIが24時間即座に回答。何度聞いても無料です。</p>
+        </div>
+      </div>
+      <div class="feature-card anim-scale stagger-2">
+        <div class="feature-num">02</div>
+        <div>
+          <h3>売却相場をリアルタイムに参照</h3>
+          <p>あなたのエリアの最新成約事例・相場データをAIがリアルタイムに分析。適正価格の判断材料をお伝えします。</p>
+        </div>
+      </div>
+      <div class="feature-card anim-scale stagger-3">
+        <div class="feature-num">03</div>
+        <div>
+          <h3>プロに直接売却相談</h3>
+          <p>AIだけでは解決しない査定・戦略のご相談も安心。ワンタップでプロの不動産エージェント岡本に相談予約できます。</p>
+        </div>
+      </div>
+      <div class="feature-card anim-scale stagger-4">
+        <div class="feature-num">04</div>
+        <div>
+          <h3>TERASS Portalで活動を見える化</h3>
+          <p>販売活動のPV数・問合せ数・内覧予約数をリアルタイムで確認。ブラックボックスにならない透明な売却活動。</p>
+        </div>
+      </div>
+      <div class="feature-card anim-scale stagger-5">
+        <div class="feature-num">05</div>
+        <div>
+          <h3>スマホでかんたんアクセス</h3>
+          <p>PWA対応で、スマホのホーム画面に追加すればアプリのように。ダウンロード不要ですぐスタート。</p>
+        </div>
+      </div>
+      <div class="feature-card anim-scale stagger-6">
+        <div class="feature-num">06</div>
+        <div>
+          <h3>査定も相談も完全無料</h3>
+          <p>MuchiNaviの利用も、岡本の査定も完全無料。まずはAIに気軽に売却の疑問を聞いてみてください。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="white-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">How it works</span>
+      <h2 class="section-title">使い方はとてもシンプル</h2>
+      <p class="section-desc">たった3ステップで、あなた専用の売却アドバイザーに。</p>
+    </div>
+    <div class="steps">
+      <div class="steps-line"></div>
+      <div class="step anim-up stagger-1">
+        <div class="step-number"><span>1</span></div>
+        <div>
+          <h3>物件情報を入力</h3>
+          <p>かんたんな質問に答えるだけ。<br>3分で完了。<br>売却の準備が始まります。</p>
+        </div>
+      </div>
+      <div class="step anim-up stagger-2">
+        <div class="step-number"><span>2</span></div>
+        <div>
+          <h3>AIに質問</h3>
+          <p>不動産売却の気になること、<br>何でも聞いてください。<br>24時間すぐに回答します。</p>
+        </div>
+      </div>
+      <div class="step anim-up stagger-3">
+        <div class="step-number"><span>3</span></div>
+        <div>
+          <h3>岡本が無料査定</h3>
+          <p>プロの査定と売却戦略を<br>無料でご提案。<br>TERASS Portalで活動も見える化。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BENEFITS ===== -->
+<section class="soft-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Benefits</span>
+      <h2 class="section-title">MuchiNaviを使うメリット</h2>
+      <p class="section-desc">「お客様ファースト」を本気で追求する、<br class="sp-br">プロの知識が詰まっています。</p>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit-card anim-up stagger-1">
+        <div class="benefit-icon-wrap benefit-icon-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>24時間対応</h3>
+        <p>深夜でも早朝でも、思い立った時にすぐ相談できます。</p>
+      </div>
+      <div class="benefit-card anim-up stagger-2">
+        <div class="benefit-icon-wrap benefit-icon-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>査定根拠の透明性</h3>
+        <p>営業ノルマのない独立エージェントだからこそ中立な情報を提供。</p>
+      </div>
+      <div class="benefit-card anim-up stagger-3">
+        <div class="benefit-icon-wrap benefit-icon-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3>専門知識が身につく</h3>
+        <p>160以上の記事と連動し、不動産売却の知識が自然と身につきます。</p>
+      </div>
+      <div class="benefit-card anim-up stagger-4">
+        <div class="benefit-icon-wrap benefit-icon-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3>活動の完全見える化</h3>
+        <p>紹介ルートならではの割引や優秀な担当者マッチングを享受。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VOICE (お客様の声) ===== -->
+<section class="voice-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Voice</span>
+      <h2 class="section-title">ご利用者の声</h2>
+      <p class="section-desc">MuchiNaviをご利用いただいた方から、<br class="sp-br">うれしいお声をいただいています。</p>
+    </div>
+  </div>
+  <div class="voice-carousel-wrap">
+    <div class="voice-carousel">
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">MuchiNaviで基礎知識をつけてから岡本さんに相談したので、話がスムーズに進みました。最後まで一貫してサポートしてくださり、初めての購入でも不安なく引き渡しを迎えられました。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">T.S</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">T.S さん</div>
+            <div class="voice-author-detail">30代 / 初めてのマンション購入</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">共働きで時間がない中、深夜にMuchiNaviで疑問を解消して、週末に岡本さんとじっくり相談。夫婦で納得しながら進められたので、契約後も「本当にこれでよかったのかな」という不安が一切ありませんでした。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">M.K</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">M.K さん</div>
+            <div class="voice-author-detail">30代夫婦 / マンション購入</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">最初はAIに聞いて知識をつけて、わからないところは岡本さんに直接相談。営業トークゼロで、こちらのペースに合わせてくれたのが本当にありがたかったです。安心して購入を決められました。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">Y.H</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">Y.H さん</div>
+            <div class="voice-author-detail">20代 / 初めての戸建て購入</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">子供が寝た後にMuchiNaviで情報収集し、休日に岡本さんへ相談するスタイルが我が家にぴったりでした。査定から引き渡しまで一貫してサポートしていただき、子育て中でも安心して家を売却できました。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">A.N</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">A.N さん</div>
+            <div class="voice-author-detail">30代夫婦 / 戸建て購入</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">住み替えで不安だらけでしたが、MuchiNaviでローンや税制の疑問を解消しつつ、岡本さんには売却と購入のタイミングまで丁寧にアドバイスいただきました。最後まで寄り添ってもらえて、本当に心強かったです。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">R.T</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">R.T さん</div>
+            <div class="voice-author-detail">40代 / 住み替え</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">最初はAIに半信半疑でしたが、MuchiNaviの回答が的確で驚きました。岡本さんにも「AIで調べたんですが…」と気軽に相談でき、契約から入居まで一切不安を感じることなく進められました。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">K.M</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">K.M さん</div>
+            <div class="voice-author-detail">30代 / 中古マンション購入</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-quote-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+        </div>
+
+        <p class="voice-text">MuchiNaviで事前に勉強してから岡本さんに相談したので、話がスムーズに進みました。引き渡しまで何度も丁寧に対応してくださり、初めての家づくりでも不安なく新生活をスタートできました。</p>
+        <div class="voice-author">
+          <div class="voice-author-avatar">S.O</div>
+          <div class="voice-author-info">
+            <div class="voice-author-name">S.O さん</div>
+            <div class="voice-author-detail">30代 / 新築戸建て購入</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="voice-scroll-hint">
+      <span>スワイプで他の声を見る</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== PROFILE ===== -->
+<section class="white-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Developer</span>
+      <h2 class="section-title">開発者について</h2>
+    </div>
+    <div class="profile-layout anim-scale">
+      <div class="profile-avatar" id="profileAvatar">
+        <img src="https://muchinochi55.com/wp-content/uploads/2026/02/プロフ写真.png" alt="岡本岳大 ファミリー写真"
+             onerror="this.style.display='none'; document.getElementById('avatarFallback').style.display='flex';">
+        <div class="fallback" id="avatarFallback" style="display:none;">
+          <span class="initials">岡本</span>
+        </div>
+      </div>
+      <div class="profile-info">
+        <h3>岡本 岳大（おかもと たけひろ）</h3>
+        <div class="role">TERASS エージェント / むちのちブログ運営者 / MuchiNavi 開発者</div>
+        <p>
+          不動産仲介のプロフェッショナルとして、TERASSで個人エージェントとして活動。会社のノルマや規則に縛られない立場だからこそ実現できる「本当の意味でのお客様ファースト」をモットーに、不動産売却を検討される方が「ずっと幸せでいられる」お手伝いをしています。
+        </p>
+        <p style="margin-top:12px;">
+          自身の知識と経験をより多くの方に届けるため、AIを活用した不動産売却サポートシステム「MuchiNavi」を開発しました。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MESSAGE (想い) ===== -->
+<section class="message-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">Message</span>
+      <h2 class="section-title">このツールに込めた想い</h2>
+    </div>
+    <div class="message-inner anim-up">
+      <div class="message-quote-mark">"</div>
+      <div class="message-headline">
+        100人いれば、<br class="sp-br">100通りの「幸せの形」がある。
+        <span class="gradient-line"></span>
+      </div>
+      <div class="message-body">
+        <p>
+          不動産売却に正解はありません。<br class="sp-br">お客様一人ひとりにペースがあり、<br class="sp-br">知りたいタイミングも、不安に感じるポイントも<br class="sp-br">すべて違います。
+        </p>
+        <p>
+          だからこそ、<span class="message-highlight">いつでも・何度でも・自分のペースで</span>知識を深められる場所が必要だと感じ、MuchiNaviを開発しました。
+        </p>
+        <p>
+          昨今、こうしたAIツールは有料でサービス展開されることが増えています。<br>
+          しかし私は、<span class="message-highlight">仲介手数料というご成約時の報酬以外で対価はいただかない</span>と決めています。<br class="sp-br">いくら使っても、ご相談いただいても、<br class="sp-br">最終的なご成約時の仲介手数料以外は<br class="sp-br">すべてゼロ円です。
+        </p>
+        <p>
+          私自身が開発したツールだからこそ実現できること。<br class="sp-br">そしてそれは、お客様にとって本当に良い形は何かを<br class="sp-br">追求した結果でもあります。
+        </p>
+        <p>
+          このツールと私のサポートが、<br class="sp-br">お客様が納得して<span class="message-highlight">「自分だけの幸せの形」</span>を<br class="sp-br">見つけるお手伝いになれば。<br>
+          心からそう願っています。
+        </p>
+      </div>
+      <div class="message-signature">
+        <div class="message-sig-line"></div>
+        <div class="message-sig-name">岡本 岳大 ── MuchiNavi 開発者</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== FAQ ===== -->
+<section class="soft-section">
+  <div class="container">
+    <div class="section-header anim-up">
+      <span class="section-label">FAQ</span>
+      <h2 class="section-title">よくある質問</h2>
+      <p class="section-desc">MuchiNaviに関して、<br class="sp-br">よくいただくご質問をまとめました。</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item anim-up stagger-1">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <div class="faq-q-badge">Q</div>
+          <div class="faq-q-text">本当に無料で使えますか？</div>
+          <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">はい、完全無料です。開発者である岡本自身が「仲介手数料以外の対価はいただかない」と決めており、AIチャット相談・ブログ記事のレコメンドなど、すべての機能をいくらでも無料でお使いいただけます。最終的にご成約いただいた際の仲介手数料以外は一切かかりません。</div>
+        </div>
+      </div>
+      <div class="faq-item anim-up stagger-2">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <div class="faq-q-badge">Q</div>
+          <div class="faq-q-text">登録したら営業の連絡が来ますか？</div>
+          <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">いいえ、営業の連絡はいたしません。MuchiNaviはあくまで情報提供ツールです。プロへの相談はご自身が希望された場合のみご案内します。安心してご利用ください。</div>
+        </div>
+      </div>
+      <div class="faq-item anim-up stagger-3">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <div class="faq-q-badge">Q</div>
+          <div class="faq-q-text">AIの回答は信頼できますか？</div>
+          <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">MuchiNaviのAIは、不動産仲介のプロである岡本岳大が執筆した160件以上の専門記事に加え、最新の売却相場・成約データをもとに回答します。一般的なAIと異なり、専門家の知見と最新の市場情報に基づいた、あなたのエリア・予算に最適化された信頼性の高い情報をお届けします。</div>
+        </div>
+      </div>
+      <div class="faq-item anim-up stagger-4">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <div class="faq-q-badge">Q</div>
+          <div class="faq-q-text">個人情報は安全ですか？</div>
+          <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">登録に必要なのはメールアドレスのみです。お預かりした個人情報は適切に管理し、第三者への提供は一切行いません。</div>
+        </div>
+      </div>
+      <div class="faq-item anim-up stagger-5">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <div class="faq-q-badge">Q</div>
+          <div class="faq-q-text">どんな質問ができますか？</div>
+          <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">不動産売却に関することなら何でもお気軽にどうぞ。媒介契約の選び方、売却戦略のポイント、契約時の注意点、諸費用の目安、購入の流れなど、幅広くお答えします。</div>
+        </div>
+      </div>
+      <div class="faq-item anim-up stagger-6">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <div class="faq-q-badge">Q</div>
+          <div class="faq-q-text">スマホでも使えますか？</div>
+          <div class="faq-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">はい、スマホに最適化されています。PWA対応なので、ホーム画面に追加すればアプリのようにお使いいただけます。もちろんPCやタブレットからもご利用可能です。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-bg-shapes">
+    <div class="cta-shape cta-shape-1"></div>
+    <div class="cta-shape cta-shape-2"></div>
+  </div>
+  <div class="cta-inner anim-up">
+    <span class="section-label">Get Started</span>
+    <h2>不動産売却の不安、<br class="pc-br">今すぐ解消しませんか？</h2>
+    <p>無料登録で、あなた専用の売却AIアドバイザーが<br class="pc-br">24時間サポートします。</p>
+    <a href="https://muchinavi.com/?mode=sale" class="cta-button" target="_blank" rel="noopener" onclick="gtag('event','cta_click',{cta_location:'mid_section'})">
+      今すぐ無料で相談する
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <p style="margin-top:16px; font-size:0.78rem; color:rgba(255,255,255,0.4); margin-bottom:0;">かんたんな質問に答えるだけ・3分で完了 / 営業連絡は一切なし</p>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2026 MuchiNavi by 岡本岳大（TERASS）</p>
+</footer>
+
+<script>
+  // ===== 文字1文字ずつアニメーション =====
+  (function() {
+    var title = document.getElementById('heroTitle');
+    if (!title) return;
+    var html = title.innerHTML;
+    var result = '';
+    var charIndex = 0;
+    var inTag = false;
+
+    for (var i = 0; i < html.length; i++) {
+      if (html[i] === '<') { inTag = true; result += html[i]; continue; }
+      if (html[i] === '>') { inTag = false; result += html[i]; continue; }
+      if (inTag) { result += html[i]; continue; }
+      if (html[i] === ' ' || html[i] === '\n') { result += html[i]; continue; }
+      var delay = 0.6 + charIndex * 0.04;
+      result += '<span class="char" style="animation-delay:' + delay + 's">' + html[i] + '</span>';
+      charIndex++;
+    }
+    title.innerHTML = result;
+  })();
+
+  // ===== スクロールアニメーション =====
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.anim-up, .anim-left, .anim-right, .anim-scale, .section-divider, .steps-line, .solution-text').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ===== チャットデモ：テンポよく順番に表示 =====
+  var chatDemo = document.getElementById('chatDemo');
+  var chatAnimated = false;
+
+  var chatObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !chatAnimated) {
+        chatAnimated = true;
+        entry.target.classList.add('visible');
+        runChatSequence();
+      }
+    });
+  }, { threshold: 0.2 });
+
+  if (chatDemo) chatObserver.observe(chatDemo);
+
+  function runChatSequence() {
+    // タイムライン: [delay_ms, step_number, action]
+    // action: "show" = 表示, "hide" = 非表示（タイピング用）
+    var timeline = [
+      [300,   0, 'show'],   // タイムスタンプ
+      [700,   1, 'show'],   // ユーザー: 事前審査の質問
+      [1200,  2, 'show'],   // タイピングインジケーター表示
+      [2200,  2, 'hide'],   // タイピング消える
+      [2300,  3, 'show'],   // AI: 回答
+      [3400,  4, 'show'],   // ユーザー: もっと詳しく
+      [3900,  5, 'show'],   // タイピングインジケーター
+      [4800,  5, 'hide'],   // タイピング消える
+      [4900,  6, 'show'],   // AI: 相談案内
+    ];
+
+    timeline.forEach(function(item) {
+      var delay = item[0];
+      var step = item[1];
+      var action = item[2];
+
+      setTimeout(function() {
+        var el = chatDemo.querySelector('[data-step="' + step + '"]');
+        if (!el) return;
+
+        if (action === 'show') {
+          el.style.transition = 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0) scale(1)';
+        } else if (action === 'hide') {
+          el.style.transition = 'opacity 0.25s ease, transform 0.3s ease';
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-5px) scale(0.95)';
+          // 完全に消す
+          setTimeout(function() {
+            el.style.height = '0';
+            el.style.margin = '0';
+            el.style.padding = '0';
+            el.style.overflow = 'hidden';
+            el.style.transition = 'height 0.3s ease, margin 0.3s ease, padding 0.3s ease';
+          }, 250);
+        }
+      }, delay);
+    });
+  }
+
+  // ===== カウントアップアニメーション =====
+  var countObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var counters = entry.target.querySelectorAll('.count-up');
+        counters.forEach(function(counter) {
+          if (counter.dataset.done) return;
+          counter.dataset.done = '1';
+          var target = parseInt(counter.dataset.target);
+          var duration = 1800;
+          var start = performance.now();
+
+          function update(now) {
+            var elapsed = now - start;
+            var progress = Math.min(elapsed / duration, 1);
+            // easeOutExpo
+            var ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+            counter.textContent = Math.floor(ease * target);
+            if (progress < 1) requestAnimationFrame(update);
+          }
+          requestAnimationFrame(update);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  var numbersSection = document.querySelector('.numbers-grid');
+  if (numbersSection) countObserver.observe(numbersSection);
+
+  // ===== FAQアコーディオン =====
+  window.toggleFaq = function(el) {
+    var item = el.parentElement;
+    var isOpen = item.classList.contains('open');
+    // 他を閉じる
+    document.querySelectorAll('.faq-item.open').forEach(function(i) {
+      i.classList.remove('open');
+    });
+    if (!isOpen) item.classList.add('open');
+  };
+
+  // ===== パララックス的なスクロール効果 =====
+  var shapes = document.querySelectorAll('.hero-shape');
+  window.addEventListener('scroll', function() {
+    var scrollY = window.scrollY;
+    shapes.forEach(function(shape, i) {
+      var speed = 0.05 + i * 0.03;
+      shape.style.transform = 'translate(' + (Math.sin(scrollY * 0.002 + i) * 20) + 'px, ' + (scrollY * speed) + 'px)';
+    });
+  }, { passive: true });
+
+  // ===== フローティングCTA =====
+  var floatingCta = document.getElementById('floatingCta');
+  var heroSection = document.querySelector('.hero');
+  var ctaSection = document.querySelector('.cta-section');
+
+  function updateFloatingCta() {
+    if (!floatingCta || !heroSection) return;
+    var heroBottom = heroSection.getBoundingClientRect().bottom;
+    var ctaTop = ctaSection ? ctaSection.getBoundingClientRect().top : Infinity;
+    var windowHeight = window.innerHeight;
+
+    // Show after scrolling past hero, hide when bottom CTA section is visible
+    if (heroBottom < 0 && ctaTop > windowHeight) {
+      floatingCta.classList.add('visible');
+    } else {
+      floatingCta.classList.remove('visible');
+    }
+  }
+
+  window.addEventListener('scroll', updateFloatingCta, { passive: true });
+  updateFloatingCta();
+
+</script>
+
+
+<!-- ===== FLOATING CTA ===== -->
+<div class="floating-cta" id="floatingCta">
+  <a href="https://muchinavi.com/?mode=sale" class="cta-button" target="_blank" rel="noopener" onclick="gtag('event','cta_click',{cta_location:'floating'})">
+    今すぐ無料で相談する
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </a>
+  <div class="floating-note">登録無料・営業連絡なし</div>
+</div>
+
+</body>
+</html>
