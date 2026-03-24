@@ -373,6 +373,16 @@
       gap: 12px;
       margin-bottom: 8px;
     }
+    /* マルチ選択 */
+    .multi-choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .multi-choice-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s; font-size: 14px; color: var(--primary); user-select: none; }
+    .multi-choice-item:hover { border-color: var(--accent); background: rgba(0,113,227,0.03); }
+    .multi-choice-item.checked { border-color: var(--accent); background: rgba(0,113,227,0.06); }
+    .multi-check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent; transition: all 0.15s; flex-shrink: 0; }
+    .multi-check-box.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .multi-other-input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; margin-top: 4px; outline: none; }
+    .multi-other-input:focus { border-color: var(--accent); }
+
     .choice-card {
       padding: 20px 16px;
       border: 2px solid var(--border);
@@ -3661,26 +3671,75 @@
         response: (val) => `なるほど、承知しました！`,
       },
       {
-        type: 'textarea',
+        type: 'multi_choice',
         key: 'searchReason',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
         title: '{name}さんが住まいを探している\n理由を教えてください',
-        subtitle: '詳しく書いていただくほど、的確なサポートができます',
-        placeholder: '例: 子どもが小学校に上がるタイミングで、学区の良いエリアに引っ越したい',
-        required: true,
-        response: (val) => `詳しくありがとうございます！`,
+        subtitle: '複数選択できます',
+        hasOther: true,
+        choices: [
+          { label: '🏠 家賃がもったいない', value: '家賃がもったいない' },
+          { label: '👶 子どもの成長・教育環境', value: '子どもの成長・教育環境' },
+          { label: '💍 結婚・同棲を機に', value: '結婚・同棲を機に' },
+          { label: '📐 広い家に住みたい', value: '広い家に住みたい' },
+          { label: '💰 資産として持ちたい', value: '資産として持ちたい' },
+          { label: '📉 金利が低い今のうちに', value: '金利が低い今のうちに' },
+          { label: '🏡 老後の住まいを確保したい', value: '老後の住まいを確保したい' },
+          { label: '🚃 転勤・転職に伴い', value: '転勤・転職に伴い' },
+          { label: '👨‍👩‍👧 親との同居・二世帯', value: '親との同居・二世帯' },
+        ],
+        response: (val) => `ありがとうございます！`,
       },
       {
-        type: 'text',
-        key: 'area',
+        type: 'multi_choice',
+        key: 'areaPref',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        title: 'どのあたりに住みたいですか？',
-        subtitle: 'まだ決まっていなくても大丈夫です',
-        placeholder: '例: 世田谷区、横浜市',
+        title: '検討中のエリアは？',
+        subtitle: '複数選択できます',
+        hasOther: false,
+        choices: [
+          { label: '🏙️ 大阪府', value: '大阪府' },
+          { label: '⛩️ 兵庫県', value: '兵庫県' },
+          { label: '🏯 京都府', value: '京都府' },
+          { label: '🦌 奈良県', value: '奈良県' },
+          { label: '🗼 東京都', value: '東京都' },
+          { label: '🌊 神奈川県', value: '神奈川県' },
+        ],
         skipText: 'まだ決まっていない',
         skipValue: '未定（一緒に探したい）',
         skipResponse: '大丈夫です！一緒に探しましょう',
-        response: (val) => `${val}エリアですね、素敵な場所ですね！`,
+        response: (val) => `${val}エリアですね！`,
+        onNext: (val) => { customerData._areaPrefTemp = val; }
+      },
+      {
+        type: 'multi_choice',
+        key: 'area',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        title: 'もう少し詳しく教えてください',
+        subtitle: '気になる市区を選んでください（複数可）',
+        hasOther: true,
+        dynamicChoices: true,
+        getChoices: () => {
+          const prefs = (customerData.areaPref || '').split('、');
+          const areaMap = {
+            '大阪府': ['大阪市北区','大阪市中央区','大阪市天王寺区','大阪市阿倍野区','大阪市西区','大阪市福島区','大阪市都島区','大阪市城東区','大阪市鶴見区','大阪市東淀川区','豊中市','吹田市','箕面市','池田市','茨木市','高槻市','堺市','東大阪市','枚方市','八尾市'],
+            '兵庫県': ['西宮市','芦屋市','宝塚市','尼崎市','伊丹市','川西市','神戸市東灘区','神戸市灘区','神戸市中央区','三田市'],
+            '京都府': ['京都市左京区','京都市中京区','京都市上京区','京都市北区','京都市下京区','京都市右京区','京都市山科区','京都市伏見区','長岡京市','向日市'],
+            '奈良県': ['奈良市','生駒市','大和郡山市','橿原市','香芝市','天理市','大和高田市','桜井市','御所市','葛城市'],
+            '東京都': ['千代田区','中央区','港区','新宿区','文京区','台東区','墨田区','江東区','品川区','目黒区','大田区','世田谷区','渋谷区','中野区','杉並区','豊島区','北区','荒川区','板橋区','練馬区','足立区','葛飾区','江戸川区'],
+            '神奈川県': ['横浜市西区','横浜市中区','横浜市神奈川区','横浜市鶴見区','横浜市港北区','横浜市都筑区','横浜市青葉区','横浜市緑区','横浜市南区','横浜市磯子区','横浜市金沢区','横浜市戸塚区','横浜市栄区','横浜市泉区','横浜市瀬谷区','横浜市旭区','横浜市保土ケ谷区','横浜市港南区'],
+          };
+          let choices = [];
+          prefs.forEach(p => {
+            const cities = areaMap[p.trim()];
+            if (cities) choices = choices.concat(cities.map(c => ({ label: `📍 ${c}`, value: c })));
+          });
+          return choices.length > 0 ? choices : [{ label: '📍 エリア未定', value: 'エリア未定' }];
+        },
+        skipText: '細かいエリアはまだ決まっていない',
+        skipValue: '',
+        skipResponse: '大丈夫です！面談で一緒に絞りましょう',
+        response: (val) => `了解です！`,
       },
       {
         type: 'slider',
@@ -3768,9 +3827,17 @@
           response: (val) => `築${val}ですね！`,
         });
         steps.push({
-          type: 'text', key: 'saleFloorDirection', icon: SALE_ICON.mansion,
-          title: '階数と方角を教えてください', subtitle: '任意ですが査定精度が上がります',
-          placeholder: '例: 3階 南向き', required: false,
+          type: 'multi_choice', key: 'saleFloorDirection', icon: SALE_ICON.mansion,
+          title: '方角を教えてください', subtitle: '任意ですが査定精度が上がります',
+          hasOther: false,
+          choices: [
+            { label: '☀️ 南向き', value: '南向き' },
+            { label: '🌅 東向き', value: '東向き' },
+            { label: '🌇 西向き', value: '西向き' },
+            { label: '🌙 北向き', value: '北向き' },
+            { label: '↗️ 南東向き', value: '南東向き' },
+            { label: '↘️ 南西向き', value: '南西向き' },
+          ],
           skipText: 'わからない・スキップ', skipValue: '', skipResponse: '了解です！',
           response: (val) => `ありがとうございます！`,
         });
@@ -3821,10 +3888,15 @@
           response: (val) => `${val}ですね！`,
         });
         steps.push({
-          type: 'text', key: 'saleRoadAccess', icon: SALE_ICON.pin,
+          type: 'choice', key: 'saleRoadAccess', icon: SALE_ICON.pin,
           title: '接道状況を教えてください', subtitle: '任意ですが査定精度が上がります',
-          placeholder: '例: 南側6m公道に接道 / 旗竿地', required: false,
-          skipText: 'わからない・スキップ', skipValue: '', skipResponse: '了解です！',
+          choices: [
+            { icon: '', label: '公道に接道', value: '公道に接道' },
+            { icon: '', label: '私道に接道', value: '私道に接道' },
+            { icon: '', label: '旗竿地（路地状敷地）', value: '旗竿地' },
+            { icon: '', label: 'わからない', value: '不明' },
+          ],
+          skipText: 'スキップ', skipValue: '', skipResponse: '了解です！',
           response: (val) => `ありがとうございます！`,
         });
 
@@ -3864,33 +3936,31 @@
         response: (val) => `了解です！最適な売却プランを考えましょう`,
       });
 
-      // 共通: 売却理由
+      // 共通: 売却理由（複数選択式）
       steps.push({
-        type: 'textarea', key: 'saleReason', icon: SALE_ICON.edit,
+        type: 'multi_choice', key: 'saleReason', icon: SALE_ICON.edit,
         title: '{name}さんが売却を考えている\n理由を教えてください',
-        subtitle: '詳しく書いていただくほど、的確なサポートができます',
-        placeholder: '例: 住み替えのため、相続した物件を売りたい、転勤で引っ越すため',
-        required: true, response: (val) => `詳しくありがとうございます！`,
+        subtitle: '複数選択できます',
+        hasOther: true,
+        choices: [
+          { label: '🏠 住み替えのため', value: '住み替えのため' },
+          { label: '📜 相続した物件を整理', value: '相続した物件を整理' },
+          { label: '🚃 転勤・転職に伴い', value: '転勤・転職に伴い' },
+          { label: '💰 資金が必要になった', value: '資金が必要になった' },
+          { label: '💔 離婚に伴い', value: '離婚に伴い' },
+          { label: '📈 今が売り時だと思う', value: '今が売り時だと思う' },
+          { label: '🏦 ローン返済が厳しい', value: 'ローン返済が厳しい' },
+          { label: '🏡 老後の住み替え', value: '老後の住み替え' },
+          { label: '🏚️ 使わない不動産を処分', value: '使わない不動産を処分' },
+        ],
+        response: (val) => `ありがとうございます！`,
       });
 
       return steps;
     }
 
-    // 共通の終了ステップ
+    // 共通の終了ステップ（自由コメントは削除：理由の「その他」で自由記載可能＋詳細は面談で）
     const commonStepsEnd = [
-      {
-        type: 'textarea',
-        key: 'freeComment',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-        title: '最後に、何か気になることや\nご要望があればお聞かせください',
-        subtitle: '何でもOKです！空白のまま進むこともできます',
-        placeholder: '例: 駅近がいい、ペット可の物件が希望、予算内で最大限の広さがほしい…など',
-        required: false,
-        skipText: '特にないので次へ',
-        skipValue: '',
-        skipResponse: '了解です！',
-        response: (val) => `ありがとうございます！しっかり参考にさせていただきます`,
-      },
       {
         type: 'contact',
         key: 'contact',
@@ -4017,6 +4087,33 @@
         html += `<div id="sub-question-area"></div>`;
         const btnShowClass = selectedChoiceValue !== null ? 'show' : '';
         html += `<button class="next-choice-btn ${btnShowClass}" id="next-choice-btn" onclick="submitChoiceStep()">次へ →</button>`;
+        html += `<div class="step-response" id="step-response"></div>`;
+      }
+      else if (step.type === 'multi_choice') {
+        const saved = multiChoiceSelected || [];
+        const choices = step.dynamicChoices ? step.getChoices() : step.choices;
+        html += `<div class="multi-choices" id="multi-choices" style="max-height:350px;overflow-y:auto;">`;
+        choices.forEach((c, i) => {
+          const checked = saved.includes(c.value);
+          html += `<label class="multi-choice-item ${checked ? 'checked' : ''}" onclick="toggleMultiChoice(${i}, '${c.value.replace(/'/g, "\\'")}', this)">
+            <div class="multi-check-box ${checked ? 'on' : ''}">✓</div>
+            <span>${c.label}</span>
+          </label>`;
+        });
+        if (step.hasOther) {
+          const otherChecked = saved.includes('__other__');
+          html += `<label class="multi-choice-item other ${otherChecked ? 'checked' : ''}" onclick="toggleMultiOther(this)">
+            <div class="multi-check-box ${otherChecked ? 'on' : ''}">✓</div>
+            <span>その他</span>
+          </label>`;
+          html += `<input type="text" class="multi-other-input" id="multi-other-input" placeholder="具体的に教えてください" style="display:${otherChecked ? 'block' : 'none'};" value="${multiOtherText || ''}">`;
+        }
+        html += `</div>`;
+        if (step.skipText) {
+          html += `<button class="skip-btn" onclick="nextStep('${step.skipValue || ''}')">${step.skipText}</button>`;
+        }
+        const hasSelection = saved.length > 0;
+        html += `<button class="next-choice-btn ${hasSelection ? 'show' : ''}" id="next-multi-btn" onclick="submitMultiChoice()">次へ →</button>`;
         html += `<div class="step-response" id="step-response"></div>`;
       }
       else if (step.type === 'birthdate') {
@@ -4270,6 +4367,47 @@
         currentStep++;
         renderStep(currentStep);
       }, 1200);
+    }
+
+    // ===== マルチ選択 =====
+    let multiChoiceSelected = [];
+    let multiOtherText = '';
+
+    function toggleMultiChoice(idx, value, el) {
+      const i = multiChoiceSelected.indexOf(value);
+      if (i >= 0) { multiChoiceSelected.splice(i, 1); el.classList.remove('checked'); el.querySelector('.multi-check-box').classList.remove('on'); }
+      else { multiChoiceSelected.push(value); el.classList.add('checked'); el.querySelector('.multi-check-box').classList.add('on'); }
+      const btn = document.getElementById('next-multi-btn');
+      if (btn) btn.classList.toggle('show', multiChoiceSelected.length > 0 || multiOtherText);
+    }
+
+    function toggleMultiOther(el) {
+      const hasOther = multiChoiceSelected.includes('__other__');
+      if (hasOther) {
+        multiChoiceSelected = multiChoiceSelected.filter(v => v !== '__other__');
+        el.classList.remove('checked'); el.querySelector('.multi-check-box').classList.remove('on');
+        const inp = document.getElementById('multi-other-input');
+        if (inp) inp.style.display = 'none';
+      } else {
+        multiChoiceSelected.push('__other__');
+        el.classList.add('checked'); el.querySelector('.multi-check-box').classList.add('on');
+        const inp = document.getElementById('multi-other-input');
+        if (inp) { inp.style.display = 'block'; inp.focus(); }
+      }
+      const btn = document.getElementById('next-multi-btn');
+      if (btn) btn.classList.toggle('show', multiChoiceSelected.length > 0);
+    }
+
+    function submitMultiChoice() {
+      const otherInput = document.getElementById('multi-other-input');
+      multiOtherText = otherInput ? otherInput.value.trim() : '';
+      let values = multiChoiceSelected.filter(v => v !== '__other__');
+      if (multiOtherText) values.push(multiOtherText);
+      if (values.length === 0) return;
+      const result = values.join('、');
+      multiChoiceSelected = [];
+      multiOtherText = '';
+      nextStep(result);
     }
 
     function selectChoice(idx, value, hasSub) {
