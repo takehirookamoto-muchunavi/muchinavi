@@ -102,7 +102,7 @@ const PERPLEXITY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間
  * @param {string} message - 顧客のメッセージ
  * @returns {string|null} - 検索クエリ（不要ならnull）
  */
-function detectRealtimeInfoNeed(message, customerType) {
+function detectRealtimeInfoNeed(message, customerType, customerArea) {
   // ===== 購入・共通パターン =====
   const commonPatterns = [
     { keywords: ['金利', '利率', '利息', '変動金利', '固定金利', 'フラット35'], query: '2026年 住宅ローン 変動金利 固定金利 主要銀行別 適用金利 auじぶん銀行 住信SBI PayPay銀行 三菱UFJ フラット35 最新' },
@@ -163,11 +163,11 @@ function detectRealtimeInfoNeed(message, customerType) {
       if (p.query) return p.query;
       // 相場系: エリア名を含める
       const areaMatch = msg.match(/(大阪|東京|名古屋|横浜|神戸|京都|北摂|吹田|豊中|箕面|尼崎|西宮|芦屋|梅田|難波|天王寺|世田谷|渋谷|品川|目黒|港区|新宿|中央区|千代田|杉並|練馬|板橋|中野|文京|江東|墨田|台東|足立|葛飾|江戸川|北区|荒川|豊島|川崎|さいたま|千葉|埼玉|相模原|藤沢|鎌倉|武蔵野|三鷹|調布|町田|八王子|福岡|札幌|仙台|広島|川口|越谷|所沢|市川|船橋|柏|浦安)/);
-      const area = areaMatch ? areaMatch[1] : '';
+      const area = areaMatch ? areaMatch[1] : (customerArea || '');
       if (isSale) {
-        return `2026年 ${area || '東京'} 不動産 売却 相場 成約価格 坪単価 最新`;
+        return `2026年 ${area || '大阪'} 不動産 売却 相場 成約価格 坪単価 最新`;
       }
-      return `2026年 ${area || '東京'} 不動産 マンション 戸建て 価格 相場 最新`;
+      return `2026年 ${area || '大阪'} 不動産 マンション 戸建て 価格 相場 最新`;
     }
   }
 
@@ -816,7 +816,7 @@ app.post('/api/register', async (req, res) => {
   // Determine initial stage based on profile completeness
   const profileFields = customer.customerType === 'sale'
     ? ['name','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','email','phone']
-    : ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
+    : ['name','birthYear','family','householdIncome','propertyType','areaPref','area','budget','email','phone'];
   const filled = profileFields.filter(f => customer[f] && customer[f] !== '' && customer[f] !== '-' && customer[f] !== '未入力').length;
   const initialStage = (filled >= Math.ceil(profileFields.length * 0.7)) ? 2 : 1;
 
@@ -1317,7 +1317,7 @@ app.get('/api/customer/profile/:token', (req, res) => {
 
   // Return all editable fields
   const profile = {};
-  const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line','customerType','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','saleReason','saleFloorDirection','saleOldHouse','saleRoadAccess'];
+  const fields = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','areaPref','area','budget','freeComment','email','phone','line','customerType','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','saleReason','saleFloorDirection','saleOldHouse','saleRoadAccess'];
   fields.forEach(k => { profile[k] = record[k] || ''; });
   profile.stage = record.stage || 1;
   // カルテ用: エージェントからのアドバイス（お客様向け公開メモ）
@@ -1358,7 +1358,7 @@ app.put('/api/customer/profile/:token', (req, res) => {
   if (!record.stage || record.stage < 2) {
     const profileFields = (record.customerType === 'sale')
       ? ['name','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','email','phone']
-      : ['name','birthYear','prefecture','family','householdIncome','propertyType','area','budget','email','phone'];
+      : ['name','birthYear','family','householdIncome','propertyType','areaPref','area','budget','email','phone'];
     const filled = profileFields.filter(f => record[f] && record[f] !== '' && record[f] !== '-' && record[f] !== '未入力').length;
     if (filled >= Math.ceil(profileFields.length * 0.7)) {
       record.stage = 2;
@@ -2009,7 +2009,8 @@ app.post('/api/chat', async (req, res) => {
 物件種別: ${customer.propertyType || '未入力'}
 登録目的: ${customer.purpose || '未入力'}
 探索理由: ${customer.searchReason || '未入力'}
-希望エリア: ${customer.area || '未入力'}
+希望エリア（都道府県）: ${customer.areaPref || '未入力'}
+希望エリア（市区町村）: ${customer.area || '未入力'}
 予算: ${customer.budget || '未入力'}
 フリーコメント: ${customer.freeComment || ''}
 メール: ${customer.email || '未入力'}
@@ -2963,7 +2964,8 @@ ${manualNotes}
 
     // Perplexity APIで最新情報を補完 + ハルシネーション防止（必要な場合のみ）
     let enrichedMessage = lastMessage;
-    const perplexityQuery = detectRealtimeInfoNeed(lastMessage, customerType);
+    const customerArea = customer.area || customer.areaPref || customer.salePropertyLocation || '';
+    const perplexityQuery = detectRealtimeInfoNeed(lastMessage, customerType, customerArea);
     if (perplexityQuery) {
       const latestInfo = await searchPerplexity(perplexityQuery);
       if (latestInfo) {
