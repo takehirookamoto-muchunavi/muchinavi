@@ -5384,16 +5384,20 @@
                     return;
             }
 
+            // トークンをクロージャでキャプチャ（コールバック実行時にdraggedTokenはnullになっているため）
+            const capturedToken = draggedToken;
+            const capturedTags = [...(customer.tags || [])];
+
             showConfirmModal('顧客移動', confirmMsg, '移動する', async () => {
                 try {
-                    await api.updateCustomer(draggedToken, updateData);
+                    await api.updateCustomer(capturedToken, updateData);
 
                     // タグの自動付与・削除
                     if (tagAction) {
-                        let tags = [...(customer.tags || [])];
+                        let tags = [...capturedTags];
                         if (tagAction.add && !tags.includes(tagAction.add)) tags.push(tagAction.add);
                         if (tagAction.remove) tags = tags.filter(t => t !== tagAction.remove);
-                        await api.updateCustomerTags(draggedToken, tags);
+                        await api.updateCustomerTags(capturedToken, tags);
                     }
 
                     showToast('移動しました', 'success');
