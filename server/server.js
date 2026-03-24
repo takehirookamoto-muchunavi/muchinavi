@@ -3491,7 +3491,7 @@ app.put('/api/admin/customer/:token', adminAuth, (req, res) => {
   const record = db[req.params.token];
   if (!record) return res.status(404).json({ error: 'お客様が見つかりません' });
 
-  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice','hmMode','hmPartnerId','hmPartnerName','hmReferredAt','hmContactId','hmContactName','hmContactEmail','hmContactPhone','accountType'];
+  const updatable = ['name','birthYear','birthMonth','age','prefecture','family','householdIncome','currentHome','reason','searchReason','area','budget','freeComment','propertyType','purpose','size','layout','stationDistance','occupation','income','savings','loanStatus','motivation','timeline','email','phone','line','referral','spouseOccupation','spouseIncome','currentRent','pet','parking','specialRequirements','memo','stage','agentMemo','customerAdvice','hmMode','hmPartnerId','hmPartnerName','hmReferredAt','hmContactId','hmContactName','hmContactEmail','hmContactPhone','accountType','customerType'];
   const updates = req.body;
 
   // Track old values for auto-tag update and stage change notification

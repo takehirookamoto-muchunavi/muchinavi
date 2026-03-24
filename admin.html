@@ -2010,6 +2010,9 @@
             border-left: 4px solid var(--success);
             transition: all var(--transition-fast);
         }
+        .customer-card[draggable="true"] { cursor: grab; }
+        .customer-card.dragging { opacity: 0.4; transform: scale(0.97); }
+        .list-filter-tab.drag-over { background: var(--accent) !important; color: #fff !important; transform: scale(1.08); box-shadow: 0 2px 12px rgba(0,122,255,0.3); }
         .customer-card:hover {
             box-shadow: var(--shadow-md);
             transform: translateY(-1px);
@@ -3114,13 +3117,13 @@
                     </div>
                 </div>
                 <div class="list-filter-tabs" id="listFilterTabs">
-                    <button class="list-filter-tab active" data-filter="active" onclick="setListFilter('active')">進行中 <span class="tab-count" id="countActive">0</span></button>
-                    <button class="list-filter-tab" data-filter="purchase" onclick="setListFilter('purchase')">購入 <span class="tab-count" id="countPurchase">0</span></button>
-                    <button class="list-filter-tab" data-filter="sale" onclick="setListFilter('sale')">売却 <span class="tab-count" id="countSale">0</span></button>
+                    <button class="list-filter-tab active" data-filter="active" onclick="setListFilter('active')" ondragover="onTabDragOver(event)" ondragleave="onTabDragLeave(event)" ondrop="onTabDrop(event,'active')">進行中 <span class="tab-count" id="countActive">0</span></button>
+                    <button class="list-filter-tab" data-filter="purchase" onclick="setListFilter('purchase')" ondragover="onTabDragOver(event)" ondragleave="onTabDragLeave(event)" ondrop="onTabDrop(event,'purchase')">購入 <span class="tab-count" id="countPurchase">0</span></button>
+                    <button class="list-filter-tab" data-filter="sale" onclick="setListFilter('sale')" ondragover="onTabDragOver(event)" ondragleave="onTabDragLeave(event)" ondrop="onTabDrop(event,'sale')">売却 <span class="tab-count" id="countSale">0</span></button>
                     <button class="list-filter-tab" data-filter="terass" onclick="setListFilter('terass')">TERASS <span class="tab-count" id="countTerass">0</span></button>
                     <button class="list-filter-tab" data-filter="attention" onclick="setListFilter('attention')">要対応 <span class="tab-count" id="countAttention">0</span></button>
-                    <button class="list-filter-tab" data-filter="completed" onclick="setListFilter('completed')">完了 <span class="tab-count" id="countCompleted">0</span></button>
-                    <button class="list-filter-tab" data-filter="internal" onclick="setListFilter('internal')">関係者 <span class="tab-count" id="countInternal">0</span></button>
+                    <button class="list-filter-tab" data-filter="completed" onclick="setListFilter('completed')" ondragover="onTabDragOver(event)" ondragleave="onTabDragLeave(event)" ondrop="onTabDrop(event,'completed')">完了 <span class="tab-count" id="countCompleted">0</span></button>
+                    <button class="list-filter-tab" data-filter="internal" onclick="setListFilter('internal')" ondragover="onTabDragOver(event)" ondragleave="onTabDragLeave(event)" ondrop="onTabDrop(event,'internal')">関係者 <span class="tab-count" id="countInternal">0</span></button>
                 </div>
                 <div class="list-sort-row">
                     <select class="list-sort-select" id="listSortSelect" onchange="sortCustomerCards()">
@@ -4356,7 +4359,7 @@
             const stageColors = ['#e0e0e0','#b0b0b0','#ffa726','#42a5f5','#66bb6a','#ab47bc','#ef5350','#26a69a','#8d6e63'];
             const stageColor = stageColors[Math.min(customer.stage - 1, stageColors.length - 1)] || '#999';
 
-            return `<div class="customer-card ${isSale ? 'type-sale' : ''}" onclick="selectCustomer('${customer.token}')">
+            return `<div class="customer-card ${isSale ? 'type-sale' : ''}" draggable="true" ondragstart="onCardDragStart(event,'${customer.token}')" onclick="selectCustomer('${customer.token}')">
                 <div class="card-left">
                     <div class="card-name">
                         <span class="card-contact-dot ${dotClass}"></span>
@@ -5310,6 +5313,105 @@
                 internalBtn.style.color = isInternal ? '#fff' : '';
             }
         }
+
+        // ===== ドラッグ&ドロップ: 顧客カード → タブ移動 =====
+        let draggedToken = null;
+
+        function onCardDragStart(e, token) {
+            draggedToken = token;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', token);
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+
+        function onTabDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.target.closest('.list-filter-tab')?.classList.add('drag-over');
+        }
+
+        function onTabDragLeave(e) {
+            e.target.closest('.list-filter-tab')?.classList.remove('drag-over');
+        }
+
+        async function onTabDrop(e, targetFilter) {
+            e.preventDefault();
+            document.querySelectorAll('.list-filter-tab').forEach(t => t.classList.remove('drag-over'));
+            document.querySelectorAll('.customer-card.dragging').forEach(c => c.classList.remove('dragging'));
+
+            if (!draggedToken) return;
+            const customer = customers.find(c => c.token === draggedToken);
+            if (!customer) return;
+
+            const name = customer.name || '名前未設定';
+            let updateData = {};
+            let tagAction = null;
+            let confirmMsg = '';
+
+            switch (targetFilter) {
+                case 'purchase':
+                    if ((customer.customerType || 'purchase') === 'purchase') return;
+                    updateData = { customerType: 'purchase' };
+                    tagAction = { add: '購入', remove: '売却' };
+                    confirmMsg = `${name}さんを「購入」に変更しますか？`;
+                    break;
+                case 'sale':
+                    if (customer.customerType === 'sale') return;
+                    updateData = { customerType: 'sale' };
+                    tagAction = { add: '売却', remove: '購入' };
+                    confirmMsg = `${name}さんを「売却」に変更しますか？`;
+                    break;
+                case 'internal':
+                    if ((customer.accountType || 'customer') === 'internal') return;
+                    updateData = { accountType: 'internal' };
+                    tagAction = { add: '関係者' };
+                    confirmMsg = `${name}さんを「関係者」に設定しますか？\nお客様一覧から非表示になります。`;
+                    break;
+                case 'active':
+                    if ((customer.accountType || 'customer') === 'internal') {
+                        updateData = { accountType: 'customer' };
+                        tagAction = { remove: '関係者' };
+                        confirmMsg = `${name}さんを「お客様」に戻しますか？`;
+                    } else return;
+                    break;
+                case 'completed':
+                    const maxStage = customer.customerType === 'sale' ? 9 : 8;
+                    if (customer.stage >= maxStage) return;
+                    updateData = { stage: maxStage };
+                    confirmMsg = `${name}さんを「完了」に移動しますか？`;
+                    break;
+                default:
+                    return;
+            }
+
+            showConfirmModal('顧客移動', confirmMsg, '移動する', async () => {
+                try {
+                    await api.updateCustomer(draggedToken, updateData);
+
+                    // タグの自動付与・削除
+                    if (tagAction) {
+                        let tags = [...(customer.tags || [])];
+                        if (tagAction.add && !tags.includes(tagAction.add)) tags.push(tagAction.add);
+                        if (tagAction.remove) tags = tags.filter(t => t !== tagAction.remove);
+                        await api.updateCustomerTags(draggedToken, tags);
+                    }
+
+                    showToast('移動しました', 'success');
+                    loadDashboard();
+                } catch (error) {
+                    showToast('エラー: 移動に失敗しました', 'error');
+                }
+            });
+
+            draggedToken = null;
+        }
+
+        // ドラッグ終了時のクリーンアップ
+        document.addEventListener('dragend', () => {
+            document.querySelectorAll('.customer-card.dragging').forEach(c => c.classList.remove('dragging'));
+            document.querySelectorAll('.list-filter-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
+            draggedToken = null;
+        });
 
         async function toggleAccountType() {
             const customer = customers.find(c => c.token === selectedToken);
