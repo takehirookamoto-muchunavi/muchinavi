@@ -542,6 +542,224 @@ function filterCustomersByTags(customers, filterType, filterTags) {
   });
 }
 
+// ===== Nurturing System =====
+const NURTURING_SETTINGS_FILE = path.join(DATA_DIR, 'nurturing-settings.json');
+const NURTURING_HISTORY_FILE = path.join(DATA_DIR, 'nurturing-history.json');
+
+function loadNurturingSettings() {
+  try {
+    if (fs.existsSync(NURTURING_SETTINGS_FILE)) return JSON.parse(fs.readFileSync(NURTURING_SETTINGS_FILE, 'utf-8'));
+  } catch (e) { console.error('ナーチャリング設定読み込みエラー:', e.message); }
+  return {
+    enabled: true,
+    minIntervalDays: 3,
+    excludeTokens: [],
+    triggers: {
+      welcome_24h: { enabled: true, delayHours: 24 },
+      article_3d: { enabled: true, delayDays: 3 },
+      soft_meeting_7d: { enabled: true, delayDays: 7 },
+      check_14d: { enabled: true, delayDays: 14 },
+      info_30d: { enabled: true, delayDays: 30 },
+    }
+  };
+}
+function saveNurturingSettings(data) {
+  fs.writeFileSync(NURTURING_SETTINGS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+function loadNurturingHistory() {
+  try {
+    if (fs.existsSync(NURTURING_HISTORY_FILE)) return JSON.parse(fs.readFileSync(NURTURING_HISTORY_FILE, 'utf-8'));
+  } catch (e) { console.error('ナーチャリング履歴読み込みエラー:', e.message); }
+  return { history: [] };
+}
+function saveNurturingHistory(data) {
+  fs.writeFileSync(NURTURING_HISTORY_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+// 顧客の最終活動日を算出
+function getLastActivityAt(record) {
+  const timestamps = [];
+  if (record.createdAt) timestamps.push(record.createdAt);
+  // AIチャットの最後のメッセージ
+  const chat = record.chatHistory || [];
+  if (chat.length > 0) {
+    const last = chat[chat.length - 1];
+    if (last.timestamp) timestamps.push(last.timestamp);
+  }
+  // ダイレクトチャットの最後の顧客メッセージ
+  const dc = record.directChatHistory || [];
+  for (let i = dc.length - 1; i >= 0; i--) {
+    if (dc[i].role === 'customer' && dc[i].timestamp) {
+      timestamps.push(dc[i].timestamp);
+      break;
+    }
+  }
+  if (timestamps.length === 0) return null;
+  return timestamps.sort().pop(); // 最新のものを返す
+}
+
+// ナーチャリングメッセージテンプレート
+function getNurturingTemplates(record) {
+  const name = record.name || 'お客様';
+  const area = record.area || '';
+  const isSale = record.customerType === 'sale';
+
+  if (isSale) {
+    return {
+      welcome_24h: `${name}さん、MuchiNaviへのご登録ありがとうございます！\n売却についてわからないことや不安なことがあれば、何でも気軽にチャットで聞いてくださいね。\n「売却ってまず何から始めればいい？」「相場ってどうやって調べるの？」みたいなざっくりした質問でも大丈夫ですよ。`,
+      article_3d: `${name}さん、売却を進める上で参考になる情報をお届けします。\n${area ? `${area}エリア` : 'お住まいのエリア'}の不動産市況など、気になることがあればいつでもチャットでどうぞ！`,
+      soft_meeting_7d: `${name}さん、その後いかがですか？\n売却は情報が多くて迷うこともあると思います。\nもしよければ、15分くらいのオンラインで状況を整理するお手伝いもできますよ。\n無料査定のご依頼もお気軽にどうぞ。もちろんチャットだけでも大丈夫です！`,
+      check_14d: `${name}さん、ご無沙汰しています。\nその後の売却のご状況はいかがですか？何か気になることがあればいつでもお気軽にどうぞ。\nお忙しいときは無理せず、${name}さんのペースで大丈夫ですよ。`,
+      info_30d: `${name}さん、お久しぶりです。\n${area ? `${area}エリア` : 'お住まいのエリア'}の最近の売却事例や市況の変化など、気になることがあればいつでも聞いてくださいね。\n状況が変わった時にすぐ動けるよう、私の方でも情報をキャッチアップしていますので。`,
+    };
+  }
+
+  return {
+    welcome_24h: `${name}さん、MuchiNaviへのご登録ありがとうございます！\n何から始めたらいいかわからない…という方も多いので、気になることがあれば何でも気軽にチャットで聞いてくださいね。\n「住宅ローンって何から調べればいい？」「${area || 'このエリア'}の相場ってどのくらい？」みたいなざっくりした質問でも大丈夫ですよ。`,
+    article_3d: `${name}さん、住まい探しの参考になりそうな情報をお届けします。\n${area ? `${area}エリア` : 'お住まいのエリア'}で検討されているとのことでしたので、気になる点があればいつでもチャットでどうぞ！`,
+    soft_meeting_7d: `${name}さん、その後いかがですか？\n住まい探しって調べれば調べるほど迷うことも多いと思います。\nもしよければ、15分くらいのオンラインで状況を整理するお手伝いもできますよ。\nもちろんチャットで気軽に聞いていただくだけでも大丈夫です！`,
+    check_14d: `${name}さん、ご無沙汰しています。\nその後の状況はいかがですか？何か気になることがあればいつでもお気軽にどうぞ。\nお忙しいときは無理せず、${name}さんのペースで大丈夫ですよ。`,
+    info_30d: `${name}さん、お久しぶりです。\n${area ? `${area}エリア` : 'お住まいのエリア'}の最近の動きや、住宅ローンの金利情報など、気になることがあればいつでも聞いてくださいね。\n状況が変わった時にすぐ動けるよう、私の方でも情報をキャッチアップしていますので。`,
+  };
+}
+
+// ナーチャリングチェック実行
+function runNurturingCheck() {
+  const settings = loadNurturingSettings();
+  if (!settings.enabled) {
+    console.log('🌱 ナーチャリング: 無効のためスキップ');
+    return;
+  }
+
+  const db = loadDB();
+  const now = Date.now();
+  const histData = loadNurturingHistory();
+  let sentCount = 0;
+
+  for (const [token, record] of Object.entries(db)) {
+    // 対象外: 非アクティブ、関係者、除外リスト
+    if (record.status !== 'active') continue;
+    if (record.accountType !== 'customer') continue;
+    if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
+
+    // 最小送信間隔チェック
+    const nurturing = record.nurturing || {};
+    if (nurturing.lastSentAt) {
+      const daysSinceLastSent = (now - new Date(nurturing.lastSentAt).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceLastSent < settings.minIntervalDays) continue;
+    }
+
+    const createdAt = record.createdAt ? new Date(record.createdAt).getTime() : now;
+    const hoursSinceCreated = (now - createdAt) / (1000 * 60 * 60);
+    const daysSinceCreated = hoursSinceCreated / 24;
+    const lastActivityAt = getLastActivityAt(record);
+    const daysSinceActivity = lastActivityAt ? (now - new Date(lastActivityAt).getTime()) / (1000 * 60 * 60 * 24) : daysSinceCreated;
+    const chatCount = (record.chatHistory || []).length;
+    const stage = parseInt(record.stage, 10) || 1;
+    const sentTriggers = nurturing.sentTriggers || [];
+
+    const templates = getNurturingTemplates(record);
+    let triggerId = null;
+    let message = null;
+
+    // トリガー条件を優先度順にチェック（既に送信済みのトリガーはスキップ）
+    const t = settings.triggers || {};
+
+    if (t.welcome_24h?.enabled && hoursSinceCreated >= (t.welcome_24h.delayHours || 24) && chatCount === 0 && !sentTriggers.includes('welcome_24h')) {
+      triggerId = 'welcome_24h';
+      message = templates.welcome_24h;
+    } else if (t.article_3d?.enabled && daysSinceCreated >= (t.article_3d.delayDays || 3) && chatCount < 3 && !sentTriggers.includes('article_3d')) {
+      triggerId = 'article_3d';
+      message = templates.article_3d;
+    } else if (t.soft_meeting_7d?.enabled && daysSinceCreated >= (t.soft_meeting_7d.delayDays || 7) && stage <= 2 && !sentTriggers.includes('soft_meeting_7d')) {
+      triggerId = 'soft_meeting_7d';
+      message = templates.soft_meeting_7d;
+    } else if (t.check_14d?.enabled && daysSinceActivity >= (t.check_14d.delayDays || 14) && stage >= 3 && stage <= 6 && !sentTriggers.includes('check_14d')) {
+      triggerId = 'check_14d';
+      message = templates.check_14d;
+    } else if (t.info_30d?.enabled && daysSinceActivity >= (t.info_30d.delayDays || 30) && !sentTriggers.includes('info_30d')) {
+      triggerId = 'info_30d';
+      message = templates.info_30d;
+    }
+
+    if (!triggerId || !message) continue;
+
+    // ダイレクトチャットに追加（既存の仕組みを再利用）
+    if (!record.directChatHistory) record.directChatHistory = [];
+    record.directChatHistory.push({
+      role: 'agent',
+      content: message,
+      timestamp: new Date().toISOString(),
+      nurturingTriggerId: triggerId,
+    });
+
+    // ナーチャリング状態を更新
+    record.nurturing = {
+      ...nurturing,
+      lastSentAt: new Date().toISOString(),
+      lastTriggerId: triggerId,
+      sentCount: (nurturing.sentCount || 0) + 1,
+      sentTriggers: [...sentTriggers, triggerId],
+    };
+
+    // メール通知
+    if (record.email) {
+      const msgPreview = message.slice(0, 300);
+      sendNotificationEmail({
+        to: record.email,
+        subject: `📩 岡本からメッセージが届いています`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+            <div style="background: linear-gradient(135deg, #34c759 0%, #30d158 100%); color: #fff; padding: 20px 24px; border-radius: 16px 16px 0 0;">
+              <h2 style="margin: 0; font-size: 18px;">📩 新しいメッセージ</h2>
+              <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9;">岡本岳大｜住宅購入エージェント</p>
+            </div>
+            <div style="background: #fff; border: 1px solid #e5e5ea; border-top: none; padding: 24px; border-radius: 0 0 16px 16px;">
+              <p style="margin: 0 0 4px; font-size: 13px; color: #86868b;">${record.name || 'お客様'}さんへ</p>
+              <div style="background: #f0f7ff; border-radius: 12px; padding: 16px; margin: 12px 0 20px;">
+                <p style="margin: 0; font-size: 15px; color: #1d1d1f; line-height: 1.6; white-space: pre-wrap;">${msgPreview}</p>
+              </div>
+              <a href="${APP_URL}"
+                 style="display: inline-block; background: #34c759; color: #fff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                MuchiNaviで確認する →
+              </a>
+              <p style="margin: 16px 0 0; font-size: 11px; color: #86868b; line-height: 1.5;">
+                ※ このメールはMuchiNaviからの自動通知です。返信はMuchiNaviアプリ内のチャットからお願いします。
+              </p>
+            </div>
+          </div>
+        `,
+      }).catch(e => console.error('ナーチャリングメール送信エラー:', e.message));
+    }
+
+    // 履歴に記録
+    histData.history.push({
+      token,
+      name: record.name || '-',
+      triggerId,
+      message,
+      sentAt: new Date().toISOString(),
+    });
+
+    sentCount++;
+    console.log(`🌱 ナーチャリング送信: ${record.name} (${triggerId})`);
+  }
+
+  saveDB(db);
+  saveNurturingHistory(histData);
+  console.log(`🌱 ナーチャリングチェック完了: ${sentCount}件送信`);
+}
+
+// ナーチャリング定期実行
+function startNurturingJob() {
+  // 起動時は実行しない（デプロイ直後の大量送信防止）
+  setInterval(() => {
+    console.log('🌱 ナーチャリング定期チェック開始');
+    runNurturingCheck();
+  }, 24 * 60 * 60 * 1000); // 24時間ごと
+  console.log('🌱 ナーチャリングジョブ登録完了（24時間間隔）');
+}
+
 // ===== Settings (Admin Password) =====
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 
@@ -3066,31 +3284,39 @@ function adminAuth(req, res, next) {
 // ===== 管理API: お客様一覧 =====
 app.get('/api/admin/customers', adminAuth, (req, res) => {
   const db = loadDB();
-  const customers = Object.entries(db).map(([token, record]) => ({
-    token,
-    name: record.name || '-',
-    email: record.email || '-',
-    phone: record.phone || '-',
-    family: record.family || '-',
-    area: record.area || '-',
-    budget: record.budget || '-',
-    status: record.status || 'active',
-    createdAt: record.createdAt || null,
-    blockedAt: record.blockedAt || null,
-    withdrawnAt: record.withdrawnAt || null,
-    messageCount: (record.chatHistory || []).length,
-    directChatCount: (record.directChatHistory || []).length,
-    tags: record.tags || [],
-    stage: parseInt(record.stage, 10) || 1,
-    hmMode: record.hmMode || false,
-    hmPartnerId: record.hmPartnerId || null,
-    hmPartnerName: record.hmPartnerName || null,
-    customerType: record.customerType || 'purchase',
-    salePropertyLocation: record.salePropertyLocation || null,
-    saleDesiredPrice: record.saleDesiredPrice || null,
-    salePropertyType: record.salePropertyType || null,
-    accountType: record.accountType || 'customer',
-  }));
+  const now = Date.now();
+  const customers = Object.entries(db).map(([token, record]) => {
+    const lastActivityAt = getLastActivityAt(record);
+    const daysSinceActivity = lastActivityAt ? Math.floor((now - new Date(lastActivityAt).getTime()) / (1000 * 60 * 60 * 24)) : null;
+    return {
+      token,
+      name: record.name || '-',
+      email: record.email || '-',
+      phone: record.phone || '-',
+      family: record.family || '-',
+      area: record.area || '-',
+      budget: record.budget || '-',
+      status: record.status || 'active',
+      createdAt: record.createdAt || null,
+      blockedAt: record.blockedAt || null,
+      withdrawnAt: record.withdrawnAt || null,
+      messageCount: (record.chatHistory || []).length,
+      directChatCount: (record.directChatHistory || []).length,
+      tags: record.tags || [],
+      stage: parseInt(record.stage, 10) || 1,
+      hmMode: record.hmMode || false,
+      hmPartnerId: record.hmPartnerId || null,
+      hmPartnerName: record.hmPartnerName || null,
+      customerType: record.customerType || 'purchase',
+      salePropertyLocation: record.salePropertyLocation || null,
+      saleDesiredPrice: record.saleDesiredPrice || null,
+      salePropertyType: record.salePropertyType || null,
+      accountType: record.accountType || 'customer',
+      lastActivityAt,
+      daysSinceActivity,
+      nurturing: record.nurturing || null,
+    };
+  });
   res.json({ customers });
 });
 
@@ -3234,6 +3460,99 @@ app.post('/api/withdraw/:token', (req, res) => {
   saveDB(db);
   console.log(`👋 退会: ${record.name} (${req.params.token.substring(0, 8)}...)`);
   res.json({ success: true, message: 'ご利用ありがとうございました。退会処理が完了しました。' });
+});
+
+// ===== 管理API: ナーチャリング =====
+// ナーチャリング設定取得
+app.get('/api/admin/nurturing/settings', adminAuth, (req, res) => {
+  res.json(loadNurturingSettings());
+});
+
+// ナーチャリング設定更新
+app.put('/api/admin/nurturing/settings', adminAuth, (req, res) => {
+  const current = loadNurturingSettings();
+  const updated = { ...current, ...req.body };
+  // triggers はマージ
+  if (req.body.triggers) {
+    updated.triggers = { ...current.triggers, ...req.body.triggers };
+  }
+  saveNurturingSettings(updated);
+  console.log('🌱 ナーチャリング設定更新:', JSON.stringify(updated, null, 0).slice(0, 200));
+  res.json({ success: true, settings: updated });
+});
+
+// ナーチャリング対象顧客一覧（次回送信予定含む）
+app.get('/api/admin/nurturing/status', adminAuth, (req, res) => {
+  const settings = loadNurturingSettings();
+  const db = loadDB();
+  const now = Date.now();
+  const targets = [];
+
+  for (const [token, record] of Object.entries(db)) {
+    if (record.status !== 'active') continue;
+    if (record.accountType !== 'customer') continue;
+    if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
+
+    const createdAt = record.createdAt ? new Date(record.createdAt).getTime() : now;
+    const hoursSinceCreated = (now - createdAt) / (1000 * 60 * 60);
+    const daysSinceCreated = hoursSinceCreated / 24;
+    const lastActivityAt = getLastActivityAt(record);
+    const daysSinceActivity = lastActivityAt ? (now - new Date(lastActivityAt).getTime()) / (1000 * 60 * 60 * 24) : daysSinceCreated;
+    const chatCount = (record.chatHistory || []).length;
+    const stage = parseInt(record.stage, 10) || 1;
+    const nurturing = record.nurturing || {};
+    const sentTriggers = nurturing.sentTriggers || [];
+    const t = settings.triggers || {};
+
+    let nextTrigger = null;
+    if (t.welcome_24h?.enabled && hoursSinceCreated >= (t.welcome_24h.delayHours || 24) && chatCount === 0 && !sentTriggers.includes('welcome_24h')) {
+      nextTrigger = 'welcome_24h';
+    } else if (t.article_3d?.enabled && daysSinceCreated >= (t.article_3d.delayDays || 3) && chatCount < 3 && !sentTriggers.includes('article_3d')) {
+      nextTrigger = 'article_3d';
+    } else if (t.soft_meeting_7d?.enabled && daysSinceCreated >= (t.soft_meeting_7d.delayDays || 7) && stage <= 2 && !sentTriggers.includes('soft_meeting_7d')) {
+      nextTrigger = 'soft_meeting_7d';
+    } else if (t.check_14d?.enabled && daysSinceActivity >= (t.check_14d.delayDays || 14) && stage >= 3 && stage <= 6 && !sentTriggers.includes('check_14d')) {
+      nextTrigger = 'check_14d';
+    } else if (t.info_30d?.enabled && daysSinceActivity >= (t.info_30d.delayDays || 30) && !sentTriggers.includes('info_30d')) {
+      nextTrigger = 'info_30d';
+    }
+
+    // 最小間隔チェック
+    let blocked = false;
+    if (nurturing.lastSentAt) {
+      const daysSinceLastSent = (now - new Date(nurturing.lastSentAt).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceLastSent < settings.minIntervalDays) blocked = true;
+    }
+
+    targets.push({
+      token,
+      name: record.name || '-',
+      stage,
+      customerType: record.customerType || 'purchase',
+      daysSinceCreated: Math.floor(daysSinceCreated),
+      daysSinceActivity: Math.floor(daysSinceActivity),
+      chatCount,
+      nurturing,
+      nextTrigger: blocked ? null : nextTrigger,
+      blockedUntil: blocked ? nurturing.lastSentAt : null,
+    });
+  }
+
+  res.json({ enabled: settings.enabled, targets });
+});
+
+// ナーチャリング送信履歴
+app.get('/api/admin/nurturing/history', adminAuth, (req, res) => {
+  const data = loadNurturingHistory();
+  // 新しい順
+  res.json({ history: (data.history || []).reverse().slice(0, 100) });
+});
+
+// ナーチャリング手動実行
+app.post('/api/admin/nurturing/run', adminAuth, (req, res) => {
+  console.log('🌱 ナーチャリング手動実行開始');
+  runNurturingCheck();
+  res.json({ success: true, message: 'ナーチャリングチェックを実行しました' });
 });
 
 // ===== 管理API: タグ管理 =====
@@ -4491,6 +4810,8 @@ app.listen(PORT, () => {
 ╚══════════════════════════════════════════╝
   `);
 
-  // サーバー起動後にWordPress記事を自動取得開始
+  // サーバ������動後にWordPress記事を自動取得開始
   startBlogArticleSync();
+  // ナーチャリング自動ジョブ開始
+  startNurturingJob();
 });
