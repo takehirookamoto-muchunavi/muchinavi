@@ -3034,6 +3034,7 @@
                 <button class="top-nav-btn" onclick="navigateTo('terass')" id="navTerassBtn" title="TERASS Offer">🟠<span class="nav-label">TERASS</span><span class="nav-badge" id="terassNavBadge" style="display:none;">0</span></button>
                 <button class="top-nav-btn" onclick="navigateTo('hm')" id="navHMBtn" title="HMパートナー">🏭<span class="nav-label">HM</span></button>
                 <button class="top-nav-btn" onclick="navigateTo('broadcast')" id="navBroadcastBtn" title="配信">📢<span class="nav-label">配信</span></button>
+                <button class="top-nav-btn" onclick="navigateTo('nurturing')" id="navNurturingBtn" title="ナーチャリング">🌱<span class="nav-label">育成</span></button>
                 <button class="top-nav-btn" onclick="navigateTo('feedback')" id="navFeedbackBtn" title="フィードバック">📊<span class="nav-label">FB</span></button>
                 <button class="top-nav-btn" onclick="showPasswordModal()" title="設定"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                 <button class="top-nav-btn logout-btn" id="logoutBtnNav" title="ログアウト"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
@@ -3814,6 +3815,47 @@
                 </div><!-- end detail-content -->
             </div><!-- end detailView -->
 
+            <!-- Nurturing View -->
+            <div id="nurturingView" style="display:none; padding-top: 72px; overflow-y:auto;">
+                <div style="max-width: 900px; margin: 0 auto; padding: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                        <div>
+                            <h1 style="font-size: 22px; font-weight: 700; margin: 0;">🌱 ナーチャリング（自動育成）</h1>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">登録後の顧客に自動でフォローメッセージを送信します</p>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer;">
+                                <span id="nurturingStatusLabel">有効</span>
+                                <input type="checkbox" id="nurturingEnabledToggle" onchange="toggleNurturing()" checked style="width: 40px; height: 22px; appearance: none; background: #ccc; border-radius: 11px; position: relative; cursor: pointer; transition: 0.2s;">
+                            </label>
+                            <button class="btn btn-primary" onclick="runNurturingManual()" style="font-size: 13px; padding: 8px 16px;">▶ 手動実行</button>
+                        </div>
+                    </div>
+
+                    <!-- サブタブ -->
+                    <div class="sub-tab-nav" style="margin-bottom: 20px;">
+                        <button class="sub-tab-btn active" onclick="switchNurturingTab('status')">📋 対象顧客</button>
+                        <button class="sub-tab-btn" onclick="switchNurturingTab('history')">📜 送信履歴</button>
+                        <button class="sub-tab-btn" onclick="switchNurturingTab('settings')">⚙️ 設定</button>
+                    </div>
+
+                    <!-- 対象顧客タブ -->
+                    <div id="nurturingTabStatus" class="sub-tab-pane active">
+                        <div id="nurturingTargetList" style="font-size: 14px; color: var(--text-secondary);">読み込み中...</div>
+                    </div>
+
+                    <!-- 送信履歴タブ -->
+                    <div id="nurturingTabHistory" class="sub-tab-pane">
+                        <div id="nurturingHistoryList" style="font-size: 14px; color: var(--text-secondary);">読み込み中...</div>
+                    </div>
+
+                    <!-- 設定タブ -->
+                    <div id="nurturingTabSettings" class="sub-tab-pane">
+                        <div id="nurturingSettingsForm" style="font-size: 14px; color: var(--text-secondary);">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- TERASS Offer View -->
             <div id="terassOfferView" style="display:none; padding-top: 72px; overflow-y:auto;">
                 <div class="terass-header">
@@ -4234,7 +4276,7 @@
         // ======================== NEW NAVIGATION & LIST VIEW ========================
         function navigateTo(view) {
             currentView = view;
-            const views = ['listView', 'detailView', 'broadcastView', 'terassOfferView', 'hmPartnerView', 'feedbackDashboardView'];
+            const views = ['listView', 'detailView', 'broadcastView', 'terassOfferView', 'hmPartnerView', 'feedbackDashboardView', 'nurturingView'];
             views.forEach(v => {
                 const el = document.getElementById(v);
                 if (el) el.style.display = 'none';
@@ -4255,10 +4297,13 @@
             } else if (view === 'feedback') {
                 document.getElementById('feedbackDashboardView').style.display = 'block';
                 loadFeedbackDashboard();
+            } else if (view === 'nurturing') {
+                document.getElementById('nurturingView').style.display = 'block';
+                loadNurturingData();
             }
             // Update nav active state
             document.querySelectorAll('.top-nav-btn').forEach(b => b.classList.remove('active'));
-            const navMap = { list: 'navListBtn', terass: 'navTerassBtn', hm: 'navHMBtn', broadcast: 'navBroadcastBtn', feedback: 'navFeedbackBtn' };
+            const navMap = { list: 'navListBtn', terass: 'navTerassBtn', hm: 'navHMBtn', broadcast: 'navBroadcastBtn', feedback: 'navFeedbackBtn', nurturing: 'navNurturingBtn' };
             if (navMap[view]) document.getElementById(navMap[view])?.classList.add('active');
         }
 
@@ -6733,6 +6778,188 @@
                     showToast('削除に失敗しました', 'error');
                 }
             }, true);
+        }
+
+        // ======================== NURTURING (ナーチャリング) ========================
+        const triggerLabels = {
+            welcome_24h: '🎉 ウェルカム（24h）',
+            article_3d: '📰 記事紹介（3日）',
+            soft_meeting_7d: '☕ 面談提案（7日）',
+            check_14d: '👋 状況確認（14日）',
+            info_30d: '📊 情報提供（30日）',
+        };
+
+        function switchNurturingTab(tab) {
+            document.querySelectorAll('#nurturingView .sub-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#nurturingView .sub-tab-pane').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`nurturingTab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+        }
+
+        async function loadNurturingData() {
+            try {
+                const [statusRes, historyRes, settingsRes] = await Promise.all([
+                    fetch('/api/admin/nurturing/status', { headers: { 'X-Admin-Pass': adminPassword } }),
+                    fetch('/api/admin/nurturing/history', { headers: { 'X-Admin-Pass': adminPassword } }),
+                    fetch('/api/admin/nurturing/settings', { headers: { 'X-Admin-Pass': adminPassword } }),
+                ]);
+                const statusData = await statusRes.json();
+                const historyData = await historyRes.json();
+                const settingsData = await settingsRes.json();
+
+                // Toggle state
+                document.getElementById('nurturingEnabledToggle').checked = statusData.enabled;
+                updateToggleStyle(statusData.enabled);
+
+                renderNurturingTargets(statusData.targets || []);
+                renderNurturingHistory(historyData.history || []);
+                renderNurturingSettings(settingsData);
+            } catch (e) {
+                console.error('ナーチャリングデータ読み込みエラー:', e);
+            }
+        }
+
+        function updateToggleStyle(enabled) {
+            const toggle = document.getElementById('nurturingEnabledToggle');
+            const label = document.getElementById('nurturingStatusLabel');
+            toggle.style.background = enabled ? '#34c759' : '#ccc';
+            label.textContent = enabled ? '有効' : '無効';
+        }
+
+        async function toggleNurturing() {
+            const enabled = document.getElementById('nurturingEnabledToggle').checked;
+            updateToggleStyle(enabled);
+            await fetch('/api/admin/nurturing/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPassword },
+                body: JSON.stringify({ enabled }),
+            });
+            showToast(enabled ? 'ナーチャリングを有効にしました' : 'ナーチャリングを無効にしました', 'success');
+        }
+
+        async function runNurturingManual() {
+            if (!confirm('ナーチャリングチェックを手動実行しますか？\n条件に合致する顧客にメッセージが送信されます。')) return;
+            try {
+                const res = await fetch('/api/admin/nurturing/run', {
+                    method: 'POST',
+                    headers: { 'X-Admin-Pass': adminPassword },
+                });
+                const data = await res.json();
+                showToast(data.message || '実行しました', 'success');
+                setTimeout(() => loadNurturingData(), 1000);
+            } catch (e) {
+                showToast('実行に失敗しました', 'error');
+            }
+        }
+
+        function renderNurturingTargets(targets) {
+            const el = document.getElementById('nurturingTargetList');
+            if (!targets.length) {
+                el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">対象の顧客がいません</div>';
+                return;
+            }
+            const rows = targets.map(t => {
+                const triggerBadge = t.nextTrigger
+                    ? `<span style="background:#e8f4fd;color:#0071e3;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;">${triggerLabels[t.nextTrigger] || t.nextTrigger}</span>`
+                    : (t.blockedUntil ? `<span style="background:#f5f5f7;color:#86868b;padding:2px 8px;border-radius:6px;font-size:11px;">⏳ 送信待機中</span>` : `<span style="background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:6px;font-size:11px;">✅ 完了</span>`);
+                const sentInfo = t.nurturing?.sentCount ? `<span style="font-size:11px;color:#86868b;">送信${t.nurturing.sentCount}回</span>` : '';
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">
+                    <div>
+                        <div style="font-weight:600;font-size:14px;">${t.name}</div>
+                        <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Stage ${t.stage} · ${t.customerType === 'sale' ? '売却' : '購入'} · チャット${t.chatCount}件 · ${t.daysSinceActivity}日前</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        ${sentInfo}
+                        ${triggerBadge}
+                    </div>
+                </div>`;
+            }).join('');
+            el.innerHTML = `<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">${rows}</div>`;
+        }
+
+        function renderNurturingHistory(history) {
+            const el = document.getElementById('nurturingHistoryList');
+            if (!history.length) {
+                el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">まだ送信履歴はありません</div>';
+                return;
+            }
+            const rows = history.map(h => {
+                const date = new Date(h.sentAt);
+                const dateStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+                return `<div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div style="font-weight:600;font-size:14px;">${h.name}</div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="background:#e8f4fd;color:#0071e3;padding:2px 8px;border-radius:6px;font-size:11px;">${triggerLabels[h.triggerId] || h.triggerId}</span>
+                            <span style="font-size:12px;color:#86868b;">${dateStr}</span>
+                        </div>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-secondary);margin-top:6px;white-space:pre-wrap;line-height:1.5;max-height:60px;overflow:hidden;">${(h.message || '').slice(0, 150)}...</div>
+                </div>`;
+            }).join('');
+            el.innerHTML = `<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">${rows}</div>`;
+        }
+
+        function renderNurturingSettings(settings) {
+            const el = document.getElementById('nurturingSettingsForm');
+            const triggers = settings.triggers || {};
+            const triggerRows = Object.entries(triggerLabels).map(([id, label]) => {
+                const t = triggers[id] || {};
+                const checked = t.enabled !== false ? 'checked' : '';
+                const delay = t.delayHours || t.delayDays || '-';
+                const unit = t.delayHours ? '時間後' : '日後';
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">
+                    <div>
+                        <div style="font-weight:500;font-size:14px;">${label}</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">登録から${delay}${unit}に送信</div>
+                    </div>
+                    <label style="cursor:pointer;">
+                        <input type="checkbox" ${checked} onchange="updateTriggerSetting('${id}', this.checked)" style="width:36px;height:20px;appearance:none;background:${checked ? '#34c759' : '#ccc'};border-radius:10px;cursor:pointer;transition:0.2s;">
+                    </label>
+                </div>`;
+            }).join('');
+
+            el.innerHTML = `
+                <div style="margin-bottom:20px;">
+                    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">送信間隔</h3>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:14px;">最小送信間隔:</span>
+                        <input type="number" id="nurturingMinInterval" value="${settings.minIntervalDays || 3}" min="1" max="30"
+                            style="width:60px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;text-align:center;"
+                            onchange="updateMinInterval(this.value)">
+                        <span style="font-size:14px;">日</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">同じ顧客に連続でメッセージを送らない最小間隔です</p>
+                </div>
+                <div>
+                    <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">トリガー設定</h3>
+                    <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">${triggerRows}</div>
+                </div>
+            `;
+        }
+
+        async function updateTriggerSetting(triggerId, enabled) {
+            const triggers = {};
+            triggers[triggerId] = { enabled };
+            await fetch('/api/admin/nurturing/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPassword },
+                body: JSON.stringify({ triggers }),
+            });
+            // Update checkbox visual
+            event.target.style.background = enabled ? '#34c759' : '#ccc';
+            showToast(`${triggerLabels[triggerId]} を${enabled ? '有効' : '無効'}にしました`, 'success');
+        }
+
+        async function updateMinInterval(days) {
+            const val = parseInt(days, 10);
+            if (isNaN(val) || val < 1) return;
+            await fetch('/api/admin/nurturing/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPassword },
+                body: JSON.stringify({ minIntervalDays: val }),
+            });
+            showToast(`最小送信間隔を${val}日に更新しました`, 'success');
         }
 
         // ======================== BROADCAST (一斉配信) ========================
