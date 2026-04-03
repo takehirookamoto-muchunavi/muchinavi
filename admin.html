@@ -4327,7 +4327,13 @@
 
             switch (currentListFilter) {
                 case 'active':
-                    filtered = filtered.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved'));
+                    filtered = filtered.filter(c => {
+                        if (c.status !== 'active') return false;
+                        if (c.source === 'terass_offer' && c.offerStatus !== 'approved') return false;
+                        const maxStage = c.customerType === 'sale' ? 9 : 8;
+                        if (c.stage >= maxStage) return false;
+                        return true;
+                    });
                     break;
                 case 'purchase':
                     filtered = filtered.filter(c => c.status === 'active' && (c.customerType || 'purchase') !== 'sale');
@@ -4437,7 +4443,13 @@
 
         function updateListFilterCounts() {
             const real = customers.filter(c => (c.accountType || 'customer') !== 'internal');
-            const active = real.filter(c => c.status === 'active' && (c.source !== 'terass_offer' || c.offerStatus === 'approved')).length;
+            const active = real.filter(c => {
+                if (c.status !== 'active') return false;
+                if (c.source === 'terass_offer' && c.offerStatus !== 'approved') return false;
+                const maxStage = c.customerType === 'sale' ? 9 : 8;
+                if (c.stage >= maxStage) return false;
+                return true;
+            }).length;
             const purchase = real.filter(c => c.status === 'active' && (c.customerType || 'purchase') !== 'sale').length;
             const sale = real.filter(c => c.status === 'active' && c.customerType === 'sale').length;
             const terass = real.filter(c => c.source === 'terass_offer').length;
