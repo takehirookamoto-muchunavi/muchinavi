@@ -4336,10 +4336,21 @@
                     });
                     break;
                 case 'purchase':
-                    filtered = filtered.filter(c => c.status === 'active' && (c.customerType || 'purchase') !== 'sale');
+                    filtered = filtered.filter(c => {
+                        if (c.status !== 'active') return false;
+                        if ((c.customerType || 'purchase') === 'sale') return false;
+                        const maxStage = c.customerType === 'sale' ? 9 : 8;
+                        if (c.stage >= maxStage) return false;
+                        return true;
+                    });
                     break;
                 case 'sale':
-                    filtered = filtered.filter(c => c.status === 'active' && c.customerType === 'sale');
+                    filtered = filtered.filter(c => {
+                        if (c.status !== 'active') return false;
+                        if (c.customerType !== 'sale') return false;
+                        if (c.stage >= 9) return false;
+                        return true;
+                    });
                     break;
                 case 'terass':
                     filtered = filtered.filter(c => c.source === 'terass_offer');
@@ -4450,8 +4461,8 @@
                 if (c.stage >= maxStage) return false;
                 return true;
             }).length;
-            const purchase = real.filter(c => c.status === 'active' && (c.customerType || 'purchase') !== 'sale').length;
-            const sale = real.filter(c => c.status === 'active' && c.customerType === 'sale').length;
+            const purchase = real.filter(c => { if (c.status !== 'active') return false; if ((c.customerType || 'purchase') === 'sale') return false; const max = c.customerType === 'sale' ? 9 : 8; return c.stage < max; }).length;
+            const sale = real.filter(c => { if (c.status !== 'active') return false; if (c.customerType !== 'sale') return false; return c.stage < 9; }).length;
             const terass = real.filter(c => c.source === 'terass_offer').length;
             const attention = real.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)).length;
             const completed = real.filter(c => { const max = c.customerType === 'sale' ? 9 : 8; return c.stage >= max; }).length;
