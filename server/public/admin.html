@@ -6919,7 +6919,15 @@
                 </div>`;
             }).join('');
 
+            const activeDate = settings.activeAfter ? new Date(settings.activeAfter) : null;
+            const activeDateStr = activeDate ? `${activeDate.getFullYear()}/${activeDate.getMonth()+1}/${activeDate.getDate()} ${activeDate.getHours()}:${String(activeDate.getMinutes()).padStart(2,'0')}` : '未設定';
+
             el.innerHTML = `
+                <div style="margin-bottom:20px;padding:16px;background:#fffbeb;border:1px solid #fbbf24;border-radius:12px;">
+                    <h3 style="font-size:14px;font-weight:600;margin:0 0 4px;">対象範囲</h3>
+                    <p style="font-size:13px;color:#92400e;margin:0;"><strong>${activeDateStr}</strong> 以降に登録された顧客のみが対象です</p>
+                    <p style="font-size:12px;color:#92400e;margin:4px 0 0;">既存の顧客には送信されません</p>
+                </div>
                 <div style="margin-bottom:20px;">
                     <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">送信間隔</h3>
                     <div style="display:flex;align-items:center;gap:8px;">
