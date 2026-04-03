@@ -639,7 +639,7 @@ function runNurturingCheck() {
   for (const [token, record] of Object.entries(db)) {
     // 対象外: 非アクティブ、関係者、除外リスト
     if (record.status !== 'active') continue;
-    if (record.accountType !== 'customer') continue;
+    if (record.accountType === 'internal') continue;
     if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
 
     // 最小送信間隔チェック
@@ -3490,7 +3490,7 @@ app.get('/api/admin/nurturing/status', adminAuth, (req, res) => {
 
   for (const [token, record] of Object.entries(db)) {
     if (record.status !== 'active') continue;
-    if (record.accountType !== 'customer') continue;
+    if (record.accountType === 'internal') continue;
     if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
 
     const createdAt = record.createdAt ? new Date(record.createdAt).getTime() : now;
