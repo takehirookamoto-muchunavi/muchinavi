@@ -551,7 +551,8 @@ function loadNurturingSettings() {
     if (fs.existsSync(NURTURING_SETTINGS_FILE)) return JSON.parse(fs.readFileSync(NURTURING_SETTINGS_FILE, 'utf-8'));
   } catch (e) { console.error('ナーチャリング設定読み込みエラー:', e.message); }
   return {
-    enabled: true,
+    enabled: false,
+    activeAfter: new Date().toISOString(),
     minIntervalDays: 3,
     excludeTokens: [],
     triggers: {
@@ -636,14 +637,19 @@ function runNurturingCheck() {
   const histData = loadNurturingHistory();
   let sentCount = 0;
 
+  // ナーチャリング開始日時以降に登録された顧客のみ対象
+  const activeAfter = settings.activeAfter ? new Date(settings.activeAfter).getTime() : null;
+
   for (const [token, record] of Object.entries(db)) {
     // 対象外: 非アクティブ、関係者、除外リスト
     if (record.status === 'blocked' || record.status === 'withdrawn') continue;
     if (record.accountType === 'internal') continue;
     if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
-    // 契約・引渡し済み（stage 7-8購入, stage 8-9売却）はナーチャリング対象外
+    // 契約・引渡し済みは対象外
     const stageNum = parseInt(record.stage, 10) || 1;
     if (stageNum >= 7) continue;
+    // ナーチャリング開始日時より前に登録された顧客は対象外
+    if (activeAfter && record.createdAt && new Date(record.createdAt).getTime() < activeAfter) continue;
 
     // 最小送信間隔チェック
     const nurturing = record.nurturing || {};
@@ -3491,12 +3497,15 @@ app.get('/api/admin/nurturing/status', adminAuth, (req, res) => {
   const now = Date.now();
   const targets = [];
 
+  const activeAfterS = settings.activeAfter ? new Date(settings.activeAfter).getTime() : null;
+
   for (const [token, record] of Object.entries(db)) {
     if (record.status === 'blocked' || record.status === 'withdrawn') continue;
     if (record.accountType === 'internal') continue;
     if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
     const stageNumS = parseInt(record.stage, 10) || 1;
     if (stageNumS >= 7) continue;
+    if (activeAfterS && record.createdAt && new Date(record.createdAt).getTime() < activeAfterS) continue;
 
     const createdAt = record.createdAt ? new Date(record.createdAt).getTime() : now;
     const hoursSinceCreated = (now - createdAt) / (1000 * 60 * 60);
