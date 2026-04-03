@@ -4328,7 +4328,7 @@
             switch (currentListFilter) {
                 case 'active':
                     filtered = filtered.filter(c => {
-                        if (c.status !== 'active') return false;
+                        if (c.status === 'blocked' || c.status === 'withdrawn') return false;
                         if (c.source === 'terass_offer' && c.offerStatus !== 'approved') return false;
                         const maxStage = c.customerType === 'sale' ? 9 : 8;
                         if (c.stage >= maxStage) return false;
@@ -4337,7 +4337,7 @@
                     break;
                 case 'purchase':
                     filtered = filtered.filter(c => {
-                        if (c.status !== 'active') return false;
+                        if (c.status === 'blocked' || c.status === 'withdrawn') return false;
                         if ((c.customerType || 'purchase') === 'sale') return false;
                         const maxStage = c.customerType === 'sale' ? 9 : 8;
                         if (c.stage >= maxStage) return false;
@@ -4346,7 +4346,7 @@
                     break;
                 case 'sale':
                     filtered = filtered.filter(c => {
-                        if (c.status !== 'active') return false;
+                        if (c.status === 'blocked' || c.status === 'withdrawn') return false;
                         if (c.customerType !== 'sale') return false;
                         if (c.stage >= 9) return false;
                         return true;
@@ -4356,7 +4356,7 @@
                     filtered = filtered.filter(c => c.source === 'terass_offer');
                     break;
                 case 'attention':
-                    filtered = filtered.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0));
+                    filtered = filtered.filter(c => c.status !== 'blocked' && c.status !== 'withdrawn' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0));
                     break;
                 case 'completed':
                     filtered = filtered.filter(c => {
@@ -4455,16 +4455,16 @@
         function updateListFilterCounts() {
             const real = customers.filter(c => (c.accountType || 'customer') !== 'internal');
             const active = real.filter(c => {
-                if (c.status !== 'active') return false;
+                if (c.status === 'blocked' || c.status === 'withdrawn') return false;
                 if (c.source === 'terass_offer' && c.offerStatus !== 'approved') return false;
                 const maxStage = c.customerType === 'sale' ? 9 : 8;
                 if (c.stage >= maxStage) return false;
                 return true;
             }).length;
-            const purchase = real.filter(c => { if (c.status !== 'active') return false; if ((c.customerType || 'purchase') === 'sale') return false; const max = c.customerType === 'sale' ? 9 : 8; return c.stage < max; }).length;
-            const sale = real.filter(c => { if (c.status !== 'active') return false; if (c.customerType !== 'sale') return false; return c.stage < 9; }).length;
+            const purchase = real.filter(c => { if (c.status === 'blocked' || c.status === 'withdrawn') return false; if ((c.customerType || 'purchase') === 'sale') return false; const max = c.customerType === 'sale' ? 9 : 8; return c.stage < max; }).length;
+            const sale = real.filter(c => { if (c.status === 'blocked' || c.status === 'withdrawn') return false; if (c.customerType !== 'sale') return false; return c.stage < 9; }).length;
             const terass = real.filter(c => c.source === 'terass_offer').length;
-            const attention = real.filter(c => c.status === 'active' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)).length;
+            const attention = real.filter(c => c.status !== 'blocked' && c.status !== 'withdrawn' && (c.daysSinceContact >= 14 || c.overdueTodoCount > 0)).length;
             const completed = real.filter(c => { const max = c.customerType === 'sale' ? 9 : 8; return c.stage >= max; }).length;
             const internal = customers.filter(c => (c.accountType || 'customer') === 'internal').length;
 
@@ -5067,7 +5067,7 @@
             const stagnantCustomers = customers.filter(c => {
                 const cType = c.customerType || 'purchase';
                 if (currentTypeFilter === 'sale' ? cType !== 'sale' : cType === 'sale') return false;
-                if (c.status !== 'active') return false;
+                if (c.status === 'blocked' || c.status === 'withdrawn') return false;
                 const maxStage = cType === 'sale' ? 9 : 8;
                 if (c.stage === maxStage) return false;
                 const thresholds = cType === 'sale' ? SALE_STAGE_STAGNATION_THRESHOLDS : STAGE_STAGNATION_THRESHOLDS;
