@@ -674,19 +674,19 @@ function runNurturingCheck() {
     // トリガー条件を優先度順にチェック（既に送信済みのトリガーはスキップ）
     const t = settings.triggers || {};
 
-    if (t.welcome_24h?.enabled && hoursSinceCreated >= (t.welcome_24h.delayHours || 24) && chatCount === 0 && !sentTriggers.includes('welcome_24h')) {
+    if (t.welcome_24h?.enabled && hoursSinceCreated >= (t.welcome_24h.delayHours ?? 24) && chatCount === 0 && !sentTriggers.includes('welcome_24h')) {
       triggerId = 'welcome_24h';
       message = templates.welcome_24h;
-    } else if (t.article_3d?.enabled && daysSinceCreated >= (t.article_3d.delayDays || 3) && chatCount < 3 && !sentTriggers.includes('article_3d')) {
+    } else if (t.article_3d?.enabled && daysSinceCreated >= (t.article_3d.delayDays ?? 3) && chatCount < 3 && !sentTriggers.includes('article_3d')) {
       triggerId = 'article_3d';
       message = templates.article_3d;
-    } else if (t.soft_meeting_7d?.enabled && daysSinceCreated >= (t.soft_meeting_7d.delayDays || 7) && stage <= 2 && !sentTriggers.includes('soft_meeting_7d')) {
+    } else if (t.soft_meeting_7d?.enabled && daysSinceCreated >= (t.soft_meeting_7d.delayDays ?? 7) && stage <= 2 && !sentTriggers.includes('soft_meeting_7d')) {
       triggerId = 'soft_meeting_7d';
       message = templates.soft_meeting_7d;
-    } else if (t.check_14d?.enabled && daysSinceActivity >= (t.check_14d.delayDays || 14) && stage >= 3 && stage <= 6 && !sentTriggers.includes('check_14d')) {
+    } else if (t.check_14d?.enabled && daysSinceActivity >= (t.check_14d.delayDays ?? 14) && stage >= 3 && stage <= 6 && !sentTriggers.includes('check_14d')) {
       triggerId = 'check_14d';
       message = templates.check_14d;
-    } else if (t.info_30d?.enabled && daysSinceActivity >= (t.info_30d.delayDays || 30) && !sentTriggers.includes('info_30d')) {
+    } else if (t.info_30d?.enabled && daysSinceActivity >= (t.info_30d.delayDays ?? 30) && !sentTriggers.includes('info_30d')) {
       triggerId = 'info_30d';
       message = templates.info_30d;
     }
@@ -3519,15 +3519,15 @@ app.get('/api/admin/nurturing/status', adminAuth, (req, res) => {
     const t = settings.triggers || {};
 
     let nextTrigger = null;
-    if (t.welcome_24h?.enabled && hoursSinceCreated >= (t.welcome_24h.delayHours || 24) && chatCount === 0 && !sentTriggers.includes('welcome_24h')) {
+    if (t.welcome_24h?.enabled && hoursSinceCreated >= (t.welcome_24h.delayHours ?? 24) && chatCount === 0 && !sentTriggers.includes('welcome_24h')) {
       nextTrigger = 'welcome_24h';
-    } else if (t.article_3d?.enabled && daysSinceCreated >= (t.article_3d.delayDays || 3) && chatCount < 3 && !sentTriggers.includes('article_3d')) {
+    } else if (t.article_3d?.enabled && daysSinceCreated >= (t.article_3d.delayDays ?? 3) && chatCount < 3 && !sentTriggers.includes('article_3d')) {
       nextTrigger = 'article_3d';
-    } else if (t.soft_meeting_7d?.enabled && daysSinceCreated >= (t.soft_meeting_7d.delayDays || 7) && stage <= 2 && !sentTriggers.includes('soft_meeting_7d')) {
+    } else if (t.soft_meeting_7d?.enabled && daysSinceCreated >= (t.soft_meeting_7d.delayDays ?? 7) && stage <= 2 && !sentTriggers.includes('soft_meeting_7d')) {
       nextTrigger = 'soft_meeting_7d';
-    } else if (t.check_14d?.enabled && daysSinceActivity >= (t.check_14d.delayDays || 14) && stage >= 3 && stage <= 6 && !sentTriggers.includes('check_14d')) {
+    } else if (t.check_14d?.enabled && daysSinceActivity >= (t.check_14d.delayDays ?? 14) && stage >= 3 && stage <= 6 && !sentTriggers.includes('check_14d')) {
       nextTrigger = 'check_14d';
-    } else if (t.info_30d?.enabled && daysSinceActivity >= (t.info_30d.delayDays || 30) && !sentTriggers.includes('info_30d')) {
+    } else if (t.info_30d?.enabled && daysSinceActivity >= (t.info_30d.delayDays ?? 30) && !sentTriggers.includes('info_30d')) {
       nextTrigger = 'info_30d';
     }
 
