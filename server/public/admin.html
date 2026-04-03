@@ -6799,9 +6799,9 @@
         async function loadNurturingData() {
             try {
                 const [statusRes, historyRes, settingsRes] = await Promise.all([
-                    fetch('/api/admin/nurturing/status', { headers: { 'X-Admin-Pass': adminPassword } }),
-                    fetch('/api/admin/nurturing/history', { headers: { 'X-Admin-Pass': adminPassword } }),
-                    fetch('/api/admin/nurturing/settings', { headers: { 'X-Admin-Pass': adminPassword } }),
+                    fetch('/api/admin/nurturing/status', { headers: { 'X-Admin-Pass': adminPass } }),
+                    fetch('/api/admin/nurturing/history', { headers: { 'X-Admin-Pass': adminPass } }),
+                    fetch('/api/admin/nurturing/settings', { headers: { 'X-Admin-Pass': adminPass } }),
                 ]);
                 const statusData = await statusRes.json();
                 const historyData = await historyRes.json();
@@ -6831,7 +6831,7 @@
             updateToggleStyle(enabled);
             await fetch('/api/admin/nurturing/settings', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPassword },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPass },
                 body: JSON.stringify({ enabled }),
             });
             showToast(enabled ? 'ナーチャリングを有効にしました' : 'ナーチャリングを無効にしました', 'success');
@@ -6842,7 +6842,7 @@
             try {
                 const res = await fetch('/api/admin/nurturing/run', {
                     method: 'POST',
-                    headers: { 'X-Admin-Pass': adminPassword },
+                    headers: { 'X-Admin-Pass': adminPass },
                 });
                 const data = await res.json();
                 showToast(data.message || '実行しました', 'success');
@@ -6951,7 +6951,7 @@
             triggers[triggerId] = { enabled };
             await fetch('/api/admin/nurturing/settings', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPassword },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPass },
                 body: JSON.stringify({ triggers }),
             });
             // Update checkbox visual
@@ -6964,7 +6964,7 @@
             if (isNaN(val) || val < 1) return;
             await fetch('/api/admin/nurturing/settings', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPassword },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Pass': adminPass },
                 body: JSON.stringify({ minIntervalDays: val }),
             });
             showToast(`最小送信間隔を${val}日に更新しました`, 'success');
