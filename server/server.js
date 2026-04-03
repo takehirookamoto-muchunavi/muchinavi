@@ -638,7 +638,7 @@ function runNurturingCheck() {
 
   for (const [token, record] of Object.entries(db)) {
     // 対象外: 非アクティブ、関係者、除外リスト
-    if (record.status !== 'active') continue;
+    if (record.status === 'blocked' || record.status === 'withdrawn') continue;
     if (record.accountType === 'internal') continue;
     if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
 
@@ -3489,7 +3489,7 @@ app.get('/api/admin/nurturing/status', adminAuth, (req, res) => {
   const targets = [];
 
   for (const [token, record] of Object.entries(db)) {
-    if (record.status !== 'active') continue;
+    if (record.status === 'blocked' || record.status === 'withdrawn') continue;
     if (record.accountType === 'internal') continue;
     if (settings.excludeTokens && settings.excludeTokens.includes(token)) continue;
 
