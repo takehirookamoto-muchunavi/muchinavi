@@ -5880,25 +5880,20 @@
         b.classList.toggle('active', b.dataset.tab === tab);
       });
 
-      // チャット関連要素
-      const chatElements = ['chat-messages', 'chat-input-bar', 'chat-room-tabs', 'progress-bar',
-        'direct-chat-messages', 'direct-chat-input-bar', 'chat-welcome',
-        'ai-file-preview', 'direct-file-preview', 'ai-file-hint', 'direct-file-hint',
-        'ai-file-progress', 'direct-file-progress'];
+      const chatScreen = document.getElementById('chat-screen');
+      const homeScreen = document.getElementById('home-screen');
 
       if (tab === 'home') {
-        document.getElementById('home-screen').style.display = 'block';
-        const miniBadge = document.getElementById('progress-mini-badge');
-        if (miniBadge) miniBadge.style.display = 'none';
-        chatElements.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = 'none';
-        });
+        // チャットを完全に非表示、ホームを表示
+        chatScreen.classList.remove('active');
+        homeScreen.style.display = 'block';
         loadHomeScreen();
         trackActivity('home_view', { stage: customerData?.stage });
       } else {
-        document.getElementById('home-screen').style.display = 'none';
-        // チャットの表示を復元
+        // ホームを完全に非表示、チャットを表示
+        homeScreen.style.display = 'none';
+        chatScreen.classList.add('active');
+        // チャット要素の表示を復元
         const activeRoom = document.querySelector('.chat-room-tab.active')?.dataset?.room || 'ai';
         const roomTabs = document.getElementById('chat-room-tabs');
         if (roomTabs) roomTabs.style.display = '';
@@ -5907,14 +5902,13 @@
           if (aiMsgs) aiMsgs.style.display = '';
           const aiBar = document.getElementById('chat-input-bar');
           if (aiBar) aiBar.style.display = '';
+          scrollToBottom();
         } else {
           const directMsgs = document.getElementById('direct-chat-messages');
           if (directMsgs) directMsgs.style.display = '';
           const directBar = document.getElementById('direct-chat-input-bar');
           if (directBar) directBar.style.display = '';
         }
-        const miniBadge = document.getElementById('progress-mini-badge');
-        if (miniBadge) miniBadge.style.display = '';
       }
     }
 
