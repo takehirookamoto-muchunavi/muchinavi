@@ -4895,12 +4895,16 @@
           <p class="step-subtitle">
             ${customerData.name ? customerData.name + 'さん専用の' : 'あなた専用の'}<br>${customerData.customerType === 'sale' ? '売却サポートAI' : 'AIアシスタント'}が準備できました
           </p>
-          <button class="btn-primary" onclick="startChat()" style="margin-top: 8px;">
-            MuchiNaviに相談する
-          </button>
-          <p style="font-size: 11px; color: var(--text-light); margin-top: 16px;">
-            岡本から直接ご連絡させていただきます
+          <p style="font-size: 14px; color: var(--text-secondary); margin-top: 12px; line-height: 1.6;">
+            ✨ あなたに最適な情報をお届けするために、<br>あと<strong>7つだけ</strong>教えてください！<br>
+            <span style="font-size: 12px; color: var(--text-light);">ボタンを選ぶだけ・1分で完了</span>
           </p>
+          <button class="btn-primary" onclick="startPersonalityQuiz()" style="margin-top: 8px; background: linear-gradient(135deg, #2D8A4F, #1F3A70);">
+            住まい探しタイプを診断する →
+          </button>
+          <button onclick="startChat()" style="margin-top: 8px; background: none; border: none; color: var(--text-light); font-size: 12px; cursor: pointer; text-decoration: underline;">
+            スキップしてチャットを始める
+          </button>
         `;
         card.style.animation = 'none';
         card.offsetHeight;
@@ -5097,13 +5101,220 @@
       if (input) input.focus();
     }
 
+    // ===== Personality Quiz (登録直後) =====
+    const personalityQuestions = [
+      { key: 'personality_info_style', title: '大きな買い物をするとき、あなたはどちらに近いですか？',
+        choices: [
+          { icon: '📊', label: 'データを集めて比較する', value: 'データ派' },
+          { icon: '✨', label: '直感やフィーリングを大切に', value: '直感派' },
+          { icon: '⚖️', label: 'どちらも同じくらい', value: '両方' },
+        ]},
+      { key: 'personality_risk', title: '住むエリアを選ぶとき、どちらに惹かれますか？',
+        choices: [
+          { icon: '🛡️', label: '実績のある安心エリア', value: '安心エリア' },
+          { icon: '🚀', label: 'これから伸びそうなエリア', value: '伸びそう' },
+          { icon: '🤔', label: '状況による', value: '状況次第' },
+        ]},
+      { key: 'personality_decision_speed', title: '気に入った物件が見つかったら？',
+        choices: [
+          { icon: '⚡', label: 'すぐ決めたい！', value: 'すぐ決めたい' },
+          { icon: '🔍', label: 'じっくり考えたい', value: 'じっくり考えたい' },
+          { icon: '📋', label: '物件による', value: '物による' },
+        ]},
+      { key: 'personality_priority', title: '住まい選びで一番大切にしたいのは？',
+        choices: [
+          { icon: '📈', label: '将来の資産価値', value: '資産価値' },
+          { icon: '🏡', label: '毎日の暮らしやすさ', value: '暮らしやすさ' },
+          { icon: '💫', label: 'どちらも大事', value: '両方大事' },
+        ]},
+      { key: 'personality_social', title: 'ご近所との付き合いは？',
+        choices: [
+          { icon: '🤝', label: '大切にしたい', value: '大切にしたい' },
+          { icon: '👋', label: 'ほどよい距離感で', value: 'ほどよい距離' },
+          { icon: '🏠', label: 'あまり気にしない', value: 'あまり気にしない' },
+        ]},
+      { key: 'personality_timeline', title: '今回のお住まいに、どのくらい住むイメージですか？',
+        choices: [
+          { icon: '🔄', label: '5〜10年くらい', value: '5-10年' },
+          { icon: '🌳', label: '10年以上', value: '10年以上' },
+          { icon: '🏰', label: 'ずっと住みたい', value: 'ずっと住みたい' },
+        ]},
+      { key: 'personality_change', title: 'リノベーションやカスタマイズには興味がありますか？',
+        choices: [
+          { icon: '🎨', label: 'ぜひやりたい！', value: 'ぜひやりたい' },
+          { icon: '🔧', label: '少しならOK', value: '少しなら' },
+          { icon: '✅', label: 'そのまま住みたい', value: 'そのまま住みたい' },
+        ]},
+    ];
+    let pqIndex = 0;
+    const personalityAnswers = {};
+
+    function startPersonalityQuiz() {
+      pqIndex = 0;
+      renderPersonalityQuestion();
+    }
+
+    function renderPersonalityQuestion() {
+      const card = document.getElementById('step-card');
+      const q = personalityQuestions[pqIndex];
+      const progress = Math.round(((pqIndex + 1) / personalityQuestions.length) * 100);
+
+      card.classList.add('leaving');
+      setTimeout(() => {
+        card.classList.remove('leaving');
+        card.innerHTML = `
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--accent);">${pqIndex + 1} / ${personalityQuestions.length}</span>
+              <span style="font-size: 11px; color: var(--text-light);">住まい探しタイプ診断</span>
+            </div>
+            <div style="height: 4px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden;">
+              <div style="height: 100%; width: ${progress}%; background: linear-gradient(90deg, #2D8A4F, #1F3A70); border-radius: 2px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <h2 class="step-title" style="font-size: 18px; margin-bottom: 20px;">${q.title}</h2>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${q.choices.map(c => `
+              <button onclick="answerPersonalityQuestion('${q.key}', '${c.value}')"
+                style="display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; font-size: 15px; font-family: inherit; text-align: left; transition: all 0.15s ease;"
+                onmouseover="this.style.borderColor='var(--accent)';this.style.background='var(--bg-secondary)'"
+                onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg-card)'"
+              >
+                <span style="font-size: 22px;">${c.icon}</span>
+                <span style="font-weight: 500;">${c.label}</span>
+              </button>
+            `).join('')}
+          </div>
+          ${pqIndex > 0 ? `<div style="margin-top: 12px;"><button onclick="pqIndex--;renderPersonalityQuestion()" style="background:none;border:none;color:var(--text-light);font-size:13px;cursor:pointer;font-family:inherit;">← 戻る</button></div>` : ''}
+        `;
+        card.style.animation = 'none';
+        card.offsetHeight;
+        card.style.animation = '';
+      }, 200);
+    }
+
+    function answerPersonalityQuestion(key, value) {
+      personalityAnswers[key] = value;
+      pqIndex++;
+
+      if (pqIndex >= personalityQuestions.length) {
+        // 全問回答完了 → タイプ判定 → 結果表示
+        showPersonalityResult();
+      } else {
+        renderPersonalityQuestion();
+      }
+    }
+
+    function determinePersonalityType() {
+      const scores = {
+        'じっくり研究家': 0, 'ビビッと即決派': 0, '巣づくり上手': 0, '未来設計派': 0,
+        'こだわりクリエイター': 0, '街選びの達人': 0, '安心ファースト': 0, '全方位バランサー': 0,
+      };
+      const a = personalityAnswers;
+      // 情報処理
+      if (a.personality_info_style === 'データ派') { scores['じっくり研究家'] += 3; scores['未来設計派'] += 2; scores['安心ファースト'] += 1; }
+      if (a.personality_info_style === '直感派') { scores['ビビッと即決派'] += 3; scores['こだわりクリエイター'] += 2; }
+      // リスク
+      if (a.personality_risk === '安心エリア') { scores['安心ファースト'] += 3; scores['巣づくり上手'] += 2; scores['じっくり研究家'] += 1; }
+      if (a.personality_risk === '伸びそう') { scores['未来設計派'] += 3; scores['こだわりクリエイター'] += 3; scores['ビビッと即決派'] += 2; }
+      // 意思決定
+      if (a.personality_decision_speed === 'すぐ決めたい') { scores['ビビッと即決派'] += 3; scores['こだわりクリエイター'] += 1; }
+      if (a.personality_decision_speed === 'じっくり考えたい') { scores['じっくり研究家'] += 3; scores['安心ファースト'] += 2; scores['巣づくり上手'] += 1; }
+      // 優先価値
+      if (a.personality_priority === '資産価値') { scores['未来設計派'] += 3; scores['じっくり研究家'] += 2; }
+      if (a.personality_priority === '暮らしやすさ') { scores['巣づくり上手'] += 3; scores['街選びの達人'] += 2; scores['こだわりクリエイター'] += 1; }
+      if (a.personality_priority === '両方大事') { scores['全方位バランサー'] += 2; }
+      // 社会的
+      if (a.personality_social === '大切にしたい') { scores['街選びの達人'] += 3; scores['巣づくり上手'] += 2; }
+      if (a.personality_social === 'ほどよい距離') { scores['全方位バランサー'] += 1; }
+      // 時間軸
+      if (a.personality_timeline === '5-10年') { scores['ビビッと即決派'] += 2; scores['未来設計派'] += 3; }
+      if (a.personality_timeline === 'ずっと住みたい') { scores['巣づくり上手'] += 3; scores['街選びの達人'] += 2; scores['安心ファースト'] += 1; }
+      // 変化
+      if (a.personality_change === 'ぜひやりたい') { scores['こだわりクリエイター'] += 3; }
+      if (a.personality_change === 'そのまま住みたい') { scores['安心ファースト'] += 2; scores['巣づくり上手'] += 1; }
+      if (a.personality_change === '少しなら') { scores['全方位バランサー'] += 1; }
+
+      // 最高スコアのタイプを返す
+      let maxType = '全方位バランサー';
+      let maxScore = 0;
+      for (const [type, score] of Object.entries(scores)) {
+        if (score > maxScore) { maxScore = score; maxType = type; }
+      }
+      return maxType;
+    }
+
+    function showPersonalityResult() {
+      const type = determinePersonalityType();
+      const typeInfo = {
+        'じっくり研究家': { emoji: '🔍', catch: '納得いくまで調べるのが性分です', features: ['データと数字で比較検討', '根拠がないと動けない', '後悔しない選択を徹底', '情報は多ければ多いほどいい'] },
+        'ビビッと即決派': { emoji: '⚡', catch: '"ここだ！"の直感、信じていい', features: ['直感を大切にする', 'スピードが命', '候補は少ない方がいい', '結論から聞きたい'] },
+        '巣づくり上手': { emoji: '🏡', catch: '家族みんなの笑顔が、家の真ん中に', features: ['学区・子育て環境を重視', '永住できる安心感', 'ご近所との関係も大切', 'じっくり納得いくまで'] },
+        '未来設計派': { emoji: '📊', catch: '10年後の自分に"ナイス判断"と言わせたい', features: ['資産価値を考える', '将来の売却も視野', '数字で判断する', '戦略的な選択'] },
+        'こだわりクリエイター': { emoji: '🎨', catch: '"自分らしい暮らし"は自分でつくる', features: ['リノベに興味あり', 'デザインにこだわる', '可能性にワクワクする', '個性的な住まいが好き'] },
+        '街選びの達人': { emoji: '🤝', catch: 'いい街に住めば、人生が変わる', features: ['街の雰囲気を重視', 'ご近所付き合いが好き', '根を張って暮らしたい', 'コミュニティが大切'] },
+        '安心ファースト': { emoji: '🛡️', catch: '"大丈夫"が何より大事', features: ['確実な選択を重視', 'リスクは避けたい', '実績あるものが安心', '慎重に検討する'] },
+        '全方位バランサー': { emoji: '⚖️', catch: '偏らない。だからブレない', features: ['全体を見渡す', 'バランスを大切に', '柔軟な判断力', '総合的に考える'] },
+      };
+      const info = typeInfo[type] || typeInfo['全方位バランサー'];
+
+      // プロフィールに保存
+      customerData.personalityType = type;
+      Object.assign(customerData, personalityAnswers);
+
+      // サーバーに保存
+      if (currentToken) {
+        fetch(`/api/customer/profile/${currentToken}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ personalityType: type, ...personalityAnswers }),
+        }).catch(e => console.error('Profile save error:', e));
+      }
+
+      const card = document.getElementById('step-card');
+      card.classList.add('leaving');
+      setTimeout(() => {
+        card.classList.remove('leaving');
+        card.innerHTML = `
+          <div style="text-align: center;">
+            <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">✨ あなたの住まい探しタイプは…</div>
+            <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
+              <div style="font-size: 40px; margin-bottom: 8px;">${info.emoji}</div>
+              <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">${type}</div>
+              <div style="font-size: 14px; opacity: 0.9; font-style: italic;">「${info.catch}」</div>
+            </div>
+            <div style="text-align: left; margin-bottom: 20px;">
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">あなたの特徴</div>
+              ${info.features.map(f => `<div style="font-size: 14px; padding: 6px 0; color: var(--text-primary);">✅ ${f}</div>`).join('')}
+            </div>
+            <div style="background: var(--bg-secondary); padding: 14px; border-radius: 12px; margin-bottom: 20px; text-align: left;">
+              <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+                💬 これからのAIチャットでは、<strong>${type}</strong>さんに合わせた情報をお届けします！
+              </div>
+            </div>
+            <button class="btn-primary" onclick="startChat()" style="background: linear-gradient(135deg, #2D8A4F, #1F3A70);">
+              AIチャットを始める →
+            </button>
+          </div>
+        `;
+        card.style.animation = 'none';
+        card.offsetHeight;
+        card.style.animation = '';
+
+        // GA4
+        if (typeof gtag === 'function') {
+          gtag('event', 'personality_diagnosis_complete', { personality_type: type });
+        }
+      }, 200);
+    }
+
     // ===== Chat =====
     function startChat() {
       document.getElementById('onboarding').style.display = 'none';
       document.getElementById('chat-screen').classList.add('active');
       const isSale = customerData?.customerType === 'sale';
       document.getElementById('chat-customer-name').textContent =
-        `${customerData.name}さんの${isSale ? '売却相談' : '住まい相談'}`;
+        `${customerData.name ? customerData.name + 'さん' : 'あなた'}の${isSale ? '売却相談' : '住まい相談'}`;
 
       // 売却顧客はウェルカムメッセージとヒントを差し替え
       if (isSale) {
