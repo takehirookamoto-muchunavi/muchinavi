@@ -5247,14 +5247,14 @@
     function showPersonalityResult() {
       const type = determinePersonalityType();
       const typeInfo = {
-        'じっくり研究家': { emoji: '🔍', catch: '納得いくまで調べるのが性分です', features: ['データと数字で比較検討', '根拠がないと動けない', '後悔しない選択を徹底', '情報は多ければ多いほどいい'] },
-        'ビビッと即決派': { emoji: '⚡', catch: '"ここだ！"の直感、信じていい', features: ['直感を大切にする', 'スピードが命', '候補は少ない方がいい', '結論から聞きたい'] },
-        '巣づくり上手': { emoji: '🏡', catch: '家族みんなの笑顔が、家の真ん中に', features: ['学区・子育て環境を重視', '永住できる安心感', 'ご近所との関係も大切', 'じっくり納得いくまで'] },
-        '未来設計派': { emoji: '📊', catch: '10年後の自分に"ナイス判断"と言わせたい', features: ['資産価値を考える', '将来の売却も視野', '数字で判断する', '戦略的な選択'] },
-        'こだわりクリエイター': { emoji: '🎨', catch: '"自分らしい暮らし"は自分でつくる', features: ['リノベに興味あり', 'デザインにこだわる', '可能性にワクワクする', '個性的な住まいが好き'] },
-        '街選びの達人': { emoji: '🤝', catch: 'いい街に住めば、人生が変わる', features: ['街の雰囲気を重視', 'ご近所付き合いが好き', '根を張って暮らしたい', 'コミュニティが大切'] },
-        '安心ファースト': { emoji: '🛡️', catch: '"大丈夫"が何より大事', features: ['確実な選択を重視', 'リスクは避けたい', '実績あるものが安心', '慎重に検討する'] },
-        '全方位バランサー': { emoji: '⚖️', catch: '偏らない。だからブレない', features: ['全体を見渡す', 'バランスを大切に', '柔軟な判断力', '総合的に考える'] },
+        'じっくり研究家': { emoji: '🔍', catchphrase: '納得いくまで調べるのが性分です', features: ['データと数字で比較検討', '根拠がないと動けない', '後悔しない選択を徹底', '情報は多ければ多いほどいい'] },
+        'ビビッと即決派': { emoji: '⚡', catchphrase: '"ここだ！"の直感、信じていい', features: ['直感を大切にする', 'スピードが命', '候補は少ない方がいい', '結論から聞きたい'] },
+        '巣づくり上手': { emoji: '🏡', catchphrase: '家族みんなの笑顔が、家の真ん中に', features: ['学区・子育て環境を重視', '永住できる安心感', 'ご近所との関係も大切', 'じっくり納得いくまで'] },
+        '未来設計派': { emoji: '📊', catchphrase: '10年後の自分に"ナイス判断"と言わせたい', features: ['資産価値を考える', '将来の売却も視野', '数字で判断する', '戦略的な選択'] },
+        'こだわりクリエイター': { emoji: '🎨', catchphrase: '"自分らしい暮らし"は自分でつくる', features: ['リノベに興味あり', 'デザインにこだわる', '可能性にワクワクする', '個性的な住まいが好き'] },
+        '街選びの達人': { emoji: '🤝', catchphrase: 'いい街に住めば、人生が変わる', features: ['街の雰囲気を重視', 'ご近所付き合いが好き', '根を張って暮らしたい', 'コミュニティが大切'] },
+        '安心ファースト': { emoji: '🛡️', catchphrase: '"大丈夫"が何より大事', features: ['確実な選択を重視', 'リスクは避けたい', '実績あるものが安心', '慎重に検討する'] },
+        '全方位バランサー': { emoji: '⚖️', catchphrase: '偏らない。だからブレない', features: ['全体を見渡す', 'バランスを大切に', '柔軟な判断力', '総合的に考える'] },
       };
       const info = typeInfo[type] || typeInfo['全方位バランサー'];
 
@@ -5263,8 +5263,9 @@
       Object.assign(customerData, personalityAnswers);
 
       // サーバーに保存
-      if (currentToken) {
-        fetch(`/api/customer/profile/${currentToken}`, {
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (token) {
+        fetch(`/api/customer/profile/${token}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ personalityType: type, ...personalityAnswers }),
@@ -5281,7 +5282,7 @@
             <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
               <div style="font-size: 40px; margin-bottom: 8px;">${info.emoji}</div>
               <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">${type}</div>
-              <div style="font-size: 14px; opacity: 0.9; font-style: italic;">「${info.catch}」</div>
+              <div style="font-size: 14px; opacity: 0.9; font-style: italic;">「${info.catchphrase}」</div>
             </div>
             <div style="text-align: left; margin-bottom: 20px;">
               <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">あなたの特徴</div>
@@ -6361,9 +6362,10 @@
     }
 
     async function saveProfileUpdate(key, value) {
-      if (!currentToken) return;
+      const token = sessionToken || localStorage.getItem('muchinavi_token');
+      if (!token) return;
       try {
-        const res = await fetch(`/api/customer/profile/${currentToken}`, {
+        const res = await fetch(`/api/customer/profile/${token}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [key]: value }),
