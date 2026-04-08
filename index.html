@@ -5289,11 +5289,12 @@
         card.innerHTML = `
           <div style="text-align: center;">
             <div style="font-size: 14px; color: var(--text-light); margin-bottom: 8px;">✨ あなたの住まい探しタイプは…</div>
-            <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
+            <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 28px 20px; border-radius: 16px; margin-bottom: 12px;">
               <div style="font-size: 40px; margin-bottom: 8px;">${info.emoji}</div>
-              <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">${type}</div>
+              <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">${type}<span style="font-size:14px;font-weight:400;opacity:0.85;">の傾向</span></div>
               <div style="font-size: 14px; opacity: 0.9; font-style: italic;">「${info.catchphrase}」</div>
             </div>
+            <p style="font-size: 11px; color: var(--text-light); margin-bottom: 16px; line-height: 1.5;">※ この診断はあなたの回答に基づく傾向であり、心理学的な確定診断ではありません。住まい探しの参考としてご活用ください。</p>
             <div style="text-align: left; margin-bottom: 20px;">
               <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">あなたの特徴</div>
               ${info.features.map(f => `<div style="font-size: 14px; padding: 6px 0; color: var(--text-primary);">✅ ${f}</div>`).join('')}
@@ -7175,13 +7176,14 @@
             <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 20px; border-radius: 14px; margin-bottom: 12px;">
               <div style="text-align: center; margin-bottom: 12px;">
                 <div style="font-size: 32px; margin-bottom: 4px;">${emoji}</div>
-                <div style="font-size: 18px; font-weight: 700;">${p.personalityType}</div>
+                <div style="font-size: 18px; font-weight: 700;">${p.personalityType}<span style="font-size:12px;font-weight:400;opacity:0.8;">の傾向</span></div>
                 <div style="font-size: 12px; opacity: 0.85; font-style: italic;">「${cp}」</div>
               </div>
               <div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">
                 ${features.map(f => `<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; font-size: 11px;">✅ ${f}</span>`).join('')}
               </div>
             </div>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5;">※ この診断はあなたの回答に基づく傾向です。住まい探しの参考としてご活用ください。</p>
             ${answeredDims.length > 0 ? `
               <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">あなたの回答</div>
               ${answeredDims.map(d => `
