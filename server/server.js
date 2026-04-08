@@ -1606,11 +1606,20 @@ app.get('/api/session/:token', (req, res) => {
     customer: {
       name: record.name, family: record.family, householdIncome: record.householdIncome,
       propertyType: record.propertyType, purpose: record.purpose, searchReason: record.searchReason,
-      area: record.area, budget: record.budget, freeComment: record.freeComment,
+      areaPref: record.areaPref, area: record.area, budget: record.budget, freeComment: record.freeComment,
       email: record.email, phone: record.phone, customerType: record.customerType || 'purchase',
       salePropertyType: record.salePropertyType, salePropertyLocation: record.salePropertyLocation,
       salePropertyName: record.salePropertyName, saleDesiredPrice: record.saleDesiredPrice,
       stage: record.stage || 1,
+      // パーソナリティ診断
+      personalityType: record.personalityType || '',
+      personality_info_style: record.personality_info_style || '',
+      personality_risk: record.personality_risk || '',
+      personality_decision_speed: record.personality_decision_speed || '',
+      personality_priority: record.personality_priority || '',
+      personality_social: record.personality_social || '',
+      personality_timeline: record.personality_timeline || '',
+      personality_change: record.personality_change || '',
     },
     chatHistory: record.chatHistory || [],
     directChatHistory: record.directChatHistory || [],
@@ -2325,7 +2334,17 @@ app.post('/api/chat', async (req, res) => {
 予算: ${customer.budget || '未入力'}
 メール: ${customer.email || '未入力'}
 電話: ${customer.phone || '未入力'}
-住まい探しタイプ: ${customer.personalityType || '未診断'}
+
+【住まい探しタイプ診断結果】
+タイプ: ${customer.personalityType || '未診断'}
+情報処理スタイル: ${customer.personality_info_style || '未回答'}（データ派=数字・比較を重視 / 直感派=フィーリング重視）
+リスク許容度: ${customer.personality_risk || '未回答'}（安心エリア=実績重視 / 伸びそう=将来性重視）
+意思決定スピード: ${customer.personality_decision_speed || '未回答'}（じっくり=時間をかける / すぐ決めたい=スピード重視）
+優先価値: ${customer.personality_priority || '未回答'}（資産価値=将来の売却も視野 / 暮らしやすさ=日常の快適さ重視）
+社会的志向: ${customer.personality_social || '未回答'}（大切にしたい=ご近所重視 / ほどよい距離=プライバシー重視）
+時間軸: ${customer.personality_timeline || '未回答'}（5-10年=住み替え前提 / ずっと住みたい=永住志向）
+変化への態度: ${customer.personality_change || '未回答'}（ぜひやりたい=リノベ好き / そのまま住みたい=完成品好き）
+※ このタイプ情報に基づいて回答スタイルを最適化すること。ただし診断は傾向であり断定しない。
 
 【★ パーソナリティ診断（住まい探しタイプ）ルール ★】
 ■ 概要：
