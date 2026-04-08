@@ -3078,7 +3078,7 @@
       <div class="chat-header-title">MuchiNavi</div>
       <div class="chat-header-sub" id="chat-customer-name"></div>
       <div class="chat-header-actions">
-        <a class="chat-header-btn booking" id="chat-booking-btn" href="#" target="_blank" rel="noopener" onclick="if(typeof gtag==='function'){gtag('event','cta_click',{cta_location:'header',destination:'timerex'});}">
+        <a class="chat-header-btn booking" id="chat-booking-btn" href="#" target="_blank" rel="noopener">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> オンライン面談
         </a>
         <button class="chat-header-btn profile" onclick="openProfile()">
@@ -3558,9 +3558,9 @@
       {
         type: 'welcome',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-        title: 'MuchiNaviへようこそ',
-        subtitle: 'AIがあなたの不動産のご相談をサポートします。\n簡単な質問に答えるだけで、あなた専用のアドバイザーが準備できます。',
-        buttonText: 'はじめる',
+        title: '住まい探しタイプ診断',
+        subtitle: '5つの質問であなたに合った情報をお届けします。\nボタンを選ぶだけ・30秒で完了です。',
+        buttonText: '診断スタート',
       },
       {
         type: 'choice',
@@ -3571,69 +3571,10 @@
         choices: [
           { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', label: '住まいを購入したい', value: 'purchase' },
           { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', label: '不動産を売却したい', value: 'sale' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', label: 'まだ迷っている', value: 'undecided' },
         ],
-        response: (val) => val === 'purchase' ? '住まい探しをサポートします！' : '売却をしっかりサポートします！',
+        response: (val) => val === 'purchase' ? '住まい探しをサポートします！' : val === 'sale' ? '売却をしっかりサポートします！' : 'まずは情報収集からですね！',
       },
-      {
-        type: 'text',
-        key: 'name',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-        title: 'お名前を教えてください',
-        subtitle: '※ 本名でのご記入をお願いします（今後のやり取りで正確にサポートするため）',
-        placeholder: '例: 山田太郎',
-        required: true,
-        response: (val) => `${val}さん、よろしくお願いします！`,
-      },
-      {
-        type: 'birthdate',
-        key: 'birthInfo',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>',
-        title: '{name}さんの生まれ年と\n生まれ月を教えてください',
-        subtitle: 'ライフプランの作成に使用します',
-        required: true,
-        response: (val) => `ありがとうございます！`,
-      },
-      // 都道府県ステップは削除（検討エリアで都道府県→市区町村を聞くため重複）
-      {
-        type: 'choice',
-        key: 'family',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-        title: '{name}さんは\n誰と一緒に住む予定ですか？',
-        subtitle: '',
-        choices: [
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', label: 'おひとり', value: '単身' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', label: 'パートナーと', value: 'パートナーと二人' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', label: '家族で', value: '家族', hasSubQuestion: true },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', label: 'まだ決めてない', value: '未定' },
-        ],
-        subQuestion: {
-          label: 'お子様は何人ですか？',
-          type: 'choice-inline',
-          options: ['1人', '2人', '3人以上'],
-        },
-        response: (val) => `${val}でのお住まいですね！`,
-      },
-      {
-        type: 'choice',
-        key: 'householdIncome',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
-        title: '{name}さんの\n世帯年収を教えてください',
-        subtitle: 'ローンの目安や資金計画に活用します',
-        choices: [
-          { icon: '', label: '〜499万円', value: '〜499万円' },
-          { icon: '', label: '500〜999万円', value: '500〜999万円' },
-          { icon: '', label: '1,000〜1,499万円', value: '1,000〜1,499万円' },
-          { icon: '', label: '1,500〜1,999万円', value: '1,500〜1,999万円' },
-          { icon: '', label: '2,000〜2,499万円', value: '2,000〜2,499万円' },
-          { icon: '', label: '2,500〜2,999万円', value: '2,500〜2,999万円' },
-          { icon: '', label: '3,000万円〜', value: '3,000万円〜' },
-        ],
-        response: (val) => `ありがとうございます！`,
-      },
-    ];
-
-    // 購入専用ステップ
-    const purchaseOnlySteps = [
       {
         type: 'choice',
         key: 'propertyType',
@@ -3647,40 +3588,6 @@
           { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 6V2"/><path d="M18 6V2"/><path d="M10 14h4"/><path d="M12 12v4"/></svg>', label: '注文住宅', value: '注文住宅' },
         ],
         response: (val) => `${val}をお探しなんですね！`,
-      },
-      {
-        type: 'choice',
-        key: 'purpose',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
-        title: '今回はどんなきっかけで\nご登録いただきましたか？',
-        subtitle: '一番近いものをお選びください',
-        choices: [
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>', label: '住まい探し全般', value: '住まい探し全般' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>', label: '記事が参考になった', value: '記事が参考になった' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17a4 4 0 0 0 8 0"/><path d="M5 17a4 4 0 0 0 8 0"/><path d="M2 11l4-4 4 4"/><path d="M14 7l4-4 4 4"/></svg>', label: 'ハウスメーカー紹介', value: 'ハウスメーカー紹介・割引を受けたい' },
-          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', label: 'とりあえず相談', value: 'とりあえず相談したい' },
-        ],
-        response: (val) => `なるほど、承知しました！`,
-      },
-      {
-        type: 'multi_choice',
-        key: 'searchReason',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
-        title: '{name}さんが住まいを探している\n理由を教えてください',
-        subtitle: '複数選択できます',
-        hasOther: true,
-        choices: [
-          { label: '🏠 家賃がもったいない', value: '家賃がもったいない' },
-          { label: '👶 子どもの成長・教育環境', value: '子どもの成長・教育環境' },
-          { label: '💍 結婚・同棲を機に', value: '結婚・同棲を機に' },
-          { label: '📐 広い家に住みたい', value: '広い家に住みたい' },
-          { label: '💰 資産として持ちたい', value: '資産として持ちたい' },
-          { label: '📉 金利が低い今のうちに', value: '金利が低い今のうちに' },
-          { label: '🏡 老後の住まいを確保したい', value: '老後の住まいを確保したい' },
-          { label: '🚃 転勤・転職に伴い', value: '転勤・転職に伴い' },
-          { label: '👨‍👩‍👧 親との同居・二世帯', value: '親との同居・二世帯' },
-        ],
-        response: (val) => `ありがとうございます！`,
       },
       {
         type: 'multi_choice',
@@ -3701,37 +3608,6 @@
         skipValue: '未定（一緒に探したい）',
         skipResponse: '大丈夫です！一緒に探しましょう',
         response: (val) => `${val}エリアですね！`,
-        onNext: (val) => { customerData._areaPrefTemp = val; }
-      },
-      {
-        type: 'multi_choice',
-        key: 'area',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        title: 'もう少し詳しく教えてください',
-        subtitle: '気になる市区を選んでください（複数可）',
-        hasOther: true,
-        dynamicChoices: true,
-        getChoices: () => {
-          const prefs = (customerData.areaPref || '').split('、');
-          const areaMap = {
-            '大阪府': ['大阪市北区','大阪市中央区','大阪市天王寺区','大阪市阿倍野区','大阪市西区','大阪市福島区','大阪市都島区','大阪市城東区','大阪市鶴見区','大阪市東淀川区','豊中市','吹田市','箕面市','池田市','茨木市','高槻市','堺市','東大阪市','枚方市','八尾市'],
-            '兵庫県': ['西宮市','芦屋市','宝塚市','尼崎市','伊丹市','川西市','神戸市東灘区','神戸市灘区','神戸市中央区','三田市'],
-            '京都府': ['京都市左京区','京都市中京区','京都市上京区','京都市北区','京都市下京区','京都市右京区','京都市山科区','京都市伏見区','長岡京市','向日市'],
-            '奈良県': ['奈良市','生駒市','大和郡山市','橿原市','香芝市','天理市','大和高田市','桜井市','御所市','葛城市'],
-            '東京都': ['千代田区','中央区','港区','新宿区','文京区','台東区','墨田区','江東区','品川区','目黒区','大田区','世田谷区','渋谷区','中野区','杉並区','豊島区','北区','荒川区','板橋区','練馬区','足立区','葛飾区','江戸川区'],
-            '神奈川県': ['横浜市西区','横浜市中区','横浜市神奈川区','横浜市鶴見区','横浜市港北区','横浜市都筑区','横浜市青葉区','横浜市緑区','横浜市南区','横浜市磯子区','横浜市金沢区','横浜市戸塚区','横浜市栄区','横浜市泉区','横浜市瀬谷区','横浜市旭区','横浜市保土ケ谷区','横浜市港南区'],
-          };
-          let choices = [];
-          prefs.forEach(p => {
-            const cities = areaMap[p.trim()];
-            if (cities) choices = choices.concat(cities.map(c => ({ label: `📍 ${c}`, value: c })));
-          });
-          return choices.length > 0 ? choices : [{ label: '📍 エリア未定', value: 'エリア未定' }];
-        },
-        skipText: '細かいエリアはまだ決まっていない',
-        skipValue: '',
-        skipResponse: '大丈夫です！面談で一緒に絞りましょう',
-        response: (val) => `了解です！`,
       },
       {
         type: 'slider',
@@ -3752,7 +3628,35 @@
         skipResponse: '全然OKです！これから一緒に考えましょう',
         response: (val) => `了解です！ぴったりの物件を探しましょう`,
       },
+      {
+        type: 'choice',
+        key: 'family',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        title: '誰と一緒に住む予定ですか？',
+        subtitle: '',
+        choices: [
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', label: 'おひとり', value: '単身' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', label: 'パートナーと', value: 'パートナーと二人' },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', label: '家族で', value: '家族', hasSubQuestion: true },
+          { icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', label: 'まだ決めてない', value: '未定' },
+        ],
+        subQuestion: {
+          label: 'お子様は何人ですか？',
+          type: 'choice-inline',
+          options: ['1人', '2人', '3人以上'],
+        },
+        response: (val) => `${val}でのお住まいですね！`,
+      },
+      {
+        type: 'diagnosis_result',
+        key: 'diagnosisResult',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+        title: '診断結果',
+      },
     ];
+
+    // 購入専用ステップ（診断型への移行で空配列化。購入ステップはcommonStepsStartに統合済み）
+    const purchaseOnlySteps = [];
 
     // 売却専用ステップ
     // 売却専用ステップ：物件種別に応じて動的に生成
@@ -3975,12 +3879,14 @@
     // ステップを動的に構築（customerTypeに基づいて分岐）
     function getSteps() {
       if (customerData.customerType === 'sale') {
-        // 売却顧客：不要な共通ステップを除外 + 物件種別に応じた動的ステップ
+        // 売却顧客：診断系ステップと不要な共通ステップを除外 + 物件種別に応じた動的ステップ
         const saleCommonStart = commonStepsStart.filter(s =>
           s.key !== 'family' && s.key !== 'householdIncome' && s.key !== 'birthInfo' && s.key !== 'prefecture'
+          && s.key !== 'propertyType' && s.key !== 'areaPref' && s.key !== 'budget' && s.key !== 'diagnosisResult'
         );
         return [...saleCommonStart, ...getSaleSteps(), ...commonStepsEnd];
       }
+      // 購入・未定: 診断フロー → 登録
       return [...commonStepsStart, ...purchaseOnlySteps, ...commonStepsEnd];
     }
 
@@ -4198,11 +4104,11 @@
               <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
-            <div>
-              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号 ${customerData.customerType === 'sale' ? '<span style="color: var(--danger);">*</span>' : '<span style="color:#86868b;">(任意)</span>'}</label>
-              ${customerData.customerType === 'sale' ? '<div style="font-size:11px;color:#86868b;margin-bottom:6px;">※ 査定のお打ち合わせや内覧日程の調整にお電話が必要となります</div>' : '<div style="font-size:11px;color:#86868b;margin-bottom:6px;">※ 面談予約時のご連絡に使用します。電話営業は一切しません</div>'}
+            ${customerData.customerType === 'sale' ? `<div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">電話番号 <span style="color: var(--danger);">*</span></label>
+              <div style="font-size:11px;color:#86868b;margin-bottom:6px;">※ 査定のお打ち合わせや内覧日程の調整にお電話が必要となります</div>
               <input class="input-field" type="tel" id="contact-phone" placeholder="090-1234-5678" style="text-align: left;">
-            </div>
+            </div>` : ''}
             <!-- メール認証エリア -->
             <div id="verify-area" style="display:none;">
               <div style="background:#f0f7ff;border-radius:10px;padding:12px;margin-bottom:8px;">
@@ -4247,6 +4153,42 @@
         `;
       }
 
+      else if (step.type === 'diagnosis_result') {
+        html += `
+          <div style="text-align: center;">
+            <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
+              <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">ありがとうございます！</div>
+              <div style="font-size: 18px; font-weight: 700; line-height: 1.5;">お聞きした内容をもとに<br>参考になりそうな情報を<br>まとめました</div>
+            </div>
+            <div id="diagnosis-advice" style="background: #FFF5F0; border-left: 4px solid #E07856; padding: 16px; border-radius: 0 12px 12px 0; margin-bottom: 20px; text-align: left;">
+              <div style="font-size: 12px; font-weight: 600; color: #E07856; margin-bottom: 6px;">💡 ワンポイント</div>
+              <div style="font-size: 13px; line-height: 1.6; color: #333;" id="diagnosis-advice-text">読み込み中...</div>
+            </div>
+            <div id="diagnosis-articles" style="text-align: left; margin-bottom: 20px;">
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">📚 あなたの条件に合いそうな記事</div>
+              <div style="font-size: 12px; color: var(--text-light);">読み込み中...</div>
+            </div>
+            <div style="background: var(--bg-secondary); padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: left;">
+              <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">✨ 無料登録するとできること</div>
+              <div style="font-size: 12px; line-height: 1.8; color: var(--text-secondary);">
+                ✅ AIに住宅購入の疑問を24時間相談<br>
+                ✅ あなたの条件に合った情報を自動でお届け<br>
+                ✅ プロのエージェントにワンタップで直接相談<br>
+                ✅ 利用は完全無料・営業電話なし
+              </div>
+            </div>
+            <button class="btn-primary" onclick="nextStep('diagnosed')" style="background: linear-gradient(135deg, #2D8A4F, #1F3A70);">
+              無料で相談を始める →
+            </button>
+            <p style="font-size: 11px; color: var(--text-light); margin-top: 10px;">
+              ※ メールアドレスの登録が必要です（営業電話は一切ありません）
+            </p>
+          </div>
+        `;
+        // サーバーAPIから最適な記事を取得
+        setTimeout(() => loadRecommendedArticles(), 300);
+      }
+
       // Append back button at the bottom (after all action buttons)
       html += backButtonHTML;
 
@@ -4267,7 +4209,7 @@
 
     function renderProgress(stepIdx) {
       const totalQuestions = getTotalSteps() - 1; // ウェルカム画面を除く
-      const percent = Math.round((stepIdx / totalQuestions) * 100);
+      const percent = 20 + Math.round((stepIdx / totalQuestions) * 80); // 20%スタート（内発的進捗効果）
       const remaining = totalQuestions - stepIdx;
 
       const barFill = document.getElementById('progress-bar-fill');
@@ -4281,6 +4223,107 @@
           remainingEl.textContent = `あと ${remaining} 問`;
         } else {
           remainingEl.textContent = '最後のステップ！';
+        }
+      }
+    }
+
+    // ===== 診断結果ロジック =====
+    function getDiagnosisResult() {
+      const ct = customerData.customerType || '';
+      const pt = customerData.propertyType || '';
+      const budget = customerData.budget || '';
+      const family = customerData.family || '';
+
+      // タイプ判定（フロントで計算）
+      if (ct === 'undecided' || budget === '未定') {
+        return {
+          type: 'explorer', emoji: '🔍',
+          title: 'じっくり探索タイプ',
+          description: '情報収集を大切にするあなた。焦らず、自分のペースで理想の住まいを見つけていくスタイルです。',
+          advice: 'まずは気になるエリアの相場感を掴むことが、後悔しない家探しの第一歩になるかもしれません。AIチャットで気軽に質問しながら、知識を積み上げていきましょう。',
+          category: '', // 全カテゴリから推薦
+        };
+      }
+      if (pt === '注文住宅') {
+        return {
+          type: 'builder', emoji: '🏗️',
+          title: 'こだわり実現タイプ',
+          description: '理想の暮らしを形にしたいあなた。土地探しからハウスメーカー選びまで、妥協しないこだわりが大切です。',
+          advice: 'ハウスメーカーの紹介制度を活用すると、割引や優秀な担当者のマッチングにつながる可能性があります。各社の特徴をAIで比較してみてください。',
+          category: 'ハウスメーカーの選び方',
+        };
+      }
+      if ((family === '家族' || family.includes('子ども')) && (pt === '中古戸建て' || pt === '新築戸建て')) {
+        return {
+          type: 'family_first', emoji: '👨‍👩‍👧‍👦',
+          title: '家族の幸せ重視タイプ',
+          description: '子育て環境と住まいの安心を大切にするあなた。学区・治安・公園など、家族みんなの笑顔を考えた家探しです。',
+          advice: 'お子さんの年齢に合わせた学区情報や子育て支援制度は、エリアによって大きく異なる可能性があります。気になるエリアについてAIに聞いてみてください。',
+          category: 'エリア別解説記事',
+        };
+      }
+      if (pt === '中古マンション') {
+        return {
+          type: 'smart_investor', emoji: '📊',
+          title: '賢い資産形成タイプ',
+          description: '住まいとしての快適さと資産性の両立を考えるあなた。将来を見据えた、堅実な選択を重視するスタイルです。',
+          advice: '中古マンションは立地と管理状態が資産価値を左右する可能性があります。気になる物件の築年数や管理費について、AIに相談してみてください。',
+          category: '住宅ローンの基本と選び方',
+        };
+      }
+      return {
+        type: 'balanced', emoji: '⚖️',
+        title: 'バランス重視タイプ',
+        description: '住みやすさ・価格・将来性をバランスよく考えるあなた。多角的な視点で、ベストな選択を見つけていくスタイルです。',
+        advice: '条件の優先順位を整理すると、自分に合った物件が見えてくる可能性があります。AIチャットで「何を重視すべきか」から相談してみてください。',
+        category: 'はじめての家探し',
+      };
+    }
+
+    async function loadRecommendedArticles() {
+      const container = document.getElementById('diagnosis-articles');
+      const adviceText = document.getElementById('diagnosis-advice-text');
+      try {
+        const res = await fetch('/api/recommend-articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerType: customerData.customerType || '',
+            propertyType: customerData.propertyType || '',
+            areaPref: customerData.areaPref || '',
+            budget: customerData.budget || '',
+            family: customerData.family || '',
+          }),
+        });
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        // ワンポイントアドバイス
+        if (adviceText && data.advice) {
+          adviceText.textContent = data.advice;
+        }
+
+        // 記事リスト
+        if (container && data.articles && data.articles.length > 0) {
+          container.innerHTML = `
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">📚 あなたの条件に合いそうな記事</div>
+            ${data.articles.map(a => `
+              <a href="${a.url}" target="_blank" rel="noopener" style="display: block; padding: 10px 12px; background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; margin-bottom: 8px; text-decoration: none; color: var(--text-primary); font-size: 13px; line-height: 1.5; transition: background 0.2s;">
+                📄 ${a.title}
+              </a>
+            `).join('')}
+          `;
+        }
+      } catch(e) {
+        // フォールバック
+        if (adviceText) adviceText.textContent = '住宅購入は個別事情が大きく影響します。気になることがあれば、AIチャットで気軽にご相談ください。';
+        if (container) {
+          container.innerHTML = `
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">📚 おすすめの記事</div>
+            <a href="https://muchinochi55.com/home-buying-beginners-complete-guide/" target="_blank" rel="noopener" style="display: block; padding: 10px 12px; background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; margin-bottom: 8px; text-decoration: none; color: var(--text-primary); font-size: 13px;">📄 家探しの始め方ガイド</a>
+            <a href="https://muchinochi55.com/life-plan-housing-budget-complete-guide/" target="_blank" rel="noopener" style="display: block; padding: 10px 12px; background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; margin-bottom: 8px; text-decoration: none; color: var(--text-primary); font-size: 13px;">📄 ライフプランで適正予算を知る</a>
+            <a href="https://muchinochi55.com/common-home-buying-failure-cases/" target="_blank" rel="noopener" style="display: block; padding: 10px 12px; background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; margin-bottom: 8px; text-decoration: none; color: var(--text-primary); font-size: 13px;">📄 よくある購入の失敗事例5選</a>
+          `;
         }
       }
     }
@@ -4850,7 +4893,7 @@
           </div>
           <h2 class="step-title">登録完了！</h2>
           <p class="step-subtitle">
-            ${customerData.name}さん専用の<br>${customerData.customerType === 'sale' ? '売却サポートAI' : 'AIアシスタント'}が準備できました
+            ${customerData.name ? customerData.name + 'さん専用の' : 'あなた専用の'}<br>${customerData.customerType === 'sale' ? '売却サポートAI' : 'AIアシスタント'}が準備できました
           </p>
           <button class="btn-primary" onclick="startChat()" style="margin-top: 8px;">
             MuchiNaviに相談する
@@ -4870,7 +4913,8 @@
             customer_type: customerData.customerType || 'purchase',
             prefecture: customerData.prefecture || '',
             property_type: customerData.propertyType || customerData.salePropertyType || '',
-            household_income: customerData.householdIncome || ''
+            household_income: customerData.householdIncome || '',
+            diagnosis_type: customerData.diagnosisType || ''
           });
         }
 
@@ -5443,9 +5487,6 @@
 
     function openBookingAndTrack() {
       localStorage.setItem('muchinavi_booking_clicked', 'true');
-      if (typeof gtag === 'function') {
-        gtag('event', 'cta_click', { cta_location: 'booking', destination: 'timerex' });
-      }
       const bookingBtn = document.getElementById('chat-booking-btn');
       if (bookingBtn && bookingBtn.href) {
         window.open(bookingBtn.href, '_blank');
@@ -6108,6 +6149,27 @@
       sendMessage();
     }
 
+    async function saveProfileUpdate(key, value) {
+      if (!currentToken) return;
+      try {
+        const res = await fetch(`/api/customer/profile/${currentToken}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [key]: value }),
+        });
+        if (res.ok) {
+          // Hide the confirm card
+          event.target.parentElement.parentElement.style.display = 'none';
+          // Show brief confirmation
+          const confirmEl = document.createElement('div');
+          confirmEl.style.cssText = 'text-align:center;font-size:12px;color:#2D8A4F;padding:8px;';
+          confirmEl.textContent = '✅ 保存しました';
+          event.target.parentElement.parentElement.parentElement.insertBefore(confirmEl, event.target.parentElement.parentElement.nextSibling);
+          setTimeout(() => confirmEl.remove(), 3000);
+        }
+      } catch(e) { console.error('Profile update failed:', e); }
+    }
+
     async function sendMessage() {
       console.log('[MuchiNavi v2] sendMessage called, isSending:', isSending);
       if (isSending) { console.log('[MuchiNavi] blocked: isSending is true'); return; }
@@ -6359,6 +6421,13 @@
         return '__TERASS_PICKS__';
       });
 
+      // Extract profile confirm tags (personality diagnosis)
+      const profileConfirms = [];
+      text = text.replace(/\{\{PROFILE_CONFIRM\|(.+?)\|(.+?)\}\}/g, (_, key, value) => {
+        profileConfirms.push({ key, value });
+        return `__PROFILE_CONFIRM_${profileConfirms.length - 1}__`;
+      });
+
       // Extract booking tags
       let bookingURL = '';
       text = text.replace(/\{\{BOOKING\|(.+?)\}\}/g, (_, url) => {
@@ -6389,6 +6458,21 @@
         const card = `</p><a class="booking-card" href="${bookingURL}" target="_blank" rel="noopener"><span class="booking-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="booking-card-content"><span class="booking-card-label">無料相談</span><span class="booking-card-title">岡本とオンライン面談</span><span class="booking-card-sub">ご都合のいい日時を選べます</span></span><span class="booking-card-arrow">→</span></a><p>`;
         html = html.replace('__BOOKING__', card);
       }
+
+      // Replace profile confirm placeholders with interactive buttons
+      profileConfirms.forEach((pc, i) => {
+        const dimLabel = {
+          'personality_info_style': '情報処理スタイル',
+          'personality_risk': 'リスク許容度',
+          'personality_decision_speed': '意思決定スピード',
+          'personality_priority': '優先価値',
+          'personality_social': '社会的志向',
+          'personality_timeline': '時間軸',
+          'personality_change': '変化への態度',
+        }[pc.key] || pc.key;
+        const card = `</p><div style="background:#f0f7ff;border:1px solid #b3d4fc;border-radius:12px;padding:14px;margin:8px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;"><div style="font-size:13px;color:#333;"><strong>${dimLabel}</strong>: ${pc.value}</div><div style="display:flex;gap:8px;"><button onclick="saveProfileUpdate('${pc.key}','${pc.value}')" style="background:#0071e3;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">保存する</button><button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:1px solid #ccc;border-radius:8px;padding:6px 14px;font-size:12px;color:#666;cursor:pointer;">しない</button></div></div><p>`;
+        html = html.replace(`__PROFILE_CONFIRM_${i}__`, card);
+      });
 
       // Replace TERASS Picks placeholder with card
       if (terassPicksInfo) {

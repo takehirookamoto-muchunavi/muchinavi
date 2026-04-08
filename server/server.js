@@ -957,6 +957,92 @@ app.post('/api/verify-code', (req, res) => {
   res.json({ success: true, verified: true });
 });
 
+// ===== 記事マッチングAPI（診断結果用） =====
+app.post('/api/recommend-articles', (req, res) => {
+  const { customerType, propertyType, areaPref, budget, family } = req.body;
+
+  if (!BLOG_ARTICLES || BLOG_ARTICLES.length === 0) {
+    return res.json({ articles: [], advice: '' });
+  }
+
+  // スコアリング: 各記事に回答との関連度スコアを付与
+  const scored = BLOG_ARTICLES.map(article => {
+    let score = 0;
+    const cat = (article.category || '').toLowerCase();
+    const title = (article.title || '').toLowerCase();
+    const kw = (article.keywords || []).map(k => k.toLowerCase());
+
+    // エリアマッチ（最重要）
+    const prefs = (areaPref || '').split('、').map(p => p.trim());
+    prefs.forEach(pref => {
+      if (pref === '大阪府' && (cat.includes('osaka') || cat.includes('大阪') || title.includes('大阪') || kw.some(k => k.includes('大阪')))) score += 30;
+      if (pref === '兵庫県' && (cat.includes('兵庫') || title.includes('兵庫') || title.includes('阪神') || title.includes('西宮') || title.includes('芦屋') || title.includes('宝塚') || kw.some(k => k.includes('兵庫')))) score += 30;
+      if (pref === '京都府' && (title.includes('京都') || kw.some(k => k.includes('京都')))) score += 30;
+      if (pref === '東京都' && (cat.includes('tokyo') || cat.includes('東京') || title.includes('東京') || title.includes('23区') || kw.some(k => k.includes('東京')))) score += 30;
+      if (pref === '神奈川県' && (title.includes('神奈川') || title.includes('横浜') || kw.some(k => k.includes('神奈川')))) score += 30;
+    });
+
+    // 物件タイプマッチ
+    if (propertyType === '中古マンション' && (cat.includes('mansion') || title.includes('マンション') || kw.some(k => k.includes('マンション')))) score += 20;
+    if (propertyType === '注文住宅' && (cat.includes('housemaker') || title.includes('ハウスメーカー') || title.includes('注文住宅') || kw.some(k => k.includes('ハウスメーカー')))) score += 20;
+    if ((propertyType === '中古戸建て' || propertyType === '新築戸建て') && (title.includes('戸建') || title.includes('一戸建') || kw.some(k => k.includes('戸建')))) score += 20;
+
+    // 家族構成マッチ
+    if ((family === '家族' || (family || '').includes('子ども')) && (title.includes('子育て') || title.includes('学区') || title.includes('ファミリー') || title.includes('教育') || cat.includes('lifeplan') || kw.some(k => k.includes('子育て') || k.includes('ファミリー')))) score += 15;
+
+    // 予算帯マッチ（ローン関連記事）
+    const budgetNum = parseInt(budget);
+    if (budgetNum > 0 && (cat.includes('loan') || title.includes('ローン') || title.includes('返済') || title.includes('金利') || kw.some(k => k.includes('ローン')))) score += 10;
+
+    // 購入初心者向け（汎用）
+    if (customerType === 'undecided' && (cat.includes('hunting') || cat.includes('basics') || title.includes('初心者') || title.includes('始め方') || title.includes('失敗'))) score += 15;
+
+    // 売却
+    if (customerType === 'sale' && (cat.includes('売却') || title.includes('売却') || title.includes('査定'))) score += 25;
+
+    return { ...article, score };
+  });
+
+  // スコア順にソートし、上位を返す（同スコアはランダム）
+  scored.sort((a, b) => b.score - a.score || Math.random() - 0.5);
+
+  // 上位から重複を排除（エリア記事ばかりにならないよう、カテゴリの多様性を確保）
+  const result = [];
+  const usedCategories = new Set();
+  for (const article of scored) {
+    if (result.length >= 3) break;
+    if (article.score === 0) continue;
+    // 同カテゴリは2本まで
+    if (usedCategories.has(article.category) && result.filter(r => r.category === article.category).length >= 2) continue;
+    result.push({ title: article.title, url: article.url, category: article.category });
+    usedCategories.add(article.category);
+  }
+
+  // スコア0の場合はフォールバック（人気記事）
+  if (result.length === 0) {
+    const fallbacks = BLOG_ARTICLES.slice(0, 3);
+    result.push(...fallbacks.map(a => ({ title: a.title, url: a.url, category: a.category })));
+  }
+
+  // ワンポイントアドバイス生成（可能性の言及にとどめる。断定禁止。）
+  let advice = '';
+  if (propertyType === '中古マンション') {
+    advice = '中古マンションは立地と管理状態が資産価値を左右する可能性があります。管理費・修繕積立金の推移も確認ポイントになるかもしれません。';
+  } else if (propertyType === '注文住宅') {
+    advice = 'ハウスメーカーの紹介制度を活用すると、割引や優秀な担当者のマッチングにつながる可能性があります。各社の標準仕様の違いも比較のポイントになりそうです。';
+  } else if (propertyType === '中古戸建て' || propertyType === '新築戸建て') {
+    advice = '戸建ては土地の接道状況やハザードマップの確認が重要になる可能性があります。建物だけでなく周辺環境も含めた検討がおすすめです。';
+  } else {
+    advice = '住宅購入は個別事情が大きく影響します。気になることがあれば、AIチャットで気軽にご相談ください。';
+  }
+
+  if (family === '家族' || (family || '').includes('子ども')) {
+    advice += ' お子さんがいらっしゃる場合は、学区情報や子育て支援制度がエリア選びの参考になるかもしれません。';
+  }
+
+  res.json({ articles: result, advice });
+});
+
 // ===== Customer Registration → Save + Email =====
 app.post('/api/register', async (req, res) => {
   const customer = req.body;
@@ -1043,7 +1129,7 @@ app.post('/api/register', async (req, res) => {
   // Determine initial stage based on profile completeness
   const profileFields = customer.customerType === 'sale'
     ? ['name','salePropertyType','salePropertyLocation','salePropertyName','saleArea','saleLayout','saleBuildingAge','saleDesiredPrice','email','phone']
-    : ['name','birthYear','family','householdIncome','propertyType','areaPref','area','budget','email','phone'];
+    : ['customerType','propertyType','areaPref','budget','family','email'];
   const filled = profileFields.filter(f => customer[f] && customer[f] !== '' && customer[f] !== '-' && customer[f] !== '未入力').length;
   const initialStage = (filled >= Math.ceil(profileFields.length * 0.7)) ? 2 : 1;
 
@@ -1061,13 +1147,13 @@ app.post('/api/register', async (req, res) => {
   if (initialStage > 1) console.log(`📊 登録時ステージ自動判定: ${initialStage} (${filled}/${profileFields.length}項目入力済み)`);
   saveDB(db);
 
-  console.log('📩 新規登録:', customer.name, customer.email, '→ トークン:', token);
+  console.log('📩 新規登録:', customer.name || '(名前未入力)', customer.email, '→ トークン:', token);
 
   // ===== Slack通知（メールとは独立して必ず送信） =====
   try {
     if (SLACK_WEBHOOK_URL) {
       const slackMessage = {
-        text: `${customer.customerType === 'sale' ? '💰' : '🏠'} *新規登録* | ${customer.name}さん${customer.customerType === 'sale' ? '【売却】' : ''}`,
+        text: `${customer.customerType === 'sale' ? '💰' : '🏠'} *新規登録* | ${customer.name || '(名前未入力)'}さん${customer.customerType === 'sale' ? '【売却】' : ''}${customer.diagnosisType ? ' [診断:' + customer.diagnosisType + ']' : ''}`,
         blocks: [
           {
             type: 'header',
@@ -1195,7 +1281,7 @@ JSON形式で記事のインデックス番号を3つ返してください: {"in
         await transporter.sendMail({
           from: `岡本岳大｜住宅購入エージェント <${SMTP_USER}>`,
           to: customer.email,
-          subject: `${customer.name}さん、MuchiNaviへのご登録ありがとうございます！`,
+          subject: `${customer.name ? customer.name + 'さん、' : ''}MuchiNaviへのご登録ありがとうございます！`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', sans-serif; max-width: 520px; margin: 0 auto; background: #ffffff;">
               <!-- ヘッダー -->
@@ -1212,12 +1298,12 @@ JSON形式で記事のインデックス番号を3つ返してください: {"in
               <!-- 本文 -->
               <div style="padding: 32px 28px;">
                 <p style="font-size: 15px; line-height: 1.8; color: #1d1d1f; margin: 0 0 20px 0;">
-                  ${customer.name}さん、こんにちは！<br>
+                  ${customer.name ? customer.name + 'さん、' : ''}こんにちは！<br>
                   住宅購入専門エージェントの<strong>岡本岳大</strong>です。
                 </p>
                 <p style="font-size: 14px; line-height: 1.8; color: #1d1d1f; margin: 0 0 20px 0;">
                   MuchiNaviにご登録いただき、ありがとうございます。<br>
-                  ${customer.name}さんの住まい探しを全力でサポートさせていただきます。
+                  ${customer.name ? customer.name + 'さん' : 'あなた'}の住まい探しを全力でサポートさせていただきます。
                 </p>
 
                 <!-- 登録内容 -->
@@ -1292,7 +1378,7 @@ JSON形式で記事のインデックス番号を3つ返してください: {"in
                 <!-- おすすめ記事 -->
                 <div style="margin: 28px 0;">
                   <p style="font-size: 14px; font-weight: 700; color: #1d1d1f; margin: 0 0 12px 0;">
-                    📖 ${customer.name}さんにおすすめの記事
+                    📖 ${customer.name ? customer.name + 'さん' : 'あなた'}におすすめの記事
                   </p>
                   <table style="width: 100%; border-collapse: collapse;">
                     ${articleCards}
@@ -1340,7 +1426,7 @@ JSON形式で記事のインデックス番号を3つ返してください: {"in
       await transporter.sendMail({
         from: `MuchiNavi <${SMTP_USER}>`,
         to: NOTIFY_EMAIL,
-        subject: `🏠【新規登録】${customer.name}さん｜${customer.area || '未定'}・${customer.budget || '未定'}`,
+        subject: `🏠【新規登録】${customer.name || '(名前未入力)'}さん｜${customer.areaPref || customer.area || '未定'}・${customer.budget || '未定'}`,
         html: `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', sans-serif; max-width: 520px; margin: 0 auto; background: #ffffff;">
             <!-- ヘッダー -->
@@ -1563,7 +1649,7 @@ app.put('/api/customer/profile/:token', (req, res) => {
     return res.status(403).json({ error: 'access denied' });
   }
 
-  const allowed = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','budget','freeComment','email','phone','line'];
+  const allowed = ['name','birthYear','birthMonth','prefecture','family','householdIncome','propertyType','purpose','searchReason','area','areaPref','budget','freeComment','email','phone','line','personalityType','diagnosisType','personality_info_style','personality_risk','personality_decision_speed','personality_priority','personality_social','personality_timeline','personality_change'];
   const updates = req.body;
   let changed = [];
   allowed.forEach(key => {
@@ -2230,18 +2316,85 @@ app.post('/api/chat', async (req, res) => {
 電話: ${customer.phone || '未入力'}
 `.trim() : `
 【お客様情報】
-名前: ${custName}（※ 会話中は必ず「${custName}さん」と呼ぶこと。呼び捨て厳禁）
+名前: ${custName}（※ 名前が「未入力」の場合は「お客様」と呼ぶこと。呼び捨て厳禁）
 家族構成: ${customer.family || '未入力'}
 世帯年収: ${customer.householdIncome || '未入力'}
 物件種別: ${customer.propertyType || '未入力'}
-登録目的: ${customer.purpose || '未入力'}
-探索理由: ${customer.searchReason || '未入力'}
 希望エリア（都道府県）: ${customer.areaPref || '未入力'}
 希望エリア（市区町村）: ${customer.area || '未入力'}
 予算: ${customer.budget || '未入力'}
-フリーコメント: ${customer.freeComment || ''}
 メール: ${customer.email || '未入力'}
 電話: ${customer.phone || '未入力'}
+住まい探しタイプ: ${customer.personalityType || '未診断'}
+
+【★ パーソナリティ診断（住まい探しタイプ）ルール ★】
+■ 概要：
+お客様の住まい探しスタイルを理解するために、会話の自然な流れの中で7つの性格質問を段階的に聞く。
+全7問の回答が揃ったら、8タイプのうち最も近いタイプを判定し、ワクワクする演出で結果を伝える。
+以降のAI回答をタイプに合わせてパーソナライズする。
+
+■ 7つの質問（1会話で最大2問まで。初回会話では聞かない）：
+質問するときは「価値交換」の文脈で聞く。「答えてくれると、より良い情報提供ができる」と伝える。
+お客様が嫌がったら無理に聞かない。スキップ可能。
+
+1. 情報処理: 「大きな買い物をするとき、データを集めて比較する派ですか？それとも直感やフィーリングを大切にする派ですか？」
+2. リスク許容度: 「住むエリアを選ぶとき、実績のある安心エリアと、これから伸びそうなエリア、どちらに惹かれますか？」
+3. 意思決定スピード: 「もし気に入った物件が見つかったら、すぐ決めたいタイプですか？じっくり考えたいタイプですか？」
+4. 優先価値: 「住まい選びで一番大切にしたいのは、将来の資産価値と毎日の暮らしやすさ、どちらに近いですか？」
+5. 社会的志向: 「ご近所との付き合いは、大切にしたいですか？ほどよい距離感がいいですか？」
+6. 時間軸: 「今回のお住まいには、どのくらい住むイメージですか？」
+7. 変化への態度: 「リノベーションや自分好みのカスタマイズには興味がありますか？」
+
+■ 質問のタイミング：
+- 初回の会話では質問しない（まずお客様の質問に答える）
+- 2-3回目の会話から、お客様の質問に回答した後で自然に1問聞く
+- 「ちなみに〜」「ところで〜」で切り出す
+- 回答を受け取ったら、必ず以下のフォーマットで保存提案する：
+  {{PROFILE_UPDATE|personality_[次元名]|[回答値]}}
+  例: {{PROFILE_UPDATE|personality_info_style|データ派}}
+
+■ 8タイプの判定（7問の回答が揃ったら）：
+以下のフォーマットで診断結果を表示する：
+{{PERSONALITY_RESULT|タイプ名}}
+
+8タイプ：
+🔍 じっくり研究家 —「納得いくまで調べるのが性分です」→ データ派×じっくり×資産重視
+⚡ ビビッと即決派 —「"ここだ！"の直感、信じていい」→ 直感派×すぐ決める×ステップアップ
+🏡 巣づくり上手 —「家族みんなの笑顔が、家の真ん中に」→ 暮らし重視×コミュニティ×永住
+📊 未来設計派 —「10年後の自分に"ナイス判断"と言わせたい」→ データ派×リスク許容×資産重視
+🎨 こだわりクリエイター —「"自分らしい暮らし"は自分でつくる」→ 直感派×リノベ好き×チャレンジ
+🤝 街選びの達人 —「いい街に住めば、人生が変わる」→ コミュニティ×暮らし重視×永住
+🛡️ 安心ファースト —「"大丈夫"が何より大事」→ 堅実×じっくり×完成品好き
+⚖️ 全方位バランサー —「偏らない。だからブレない」→ 各次元が中間
+
+■ 診断結果の伝え方（ワクワクさせる）：
+「✨ お話を聞いていて、あなたの住まい探しスタイルが見えてきました！
+
+🏡 あなたは……「巣づくり上手」さんです！
+
+家族みんなの笑顔が、家の真ん中に。——素敵ですね😊
+
+巣づくり上手さんの特徴：
+✅ ...（タイプの特徴を3-4個）
+
+これからのAIチャットでは、巣づくり上手さんに合わせて
+学区情報や子育て環境を優先的にお伝えしていきますね！」
+
+■ タイプ判定後のAI回答ルール：
+${customer.personalityType ? `このお客様は「${customer.personalityType}」タイプです。以下のルールで回答を最適化：
+- じっくり研究家: データ・数字・比較表を多用。根拠を必ず添える
+- ビビッと即決派: 結論から先に短文で。候補は3つに絞る
+- 巣づくり上手: 学区・公園・治安・子育て支援の情報を優先
+- 未来設計派: 相場推移・坪単価・再開発情報・資産性分析を含める
+- こだわりクリエイター: リノベ事例・HM紹介制度・デザインの可能性を提示
+- 街選びの達人: 街の雰囲気・住民の声・商店街・コミュニティ情報
+- 安心ファースト: リスクを先に伝えて潰す。安心材料を多めに
+- 全方位バランサー: 優先順位の整理を手伝う。トレードオフを明示` : '（タイプ未診断：まだ性格質問を始めていない段階）'}
+
+■ 絶対ルール（パーソナリティ診断に関連）：
+- 物件選定・推薦において断定・言い切り禁止。可能性の言及にとどめる
+- 実際の物件選定は岡本とのオンライン面談で行う
+- タイプは「傾向」であり断定ではない。結果は変更可能
 `.trim();
 
     // Build compact article list (titles only, no URLs - URLs resolved server-side)
@@ -3258,16 +3411,42 @@ ${manualNotes}
       return ''; // No match found, remove the tag
     });
 
+    // Process {{PROFILE_UPDATE|key|value}} tags — save to customer profile
+    const profileUpdates = {};
+    reply = reply.replace(/\{\{PROFILE_UPDATE\|(.+?)\|(.+?)\}\}/g, (match, key, value) => {
+      profileUpdates[key.trim()] = value.trim();
+      // Return a user-visible confirmation prompt
+      return `💡 この情報をプロフィールに保存すると、今後の回答がより最適化されます。\n{{PROFILE_CONFIRM|${key.trim()}|${value.trim()}}}`;
+    });
+
+    // Process {{PERSONALITY_RESULT|タイプ名}} tags — save personality type
+    reply = reply.replace(/\{\{PERSONALITY_RESULT\|(.+?)\}\}/g, (match, typeName) => {
+      if (token) {
+        const db = loadDB();
+        if (db[token]) {
+          db[token].personalityType = typeName.trim();
+          saveDB(db);
+          console.log(`🎯 パーソナリティ診断完了: ${db[token].name || '(名前未入力)'} → ${typeName.trim()}`);
+        }
+      }
+      return ''; // Tag is consumed, the display text is in the AI's response
+    });
+
     // Save chat history to DB
     if (token) {
       const db = loadDB();
       if (db[token]) {
         db[token].chatHistory = messages.concat([{ role: 'assistant', content: reply }]);
+        // Also save any profile updates from this conversation
+        if (Object.keys(profileUpdates).length > 0) {
+          Object.assign(db[token], profileUpdates);
+          console.log(`📝 プロフィール更新: ${Object.keys(profileUpdates).join(', ')}`);
+        }
         saveDB(db);
       }
     }
 
-    res.json({ reply });
+    res.json({ reply, profileUpdates: Object.keys(profileUpdates).length > 0 ? profileUpdates : undefined });
   } catch (e) {
     console.error('❌ AI チャットエラー:', e.message);
     const msg = e.message || '';
