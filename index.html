@@ -3283,6 +3283,16 @@
           </div>
         </div>
 
+        <!-- パーソナリティ診断 -->
+        <div class="carte-section" style="display:none;">
+          <div class="carte-section-header">
+            <span class="carte-section-icon">✨</span>
+            <span class="carte-section-title">あなたの住まい探しタイプ</span>
+          </div>
+          <div id="carte-personality">
+          </div>
+        </div>
+
         <!-- 購入進捗 -->
         <div class="carte-section">
           <div class="carte-section-header">
@@ -7129,6 +7139,64 @@
       document.getElementById('carte-summary').innerHTML = summaryItems
         .map(item => `<div class="carte-summary-row"><span class="carte-summary-label">${item.label}</span><span class="carte-summary-value">${item.value}</span></div>`)
         .join('');
+
+      // 1.5. パーソナリティ診断結果
+      const personalitySection = document.getElementById('carte-personality');
+      if (personalitySection) {
+        if (p.personalityType) {
+          const typeEmoji = {'じっくり研究家':'🔍','ビビッと即決派':'⚡','巣づくり上手':'🏡','未来設計派':'📊','こだわりクリエイター':'🎨','街選びの達人':'🤝','安心ファースト':'🛡️','全方位バランサー':'⚖️'};
+          const typeCatch = {'じっくり研究家':'納得いくまで調べるのが性分です','ビビッと即決派':'"ここだ！"の直感、信じていい','巣づくり上手':'家族みんなの笑顔が、家の真ん中に','未来設計派':'10年後の自分に"ナイス判断"と言わせたい','こだわりクリエイター':'"自分らしい暮らし"は自分でつくる','街選びの達人':'いい街に住めば、人生が変わる','安心ファースト':'"大丈夫"が何より大事','全方位バランサー':'偏らない。だからブレない'};
+          const typeFeatures = {
+            'じっくり研究家':['データと数字で比較検討','根拠がないと動けない','後悔しない選択を徹底','情報は多ければ多いほどいい'],
+            'ビビッと即決派':['直感を大切にする','スピードが命','候補は少ない方がいい','結論から聞きたい'],
+            '巣づくり上手':['学区・子育て環境を重視','永住できる安心感','ご近所との関係も大切','じっくり納得いくまで'],
+            '未来設計派':['資産価値を考える','将来の売却も視野','数字で判断する','戦略的な選択'],
+            'こだわりクリエイター':['リノベに興味あり','デザインにこだわる','可能性にワクワクする','個性的な住まいが好き'],
+            '街選びの達人':['街の雰囲気を重視','ご近所付き合いが好き','根を張って暮らしたい','コミュニティが大切'],
+            '安心ファースト':['確実な選択を重視','リスクは避けたい','実績あるものが安心','慎重に検討する'],
+            '全方位バランサー':['全体を見渡す','バランスを大切に','柔軟な判断力','総合的に考える'],
+          };
+          const emoji = typeEmoji[p.personalityType] || '🏠';
+          const cp = typeCatch[p.personalityType] || '';
+          const features = typeFeatures[p.personalityType] || [];
+
+          const dimLabels = [
+            { key: 'personality_info_style', label: '情報処理' },
+            { key: 'personality_risk', label: 'リスク' },
+            { key: 'personality_decision_speed', label: '意思決定' },
+            { key: 'personality_priority', label: '優先価値' },
+            { key: 'personality_social', label: '社会的志向' },
+            { key: 'personality_timeline', label: '時間軸' },
+            { key: 'personality_change', label: '変化' },
+          ];
+          const answeredDims = dimLabels.filter(d => p[d.key]);
+
+          personalitySection.innerHTML = `
+            <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 20px; border-radius: 14px; margin-bottom: 12px;">
+              <div style="text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 32px; margin-bottom: 4px;">${emoji}</div>
+                <div style="font-size: 18px; font-weight: 700;">${p.personalityType}</div>
+                <div style="font-size: 12px; opacity: 0.85; font-style: italic;">「${cp}」</div>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">
+                ${features.map(f => `<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; font-size: 11px;">✅ ${f}</span>`).join('')}
+              </div>
+            </div>
+            ${answeredDims.length > 0 ? `
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">あなたの回答</div>
+              ${answeredDims.map(d => `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                  <span style="color: var(--text-secondary);">${d.label}</span>
+                  <span style="font-weight: 600;">${p[d.key]}</span>
+                </div>
+              `).join('')}
+            ` : ''}
+          `;
+          personalitySection.parentElement.style.display = '';
+        } else {
+          personalitySection.parentElement.style.display = 'none';
+        }
+      }
 
       // 2. 進捗ステータス
       const stage = p.stage || 1;
