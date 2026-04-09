@@ -5880,20 +5880,30 @@
         b.classList.toggle('active', b.dataset.tab === tab);
       });
 
-      const chatScreen = document.getElementById('chat-screen');
       const homeScreen = document.getElementById('home-screen');
+      // チャット関連の要素（home-screenはchat-screenの中にあるため、個別に制御）
+      const chatElements = ['chat-messages', 'chat-input-bar', 'chat-room-tabs', 'progress-bar',
+        'direct-chat-messages', 'direct-chat-input-bar', 'chat-welcome',
+        'ai-file-preview', 'direct-file-preview', 'ai-file-hint', 'direct-file-hint',
+        'ai-file-progress', 'direct-file-progress', 'progress-mini-badge'];
+      // チャットヘッダー
+      const chatHeader = document.querySelector('.chat-header');
 
       if (tab === 'home') {
-        // チャットを完全に非表示、ホームを表示
-        chatScreen.classList.remove('active');
+        // ホームを表示、チャット要素を全て非表示
         homeScreen.style.display = 'block';
+        if (chatHeader) chatHeader.style.display = 'none';
+        chatElements.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
         loadHomeScreen();
         trackActivity('home_view', { stage: customerData?.stage });
       } else {
-        // ホームを完全に非表示、チャットを表示
+        // ホームを非表示、チャット要素を復元
         homeScreen.style.display = 'none';
-        chatScreen.classList.add('active');
-        // チャット要素の表示を復元
+        if (chatHeader) chatHeader.style.display = '';
+        // チャットの表示を復元
         const activeRoom = document.querySelector('.chat-room-tab.active')?.dataset?.room || 'ai';
         const roomTabs = document.getElementById('chat-room-tabs');
         if (roomTabs) roomTabs.style.display = '';
@@ -5909,6 +5919,8 @@
           const directBar = document.getElementById('direct-chat-input-bar');
           if (directBar) directBar.style.display = '';
         }
+        const miniBadge = document.getElementById('progress-mini-badge');
+        if (miniBadge) miniBadge.style.display = '';
       }
     }
 
