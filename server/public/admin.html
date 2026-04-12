@@ -5049,6 +5049,7 @@
                 <div class="customer-meta">
                     <span>${customer.customerType === 'sale' ? (customer.salePropertyLocation || '-') : (customer.area || '-')}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
+                    ${customer.lastLoginAt ? `<span style="font-size:10px;color:#86868b;">ログイン: ${new Date(customer.lastLoginAt).toLocaleDateString('ja-JP', {month:'short', day:'numeric'})}</span>` : ''}
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
                         ${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}
                     </span>
@@ -5698,6 +5699,10 @@
                 <div class="info-card">
                     <div class="info-label">登録日</div>
                     <div class="info-value" style="font-size: 18px;">${registeredDate}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">最終ログイン</div>
+                    <div class="info-value" style="font-size: 16px;">${customer.lastLoginAt ? new Date(customer.lastLoginAt).toLocaleString('ja-JP', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '未ログイン'}</div>
                 </div>
                 <div class="info-card">
                     <div class="info-label">ステータス</div>
@@ -6623,12 +6628,22 @@
                         </a>`;
                     }
 
+                    // 既読表示（エージェントメッセージのみ）
+                    let readStatus = '';
+                    if (isAgent) {
+                        if (msg.readAt) {
+                            const readTime = new Date(msg.readAt).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+                            readStatus = `<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">既読 ${readTime}</div>`;
+                        }
+                    }
+
                     html += `<div style="margin-bottom: 12px; text-align: ${align};">
                         <div style="display: inline-block; max-width: 80%; padding: 12px 16px; background: ${bgColor}; color: ${textColor}; border-radius: ${radius}; text-align: left; ${!isAgent ? 'border: 1px solid #e5e5e7;' : 'box-shadow: 0 2px 8px rgba(52,199,89,0.25);'}">
                             <div style="font-size: 11px; color: ${labelColor}; margin-bottom: 4px; font-weight: 600;">${label}</div>
                             ${fileHTML}
                             <div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${msg.content}</div>
                             <div style="font-size: 10px; color: ${timeColor}; margin-top: 4px;">${time}</div>
+                            ${readStatus}
                         </div>
                     </div>`;
                 });

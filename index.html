@@ -4111,6 +4111,11 @@
         html += `
           <div style="text-align: left; display: flex; flex-direction: column; gap: 14px;">
             <div>
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">お名前</label>
+              <input class="input-field" type="text" id="contact-name" placeholder="例: 山田太郎（ニックネームでもOK）" style="text-align: left;" value="${customerData.name || ''}">
+              <div style="font-size:11px;color:#86868b;margin-top:4px;">※ 入力しなくても登録できます</div>
+            </div>
+            <div>
               <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">メールアドレス <span style="color: var(--danger);">*</span></label>
               <input class="input-field" type="email" id="contact-email" placeholder="example@email.com" style="text-align: left;">
             </div>
@@ -4601,6 +4606,8 @@
     let verifyEmail = '';
 
     async function submitContact() {
+      const contactName = document.getElementById('contact-name')?.value.trim() || '';
+      if (contactName) customerData.name = contactName;
       const email = document.getElementById('contact-email').value.trim();
       const phone = document.getElementById('contact-phone')?.value.trim() || '';
       const btn = document.getElementById('contact-submit-btn');
@@ -6521,7 +6528,16 @@
       if (room === 'direct') {
         renderDirectMessages();
         scrollDirectChat();
+        markDirectChatRead();
       }
+    }
+
+    // ダイレクトチャットの既読を送信
+    async function markDirectChatRead() {
+      if (!sessionToken) return;
+      try {
+        await fetch(`/api/direct-chat-read/${sessionToken}`, { method: 'POST' });
+      } catch (e) {}
     }
 
     function renderDirectMessages() {
@@ -6611,6 +6627,7 @@
           if (currentChatRoom === 'direct') {
             renderDirectMessages();
             scrollDirectChat();
+            markDirectChatRead();
           } else {
             // Show badge on direct tab
             document.getElementById('badge-direct').classList.add('show');

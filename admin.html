@@ -5049,6 +5049,7 @@
                 <div class="customer-meta">
                     <span>${customer.customerType === 'sale' ? (customer.salePropertyLocation || '-') : (customer.area || '-')}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
+                    ${customer.lastLoginAt ? `<span style="font-size:10px;color:#86868b;">ログイン: ${new Date(customer.lastLoginAt).toLocaleDateString('ja-JP', {month:'short', day:'numeric'})}</span>` : ''}
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
                         ${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}
                     </span>
@@ -5635,6 +5636,62 @@
                     <div class="info-label">${isSale ? '希望売却価格' : '予算'}</div>
                     <div class="info-value">${isSale ? (customer.saleDesiredPrice || '-') : (customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-')}</div>
                 </div>
+                ${(() => {
+                    if (!customer.personalityType) return `<div class="info-card"><div class="info-label">住まい探しタイプ</div><div class="info-value" style="color:var(--text-secondary);font-size:14px;">未診断</div></div>`;
+
+                    const typeEmoji = {'じっくり研究家':'🔍','ビビッと即決派':'⚡','巣づくり上手':'🏡','未来設計派':'📊','こだわりクリエイター':'🎨','街選びの達人':'🤝','安心ファースト':'🛡️','全方位バランサー':'⚖️'};
+                    const typeCatch = {'じっくり研究家':'納得いくまで調べるのが性分です','ビビッと即決派':'"ここだ！"の直感、信じていい','巣づくり上手':'家族みんなの笑顔が、家の真ん中に','未来設計派':'10年後の自分に"ナイス判断"と言わせたい','こだわりクリエイター':'"自分らしい暮らし"は自分でつくる','街選びの達人':'いい街に住めば、人生が変わる','安心ファースト':'"大丈夫"が何より大事','全方位バランサー':'偏らない。だからブレない'};
+                    const typeApproach = {
+                        'じっくり研究家':'データを多く提示。根拠を示すと信頼が深まる。比較表や数字が刺さる',
+                        'ビビッと即決派':'候補を3つに絞って提示。即レスが信頼の鍵。結論から短く話す',
+                        '巣づくり上手':'学区・子育て環境の詳細情報が刺さる。家族全員の満足を提案。焦らせない',
+                        '未来設計派':'投資的視点での提案が響く。坪単価・再開発情報・将来の売却価値を含める',
+                        'こだわりクリエイター':'可能性を広げる提案が喜ばれる。リノベ事例・HM紹介制度も有効',
+                        '街選びの達人':'エリアの人柄・コミュニティの温度感を伝えると信頼感UP',
+                        '安心ファースト':'リスクを一つずつ潰す提案が効く。不安解消が最優先',
+                        '全方位バランサー':'優先順位の整理を手伝う。「何を捨てるか」の議論が有効'
+                    };
+                    const dimLabels = {
+                        'personality_info_style': { label: '📊 情報処理', desc: 'データ派 ↔ 直感派' },
+                        'personality_risk': { label: '🛡️ リスク許容度', desc: '堅実 ↔ チャレンジ' },
+                        'personality_decision_speed': { label: '⚡ 意思決定', desc: 'じっくり ↔ 即断' },
+                        'personality_priority': { label: '🏡 優先価値', desc: '資産性 ↔ 暮らし' },
+                        'personality_social': { label: '🤝 社会的志向', desc: '独立 ↔ コミュニティ' },
+                        'personality_timeline': { label: '🔄 時間軸', desc: '短期 ↔ 永住' },
+                        'personality_change': { label: '🎨 変化への態度', desc: '完成品 ↔ カスタマイズ' },
+                    };
+                    const emoji = typeEmoji[customer.personalityType] || '🏠';
+                    const cp = typeCatch[customer.personalityType] || '';
+                    const approach = typeApproach[customer.personalityType] || '';
+
+                    let dimHtml = '';
+                    Object.entries(dimLabels).forEach(([key, info]) => {
+                        const val = customer[key] || '未回答';
+                        dimHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:12px;color:var(--text-secondary);">${info.label}</span><span style="font-size:13px;font-weight:600;color:var(--text-primary);">${val}</span></div>`;
+                    });
+
+                    return `
+                    <div class="info-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(31,58,112,0.06), rgba(45,138,79,0.04)); border-color: rgba(31,58,112,0.12);">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                            <span style="font-size:36px;">${emoji}</span>
+                            <div>
+                                <div style="font-size:18px;font-weight:700;color:#1F3A70;">${customer.personalityType}</div>
+                                <div style="font-size:13px;color:var(--text-secondary);font-style:italic;">「${cp}」</div>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div>
+                                <div style="font-size:12px;font-weight:600;color:#1F3A70;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">7次元の回答</div>
+                                ${dimHtml}
+                            </div>
+                            <div>
+                                <div style="font-size:12px;font-weight:600;color:#2D8A4F;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">面談の推奨アプローチ</div>
+                                <div style="font-size:13px;line-height:1.7;color:var(--text-primary);background:rgba(45,138,79,0.06);padding:12px;border-radius:8px;">✅ ${approach}</div>
+                            </div>
+                        </div>
+                        <p style="font-size:11px;color:var(--text-secondary);margin-top:10px;opacity:0.7;">※ 回答に基づく傾向分析（参考情報）。データ蓄積に伴い精度向上予定。</p>
+                    </div>`;
+                })()}
                 <div class="info-card">
                     <div class="info-label">ステージ</div>
                     <div class="info-value">${customer.stage ? dashboardStageLabels[customer.stage - 1] || 'ステージ' + customer.stage : '-'}</div>
@@ -5642,6 +5699,10 @@
                 <div class="info-card">
                     <div class="info-label">登録日</div>
                     <div class="info-value" style="font-size: 18px;">${registeredDate}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">最終ログイン</div>
+                    <div class="info-value" style="font-size: 16px;">${customer.lastLoginAt ? new Date(customer.lastLoginAt).toLocaleString('ja-JP', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '未ログイン'}</div>
                 </div>
                 <div class="info-card">
                     <div class="info-label">ステータス</div>
@@ -5697,7 +5758,7 @@
 
         function loadInfoForm(customer) {
             const form = document.getElementById('customerInfoForm');
-            const fields = ['name', 'age', 'family', 'prefecture', 'householdIncome', 'currentHome', 'reason', 'searchReason', 'area', 'budget', 'propertyType', 'purpose', 'freeComment', 'size', 'layout', 'stationDistance', 'occupation', 'income', 'savings', 'loanStatus', 'motivation', 'timeline', 'email', 'phone', 'line', 'referral', 'spouseOccupation', 'spouseIncome', 'currentRent', 'pet', 'parking', 'specialRequirements', 'memo', 'stage'];
+            const fields = ['name', 'age', 'family', 'prefecture', 'householdIncome', 'currentHome', 'reason', 'searchReason', 'area', 'areaPref', 'budget', 'propertyType', 'purpose', 'freeComment', 'size', 'layout', 'stationDistance', 'occupation', 'income', 'savings', 'loanStatus', 'motivation', 'timeline', 'email', 'phone', 'line', 'referral', 'spouseOccupation', 'spouseIncome', 'currentRent', 'pet', 'parking', 'specialRequirements', 'memo', 'stage', 'personalityType', 'personality_info_style', 'personality_risk', 'personality_decision_speed', 'personality_priority', 'personality_social', 'personality_timeline', 'personality_change'];
 
             fields.forEach(field => {
                 const input = form.querySelector(`[name="${field}"]`);
@@ -6272,7 +6333,16 @@
                 'currentRent': '現在の家賃',
                 'pet': 'ペット',
                 'parking': '駐車場',
-                'specialRequirements': 'こだわり条件'
+                'specialRequirements': 'こだわり条件',
+                'areaPref': '希望都道府県',
+                'personalityType': '住まい探しタイプ',
+                'personality_info_style': '情報処理スタイル',
+                'personality_risk': 'リスク許容度',
+                'personality_decision_speed': '意思決定スピード',
+                'personality_priority': '優先価値',
+                'personality_social': '社会的志向',
+                'personality_timeline': '時間軸',
+                'personality_change': '変化への態度'
             };
 
             let html = '';
@@ -6558,12 +6628,22 @@
                         </a>`;
                     }
 
+                    // 既読表示（エージェントメッセージのみ）
+                    let readStatus = '';
+                    if (isAgent) {
+                        if (msg.readAt) {
+                            const readTime = new Date(msg.readAt).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+                            readStatus = `<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">既読 ${readTime}</div>`;
+                        }
+                    }
+
                     html += `<div style="margin-bottom: 12px; text-align: ${align};">
                         <div style="display: inline-block; max-width: 80%; padding: 12px 16px; background: ${bgColor}; color: ${textColor}; border-radius: ${radius}; text-align: left; ${!isAgent ? 'border: 1px solid #e5e5e7;' : 'box-shadow: 0 2px 8px rgba(52,199,89,0.25);'}">
                             <div style="font-size: 11px; color: ${labelColor}; margin-bottom: 4px; font-weight: 600;">${label}</div>
                             ${fileHTML}
                             <div style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${msg.content}</div>
                             <div style="font-size: 10px; color: ${timeColor}; margin-top: 4px;">${time}</div>
+                            ${readStatus}
                         </div>
                     </div>`;
                 });
