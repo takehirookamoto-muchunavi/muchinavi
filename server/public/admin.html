@@ -4902,14 +4902,9 @@
             if (autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
             }
-            // Auto-refresh every 30 seconds
+            // Auto-refresh every 30 seconds（顧客一覧のみ更新、詳細画面は再描画しない）
             autoRefreshInterval = setInterval(() => {
-                const currentSelectedToken = selectedToken;
                 loadDashboard().then(() => {
-                    // Keep the same customer selected if possible
-                    if (currentSelectedToken) {
-                        selectCustomer(currentSelectedToken);
-                    }
                     updateLastUpdatedTime();
                     updateTerassOfferBadge();
                 });
