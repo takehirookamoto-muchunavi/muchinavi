@@ -544,7 +544,9 @@ app.get('/api/test-email', async (req, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
     });
 
@@ -651,7 +653,9 @@ app.post('/api/register', async (req, res) => {
   try {
     if (SMTP_USER && SMTP_PASS) {
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
         auth: { user: SMTP_USER, pass: SMTP_PASS },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
