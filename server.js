@@ -1891,8 +1891,8 @@ ${housemaker_prompt}
     const isPropertyRequest = propertyKeywords.some(kw => lastMessage.includes(kw));
     if (isPropertyRequest) {
       // Geminiが無視してBOOKINGやTERASS_PICKSを出した場合、サーバー側で強制除去
-      reply = reply.replace(/\{\{BOOKING\|[^}]*\}\}/g, '');
-      reply = reply.replace(/\{\{TERASS_PICKS\|[^}]*\}\}/g, '');
+      reply = reply.replace(/\{\{BOOKING\|[\s\S]*?\}\}/g, '');
+      reply = reply.replace(/\{\{TERASS_PICKS\|[\s\S]*?\}\}/g, '');
       // 「チャットでは物件情報を送れません」系の文言も除去
       reply = reply.replace(/チャット(機能)?では[、,]?(個別の)?物件情報を(直接)?お(送り|伝え)することが(できない|難しい)[^。]*。/g, '');
       reply = reply.replace(/このチャットでは具体的な物件情報を直接お伝えすることができません。/g, '');
