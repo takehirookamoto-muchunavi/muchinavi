@@ -198,7 +198,9 @@ async function searchPerplexity(query) {
 function createTransporter() {
   if (!SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
