@@ -1886,6 +1886,28 @@ ${housemaker_prompt}
       return ''; // No match found, remove the tag
     });
 
+    // === 物件リクエスト検出: ユーザーメッセージが物件を求めている場合、BOOKINGとTERASS_PICKSを強制除去 ===
+    const propertyKeywords = ['物件を探し', '物件を紹介', '物件情報', 'ダイレクトチャットで送', '個人チャットで送', '物件だけ', '先に物件'];
+    const isPropertyRequest = propertyKeywords.some(kw => lastMessage.includes(kw));
+    if (isPropertyRequest) {
+      // Geminiが無視してBOOKINGやTERASS_PICKSを出した場合、サーバー側で強制除去
+      reply = reply.replace(/\{\{BOOKING\|[^}]*\}\}/g, '');
+      reply = reply.replace(/\{\{TERASS_PICKS\|[^}]*\}\}/g, '');
+      // 「チャットでは物件情報を送れません」系の文言も除去
+      reply = reply.replace(/チャット(機能)?では[、,]?(個別の)?物件情報を(直接)?お(送り|伝え)することが(できない|難しい)[^。]*。/g, '');
+      reply = reply.replace(/このチャットでは具体的な物件情報を直接お伝えすることができません。/g, '');
+      // PROPERTY_REQUESTタグがなければサーバー側で自動生成
+      if (!reply.includes('{{PROPERTY_REQUEST|')) {
+        const autoSummary = `${customer.area || '未入力'}・${customer.propertyType || '未入力'}・予算${customer.budget || '未入力'}・${customer.family || '未入力'}`;
+        reply = reply.trim() + `\n\n{{PROPERTY_REQUEST|${autoSummary}}}`;
+        console.log(`🏠 物件リクエスト検出（サーバー側自動生成）: ${customer.name || '未入力'}さん`);
+      }
+      // ダイレクトチャット案内がなければ追加
+      if (!reply.includes('ダイレクトチャット') && !reply.includes('個人チャット')) {
+        reply = reply.replace(/^/, `${customer.name || 'お客様'}さんの条件に合いそうな物件情報、私の方からダイレクトチャット（個人チャット）でお送りしますね。\n\n`);
+      }
+    }
+
     // === PROPERTY_REQUEST検出 + 岡本への通知メール ===
     const propertyRequestMatch = reply.match(/\{\{PROPERTY_REQUEST\|(.+?)\}\}/);
     if (propertyRequestMatch) {
