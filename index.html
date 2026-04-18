@@ -26,13 +26,148 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MuchiNavi">
   <meta name="mobile-web-app-capable" content="yes">
-  <!-- Google Analytics 4 -->
+  <!-- ===== Analytics: Consent Mode V2（電気通信事業法2023改正・個人情報保護法2022改正対応） ===== -->
+  <script>
+    // 同意取得前は denied がデフォルト（GDPR/JP法準拠）
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'granted',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500
+    });
+    gtag('js', new Date());
+    // 保存済み同意を復元
+    try {
+      const saved = localStorage.getItem('muchinavi_consent');
+      if (saved === 'granted') {
+        gtag('consent', 'update', {
+          'analytics_storage': 'granted',
+          'ad_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted',
+          'personalization_storage': 'granted'
+        });
+      }
+    } catch(e){}
+  </script>
+  <!-- Google Analytics 4（Consent Mode の遅延初期化に任せる） -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-VWS2PHHS4X"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-VWS2PHHS4X');
+    gtag('config', 'G-VWS2PHHS4X', {
+      'anonymize_ip': true
+    });
+  </script>
+  <!-- Microsoft Clarity（同意取得後のみロード・後段のconsent関数で有効化） -->
+  <script>
+    // Clarity Project ID は同意後に loadClarity() で注入
+    window.loadClarity = function(pid){
+      if (window.clarity || !pid || pid === 'PLACEHOLDER') return;
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", pid);
+    };
+    // Clarity Project ID 取得後に書き換え（例: loadClarity('xxxxxxxxxx')）
+    window.MUCHINAVI_CLARITY_ID = 'PLACEHOLDER';
+  </script>
+
+  <!-- ===== 構造化データ：Person（岡本岳大） ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "岡本 岳大",
+    "alternateName": "Takehiro Okamoto",
+    "jobTitle": "住宅購入専門エージェント",
+    "image": "https://muchinochi55.com/wp-content/uploads/2025/08/IMG_4473.jpeg",
+    "url": "https://muchinavi.com",
+    "sameAs": [
+      "https://muchinochi55.com/",
+      "https://twitter.com/muchinochi55"
+    ],
+    "worksFor": {
+      "@type": "Organization",
+      "name": "株式会社TERASS",
+      "url": "https://terass.com/",
+      "identifier": "国土交通大臣免許(1)第010125号"
+    },
+    "areaServed": [
+      { "@type": "AdministrativeArea", "name": "大阪府" },
+      { "@type": "AdministrativeArea", "name": "東京都" },
+      { "@type": "AdministrativeArea", "name": "兵庫県" }
+    ],
+    "knowsAbout": ["住宅購入", "中古マンション", "注文住宅", "住宅ローン", "不動産エージェント"]
+  }
+  </script>
+
+  <!-- ===== 構造化データ：FAQPage ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "MuchiNaviは本当に無料ですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、相談は完全無料です。登録後もAIチャット・面談予約を無料でご利用いただけます。費用が発生するのは実際に仲介が成立した場合の仲介手数料のみで、事前に明示してからご相談を進めます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "登録すると営業電話がかかってきますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "いいえ、営業電話は一切行いません。ご登録いただいた情報は、担当エージェント岡本岳大のみが閲覧し、営業リストや第三者に提供することはありません。お客様が希望された時のみご連絡します。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "どんな相談ができますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "住宅購入にまつわる全般的な相談が可能です。予算・エリア選び・住宅ローン・物件種別(中古マンション/戸建て/注文住宅)の比較・ライフプラン相談・契約手続きまで、AI(Gemini)と専任エージェントがサポートします。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "岡本岳大はどんな人ですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "株式会社TERASSに所属する住宅購入専門エージェントです。2児の父でもあり、大阪・東京・兵庫阪神間を中心に活動しています。ノルマに縛られず、押し売りせず、お客様ファーストを徹底する姿勢で、住宅購入ブログも200本以上執筆しています。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "登録した情報は削除できますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、いつでもマイカルテの編集・削除・エクスポートが可能です。お客様ご自身でアカウント削除も可能です。個人情報保護法に基づき、お客様からの開示・訂正・利用停止のご請求にも応じます。"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ===== 構造化データ：WebSite（サイト全体） ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MuchiNavi",
+    "url": "https://muchinavi.com",
+    "description": "住宅購入専門AIアシスタント。岡本岳大（TERASSエージェント）が24時間サポート。",
+    "inLanguage": "ja",
+    "author": { "@type": "Person", "name": "岡本 岳大" }
+  }
   </script>
   <style>
     /* パフォーマンス: 低速端末でアニメーション無効化 */
@@ -3000,6 +3135,66 @@
 
     <div class="footer">
       Powered by <a href="https://muchinochi.com" target="_blank">muchinochi</a>
+      ・<a href="#" onclick="event.preventDefault(); openTokuteiModal();">特定商取引法に基づく表記</a>
+      ・<a href="#" onclick="event.preventDefault(); openPrivacyModal();">プライバシーポリシー</a>
+      ・<a href="#" onclick="event.preventDefault(); openConsentBanner();">Cookie設定</a>
+    </div>
+  </div>
+
+  <!-- ===== Cookie 同意バナー（電気通信事業法2023改正・個人情報保護法対応） ===== -->
+  <div class="consent-banner" id="consent-banner" style="display:none;" role="dialog" aria-labelledby="consent-title">
+    <div class="consent-banner-inner">
+      <div class="consent-text">
+        <div id="consent-title" class="consent-title">🍪 Cookie の利用について</div>
+        <p class="consent-desc">
+          サービス改善のため Google Analytics・Microsoft Clarity などの Cookie を使用しています。
+          設定は<a href="#" onclick="event.preventDefault(); openPrivacyModal();">プライバシーポリシー</a>をご確認の上、いつでも変更できます。
+        </p>
+      </div>
+      <div class="consent-buttons">
+        <button class="consent-btn consent-btn-deny" onclick="setConsent('denied')">最小限のみ</button>
+        <button class="consent-btn consent-btn-accept" onclick="setConsent('granted')">すべて同意する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 特定商取引法モーダル ===== -->
+  <div class="legal-modal" id="tokutei-modal" style="display:none;" role="dialog">
+    <div class="legal-modal-content">
+      <button class="legal-close" onclick="closeLegalModal('tokutei-modal')" aria-label="閉じる">×</button>
+      <h2>特定商取引法に基づく表記</h2>
+      <dl class="legal-dl">
+        <dt>サービス名</dt><dd>MuchiNavi（ムチナビ）</dd>
+        <dt>運営者</dt><dd>岡本 岳大（株式会社TERASS 登録エージェント）</dd>
+        <dt>所属</dt><dd>株式会社TERASS<br>東京都港区虎ノ門2-2-1 住友不動産虎ノ門タワー13階<br>宅地建物取引業免許：国土交通大臣(1)第010125号</dd>
+        <dt>サービス内容</dt><dd>住宅購入に関する AI 相談・情報提供・不動産仲介エージェントの紹介</dd>
+        <dt>利用料金</dt><dd>相談・登録・AIチャットは完全無料。仲介手数料は宅建業法に基づき、売買契約成立時に契約書で明示する金額を適用（事前に書面で提示）。</dd>
+        <dt>支払方法</dt><dd>銀行振込（仲介手数料発生時のみ）</dd>
+        <dt>退会・データ削除</dt><dd>マイページから任意のタイミングで登録情報の編集・エクスポート・削除が可能。運営者へのメール連絡によるお問い合わせも可。</dd>
+        <dt>お問い合わせ</dt><dd>muchinavi公式サイト内のダイレクトチャット、またはメール</dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- ===== プライバシーポリシーモーダル（簡易版） ===== -->
+  <div class="legal-modal" id="privacy-modal" style="display:none;" role="dialog">
+    <div class="legal-modal-content">
+      <button class="legal-close" onclick="closeLegalModal('privacy-modal')" aria-label="閉じる">×</button>
+      <h2>プライバシーポリシー</h2>
+      <p class="legal-p">MuchiNavi（以下「当サービス」）は、利用者のプライバシーを尊重し、個人情報の保護に関して以下の方針を定めています。</p>
+      <h3>1. 取得する情報</h3>
+      <p class="legal-p">氏名・メールアドレス・電話番号（任意）・ご希望の住宅条件・チャット履歴、および Cookie を通じた匿名の利用行動データ。</p>
+      <h3>2. 利用目的</h3>
+      <p class="legal-p">住宅購入の相談・提案、サービス改善、重要連絡のため。営業リストへの販売・第三者提供は行いません。</p>
+      <h3>3. Cookie の取り扱い</h3>
+      <p class="legal-p">Google Analytics・Microsoft Clarity を利用して匿名の利用状況を計測しています。同意取得前は計測を行わず、同意後のみ発火します。同意はいつでも取り消せます。</p>
+      <h3>4. 第三者提供</h3>
+      <p class="legal-p">お客様の明示的な同意なく第三者に個人情報を提供することはありません。ただし、法令に基づく場合を除きます。</p>
+      <h3>5. 開示・訂正・削除</h3>
+      <p class="legal-p">お客様はいつでも登録情報の開示・訂正・削除を請求できます。マイページまたは運営者へのご連絡でお受けします。</p>
+      <h3>6. 改定</h3>
+      <p class="legal-p">本ポリシーは法令・サービス変更に応じて改定する場合があります。改定時は本ページで告知します。</p>
+      <p class="legal-p" style="margin-top: 18px; font-size: 11px; color: var(--text-light);">最終更新：2026年4月</p>
     </div>
   </div>
 
@@ -6780,9 +6975,86 @@
     }
 
     // DOM読み込み後にセットアップ
+    // ===== Cookie同意・法的モーダル制御 =====
+    function openConsentBanner() {
+      const b = document.getElementById('consent-banner');
+      if (b) b.style.display = 'block';
+    }
+    function closeConsentBanner() {
+      const b = document.getElementById('consent-banner');
+      if (b) b.style.display = 'none';
+    }
+    function setConsent(state) {
+      try {
+        localStorage.setItem('muchinavi_consent', state);
+        localStorage.setItem('muchinavi_consent_ts', String(Date.now()));
+      } catch(e){}
+      if (typeof gtag === 'function') {
+        if (state === 'granted') {
+          gtag('consent', 'update', {
+            'analytics_storage': 'granted',
+            'ad_storage': 'granted',
+            'ad_user_data': 'granted',
+            'ad_personalization': 'granted',
+            'personalization_storage': 'granted'
+          });
+          // Clarity Project ID が設定されていれば読み込み
+          if (window.MUCHINAVI_CLARITY_ID && window.MUCHINAVI_CLARITY_ID !== 'PLACEHOLDER') {
+            window.loadClarity(window.MUCHINAVI_CLARITY_ID);
+          }
+        } else {
+          gtag('consent', 'update', {
+            'analytics_storage': 'denied',
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'personalization_storage': 'denied'
+          });
+        }
+      }
+      closeConsentBanner();
+    }
+    function openTokuteiModal() {
+      const m = document.getElementById('tokutei-modal');
+      if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    }
+    function openPrivacyModal() {
+      const m = document.getElementById('privacy-modal');
+      if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    }
+    function closeLegalModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    // 背景クリックで閉じる
+    document.addEventListener('click', function(e) {
+      if (e.target.classList && e.target.classList.contains('legal-modal')) {
+        e.target.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+    // ESCキーで閉じる
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.legal-modal').forEach(m => m.style.display = 'none');
+        document.body.style.overflow = '';
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
       setupChatTextarea('chat-input', sendMessage);
       setupChatTextarea('direct-chat-input', sendDirectMessage);
+
+      // 同意バナー表示判定（未回答の場合のみ表示）
+      try {
+        const saved = localStorage.getItem('muchinavi_consent');
+        if (!saved) {
+          setTimeout(() => openConsentBanner(), 1200);
+        } else if (saved === 'granted' && window.MUCHINAVI_CLARITY_ID && window.MUCHINAVI_CLARITY_ID !== 'PLACEHOLDER') {
+          window.loadClarity(window.MUCHINAVI_CLARITY_ID);
+        }
+      } catch(e){}
 
       // ===== iOS キーボード対応 =====
       // visualViewport APIでキーボード表示時にチャット画面の高さを調整
