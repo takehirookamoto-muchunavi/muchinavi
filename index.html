@@ -748,6 +748,9 @@
     }
 
     /* ===== モバイル専用最適化（Welcome FV のコンパクト化） ===== */
+    /* スクロール誘導はモバイル専用（デスクトップでは非表示） */
+    .scroll-nudge { display: none; }
+
     @media (max-width: 480px) {
       /* コンテナ余白削減 */
       .container { padding: 16px 14px; }
