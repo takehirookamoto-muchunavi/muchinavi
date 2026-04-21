@@ -26,13 +26,148 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MuchiNavi">
   <meta name="mobile-web-app-capable" content="yes">
-  <!-- Google Analytics 4 -->
+  <!-- ===== Analytics: Consent Mode V2（電気通信事業法2023改正・個人情報保護法2022改正対応） ===== -->
+  <script>
+    // 同意取得前は denied がデフォルト（GDPR/JP法準拠）
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'granted',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500
+    });
+    gtag('js', new Date());
+    // 保存済み同意を復元
+    try {
+      const saved = localStorage.getItem('muchinavi_consent');
+      if (saved === 'granted') {
+        gtag('consent', 'update', {
+          'analytics_storage': 'granted',
+          'ad_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted',
+          'personalization_storage': 'granted'
+        });
+      }
+    } catch(e){}
+  </script>
+  <!-- Google Analytics 4（Consent Mode の遅延初期化に任せる） -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-VWS2PHHS4X"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-VWS2PHHS4X');
+    gtag('config', 'G-VWS2PHHS4X', {
+      'anonymize_ip': true
+    });
+  </script>
+  <!-- Microsoft Clarity（同意取得後のみロード・後段のconsent関数で有効化） -->
+  <script>
+    // Clarity Project ID は同意後に loadClarity() で注入
+    window.loadClarity = function(pid){
+      if (window.clarity || !pid || pid === 'PLACEHOLDER') return;
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", pid);
+    };
+    // Clarity Project ID 取得後に書き換え（例: loadClarity('xxxxxxxxxx')）
+    window.MUCHINAVI_CLARITY_ID = 'PLACEHOLDER';
+  </script>
+
+  <!-- ===== 構造化データ：Person（岡本岳大） ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "岡本 岳大",
+    "alternateName": "Takehiro Okamoto",
+    "jobTitle": "住宅購入専門エージェント",
+    "image": "https://muchinochi55.com/wp-content/uploads/2025/08/IMG_4473.jpeg",
+    "url": "https://muchinavi.com",
+    "sameAs": [
+      "https://muchinochi55.com/",
+      "https://twitter.com/muchinochi55"
+    ],
+    "worksFor": {
+      "@type": "Organization",
+      "name": "株式会社TERASS",
+      "url": "https://terass.com/",
+      "identifier": "国土交通大臣免許(1)第010125号"
+    },
+    "areaServed": [
+      { "@type": "AdministrativeArea", "name": "大阪府" },
+      { "@type": "AdministrativeArea", "name": "東京都" },
+      { "@type": "AdministrativeArea", "name": "兵庫県" }
+    ],
+    "knowsAbout": ["住宅購入", "中古マンション", "注文住宅", "住宅ローン", "不動産エージェント"]
+  }
+  </script>
+
+  <!-- ===== 構造化データ：FAQPage ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "MuchiNaviは本当に無料ですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、相談は完全無料です。登録後もAIチャット・面談予約を無料でご利用いただけます。費用が発生するのは実際に仲介が成立した場合の仲介手数料のみで、事前に明示してからご相談を進めます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "登録すると営業電話がかかってきますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "いいえ、営業電話は一切行いません。ご登録いただいた情報は、担当エージェント岡本岳大のみが閲覧し、営業リストや第三者に提供することはありません。お客様が希望された時のみご連絡します。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "どんな相談ができますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "住宅購入にまつわる全般的な相談が可能です。予算・エリア選び・住宅ローン・物件種別(中古マンション/戸建て/注文住宅)の比較・ライフプラン相談・契約手続きまで、AI(Gemini)と専任エージェントがサポートします。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "岡本岳大はどんな人ですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "株式会社TERASSに所属する住宅購入専門エージェントです。2児の父でもあり、大阪・東京・兵庫阪神間を中心に活動しています。ノルマに縛られず、押し売りせず、お客様ファーストを徹底する姿勢で、住宅購入ブログも200本以上執筆しています。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "登録した情報は削除できますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、いつでもマイカルテの編集・削除・エクスポートが可能です。お客様ご自身でアカウント削除も可能です。個人情報保護法に基づき、お客様からの開示・訂正・利用停止のご請求にも応じます。"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ===== 構造化データ：WebSite（サイト全体） ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MuchiNavi",
+    "url": "https://muchinavi.com",
+    "description": "住宅購入専門AIアシスタント。岡本岳大（TERASSエージェント）が24時間サポート。",
+    "inLanguage": "ja",
+    "author": { "@type": "Person", "name": "岡本 岳大" }
+  }
   </script>
   <style>
     /* パフォーマンス: 低速端末でアニメーション無効化 */
@@ -63,28 +198,66 @@
       --shadow-md: 0 4px 24px rgba(0,0,0,0.08);
       --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
       --transition: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+      /* ===== MuchiNavi Premium Palette（温かみ×信頼×高級感） ===== */
+      --brand-navy: #1F3A70;         /* 信頼の濃紺（エージェントの重厚感） */
+      --brand-navy-deep: #0F2452;     /* さらに深い濃紺（ヘッダー用） */
+      --brand-terracotta: #D96941;   /* 家の温もりを表すテラコッタ */
+      --brand-coral: #E87B4E;         /* アクセント（住まいの夕陽） */
+      --brand-gold: #C9A35C;          /* プレミアム感 */
+      --brand-cream: #FAF7F0;         /* 背景の温かみ */
+      --brand-sage: #6B8E65;          /* 成長・安心の緑 */
+
+      /* グラデーション定義 */
+      --gradient-hero: linear-gradient(135deg, #1F3A70 0%, #2D4E8A 50%, #D96941 100%);
+      --gradient-warm: linear-gradient(135deg, #FAF7F0 0%, #FDF3E9 100%);
+      --gradient-gold: linear-gradient(135deg, #E87B4E 0%, #C9A35C 100%);
+      --gradient-trust: linear-gradient(135deg, #1F3A70 0%, #6B8E65 100%);
+      --gradient-cta: linear-gradient(135deg, #D96941 0%, #E87B4E 50%, #C9A35C 100%);
+
+      /* レイヤー付きシャドウ */
+      --shadow-soft: 0 2px 8px rgba(31,58,112,0.06), 0 8px 24px rgba(31,58,112,0.04);
+      --shadow-card: 0 4px 16px rgba(31,58,112,0.08), 0 16px 48px rgba(31,58,112,0.06);
+      --shadow-cta: 0 4px 16px rgba(217,105,65,0.25), 0 12px 32px rgba(217,105,65,0.15);
+      --shadow-cta-hover: 0 6px 24px rgba(217,105,65,0.35), 0 16px 48px rgba(217,105,65,0.2);
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
+      background: var(--brand-cream);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(217,105,65,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(31,58,112,0.06) 0%, transparent 50%),
+        linear-gradient(180deg, #FAF7F0 0%, #F5F0E6 100%);
       color: var(--text);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
 
-    /* ===== Background decoration (軽量版) ===== */
+    /* ===== Background decoration (温かみのあるリッチ版) ===== */
     .bg-glow {
       position: fixed;
       width: 600px; height: 600px;
       border-radius: 50%;
-      opacity: 0.08;
+      opacity: 0.12;
       pointer-events: none;
       z-index: 0;
       will-change: auto;
+      filter: blur(40px);
     }
-    .bg-glow-1 { top: -200px; right: -100px; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
-    .bg-glow-2 { bottom: -200px; left: -100px; background: radial-gradient(circle, #5856d6 0%, transparent 70%); }
+    .bg-glow-1 { top: -200px; right: -100px; background: radial-gradient(circle, var(--brand-terracotta) 0%, transparent 70%); }
+    .bg-glow-2 { bottom: -200px; left: -100px; background: radial-gradient(circle, var(--brand-navy) 0%, transparent 70%); }
+
+    /* 装飾パターン（細かい水玉） */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(31,58,112,0.05) 1px, transparent 0);
+      background-size: 24px 24px;
+      opacity: 0.6;
+    }
 
     /* ===== Container ===== */
     .container {
@@ -101,13 +274,24 @@
 
     /* ===== Step card ===== */
     .step-card {
-      background: rgba(255,255,255,0.95);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.97);
+      border: 1px solid rgba(31,58,112,0.08);
       border-radius: var(--radius-xl);
       padding: 48px 36px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-card);
       text-align: center;
       animation: cardIn 0.35s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    /* カード上部に細いグラデーションラインを配置して"高級感" */
+    .step-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-gold);
+      opacity: 0.7;
     }
     @keyframes cardIn {
       from { opacity: 0; transform: translateX(40px) scale(0.97); }
@@ -137,21 +321,22 @@
       100% { transform: scale(1); }
     }
     .choice-card.selected {
-      border-color: var(--accent);
-      background: var(--accent-subtle);
-      box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+      border-color: var(--brand-terracotta);
+      background: linear-gradient(135deg, rgba(217,105,65,0.08) 0%, rgba(201,163,92,0.08) 100%);
+      box-shadow: 0 0 0 4px rgba(217,105,65,0.12), 0 8px 24px rgba(217,105,65,0.15);
       animation: selectPulse 0.3s ease;
     }
     /* レスポンスメッセージのチャット風表示 */
     .step-response {
       font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
+      color: var(--brand-terracotta);
+      font-weight: 700;
       margin-top: 16px;
       opacity: 0;
       transform: translateY(8px);
       transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      background: var(--accent-subtle);
+      background: linear-gradient(135deg, rgba(217,105,65,0.08) 0%, rgba(201,163,92,0.08) 100%);
+      border: 1px solid rgba(217,105,65,0.2);
       padding: 10px 18px;
       border-radius: 16px;
       display: inline-block;
@@ -163,18 +348,48 @@
 
     /* ===== Step elements ===== */
     .step-icon {
-      font-size: 56px;
+      font-size: 32px;
       margin-bottom: 20px;
-      display: inline-block;
-      /* floatアニメーション削除で軽量化 */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--gradient-gold);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(217,105,65,0.25), inset 0 2px 4px rgba(255,255,255,0.2);
+      position: relative;
+      animation: iconFloat 4s ease-in-out infinite;
     }
-    /* @keyframes float 削除済み（パフォーマンス改善） */
+    .step-icon svg { width: 32px; height: 32px; stroke: #fff; }
+    /* アイコンの周りに二重リングで"特別感" */
+    .step-icon::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(217,105,65,0.3);
+      animation: iconRingRotate 20s linear infinite;
+    }
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes iconRingRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
     .step-title {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 26px;
+      font-weight: 800;
       letter-spacing: -0.02em;
-      margin-bottom: 8px;
-      color: var(--primary);
+      line-height: 1.35;
+      margin-bottom: 10px;
+      color: var(--brand-navy);
+      background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-deep) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .step-subtitle {
       font-size: 14px;
@@ -199,9 +414,12 @@
     }
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent), #34c759);
+      background: linear-gradient(90deg, var(--brand-navy), var(--brand-terracotta), var(--brand-gold));
+      background-size: 200% 100%;
+      animation: progressShimmer 3s ease-in-out infinite;
       border-radius: 3px;
       transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 0 12px rgba(217,105,65,0.4);
       position: relative;
     }
     .progress-bar-fill::after {
@@ -221,13 +439,375 @@
     }
     .progress-percent {
       font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
+      font-weight: 800;
+      color: var(--brand-terracotta);
+      letter-spacing: 0.03em;
     }
     .progress-remaining {
       font-size: 12px;
       color: var(--text-secondary);
-      font-weight: 500;
+      font-weight: 600;
+    }
+    @keyframes progressShimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* ===== 診断結果・祝福演出（Peak-End Rule） ===== */
+    .karte-celebration {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 200px;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 10;
+    }
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      opacity: 0;
+      animation: confettiFall 2.8s cubic-bezier(0.35, 0.05, 0.5, 0.95) forwards;
+      border-radius: 2px;
+    }
+    @keyframes confettiFall {
+      0% { opacity: 0; transform: translateY(-40px) rotate(0deg); }
+      10% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(240px) rotate(720deg); }
+    }
+    .sparkle {
+      position: absolute;
+      width: 12px; height: 12px;
+      opacity: 0;
+      animation: sparklePop 1.8s ease-out forwards;
+    }
+    .sparkle svg { width: 100%; height: 100%; fill: var(--brand-gold); }
+    @keyframes sparklePop {
+      0% { opacity: 0; transform: scale(0) rotate(0deg); }
+      40% { opacity: 1; transform: scale(1.3) rotate(90deg); }
+      80% { opacity: 0.6; transform: scale(1) rotate(180deg); }
+      100% { opacity: 0; transform: scale(0.4) rotate(225deg); }
+    }
+
+    /* チェックマーク描画アニメ */
+    .karte-check-burst {
+      width: 80px; height: 80px;
+      margin: 0 auto 16px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: checkBurstIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes checkBurstIn {
+      0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+      60% { opacity: 1; transform: scale(1.15) rotate(0deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    .karte-check-burst::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,163,92,0.35) 0%, transparent 60%);
+      animation: checkGlow 1.6s ease-out 0.3s both;
+    }
+    @keyframes checkGlow {
+      0% { opacity: 0; transform: scale(0.6); }
+      40% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0; transform: scale(1.8); }
+    }
+    .karte-check-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--gradient-cta);
+      box-shadow: 0 8px 32px rgba(217,105,65,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+    .karte-check-circle svg {
+      width: 44px; height: 44px;
+      stroke: #fff;
+      stroke-width: 3.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: checkDraw 0.6s ease-out 0.5s forwards;
+    }
+    @keyframes checkDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* カルテカードのカスケードフェードイン */
+    .karte-cascade > * {
+      opacity: 0;
+      animation: cascadeFadeIn 0.5s ease-out forwards;
+    }
+    .karte-cascade > *:nth-child(1) { animation-delay: 0.7s; }
+    .karte-cascade > *:nth-child(2) { animation-delay: 0.9s; }
+    .karte-cascade > *:nth-child(3) { animation-delay: 1.1s; }
+    .karte-cascade > *:nth-child(4) { animation-delay: 1.3s; }
+    .karte-cascade > *:nth-child(5) { animation-delay: 1.5s; }
+    @keyframes cascadeFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* カルテサマリー項目の順次入場 */
+    .karte-row {
+      opacity: 0;
+      animation: karteRowIn 0.4s ease-out forwards;
+    }
+    .karte-row:nth-child(1) { animation-delay: 1.2s; }
+    .karte-row:nth-child(2) { animation-delay: 1.3s; }
+    .karte-row:nth-child(3) { animation-delay: 1.4s; }
+    .karte-row:nth-child(4) { animation-delay: 1.5s; }
+    .karte-row:nth-child(5) { animation-delay: 1.6s; }
+    @keyframes karteRowIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* prefers-reduced-motion 対応（アクセシビリティ配慮） */
+    @media (prefers-reduced-motion: reduce) {
+      .confetti, .sparkle, .karte-check-burst::before { animation: none !important; opacity: 1 !important; }
+      .karte-check-circle svg { stroke-dashoffset: 0 !important; animation: none !important; }
+      .karte-cascade > * { opacity: 1 !important; animation: none !important; }
+      .karte-row { opacity: 1 !important; animation: none !important; }
+    }
+
+    /* ===== Cookie 同意バナー ===== */
+    .consent-banner {
+      position: fixed;
+      bottom: 16px; left: 16px; right: 16px;
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 48px rgba(31,58,112,0.18), 0 4px 16px rgba(31,58,112,0.08);
+      border: 1px solid rgba(31,58,112,0.1);
+      padding: 18px 20px;
+      z-index: 9999;
+      animation: consentSlideUp 0.4s ease-out;
+    }
+    @keyframes consentSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .consent-banner-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .consent-text { flex: 1; min-width: 240px; }
+    .consent-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--brand-navy);
+      margin-bottom: 4px;
+    }
+    .consent-desc {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .consent-desc a {
+      color: var(--brand-terracotta);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+    }
+    .consent-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .consent-btn {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 980px;
+      font-size: 12.5px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.01em;
+    }
+    .consent-btn-deny {
+      background: rgba(31,58,112,0.06);
+      color: var(--brand-navy);
+    }
+    .consent-btn-deny:hover { background: rgba(31,58,112,0.12); }
+    .consent-btn-accept {
+      background: var(--gradient-cta);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(217,105,65,0.25);
+    }
+    .consent-btn-accept:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(217,105,65,0.35);
+    }
+
+    /* ===== 法的モーダル（特商法・プライバシー） ===== */
+    .legal-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,36,82,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: legalFadeIn 0.3s ease-out;
+    }
+    @keyframes legalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .legal-modal-content {
+      background: #fff;
+      border-radius: 20px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 86vh;
+      overflow-y: auto;
+      padding: 28px 28px 32px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(15,36,82,0.3);
+      animation: legalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes legalSlideUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .legal-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 34px; height: 34px;
+      border: none;
+      background: rgba(31,58,112,0.06);
+      color: var(--brand-navy);
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .legal-close:hover { background: rgba(31,58,112,0.12); transform: rotate(90deg); }
+    .legal-modal-content h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--brand-navy);
+      margin-bottom: 16px;
+      padding-right: 40px;
+    }
+    .legal-modal-content h3 {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--brand-terracotta);
+      margin-top: 16px;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+    .legal-dl {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px 16px;
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+    .legal-dl dt {
+      font-weight: 700;
+      color: var(--brand-navy);
+    }
+    .legal-dl dd {
+      color: var(--text-primary);
+    }
+    .legal-p {
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+    @media (max-width: 480px) {
+      .legal-dl { grid-template-columns: 1fr; gap: 2px; }
+      .legal-dl dt { margin-top: 10px; }
+      .legal-modal-content { padding: 22px 20px 26px; }
+      .consent-buttons { width: 100%; }
+      .consent-btn { flex: 1; }
+    }
+
+    /* ===== モバイル専用最適化（Welcome FV のコンパクト化） ===== */
+    /* スクロール誘導はモバイル専用（デスクトップでは非表示） */
+    .scroll-nudge { display: none; }
+
+    @media (max-width: 480px) {
+      /* コンテナ余白削減 */
+      .container { padding: 16px 14px; }
+      /* ステップカード余白削減 */
+      .step-card { padding: 28px 20px; border-radius: 22px; }
+      /* アイコン縮小 + 装飾リング縮小 */
+      .step-icon { width: 60px; height: 60px; font-size: 24px; margin-bottom: 14px; }
+      .step-icon svg { width: 26px; height: 26px; }
+      .step-icon::before { inset: -6px; }
+      /* タイトル縮小 */
+      .step-title { font-size: 21px; line-height: 1.4; margin-bottom: 6px; }
+      .step-subtitle { font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+      /* トレンドフック余白削減 */
+      .step-card [data-trend-hook], .step-card .karte-cascade { padding-left: 0; padding-right: 0; }
+      /* プログレスバーのsticky固定（モバイル時のみ） */
+      .progress-container {
+        position: sticky;
+        top: 0;
+        background: rgba(250,247,240,0.95);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 8px 0 6px;
+        margin: -8px -14px 16px;
+        z-index: 50;
+        border-bottom: 1px solid rgba(31,58,112,0.06);
+      }
+      /* スクロールアフォーダンス用矢印アニメ */
+      .scroll-nudge {
+        display: flex;
+        justify-content: center;
+        margin: 12px 0 -4px;
+        opacity: 0.65;
+        animation: scrollNudge 1.8s ease-in-out infinite;
+      }
+      @keyframes scrollNudge {
+        0%, 100% { transform: translateY(0); opacity: 0.5; }
+        50% { transform: translateY(4px); opacity: 0.9; }
+      }
+      .scroll-nudge svg { width: 22px; height: 22px; stroke: var(--brand-terracotta); }
+      /* CTAボタンの touch target 拡大 */
+      .btn-primary { padding: 16px 32px; min-width: 100%; font-size: 15.5px; }
+      /* プロフィールカードのモバイル密度 */
+      .welcome-profile-card { padding: 16px 14px !important; border-radius: 16px !important; }
+      .welcome-profile-card img { width: 58px !important; height: 58px !important; border-width: 2px !important; }
+      .welcome-profile-badges span { font-size: 10px !important; padding: 2px 7px !important; }
+      .welcome-profile-quote { font-size: 11.5px !important; padding: 8px 10px !important; }
+      .welcome-profile-footer { font-size: 9.5px !important; }
+      /* consent banner モバイル時は縦積み */
+      .consent-banner { bottom: 10px; left: 10px; right: 10px; padding: 14px 16px; }
+      .consent-banner-inner { flex-direction: column; align-items: stretch; gap: 10px; }
+      .consent-title { font-size: 13px; }
+      .consent-desc { font-size: 11.5px; }
+    }
+    @media (max-width: 380px) {
+      /* iPhone SE等の小型端末 */
+      .step-title { font-size: 19px; }
+      .step-icon { width: 56px; height: 56px; }
     }
     .progress-dots {
       display: flex;
@@ -270,8 +850,8 @@
       text-align: center;
     }
     .input-field:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(0,113,227,0.12);
+      border-color: var(--brand-terracotta);
+      box-shadow: 0 0 0 4px rgba(217,105,65,0.15);
     }
     .input-field::placeholder {
       color: var(--text-light);
@@ -282,26 +862,41 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 16px 40px;
-      background: var(--accent);
+      gap: 10px;
+      padding: 17px 44px;
+      background: var(--gradient-cta);
       color: white;
       border: none;
       border-radius: 980px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.02em;
       font-family: inherit;
       cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 200px;
+      transition: all 0.35s var(--transition);
+      min-width: 220px;
+      box-shadow: var(--shadow-cta);
+      position: relative;
+      overflow: hidden;
+    }
+    /* ボタン内部の光沢 */
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s ease;
     }
     .btn-primary:hover {
-      background: var(--accent-hover);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,113,227,0.3);
+      box-shadow: var(--shadow-cta-hover);
+    }
+    .btn-primary:hover::before {
+      left: 100%;
     }
     .btn-primary:active {
-      transform: scale(0.97);
+      transform: scale(0.98) translateY(0);
     }
     .btn-primary:disabled {
       background: var(--text-light);
@@ -375,37 +970,53 @@
     }
     /* マルチ選択 */
     .multi-choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-    .multi-choice-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s; font-size: 14px; color: var(--primary); user-select: none; }
-    .multi-choice-item:hover { border-color: var(--accent); background: rgba(0,113,227,0.03); }
-    .multi-choice-item.checked { border-color: var(--accent); background: rgba(0,113,227,0.06); }
+    .multi-choice-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; font-size: 14px; color: var(--primary); user-select: none; background: #fff; }
+    .multi-choice-item:hover { border-color: var(--brand-terracotta); background: rgba(217,105,65,0.04); transform: translateX(2px); }
+    .multi-choice-item.checked { border-color: var(--brand-terracotta); background: linear-gradient(135deg, rgba(217,105,65,0.06) 0%, rgba(201,163,92,0.05) 100%); box-shadow: 0 2px 8px rgba(217,105,65,0.12); }
     .multi-check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent; transition: all 0.15s; flex-shrink: 0; }
-    .multi-check-box.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .multi-other-input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; margin-top: 4px; outline: none; }
-    .multi-other-input:focus { border-color: var(--accent); }
+    .multi-check-box.on { background: var(--gradient-gold); border-color: var(--brand-terracotta); color: #fff; }
+    .multi-other-input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; margin-top: 4px; outline: none; transition: border-color 0.2s ease; }
+    .multi-other-input:focus { border-color: var(--brand-terracotta); }
 
     .choice-card {
       padding: 20px 16px;
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
       cursor: pointer;
-      transition: all 0.3s ease;
-      background: white;
+      transition: all 0.3s var(--transition);
+      background: #fff;
+      position: relative;
     }
     .choice-card:hover {
-      border-color: rgba(0,113,227,0.3);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 28px rgba(0,113,227,0.12);
+      border-color: rgba(217,105,65,0.35);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 32px rgba(217,105,65,0.12);
     }
     .choice-card:active {
       transform: scale(0.97);
       transition-duration: 0.1s;
     }
     /* choice-card.selected styles moved to animation section above */
-    .choice-icon { font-size: 28px; margin-bottom: 8px; }
+    .choice-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(31,58,112,0.08) 0%, rgba(217,105,65,0.08) 100%);
+      color: var(--brand-navy);
+      margin-bottom: 10px;
+    }
+    .choice-icon svg { width: 22px; height: 22px; stroke: var(--brand-navy); }
+    .choice-card.selected .choice-icon {
+      background: var(--gradient-gold);
+      color: #fff;
+    }
+    .choice-card.selected .choice-icon svg { stroke: #fff; }
     .choice-label {
       font-size: 13px;
-      font-weight: 600;
-      color: var(--primary);
+      font-weight: 700;
+      color: var(--brand-navy);
     }
 
     /* ===== Slider ===== */
@@ -414,11 +1025,15 @@
       margin: 16px 0;
     }
     .budget-display {
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--accent);
+      font-size: 36px;
+      font-weight: 900;
+      background: var(--gradient-cta);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 16px;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      display: inline-block;
     }
     input[type="range"] {
       -webkit-appearance: none;
@@ -3000,6 +3615,66 @@
 
     <div class="footer">
       Powered by <a href="https://muchinochi.com" target="_blank">muchinochi</a>
+      ・<a href="#" onclick="event.preventDefault(); openTokuteiModal();">特定商取引法に基づく表記</a>
+      ・<a href="#" onclick="event.preventDefault(); openPrivacyModal();">プライバシーポリシー</a>
+      ・<a href="#" onclick="event.preventDefault(); openConsentBanner();">Cookie設定</a>
+    </div>
+  </div>
+
+  <!-- ===== Cookie 同意バナー（電気通信事業法2023改正・個人情報保護法対応） ===== -->
+  <div class="consent-banner" id="consent-banner" style="display:none;" role="dialog" aria-labelledby="consent-title">
+    <div class="consent-banner-inner">
+      <div class="consent-text">
+        <div id="consent-title" class="consent-title">🍪 Cookie の利用について</div>
+        <p class="consent-desc">
+          サービス改善のため Google Analytics・Microsoft Clarity などの Cookie を使用しています。
+          設定は<a href="#" onclick="event.preventDefault(); openPrivacyModal();">プライバシーポリシー</a>をご確認の上、いつでも変更できます。
+        </p>
+      </div>
+      <div class="consent-buttons">
+        <button class="consent-btn consent-btn-deny" onclick="setConsent('denied')">最小限のみ</button>
+        <button class="consent-btn consent-btn-accept" onclick="setConsent('granted')">すべて同意する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 特定商取引法モーダル ===== -->
+  <div class="legal-modal" id="tokutei-modal" style="display:none;" role="dialog">
+    <div class="legal-modal-content">
+      <button class="legal-close" onclick="closeLegalModal('tokutei-modal')" aria-label="閉じる">×</button>
+      <h2>特定商取引法に基づく表記</h2>
+      <dl class="legal-dl">
+        <dt>サービス名</dt><dd>MuchiNavi（ムチナビ）</dd>
+        <dt>運営者</dt><dd>岡本 岳大（株式会社TERASS 登録エージェント）</dd>
+        <dt>所属</dt><dd>株式会社TERASS<br>東京都港区虎ノ門2-2-1 住友不動産虎ノ門タワー13階<br>宅地建物取引業免許：国土交通大臣(1)第010125号</dd>
+        <dt>サービス内容</dt><dd>住宅購入に関する AI 相談・情報提供・不動産仲介エージェントの紹介</dd>
+        <dt>利用料金</dt><dd>相談・登録・AIチャットは完全無料。仲介手数料は宅建業法に基づき、売買契約成立時に契約書で明示する金額を適用（事前に書面で提示）。</dd>
+        <dt>支払方法</dt><dd>銀行振込（仲介手数料発生時のみ）</dd>
+        <dt>退会・データ削除</dt><dd>マイページから任意のタイミングで登録情報の編集・エクスポート・削除が可能。運営者へのメール連絡によるお問い合わせも可。</dd>
+        <dt>お問い合わせ</dt><dd>muchinavi公式サイト内のダイレクトチャット、またはメール</dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- ===== プライバシーポリシーモーダル（簡易版） ===== -->
+  <div class="legal-modal" id="privacy-modal" style="display:none;" role="dialog">
+    <div class="legal-modal-content">
+      <button class="legal-close" onclick="closeLegalModal('privacy-modal')" aria-label="閉じる">×</button>
+      <h2>プライバシーポリシー</h2>
+      <p class="legal-p">MuchiNavi（以下「当サービス」）は、利用者のプライバシーを尊重し、個人情報の保護に関して以下の方針を定めています。</p>
+      <h3>1. 取得する情報</h3>
+      <p class="legal-p">氏名・メールアドレス・電話番号（任意）・ご希望の住宅条件・チャット履歴、および Cookie を通じた匿名の利用行動データ。</p>
+      <h3>2. 利用目的</h3>
+      <p class="legal-p">住宅購入の相談・提案、サービス改善、重要連絡のため。営業リストへの販売・第三者提供は行いません。</p>
+      <h3>3. Cookie の取り扱い</h3>
+      <p class="legal-p">Google Analytics・Microsoft Clarity を利用して匿名の利用状況を計測しています。同意取得前は計測を行わず、同意後のみ発火します。同意はいつでも取り消せます。</p>
+      <h3>4. 第三者提供</h3>
+      <p class="legal-p">お客様の明示的な同意なく第三者に個人情報を提供することはありません。ただし、法令に基づく場合を除きます。</p>
+      <h3>5. 開示・訂正・削除</h3>
+      <p class="legal-p">お客様はいつでも登録情報の開示・訂正・削除を請求できます。マイページまたは運営者へのご連絡でお受けします。</p>
+      <h3>6. 改定</h3>
+      <p class="legal-p">本ポリシーは法令・サービス変更に応じて改定する場合があります。改定時は本ページで告知します。</p>
+      <p class="legal-p" style="margin-top: 18px; font-size: 11px; color: var(--text-light);">最終更新：2026年4月</p>
     </div>
   </div>
 
@@ -3568,9 +4243,9 @@
       {
         type: 'welcome',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-        title: 'あなたに合った住まい情報、\n届けます。',
-        subtitle: '5つの質問に答えるだけで、\nあなたの住まい探しにぴったりの情報が見つかります。',
-        buttonText: '30秒で診断スタート',
+        title: 'あなた専用の\n住まい探しカルテを作る',
+        subtitle: '約2分で完成。\nTERASS所属エージェント・岡本岳大が\nあなた専用に伴走するための、\nあなただけのカルテです。',
+        buttonText: '無料でマイカルテを作る',
       },
       {
         type: 'choice',
@@ -3871,18 +4546,18 @@
         type: 'contact',
         key: 'contact',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
-        title: '連絡先を教えてください',
-        subtitle: '個人チャットの通知や、重要なご連絡に使用します。\n情報は厳重に管理しますのでご安心ください。',
-        response: () => '次へ進みます！',
+        title: 'カルテを保存します',
+        subtitle: 'あなたのマイカルテを保存するためのメールアドレスです。\n担当の岡本以外は閲覧しません。営業リストには一切使いません。',
+        response: () => 'カルテを保存します！',
       },
       {
         type: 'password',
         key: 'password',
         icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
-        title: 'パスワードを設定してください',
-        subtitle: '他の端末からもログインできるようになります',
+        title: 'カルテのパスワードを設定',
+        subtitle: 'どの端末からでもマイカルテを見られるようになります。\nいつでも削除・エクスポートできます。',
         required: true,
-        response: () => '設定完了！',
+        response: () => 'マイカルテが完成しました！',
       },
     ];
 
@@ -3932,17 +4607,72 @@
       `;
 
       if (step.type === 'welcome') {
+        // トレンドフック（基盤資料「トレンド×顧客理解」CVR158%法則）
         html += `
-          <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px; opacity: 0.5; font-size: 12px; color: var(--text-secondary);">
-            <span>✓ 3分で完了</span>
-            <span>✓ 無料</span>
-            <span>✓ 24時間対応</span>
+          <div style="margin: 0 0 20px; padding: 14px 16px; background: linear-gradient(135deg, rgba(224,120,86,0.08), rgba(255,171,0,0.06)); border-left: 3px solid #E07856; border-radius: 0 12px 12px 0; text-align: left;">
+            <div style="font-size: 12px; font-weight: 700; color: #E07856; margin-bottom: 4px; letter-spacing: 0.03em;">2026年・住宅市場の今</div>
+            <div style="font-size: 13px; line-height: 1.55; color: var(--text-primary);">住宅ローン金利・建築費・税制が動いています。「今買うべき？」<strong>私が正直に答えます</strong>。</div>
+          </div>
+        `;
+        // 岡本さんプロフィールカード（「実在する人」信頼性を視覚化）
+        html += `
+          <div class="welcome-profile-card" style="margin: 0 0 22px; padding: 20px 18px; background: linear-gradient(135deg, #FAF7F0 0%, #FFFFFF 100%); border: 1px solid rgba(31,58,112,0.1); border-radius: 18px; box-shadow: var(--shadow-soft); text-align: left; position: relative; overflow: hidden;">
+            <!-- 装飾的ゴールドアクセント -->
+            <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(201,163,92,0.15), transparent 70%); pointer-events: none;"></div>
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <div style="flex-shrink: 0; position: relative;">
+                <img src="https://muchinochi55.com/wp-content/uploads/2025/08/IMG_4473.jpeg" alt="岡本岳大" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 4px 16px rgba(31,58,112,0.18);" loading="lazy">
+                <div style="position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; background: var(--brand-sage); border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center;" title="オンライン">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
+                  <span style="font-size: 16px; font-weight: 800; color: var(--brand-navy); letter-spacing: 0.01em;">岡本 岳大</span>
+                  <span style="font-size: 10.5px; color: var(--text-light); font-weight: 500;">Takehiro Okamoto</span>
+                </div>
+                <div style="font-size: 11.5px; color: var(--brand-terracotta); font-weight: 700; margin-top: 3px; line-height: 1.4;">住宅購入専門エージェント／TERASS登録</div>
+                <div class="welcome-profile-badges" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                  <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; background: rgba(31,58,112,0.06); color: var(--brand-navy); border-radius: 980px; font-size: 10.5px; font-weight: 700;">📝 記事200本超</span>
+                  <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; background: rgba(107,142,101,0.1); color: var(--brand-sage); border-radius: 980px; font-size: 10.5px; font-weight: 700;">🏠 大阪／東京／阪神間</span>
+                  <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; background: rgba(201,163,92,0.12); color: #9b7d3f; border-radius: 980px; font-size: 10.5px; font-weight: 700;">👨‍👧‍👦 2児のパパ</span>
+                </div>
+              </div>
+            </div>
+            <div class="welcome-profile-quote" style="margin-top: 14px; padding: 10px 12px; background: rgba(255,255,255,0.6); border-radius: 10px; border-left: 3px solid var(--brand-gold); font-size: 12px; line-height: 1.6; color: var(--text-primary); font-style: italic;">
+              「ノルマに縛られず、押し売りもしません。<br>お客様にとっての<strong style="color: var(--brand-terracotta); font-style: normal;">正解</strong>を、一緒に見つけます。」
+            </div>
+            <div class="welcome-profile-footer" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(31,58,112,0.12); font-size: 10px; color: var(--text-light); line-height: 1.5;">
+              所属：<strong style="color: var(--text-secondary);">株式会社TERASS</strong>　宅地建物取引業免許：国土交通大臣(1)第010125号
+            </div>
+          </div>
+        `;
+        html += `
+          <div style="margin-bottom: 22px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(107,142,101,0.1); color: var(--brand-sage); border-radius: 980px; font-size: 11.5px; font-weight: 700; border: 1px solid rgba(107,142,101,0.2);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              約2分で完成
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(31,58,112,0.08); color: var(--brand-navy); border-radius: 980px; font-size: 11.5px; font-weight: 700; border: 1px solid rgba(31,58,112,0.15);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              営業電話なし
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(217,105,65,0.1); color: var(--brand-terracotta); border-radius: 980px; font-size: 11.5px; font-weight: 700; border: 1px solid rgba(217,105,65,0.2);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              いつでも削除OK
+            </span>
           </div>
         `;
         html += `<button class="btn-primary" onclick="nextStep()" style="animation: cardIn 0.5s ease-out 0.2s both;">${step.buttonText}</button>`;
+        // スクロールアフォーダンス（モバイル時のみ表示・下にコンテンツがあるシグナル）
         html += `
-          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">すでにアカウントをお持ちの方</p>
+          <div class="scroll-nudge" aria-hidden="true" style="margin-top: 14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        `;
+        html += `
+          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px;">すでにアカウントをお持ちの方</p>
             <button class="btn-login" onclick="showLoginForm()">ログイン</button>
           </div>
         `;
@@ -4169,11 +4899,52 @@
       }
 
       else if (step.type === 'diagnosis_result') {
+        // マイカルテサマリー生成（基盤資料「専用カルテ」コンセプト）
+        const karteName = customerData.name ? `${customerData.name}さん` : 'あなた';
+        const karteType = customerData.customerType === 'sale' ? '売却' : (customerData.customerType === 'undecided' ? '検討中' : '購入');
+        const karteProperty = customerData.propertyType || customerData.salePropertyType || '未定';
+        const karteArea = (() => {
+          const a = customerData.areaPref;
+          if (!a) return '—';
+          if (Array.isArray(a)) return a.join(' / ');
+          return a;
+        })();
+        const karteBudget = (() => {
+          const b = customerData.budget;
+          if (!b || b === '未定') return '—';
+          if (typeof b === 'number') return b >= 10000 ? `${(b/10000).toFixed(1)}億円` : `${b.toLocaleString()}万円`;
+          return b;
+        })();
+        const karteFamily = customerData.family || '—';
+
         html += `
-          <div style="text-align: center;">
-            <div style="background: linear-gradient(135deg, #1F3A70, #2D8A4F); color: #fff; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
-              <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">ありがとうございます！</div>
-              <div style="font-size: 18px; font-weight: 700; line-height: 1.5;">お聞きした内容をもとに<br>参考になりそうな情報を<br>まとめました</div>
+          <div style="text-align: center; position: relative;" class="karte-cascade">
+            <!-- 祝福演出：紙吹雪＋キラキラ -->
+            <div class="karte-celebration" id="karte-celebration"></div>
+            <!-- チェックマーク・バースト -->
+            <div class="karte-check-burst">
+              <div class="karte-check-circle">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </div>
+            <!-- 完成バナー -->
+            <div style="background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-deep) 50%, var(--brand-terracotta) 100%); color: #fff; padding: 22px 20px; border-radius: 16px; margin-bottom: 16px; position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(31,58,112,0.2);">
+              <div style="position: absolute; inset: 0; background: radial-gradient(circle at 100% 0%, rgba(201,163,92,0.25), transparent 50%); pointer-events: none;"></div>
+              <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.2em; opacity: 0.9; margin-bottom: 6px; position: relative;">✨ MY KARTE ・ COMPLETED ✨</div>
+              <div style="font-size: 19px; font-weight: 800; line-height: 1.45; position: relative;">${karteName}の<br>マイカルテが完成しました</div>
+            </div>
+            <!-- カルテサマリーカード -->
+            <div style="background: #fff; border: 1.5px solid rgba(31,58,112,0.1); border-radius: 16px; padding: 20px 22px; margin-bottom: 16px; text-align: left; box-shadow: var(--shadow-card); position: relative; overflow: hidden;">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-gold);"></div>
+              <div style="font-size: 12px; font-weight: 800; color: var(--brand-navy); margin-bottom: 14px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">🏠 ${karteName}専用カルテ</div>
+              <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px 14px; font-size: 13px;">
+                <div class="karte-row" style="color: var(--text-secondary); font-weight: 700;">相談種別</div><div class="karte-row" style="color: var(--brand-navy); font-weight: 700;">${karteType}</div>
+                <div class="karte-row" style="color: var(--text-secondary); font-weight: 700;">希望物件</div><div class="karte-row" style="color: var(--brand-navy); font-weight: 700;">${karteProperty}</div>
+                <div class="karte-row" style="color: var(--text-secondary); font-weight: 700;">エリア</div><div class="karte-row" style="color: var(--brand-navy); font-weight: 700;">${karteArea}</div>
+                <div class="karte-row" style="color: var(--text-secondary); font-weight: 700;">予算</div><div class="karte-row" style="color: var(--brand-terracotta); font-weight: 800; font-size: 14px;">${karteBudget}</div>
+                <div class="karte-row" style="color: var(--text-secondary); font-weight: 700;">ご家族</div><div class="karte-row" style="color: var(--brand-navy); font-weight: 700;">${karteFamily}</div>
+              </div>
+              <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(31,58,112,0.12); font-size: 11px; color: var(--text-light); text-align: center;">※ このカルテはいつでも編集・削除できます</div>
             </div>
             <div id="diagnosis-advice" style="background: #FFF5F0; border-left: 4px solid #E07856; padding: 16px; border-radius: 0 12px 12px 0; margin-bottom: 20px; text-align: left;">
               <div style="font-size: 12px; font-weight: 600; color: #E07856; margin-bottom: 6px;">💡 ワンポイント</div>
@@ -4205,19 +4976,35 @@
               </div>
             </div>
             <button class="btn-primary" onclick="nextStep('diagnosed')" style="background: linear-gradient(135deg, #2D8A4F, #1F3A70);">
-              AIアシスタントに無料で相談する →
+              マイカルテを保存する →
             </button>
             <p style="font-size: 11px; color: var(--text-light); margin-top: 10px;">
-              ※ メールアドレスの登録が必要です（営業電話は一切ありません）
+              ※ メールアドレスだけで保存できます。営業電話は一切しません。<br>いつでも削除・エクスポート可能です。
             </p>
           </div>
         `;
         // サーバーAPIから最適な記事を取得
         setTimeout(() => loadRecommendedArticles(), 300);
+        // 祝福演出：紙吹雪＋キラキラを生成
+        setTimeout(() => launchKarteCelebration(), 200);
       }
 
       // Append back button at the bottom (after all action buttons)
       html += backButtonHTML;
+
+      // マイクロコピー帯（基盤資料「CVR最大化」安心担保）— welcome/診断結果以外の入力ステップのみ
+      const microCopyByStep = {
+        customerType: '後から変更できます。まずは直感で。',
+        propertyType: '複数の可能性を一緒に考えます。仮でOK。',
+        areaPref: '複数選択できます。まだ決まっていなくても大丈夫。',
+        budget: 'この数字は担当の岡本だけが見ます。営業の根拠には使いません。',
+        family: '後から追加・変更できます。',
+        contact: 'メールは担当の岡本しか見ません。DMの送信先ではありません。',
+        password: 'カルテを保存します。いつでも削除できます。',
+      };
+      if (step.key && microCopyByStep[step.key]) {
+        html += `<div style="margin-top: 16px; padding: 10px 14px; background: rgba(0,113,227,0.04); border-radius: 10px; font-size: 11.5px; color: var(--text-secondary); text-align: center; line-height: 1.5;">🔒 ${microCopyByStep[step.key]}</div>`;
+      }
 
       // Animate transition
       card.classList.add('leaving');
@@ -4244,12 +5031,14 @@
       const remainingEl = document.getElementById('progress-remaining');
 
       if (barFill) barFill.style.width = percent + '%';
-      if (percentEl) percentEl.textContent = percent + '%';
+      if (percentEl) percentEl.textContent = `マイカルテ ${percent}%`;
       if (remainingEl) {
-        if (remaining > 0) {
-          remainingEl.textContent = `あと ${remaining} 問`;
+        if (remaining > 1) {
+          remainingEl.textContent = `あと${remaining}問で完成`;
+        } else if (remaining === 1) {
+          remainingEl.textContent = 'あと1問で完成';
         } else {
-          remainingEl.textContent = '最後のステップ！';
+          remainingEl.textContent = 'まもなく完成！';
         }
       }
     }
@@ -4305,6 +5094,47 @@
         advice: '条件の優先順位を整理すると、自分に合った物件が見えてくる可能性があります。AIチャットで「何を重視すべきか」から相談してみてください。',
         category: 'はじめての家探し',
       };
+    }
+
+    // ===== カルテ完成・祝福演出（Peak-End Rule） =====
+    function launchKarteCelebration() {
+      const container = document.getElementById('karte-celebration');
+      if (!container) return;
+      // prefers-reduced-motion の場合はスキップ
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const colors = ['#D96941', '#E87B4E', '#C9A35C', '#1F3A70', '#6B8E65', '#FFAB00'];
+      const frag = document.createDocumentFragment();
+
+      // 紙吹雪（24粒）
+      for (let i = 0; i < 24; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti';
+        conf.style.left = Math.random() * 100 + '%';
+        conf.style.background = colors[i % colors.length];
+        conf.style.animationDelay = (Math.random() * 0.6) + 's';
+        conf.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+        const rot = Math.floor(Math.random() * 360);
+        conf.style.transform = `rotate(${rot}deg)`;
+        // 細い長方形パターンをランダムに
+        if (i % 3 === 0) { conf.style.width = '6px'; conf.style.height = '10px'; }
+        if (i % 5 === 0) { conf.style.borderRadius = '50%'; conf.style.width = '8px'; conf.style.height = '8px'; }
+        frag.appendChild(conf);
+      }
+      // キラキラ星（8粒）
+      for (let i = 0; i < 8; i++) {
+        const sp = document.createElement('div');
+        sp.className = 'sparkle';
+        sp.style.left = Math.random() * 100 + '%';
+        sp.style.top = Math.random() * 120 + 'px';
+        sp.style.animationDelay = (0.3 + Math.random() * 1.0) + 's';
+        sp.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z"/></svg>';
+        frag.appendChild(sp);
+      }
+      container.appendChild(frag);
+
+      // 2.5秒後にクリア（メモリ節約）
+      setTimeout(() => { container.innerHTML = ''; }, 3500);
     }
 
     async function loadRecommendedArticles() {
@@ -6780,9 +7610,86 @@
     }
 
     // DOM読み込み後にセットアップ
+    // ===== Cookie同意・法的モーダル制御 =====
+    function openConsentBanner() {
+      const b = document.getElementById('consent-banner');
+      if (b) b.style.display = 'block';
+    }
+    function closeConsentBanner() {
+      const b = document.getElementById('consent-banner');
+      if (b) b.style.display = 'none';
+    }
+    function setConsent(state) {
+      try {
+        localStorage.setItem('muchinavi_consent', state);
+        localStorage.setItem('muchinavi_consent_ts', String(Date.now()));
+      } catch(e){}
+      if (typeof gtag === 'function') {
+        if (state === 'granted') {
+          gtag('consent', 'update', {
+            'analytics_storage': 'granted',
+            'ad_storage': 'granted',
+            'ad_user_data': 'granted',
+            'ad_personalization': 'granted',
+            'personalization_storage': 'granted'
+          });
+          // Clarity Project ID が設定されていれば読み込み
+          if (window.MUCHINAVI_CLARITY_ID && window.MUCHINAVI_CLARITY_ID !== 'PLACEHOLDER') {
+            window.loadClarity(window.MUCHINAVI_CLARITY_ID);
+          }
+        } else {
+          gtag('consent', 'update', {
+            'analytics_storage': 'denied',
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'personalization_storage': 'denied'
+          });
+        }
+      }
+      closeConsentBanner();
+    }
+    function openTokuteiModal() {
+      const m = document.getElementById('tokutei-modal');
+      if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    }
+    function openPrivacyModal() {
+      const m = document.getElementById('privacy-modal');
+      if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    }
+    function closeLegalModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    // 背景クリックで閉じる
+    document.addEventListener('click', function(e) {
+      if (e.target.classList && e.target.classList.contains('legal-modal')) {
+        e.target.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+    // ESCキーで閉じる
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.legal-modal').forEach(m => m.style.display = 'none');
+        document.body.style.overflow = '';
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
       setupChatTextarea('chat-input', sendMessage);
       setupChatTextarea('direct-chat-input', sendDirectMessage);
+
+      // 同意バナー表示判定（未回答の場合のみ表示）
+      try {
+        const saved = localStorage.getItem('muchinavi_consent');
+        if (!saved) {
+          setTimeout(() => openConsentBanner(), 1200);
+        } else if (saved === 'granted' && window.MUCHINAVI_CLARITY_ID && window.MUCHINAVI_CLARITY_ID !== 'PLACEHOLDER') {
+          window.loadClarity(window.MUCHINAVI_CLARITY_ID);
+        }
+      } catch(e){}
 
       // ===== iOS キーボード対応 =====
       // visualViewport APIでキーボード表示時にチャット画面の高さを調整
