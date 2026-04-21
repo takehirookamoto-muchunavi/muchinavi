@@ -28,13 +28,13 @@ echo ""
 echo "===== MuchiNavi 安全デプロイ $(date '+%Y-%m-%d %H:%M:%S %Z') ====="
 echo ""
 
-# ===== 1. ローカル変更の検知と stash =====
+# ===== 1. ローカル変更の検知と stash（tracked の変更のみ。untracked は保護しない）=====
 STASHED=0
-if [ -n "$(git status --porcelain)" ]; then
+if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
   STASH_MSG="safe-pull-auto-$TIMESTAMP"
-  warn "本番ローカル変更を検出。stash 保護します: $STASH_MSG"
-  git status --short | sed 's/^/    /'
-  git stash push -u -m "$STASH_MSG" > /dev/null
+  warn "本番ローカル変更を検出（tracked）。stash 保護します: $STASH_MSG"
+  git status --short | grep -v '^??' | sed 's/^/    /'
+  git stash push -m "$STASH_MSG" > /dev/null
   STASHED=1
   log "stash 完了"
 fi

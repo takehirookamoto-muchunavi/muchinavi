@@ -24,9 +24,13 @@ TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S %Z')"
 
 cd "$REPO_DIR" 2>/dev/null || { echo "[$TIMESTAMP] ERROR: cannot cd $REPO_DIR" >> "$LOG_FILE"; exit 1; }
 
-# ドリフト検知
-STATUS_OUTPUT="$(git status --porcelain 2>/dev/null)"
-
+# ドリフト検知（tracked ファイルの変更のみ。untracked は .env/node_modules 等の通常運用ファイルなので除外）
+if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+  # clean state
+  exit 0
+fi
+# tracked ファイルの modified を取得（?? untracked は含まない）
+STATUS_OUTPUT="$(git status --porcelain 2>/dev/null | grep -v '^??')"
 if [ -z "$STATUS_OUTPUT" ]; then
   exit 0
 fi
