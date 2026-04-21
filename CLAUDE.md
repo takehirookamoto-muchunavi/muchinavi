@@ -12,17 +12,36 @@
 - **ドメイン**: muchinavi.com
 - **GitHub**: https://github.com/takehirookamoto-muchunavi/muchinavi
 
-### デプロイ方法
+### デプロイ方法（推奨: 安全スクリプト）
+```bash
+ssh muchinavi "bash ~/muchinavi/scripts/safe-pull.sh"
+```
+`scripts/safe-pull.sh` が自動化:
+- ローカル変更の auto-stash（タイムスタンプ付き・失われない保証）
+- `git pull --ff-only`
+- stash の内容が新 HEAD に既含なら破棄、差分あれば保持＋警告
+- `pm2 restart all --update-env`
+
+### デプロイ方法（直接コマンド・非推奨）
 ```bash
 ssh muchinavi "cd ~/muchinavi && git pull && export PATH=/opt/bitnami/node/bin:\$PATH && pm2 restart all"
 ```
 ※ 2026-04-21 以降、`server/public/` が単一の配信元になったため **cp 同期は不要**。
+※ 本番直編集があると conflict で止まるので、基本は `safe-pull.sh` を使うこと。
 
 ### ⚠️ 運用ルール（重要）
 - **本番サーバー上で直接ファイル編集しない**（`~/muchinavi/*` の編集は禁止）
-- 変更は必ず **ローカル → コミット → push → PR → merge → `git pull` デプロイ** の順で行う
+- 変更は必ず **ローカル → コミット → push → PR → merge → `safe-pull.sh` デプロイ** の順で行う
 - 本番直編集をすると `git pull` 時に conflict が発生し、変更が失われる事故につながる
 - 緊急時に直編集した場合は即座に `git diff` でローカル差分を記録し、ローカル環境に反映してから commit する
+
+### ドリフト検知（cron 推奨・1回登録）
+本番サーバーで未コミット変更を日次検知。初回のみ cron 登録:
+```bash
+ssh muchinavi "crontab -l 2>/dev/null | { cat; echo '0 9 * * * bash \$HOME/muchinavi/scripts/check-drift.sh'; } | crontab -"
+```
+- ログ出力: `~/muchinavi-drift.log`（変更があった日のみ追記）
+- メール通知（任意）: `DRIFT_NOTIFY_EMAIL=xxx@terass.com` を cron 内で指定すれば mailx 経由で通知
 
 ## 重要ファイル構成（2026-04-21 以降の単一真実）
 ```
