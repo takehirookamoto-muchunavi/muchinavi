@@ -3599,7 +3599,7 @@ app.delete('/api/admin/customer/:token', adminAuth, (req, res) => {
   delete db[req.params.token];
   saveDB(db);
   console.log(`🗑️ 削除: ${name} (${req.params.token.substring(0, 8)}...)`);
-  res.json({ success: true, message: `${nameWithHonorific}のデータを完全に削除しました` });
+  res.json({ success: true, message: `${name || 'お客様'}のデータを完全に削除しました` });
 });
 
 // ===== 管理API: パスワード変更 =====
