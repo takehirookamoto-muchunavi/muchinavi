@@ -90,7 +90,91 @@ if (IS_PRODUCTION && !GEMINI_API_KEY) {
 }
 
 // ===== Slack通知設定 =====
+// 単一Webhookでの後方互換 + チャンネル別Webhookのオプション
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL || '';
+const SLACK_WEBHOOK_REGISTRATION = process.env.SLACK_WEBHOOK_REGISTRATION || SLACK_WEBHOOK_URL;
+const SLACK_WEBHOOK_MESSAGES     = process.env.SLACK_WEBHOOK_MESSAGES     || SLACK_WEBHOOK_URL;
+const SLACK_WEBHOOK_LOGIN        = process.env.SLACK_WEBHOOK_LOGIN        || SLACK_WEBHOOK_URL;
+
+// ===== Slack通知ヘルパー =====
+async function sendSlackNotification(webhookUrl, payload, label = 'slack') {
+  if (!webhookUrl) return;
+  try {
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    console.log(`✅ Slack通知送信完了 [${label}]`);
+  } catch (err) {
+    console.error(`⚠️ Slack通知エラー [${label}]:`, err.message);
+  }
+}
+
+// ===== ログイン通知 判定（パターンB: スマート通知） =====
+// 1. 初回ログイン → 通知
+// 2. 前回から6時間以上空いた → 通知
+// 3. JST 23:00-06:00 の静時間帯 → 送らない
+// 4. 環境変数 LOGIN_NOTIFY_DISABLED=1 で全停止
+function shouldNotifyLogin(record, now = new Date()) {
+  if (process.env.LOGIN_NOTIFY_DISABLED === '1') return { notify: false, reason: 'disabled' };
+  const jstHour = parseInt(now.toLocaleString('en-US', { timeZone: 'Asia/Tokyo', hour: 'numeric', hour12: false }), 10);
+  if (jstHour >= 23 || jstHour < 6) return { notify: false, reason: 'quiet-hours', jstHour };
+  if (!record.lastLoginAt) return { notify: true, reason: 'first-login', hoursSinceLast: null };
+  const hoursSince = (now - new Date(record.lastLoginAt)) / 3600000;
+  if (hoursSince >= 6) return { notify: true, reason: 're-visit', hoursSinceLast: Math.round(hoursSince * 10) / 10 };
+  return { notify: false, reason: 'too-soon', hoursSinceLast: Math.round(hoursSince * 10) / 10 };
+}
+
+async function sendLoginNotification(record, meta) {
+  const nameDisplay = record.name || '(名前未入力)';
+  const jstNow = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+  const reasonLabel = meta.reason === 'first-login' ? '🎉 初回ログイン'
+                    : meta.reason === 're-visit' ? `🔄 ${meta.hoursSinceLast}時間ぶりの再訪`
+                    : 'ログイン';
+  const lastLoginStr = record.lastLoginAt
+    ? new Date(record.lastLoginAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+    : '(初回)';
+
+  // Slack（ログイン専用チャンネル）
+  const payload = {
+    text: `📥 *ログイン* | ${nameDisplay} ${reasonLabel}`,
+    blocks: [
+      { type: 'header', text: { type: 'plain_text', text: `📥 ${nameDisplay}さんがログイン`, emoji: true } },
+      {
+        type: 'section',
+        fields: [
+          { type: 'mrkdwn', text: `*お名前:*\n${nameDisplay}` },
+          { type: 'mrkdwn', text: `*ステータス:*\n${reasonLabel}` },
+          { type: 'mrkdwn', text: `*ログイン時刻:*\n${jstNow}` },
+          { type: 'mrkdwn', text: `*前回ログイン:*\n${lastLoginStr}` },
+          { type: 'mrkdwn', text: `*ステージ:*\n${record.stage || '-'}` },
+          { type: 'mrkdwn', text: `*メール:*\n${record.email || '-'}` },
+        ],
+      },
+      { type: 'context', elements: [{ type: 'mrkdwn', text: `📅 ${jstNow} | MuchiNavi自動通知` }] },
+    ],
+  };
+  sendSlackNotification(SLACK_WEBHOOK_LOGIN, payload, 'login').catch(() => {});
+
+  // メール通知も送る
+  sendNotificationEmail({
+    to: NOTIFY_EMAIL,
+    subject: `📥 ${nameDisplay}さんがログイン（${reasonLabel}）`,
+    html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;">
+      <h2 style="color:#1F3A70;">📥 顧客ログイン通知</h2>
+      <p><strong>${nameDisplay}さん</strong>がログインしました。</p>
+      <table style="border-collapse:collapse;margin:16px 0;">
+        <tr><td style="padding:6px 12px;color:#666;">ステータス</td><td style="padding:6px 12px;"><strong>${reasonLabel}</strong></td></tr>
+        <tr><td style="padding:6px 12px;color:#666;">ログイン時刻</td><td style="padding:6px 12px;">${jstNow}</td></tr>
+        <tr><td style="padding:6px 12px;color:#666;">前回ログイン</td><td style="padding:6px 12px;">${lastLoginStr}</td></tr>
+        <tr><td style="padding:6px 12px;color:#666;">ステージ</td><td style="padding:6px 12px;">${record.stage || '-'}</td></tr>
+        <tr><td style="padding:6px 12px;color:#666;">メール</td><td style="padding:6px 12px;">${record.email || '-'}</td></tr>
+      </table>
+      <a href="${APP_URL}/admin.html" style="display:inline-block;background:#D96941;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;">管理画面を開く</a>
+    </div>`,
+  }).catch(e => console.error('ログイン通知メールエラー:', e.message));
+}
 
 // ===== Perplexity API設定（リアルタイム検索） =====
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || '';
@@ -1155,9 +1239,9 @@ app.post('/api/register', async (req, res) => {
 
   console.log('📩 新規登録:', customer.name || '(名前未入力)', customer.email, '→ トークン:', token);
 
-  // ===== Slack通知（メールとは独立して必ず送信） =====
+  // ===== Slack通知（登録チャンネル・メールとは独立して必ず送信） =====
   try {
-    if (SLACK_WEBHOOK_URL) {
+    if (SLACK_WEBHOOK_REGISTRATION) {
       const slackMessage = {
         text: `${customer.customerType === 'sale' ? '💰' : '🏠'} *新規登録* | ${customer.name || '(名前未入力)'}さん${customer.customerType === 'sale' ? '【売却】' : ''}${customer.diagnosisType ? ' [診断:' + customer.diagnosisType + ']' : ''}`,
         blocks: [
@@ -1207,15 +1291,15 @@ app.post('/api/register', async (req, res) => {
           }
         ]
       };
-      await fetch(SLACK_WEBHOOK_URL, {
+      await fetch(SLACK_WEBHOOK_REGISTRATION, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(slackMessage),
       });
-      console.log('✅ Slack通知送信完了');
+      console.log('✅ Slack通知送信完了 [registration]');
     }
   } catch (slackErr) {
-    console.error('⚠️ Slack通知エラー:', slackErr.message);
+    console.error('⚠️ Slack通知エラー [registration]:', slackErr.message);
   }
 
   // Send emails (non-blocking — registration always succeeds)
@@ -1551,9 +1635,15 @@ app.post('/api/login', (req, res) => {
     return res.status(403).json({ error: 'このアカウントはブロックされています' });
   }
 
+  // ログイン通知判定（前回の lastLoginAt を読んでから更新）
+  const loginMeta = shouldNotifyLogin(record, new Date());
+
   // 最終ログイン時間を記録
   record.lastLoginAt = new Date().toISOString();
   saveDB(db);
+
+  // 通知（非同期・失敗はレスポンスに影響させない）
+  if (loginMeta.notify) sendLoginNotification(record, loginMeta);
 
   // Check password
   if (!record.passwordHash) {
@@ -1611,9 +1701,14 @@ app.get('/api/session/:token', (req, res) => {
     return res.json({ found: false });
   }
 
+  // ログイン通知判定（前回の lastLoginAt を読んでから更新）
+  const loginMeta = shouldNotifyLogin(record, new Date());
+
   // 最終ログイン時間を記録
   record.lastLoginAt = new Date().toISOString();
   saveDB(db);
+
+  if (loginMeta.notify) sendLoginNotification(record, loginMeta);
 
   res.json({
     found: true,
@@ -2250,10 +2345,10 @@ app.post('/api/direct-chat-history/:token', async (req, res) => {
         `,
       }).catch(e => console.error('通知メール送信エラー:', e.message));
 
-      // Slack通知
+      // Slack通知（メッセージ受信チャンネル）
       try {
-        if (SLACK_WEBHOOK_URL) {
-          await fetch(SLACK_WEBHOOK_URL, {
+        if (SLACK_WEBHOOK_MESSAGES) {
+          await fetch(SLACK_WEBHOOK_MESSAGES, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -2286,7 +2381,7 @@ app.post('/api/direct-chat-history/:token', async (req, res) => {
           console.log('✅ チャットSlack通知送信完了');
         }
       } catch (slackErr) {
-        console.error('⚠️ チャットSlack通知エラー:', slackErr.message);
+        console.error('⚠️ Slack通知エラー [messages]:', slackErr.message);
       }
     }
   }
