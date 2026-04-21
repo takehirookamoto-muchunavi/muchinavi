@@ -14,17 +14,26 @@
 
 ### デプロイ方法
 ```bash
-cd ~/muchinavi && git pull && pm2 restart all
+ssh muchinavi "cd ~/muchinavi && git pull && export PATH=/opt/bitnami/node/bin:\$PATH && pm2 restart all"
 ```
+※ 2026-04-21 以降、`server/public/` が単一の配信元になったため **cp 同期は不要**。
 
-## 重要ファイル構成
+### ⚠️ 運用ルール（重要）
+- **本番サーバー上で直接ファイル編集しない**（`~/muchinavi/*` の編集は禁止）
+- 変更は必ず **ローカル → コミット → push → PR → merge → `git pull` デプロイ** の順で行う
+- 本番直編集をすると `git pull` 時に conflict が発生し、変更が失われる事故につながる
+- 緊急時に直編集した場合は即座に `git diff` でローカル差分を記録し、ローカル環境に反映してから commit する
+
+## 重要ファイル構成（2026-04-21 以降の単一真実）
 ```
 muchinavi/
-├── index.html                    ← ルートのコピー（server/public/index.htmlと常に同期）
-├── admin.html                    ← 管理画面コピー（server/public/admin.htmlと常に同期）
-├── CLAUDE.md                     ← このファイル
+├── CLAUDE.md                     ← このファイル（プロジェクト引き継ぎ情報）
+├── ecosystem.config.js           ← PM2 設定（./server/server.js を起動）
+├── package.json                  ← main: "server/server.js"
+├── docs/
+│   └── STRATEGY_*.md             ← 戦略ドキュメント
 ├── server/
-│   ├── server.js                 ← バックエンド（全API + Geminiシステムプロンプト）
+│   ├── server.js                 ← 🎯 バックエンド単一真実（全API + Geminiシステムプロンプト）
 │   ├── data/
 │   │   ├── customers.json        ← 顧客DB（メイン）
 │   │   ├── tags.json             ← タグマスター
@@ -32,12 +41,15 @@ muchinavi/
 │   │   ├── events.json           ← カレンダーイベント
 │   │   ├── processes.json        ← 取引進捗
 │   │   └── settings.json         ← 管理者パスワード
-│   └── public/
+│   └── public/                   ← 🎯 Express express.static 配信先（単一真実）
 │       ├── index.html            ← メインアプリ（HTML/CSS/JS全部入り）
 │       ├── admin.html            ← 管理画面
 │       ├── manifest.json         ← PWA設定
 │       └── sw.js                 ← Service Worker
 ```
+
+**重要な注意**: 以前はルート直下にも `index.html` / `admin.html` / `server.js` のコピーがあったが、
+2026-04-21 に二重管理を解消。現在は **`server/`** 以下のみが真実。
 
 ### 関連リポジトリ
 - **AIエージェントチーム**: `/Users/okamototakehiro/MuchiNavi/muchinavi-agents`

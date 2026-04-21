@@ -4415,8 +4415,8 @@
             else if (customer.hmPartnerId) sourceLabel = 'HMパートナー';
             else sourceLabel = 'MuchiNavi';
 
-            const regDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
-            const lastContact = customer.lastContactDate ? new Date(customer.lastContactDate).toLocaleDateString('ja-JP') : '-';
+            const regDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-';
+            const lastContact = customer.lastContactDate ? new Date(customer.lastContactDate).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-';
 
             const stageColors = ['#e0e0e0','#b0b0b0','#ffa726','#42a5f5','#66bb6a','#ab47bc','#ef5350','#26a69a','#8d6e63'];
             const stageColor = stageColors[Math.min(customer.stage - 1, stageColors.length - 1)] || '#999';
@@ -4492,7 +4492,7 @@
             if (isSale) budgetDisplay = customer.saleDesiredPrice || '-';
             else budgetDisplay = customer.budget ? (customer.budget.toString().includes('万') ? customer.budget : customer.budget + '万円') : '-';
 
-            const regDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
+            const regDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-';
 
             document.getElementById('detailHeader').className = `detail-header ${isSale ? 'sale' : 'purchase'}`;
             document.getElementById('detailHeader').innerHTML = `
@@ -4524,7 +4524,7 @@
                     </div>
                     <div class="detail-metric">
                         <div class="detail-metric-label">最終連絡</div>
-                        <div class="detail-metric-value">${customer.lastContactDate ? new Date(customer.lastContactDate).toLocaleDateString('ja-JP') : '-'}</div>
+                        <div class="detail-metric-value">${customer.lastContactDate ? new Date(customer.lastContactDate).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-'}</div>
                     </div>
                 </div>
             `;
@@ -4590,7 +4590,7 @@
                             <div class="activity-icon">${methodIcons[i.method] || '📋'}</div>
                             <div class="activity-content">
                                 <div class="activity-text">${i.content || ''}</div>
-                                <div class="activity-date">${i.date ? new Date(i.date).toLocaleDateString('ja-JP') : ''}</div>
+                                <div class="activity-date">${i.date ? new Date(i.date).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : ''}</div>
                             </div>
                         </div>
                     `).join('');
@@ -4606,7 +4606,7 @@
                 } else {
                     el.innerHTML = todos.map(t => {
                         const isOverdue = t.deadline && new Date(t.deadline) < new Date();
-                        const deadlineStr = t.deadline ? new Date(t.deadline).toLocaleDateString('ja-JP') : '';
+                        const deadlineStr = t.deadline ? new Date(t.deadline).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '';
                         return `<div class="sidebar-todo-item">
                             <input type="checkbox" class="sidebar-todo-check" onchange="completeSidebarTodo('${t.id}')">
                             <div class="sidebar-todo-text">${t.text}</div>
@@ -5044,7 +5044,7 @@
                 <div class="customer-meta">
                     <span>${customer.customerType === 'sale' ? (customer.salePropertyLocation || '-') : (customer.area || '-')}</span>
                     <span class="contact-days">最終: ${contactLabel}</span>
-                    ${customer.lastLoginAt ? `<span style="font-size:10px;color:#86868b;">ログイン: ${new Date(customer.lastLoginAt).toLocaleDateString('ja-JP', {month:'short', day:'numeric'})}</span>` : ''}
+                    ${customer.lastLoginAt ? `<span style="font-size:10px;color:#86868b;">ログイン: ${new Date(customer.lastLoginAt).toLocaleDateString('ja-JP', {month:'short', day:'numeric', timeZone: 'Asia/Tokyo' })}</span>` : ''}
                     <span class="customer-status ${customer.status === 'blocked' ? 'status-blocked' : customer.status === 'withdrawn' ? 'status-withdrawn' : 'status-active'}">
                         ${customer.status === 'blocked' ? 'ブロック' : customer.status === 'withdrawn' ? '退会' : 'アクティブ'}
                     </span>
@@ -5611,7 +5611,7 @@
             }
 
             const dashboardStageLabels = getStageLabels(customer);
-            const registeredDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP') : '-';
+            const registeredDate = customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-';
             const isSale = customer.customerType === 'sale';
 
             grid.innerHTML = `
@@ -5697,7 +5697,7 @@
                 </div>
                 <div class="info-card">
                     <div class="info-label">最終ログイン</div>
-                    <div class="info-value" style="font-size: 16px;">${customer.lastLoginAt ? new Date(customer.lastLoginAt).toLocaleString('ja-JP', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '未ログイン'}</div>
+                    <div class="info-value" style="font-size: 16px;">${customer.lastLoginAt ? new Date(customer.lastLoginAt).toLocaleString('ja-JP', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', timeZone: 'Asia/Tokyo' }) : '未ログイン'}</div>
                 </div>
                 <div class="info-card">
                     <div class="info-label">ステータス</div>
@@ -5719,7 +5719,7 @@
                 const recentInteractions = interactions.slice(0, 5).reverse();
                 const interactionsHtml = recentInteractions.map(i => `
                     <div class="interaction-item" style="margin-bottom: 8px; padding: 12px; background: var(--glass-light); border-radius: 8px;">
-                        <div class="interaction-date">${new Date(i.date).toLocaleString('ja-JP')}</div>
+                        <div class="interaction-date">${new Date(i.date).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}</div>
                         <span class="interaction-method">${i.method}</span>
                         <div class="interaction-text">${i.content}</div>
                     </div>
@@ -5980,7 +5980,7 @@
             list.innerHTML = interactions.reverse().map(interaction => `
                 <div class="interaction-item">
                     <div class="interaction-content">
-                        <div class="interaction-date">${new Date(interaction.date).toLocaleString('ja-JP')}</div>
+                        <div class="interaction-date">${new Date(interaction.date).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}</div>
                         <span class="interaction-method">${interaction.method}</span>
                         <div class="interaction-text">${interaction.content}</div>
                     </div>
@@ -6264,8 +6264,8 @@
                     .sort((a, b) => a - b);
 
                 if (dates.length > 0) {
-                    const firstDate = new Date(dates[0]).toLocaleDateString('ja-JP');
-                    const lastDate = new Date(dates[dates.length - 1]).toLocaleDateString('ja-JP');
+                    const firstDate = new Date(dates[0]).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' });
+                    const lastDate = new Date(dates[dates.length - 1]).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' });
                     if (firstDate !== lastDate) {
                         document.getElementById('dateRangeInfo').textContent = `${firstDate} - ${lastDate}`;
                     } else {
@@ -6596,7 +6596,7 @@
                 messages.forEach(msg => {
                     const isUser = msg.role === 'user';
                     const isAgent = msg.role === 'agent';
-                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric'}) : '';
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric', timeZone: 'Asia/Tokyo' }) : '';
                     const label = isUser ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> お客様' : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg> あなた';
                     // 管理画面: お客様が左、あなた(岡本)が右
                     const align = isAgent ? 'right' : 'left';
@@ -6627,7 +6627,7 @@
                     let readStatus = '';
                     if (isAgent) {
                         if (msg.readAt) {
-                            const readTime = new Date(msg.readAt).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+                            const readTime = new Date(msg.readAt).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit', timeZone: 'Asia/Tokyo' });
                             readStatus = `<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">既読 ${readTime}</div>`;
                         }
                     }
@@ -6822,7 +6822,7 @@
                 const typeColors = { update: '#34c759', feature: '#007aff', info: '#8e8e93' };
 
                 container.innerHTML = result.map(a => {
-                    const date = new Date(a.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const date = new Date(a.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' , timeZone: 'Asia/Tokyo' });
                     const color = typeColors[a.type] || '#8e8e93';
                     const label = typeLabels[a.type] || 'お知らせ';
 
@@ -7200,7 +7200,7 @@
                     return;
                 }
                 container.innerHTML = broadcasts.map(b => {
-                    const date = new Date(b.sentAt).toLocaleString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const date = new Date(b.sentAt).toLocaleString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' , timeZone: 'Asia/Tokyo' });
                     const filterLabel = {
                         'all': '全員',
                         'include-all': `${(b.filterTags || []).join(' & ')} (AND)`,
@@ -7400,7 +7400,7 @@
             const fbItems = feedback.slice(0, 50).map(fb => {
                 const stars = '★'.repeat(fb.rating) + '☆'.repeat(5 - fb.rating);
                 const starColor = fb.rating >= 4 ? '#34c759' : fb.rating >= 3 ? '#ffb800' : '#ff453a';
-                const date = new Date(fb.createdAt).toLocaleDateString('ja-JP', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                const date = new Date(fb.createdAt).toLocaleDateString('ja-JP', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' , timeZone: 'Asia/Tokyo' });
                 const tags = (fb.tags||[]).map(t => `<span style="display:inline-block;padding:2px 8px;background:rgba(0,113,227,0.1);color:#0071e3;border-radius:10px;font-size:10px;margin:1px;">${t}</span>`).join(' ');
                 return `<div style="padding:12px 0;border-bottom:1px solid var(--border);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
@@ -7744,9 +7744,9 @@
                         ${customer.propertyType ? `<span>${escapeHtml(customer.propertyType)}</span>` : ''}
                     </div>
                     <div class="offer-card-meta">
-                        登録: ${new Date(customer.createdAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'})}
+                        登録: ${new Date(customer.createdAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric', timeZone: 'Asia/Tokyo' })}
                         （${daysAgo}日前）
-                        ${customer.lastInteractionAt ? ` / 最終対応: ${new Date(customer.lastInteractionAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'})}` : ''}
+                        ${customer.lastInteractionAt ? ` / 最終対応: ${new Date(customer.lastInteractionAt).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric', timeZone: 'Asia/Tokyo' })}` : ''}
                     </div>
                     <div class="offer-card-actions">${actions}</div>
                 </div>
@@ -7800,7 +7800,7 @@
                 notesHtml = notes.map(n => `
                     <div class="terass-note-item">
                         <div class="terass-note-time">
-                            ${new Date(n.createdAt).toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+                            ${new Date(n.createdAt).toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit', timeZone: 'Asia/Tokyo' })}
                             <span class="terass-note-type ${n.type}">${n.type === 'auto' ? '自動' : n.type === 'status_change' ? 'ステータス変更' : '手動'}</span>
                         </div>
                         <div class="terass-note-content">${escapeHtml(n.content)}</div>
@@ -7816,9 +7816,9 @@
                     <dl class="terass-detail-grid">
                         <dt>TERASS名</dt><dd>${escapeHtml(customer.name)}</dd>
                         <dt>ニックネーム</dt><dd>${escapeHtml(customer.nickname || '-')}</dd>
-                        <dt>登録日</dt><dd>${new Date(customer.createdAt).toLocaleDateString('ja-JP')}</dd>
+                        <dt>登録日</dt><dd>${new Date(customer.createdAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' })}</dd>
                         <dt>ステータス</dt><dd>${statusLabels[customer.offerStatus] || '-'}</dd>
-                        ${customer.transitionedAt ? `<dt>移行日</dt><dd>${new Date(customer.transitionedAt).toLocaleDateString('ja-JP')}</dd>` : ''}
+                        ${customer.transitionedAt ? `<dt>移行日</dt><dd>${new Date(customer.transitionedAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' })}</dd>` : ''}
                     </dl>
                 </div>
                 <div class="terass-detail-section">
@@ -8022,7 +8022,7 @@
                     listEl.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:8px;">フィードバックがまだありません</div>';
                 } else {
                     listEl.innerHTML = allFb.slice(0, 20).map(fb => {
-                        const date = new Date(fb.createdAt).toLocaleDateString('ja-JP');
+                        const date = new Date(fb.createdAt).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' });
                         if (fb.isNps) {
                             const color = fb.score >= 9 ? '#34c759' : fb.score >= 7 ? '#ff9500' : '#ff3b30';
                             return `<div style="padding:10px 0;border-bottom:1px solid #f5f5f7;">
