@@ -5739,57 +5739,112 @@
     }
 
     // ===== Completion =====
-    function showCompletion() {
+    async function showCompletion() {
       document.getElementById('progress').style.display = 'none';
       const card = document.getElementById('step-card');
       card.classList.add('leaving');
 
-      setTimeout(() => {
-        card.classList.remove('leaving');
-        card.innerHTML = `
-          <div class="completion-check">
-            <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
-          </div>
-          <h2 class="step-title">登録完了！</h2>
-          <p class="step-subtitle">
-            ${customerData.name ? customerData.name + 'さん専用の' : 'あなた専用の'}<br>${customerData.customerType === 'sale' ? '売却サポートAI' : 'AIアシスタント'}が準備できました
+      // Step 1: Show "送信中..." while attempting registration
+      await new Promise(resolve => setTimeout(resolve, 250));
+      card.classList.remove('leaving');
+      card.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+          <h2 class="step-title">登録中...</h2>
+          <p class="step-subtitle">少々お待ちください</p>
+        </div>
+      `;
+
+      // Step 2: Attempt registration via API
+      const registrationSuccess = await notifyAgent();
+
+      // Step 3: Show success or error UI based on result
+      if (!registrationSuccess) {
+        showRegistrationError();
+        return;
+      }
+
+      // Success: render completion UI
+      card.innerHTML = `
+        <div class="completion-check">
+          <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
+        </div>
+        <h2 class="step-title">登録完了！</h2>
+        <p class="step-subtitle">
+          ${customerData.name ? customerData.name + 'さん専用の' : 'あなた専用の'}<br>${customerData.customerType === 'sale' ? '売却サポートAI' : 'AIアシスタント'}が準備できました
+        </p>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-top: 12px; line-height: 1.6;">
+          ✨ あなたに最適な情報をお届けするために、<br>あと<strong>7つだけ</strong>教えてください！<br>
+          <span style="font-size: 12px; color: var(--text-light);">ボタンを選ぶだけ・1分で完了</span>
+        </p>
+        <button class="btn-primary" onclick="startPersonalityQuiz()" style="margin-top: 8px; background: linear-gradient(135deg, #2D8A4F, #1F3A70);">
+          住まい探しタイプを診断する →
+        </button>
+        <button onclick="startChat()" style="margin-top: 8px; background: none; border: none; color: var(--text-light); font-size: 12px; cursor: pointer; text-decoration: underline;">
+          スキップしてチャットを始める
+        </button>
+      `;
+      card.style.animation = 'none';
+      card.offsetHeight;
+      card.style.animation = '';
+
+      // GA4: 登録完了イベント (only fired AFTER successful registration)
+      if (typeof gtag === 'function') {
+        gtag('event', 'registration_complete', {
+          method: 'muchinavi_form',
+          customer_type: customerData.customerType || 'purchase',
+          prefecture: customerData.prefecture || '',
+          property_type: customerData.propertyType || customerData.salePropertyType || '',
+          household_income: customerData.householdIncome || '',
+          diagnosis_type: customerData.diagnosisType || ''
+        });
+      }
+
+      // フォーム途中保存データをクリア（登録完了）
+      clearFormProgress();
+    }
+
+    // ===== Registration Error UI (shown when /api/register fails) =====
+    function showRegistrationError() {
+      const card = document.getElementById('step-card');
+      card.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+          <h2 class="step-title">登録に失敗しました</h2>
+          <p class="step-subtitle" style="margin-bottom: 24px;">
+            通信状態を確認の上、もう一度お試しください
           </p>
-          <p style="font-size: 14px; color: var(--text-secondary); margin-top: 12px; line-height: 1.6;">
-            ✨ あなたに最適な情報をお届けするために、<br>あと<strong>7つだけ</strong>教えてください！<br>
-            <span style="font-size: 12px; color: var(--text-light);">ボタンを選ぶだけ・1分で完了</span>
+          <button class="btn-primary" onclick="retryRegistration()">
+            もう一度送信する
+          </button>
+          <p style="font-size: 12px; color: var(--text-light); margin-top: 16px; line-height: 1.6;">
+            繰り返し失敗する場合はお手数ですが<br>
+            <a href="mailto:takehiro.okamoto@terass.com" style="color: var(--text-light);">takehiro.okamoto@terass.com</a> までご連絡ください
           </p>
-          <button class="btn-primary" onclick="startPersonalityQuiz()" style="margin-top: 8px; background: linear-gradient(135deg, #2D8A4F, #1F3A70);">
-            住まい探しタイプを診断する →
-          </button>
-          <button onclick="startChat()" style="margin-top: 8px; background: none; border: none; color: var(--text-light); font-size: 12px; cursor: pointer; text-decoration: underline;">
-            スキップしてチャットを始める
-          </button>
-        `;
-        card.style.animation = 'none';
-        card.offsetHeight;
-        card.style.animation = '';
+        </div>
+      `;
+    }
 
-        // GA4: 登録完了イベント
-        if (typeof gtag === 'function') {
-          gtag('event', 'registration_complete', {
-            method: 'muchinavi_form',
-            customer_type: customerData.customerType || 'purchase',
-            prefecture: customerData.prefecture || '',
-            property_type: customerData.propertyType || customerData.salePropertyType || '',
-            household_income: customerData.householdIncome || '',
-            diagnosis_type: customerData.diagnosisType || ''
-          });
-        }
-
-        // フォーム途中保存データをクリア（登録完了）
-        clearFormProgress();
-
-        // Send notification to agent
-        notifyAgent();
-      }, 250);
+    // ===== Retry registration (called from error UI button) =====
+    async function retryRegistration() {
+      const card = document.getElementById('step-card');
+      card.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+          <h2 class="step-title">再送信中...</h2>
+        </div>
+      `;
+      const success = await notifyAgent();
+      if (success) {
+        // Re-trigger completion flow (will show success UI)
+        showCompletion();
+      } else {
+        showRegistrationError();
+      }
     }
 
     // ===== Notify Agent & Save =====
+    // Returns true on success, false on failure (for caller to show appropriate UI)
     async function notifyAgent() {
       try {
         // HM紹介コードがあればregistrationデータに含める
@@ -5802,6 +5857,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(registrationData),
         });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = await res.json();
         if (data.token) {
           sessionToken = data.token;
@@ -5810,9 +5868,12 @@
           history.replaceState(null, '', `?t=${sessionToken}`);
           // HM紹介コードをクリア（登録完了）
           sessionStorage.removeItem('muchinavi_hm_ref');
+          return true;
         }
+        return false;
       } catch (e) {
         console.error('通知送信エラー:', e);
+        return false;
       }
     }
 

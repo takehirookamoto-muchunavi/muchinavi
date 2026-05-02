@@ -532,7 +532,10 @@ function loadDB() {
 }
 
 function saveDB(db) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+  // Atomic write: temp file + rename. Prevents corrupted DB on crash mid-write.
+  const tmpFile = DB_FILE + '.tmp';
+  fs.writeFileSync(tmpFile, JSON.stringify(db, null, 2), 'utf-8');
+  fs.renameSync(tmpFile, DB_FILE);
 }
 
 // ===== Tags Database =====
@@ -1136,6 +1139,12 @@ app.post('/api/recommend-articles', (req, res) => {
 // ===== Customer Registration → Save + Email =====
 app.post('/api/register', async (req, res) => {
   const customer = req.body;
+
+  // Basic validation: email is required for follow-up
+  if (!customer.email || typeof customer.email !== 'string' || !customer.email.includes('@')) {
+    return res.status(400).json({ error: '有効なメールアドレスが必要です', success: false });
+  }
+
   const token = generateToken();
 
   // Hash password and remove plain password
