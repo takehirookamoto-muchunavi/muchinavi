@@ -13,6 +13,7 @@ export type Bindings = {
   ANTHROPIC_MODEL_ESCALATION: string;
   ENVIRONMENT: string;
   INTERVENTION_TURN_LIMIT: string;
+  TIMEREX_URL: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();

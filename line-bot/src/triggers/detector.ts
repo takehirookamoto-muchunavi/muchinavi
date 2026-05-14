@@ -4,7 +4,9 @@ export type TriggerType =
   | 'price_inquiry'
   | 'urgency'
   | 'complaint'
-  | 'law_question';
+  | 'law_question'
+  | 'low_confidence'
+  | 'turn_limit';
 
 export type Trigger = {
   type: TriggerType;
@@ -65,6 +67,18 @@ const TRIGGER_PATTERNS: { type: TriggerType; patterns: RegExp[] }[] = [
     type: 'law_question',
     patterns: [/重要事項/, /手付/, /違約金/, /瑕疵/, /契約解除/, /訴訟/, /法律/, /宅建/],
   },
+  {
+    type: 'low_confidence',
+    patterns: [
+      /意味.*わからない/,
+      /何の話/,
+      /話.*噛み合わない/,
+      /わかりにくい/,
+      /もう少しわかりやすく/,
+      /ちゃんと答え/,
+      /答えになってない/,
+    ],
+  },
 ];
 
 export function detectTriggers(text: string): Trigger[] {
@@ -82,4 +96,30 @@ export function detectTriggers(text: string): Trigger[] {
     }
   }
   return triggered;
+}
+
+/**
+ * 会話履歴ベースのトリガー検出。
+ * - turn_limit: ユーザー発言が turnLimit を超えても深掘り情報が揃わない場合
+ * - 履歴ベースの判定はキーワード検出と並走させる
+ */
+export function detectHistoryTriggers(
+  history: { role: string; message: string }[],
+  turnLimit: number
+): Trigger[] {
+  const triggers: Trigger[] = [];
+
+  const userTurns = history.filter((h) => h.role === 'user').length;
+  if (userTurns >= turnLimit) {
+    const last = history.filter((h) => h.role === 'user').slice(-1)[0];
+    triggers.push({
+      type: 'turn_limit',
+      matched: `${userTurns}往復経過`,
+    });
+    if (last) {
+      triggers[triggers.length - 1].matched += `（直近発言: ${last.message.slice(0, 30)}...）`;
+    }
+  }
+
+  return triggers;
 }

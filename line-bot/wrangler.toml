@@ -17,3 +17,6 @@ ANTHROPIC_MODEL_DEFAULT = "claude-haiku-4-5-20251001"
 ANTHROPIC_MODEL_ESCALATION = "claude-opus-4-7"
 ENVIRONMENT = "development"
 INTERVENTION_TURN_LIMIT = "5"
+# TimeRex 予約ページURL（公開で問題ないため vars で管理）
+# 例: https://timerex.net/s/okamoto/xxxxxxxx
+TIMEREX_URL = ""

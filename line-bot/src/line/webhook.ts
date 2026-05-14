@@ -3,7 +3,7 @@ import type { Bindings } from '../index';
 import { LineClient } from './client';
 import { ClaudeClient } from '../llm/claude';
 import { SupabaseDb } from '../db/client';
-import { detectTriggers } from '../triggers/detector';
+import { detectTriggers, detectHistoryTriggers, type Trigger } from '../triggers/detector';
 import { notifySlack } from '../notify/slack';
 import { notifyOkamoto } from '../notify/line';
 import { buildSystemPrompt } from '../llm/prompts/system';
@@ -110,7 +110,15 @@ async function processSingleEvent(event: LineEvent, deps: Deps) {
 
   await db.saveConversation(customer.id, 'user', userMessage);
 
-  const triggers = detectTriggers(userMessage);
+  const history = await db.getRecentConversation(customer.id, 20);
+
+  // キーワードベース介入トリガー + 履歴ベース turn_limit
+  const turnLimit = Number.parseInt(env.INTERVENTION_TURN_LIMIT || '5', 10);
+  const triggers: Trigger[] = [
+    ...detectTriggers(userMessage),
+    ...detectHistoryTriggers(history, turnLimit),
+  ];
+
   if (triggers.length > 0) {
     for (const trigger of triggers) {
       await db.saveTrigger(customer.id, trigger.type, trigger.matched);
@@ -133,9 +141,7 @@ async function processSingleEvent(event: LineEvent, deps: Deps) {
     return;
   }
 
-  const history = await db.getRecentConversation(customer.id, 20);
-
-  const systemPrompt = buildSystemPrompt(customer);
+  const systemPrompt = buildSystemPrompt(customer, { timerexUrl: env.TIMEREX_URL });
   const reply = await claude.respond({
     model: env.ANTHROPIC_MODEL_DEFAULT,
     systemPrompt,
