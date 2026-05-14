@@ -11,7 +11,7 @@
     "secret:set": "echo 'Use: wrangler secret put SECRET_NAME'"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.0",
+    "@anthropic-ai/sdk": "^0.96.0",
     "@supabase/supabase-js": "^2.45.0",
     "hono": "^4.6.0"
   },
