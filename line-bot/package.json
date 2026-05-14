@@ -1,0 +1,23 @@
+{
+  "name": "muchinavi-line-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MuchiNavi LINE Bot - AI hearing & property suggestion via LINE Messaging API (Phase 0 prototype)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "secret:set": "echo 'Use: wrangler secret put SECRET_NAME'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.96.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^3.95.0"
+  }
+}
